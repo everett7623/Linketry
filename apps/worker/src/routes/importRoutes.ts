@@ -154,72 +154,89 @@ importRoutes.post('/confirm', async (c) => {
   let failedCount = 0;
   const reportRows: string[] = ['slug,status,reason'];
 
-  for (const item of items) {
-    const validation = adapter.validate(item);
-    if (!validation.valid) {
-      failedCount++;
-      reportRows.push(`${item.slug},failed,"${validation.errors.join('; ')}"`);
-      continue;
+  try {
+    for (const item of items) {
+      const validation = adapter.validate(item);
+      if (!validation.valid) {
+        failedCount++;
+        reportRows.push(`${item.slug},failed,"${validation.errors.join('; ')}"`);
+        continue;
+      }
+
+      const existing = await getLinkBySlug(c.env, item.slug);
+      if (existing) {
+        conflictCount++;
+        skippedCount++;
+        reportRows.push(`${item.slug},skipped,slug already exists`);
+        continue;
+      }
+
+      try {
+        const tagsStr = item.tags && item.tags.length > 0 ? JSON.stringify(item.tags) : null;
+        const id = generateId();
+        const linkTs = item.createdAt ?? ts;
+
+        await createLink(c.env, {
+          id,
+          slug: item.slug,
+          domain,
+          long_url: item.longUrl,
+          short_url: item.shortUrl ?? `https://${domain}/${item.slug}`,
+          title: item.title ?? null,
+          description: item.description ?? null,
+          tags: tagsStr,
+          status: 'active',
+          redirect_type: 302,
+          clicks: item.clicks ?? 0,
+          source: item.source ?? adapter.source,
+          source_id: item.sourceId ?? null,
+          created_at: linkTs,
+          updated_at: linkTs,
+          last_clicked_at: item.lastClickedAt ?? null,
+          expires_at: null,
+          max_clicks: null,
+          password_hash: null,
+          warning_enabled: 0,
+          fallback_url: null,
+          archived: 0,
+        });
+
+        // Write to KV cache
+        const cacheEntry: KVCacheEntry = {
+          id,
+          slug: item.slug,
+          domain,
+          longUrl: item.longUrl,
+          redirectType: 302,
+          status: 'active',
+          expiresAt: undefined,
+          maxClicks: undefined,
+          warningEnabled: false,
+        };
+        await setCachedLink(c.env, domain, cacheEntry);
+
+        successCount++;
+        reportRows.push(`${item.slug},success,`);
+      } catch (err) {
+        failedCount++;
+        reportRows.push(`${item.slug},failed,"${String(err)}"`);
+      }
     }
-
-    const existing = await getLinkBySlug(c.env, item.slug);
-    if (existing) {
-      conflictCount++;
-      skippedCount++;
-      reportRows.push(`${item.slug},skipped,slug already exists`);
-      continue;
-    }
-
-    try {
-      const tagsStr = item.tags && item.tags.length > 0 ? JSON.stringify(item.tags) : null;
-      const id = generateId();
-      const linkTs = item.createdAt ?? ts;
-
-      await createLink(c.env, {
-        id,
-        slug: item.slug,
-        domain,
-        long_url: item.longUrl,
-        short_url: item.shortUrl ?? `https://${domain}/${item.slug}`,
-        title: item.title ?? null,
-        description: item.description ?? null,
-        tags: tagsStr,
-        status: 'active',
-        redirect_type: 302,
-        clicks: item.clicks ?? 0,
-        source: item.source ?? adapter.source,
-        source_id: item.sourceId ?? null,
-        created_at: linkTs,
-        updated_at: linkTs,
-        last_clicked_at: item.lastClickedAt ?? null,
-        expires_at: null,
-        max_clicks: null,
-        password_hash: null,
-        warning_enabled: 0,
-        fallback_url: null,
-        archived: 0,
-      });
-
-      // Write to KV cache
-      const cacheEntry: KVCacheEntry = {
-        id,
-        slug: item.slug,
-        domain,
-        longUrl: item.longUrl,
-        redirectType: 302,
-        status: 'active',
-        expiresAt: undefined,
-        maxClicks: undefined,
-        warningEnabled: false,
-      };
-      await setCachedLink(c.env, domain, cacheEntry);
-
-      successCount++;
-      reportRows.push(`${item.slug},success,`);
-    } catch (err) {
-      failedCount++;
-      reportRows.push(`${item.slug},failed,"${String(err)}"`);
-    }
+  } catch (err) {
+    // An unexpected failure (e.g. DB outage) must not leave the job stuck in
+    // 'processing' forever. Record it as failed and surface the error.
+    console.error('Import job failed:', err);
+    reportRows.push(`,failed,"import aborted: ${String(err)}"`);
+    await updateImportJob(c.env, jobId, {
+      success_count: successCount,
+      skipped_count: skippedCount,
+      conflict_count: conflictCount,
+      failed_count: failedCount,
+      status: 'failed',
+      report: reportRows.join('\n'),
+      completed_at: now(),
+    });
+    return jsonError('Import failed while processing items', 500);
   }
 
   const completedAt = now();

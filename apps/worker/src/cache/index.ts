@@ -16,7 +16,8 @@ export async function getCachedLink(
     const key = kvKey(domain, slug);
     const value = await env.KV.get(key, 'json');
     return (value as KVCacheEntry | null) ?? null;
-  } catch {
+  } catch (err) {
+    console.error(`KV get failed for ${kvKey(domain, slug)}:`, err);
     return null;
   }
 }
@@ -25,8 +26,9 @@ export async function setCachedLink(env: Env, domain: string, entry: KVCacheEntr
   try {
     const key = kvKey(domain, entry.slug);
     await env.KV.put(key, JSON.stringify(entry), { expirationTtl: KV_TTL });
-  } catch {
-    // Cache errors must not affect redirects
+  } catch (err) {
+    // Cache errors must not affect redirects, but should still be observable.
+    console.error(`KV put failed for ${kvKey(domain, entry.slug)}:`, err);
   }
 }
 
@@ -34,7 +36,8 @@ export async function deleteCachedLink(env: Env, domain: string, slug: string): 
   try {
     const key = kvKey(domain, slug);
     await env.KV.delete(key);
-  } catch {
-    // Ignore cache errors
+  } catch (err) {
+    // Ignore cache errors for the caller, but keep them observable.
+    console.error(`KV delete failed for ${kvKey(domain, slug)}:`, err);
   }
 }

@@ -4,6 +4,7 @@ import { requireAuth } from '../auth/index';
 import {
   listLinks,
   getLinkById,
+  getLinkBySlug,
   createLink,
   updateLink,
   deleteLink,
@@ -75,7 +76,7 @@ links.post('/', async (c) => {
     slug = generateSlug(6);
     // Ensure uniqueness (simple retry)
     for (let i = 0; i < 5; i++) {
-      const existing = await getLinkById(c.env, slug);
+      const existing = await getLinkBySlug(c.env, slug);
       if (!existing) break;
       slug = generateSlug(6);
     }
@@ -84,7 +85,6 @@ links.post('/', async (c) => {
     if (!slugValidation.valid) return jsonError(slugValidation.error!, 400);
 
     // Check uniqueness
-    const { getLinkBySlug } = await import('../db/index');
     const existing = await getLinkBySlug(c.env, slug);
     if (existing) return jsonError(`Slug "${slug}" is already in use`, 409);
   }
@@ -179,7 +179,6 @@ links.put('/:id', async (c) => {
   if (body.slug !== undefined && body.slug !== existing.slug) {
     const slugValidation = validateSlug(body.slug);
     if (!slugValidation.valid) return jsonError(slugValidation.error!, 400);
-    const { getLinkBySlug } = await import('../db/index');
     const conflict = await getLinkBySlug(c.env, body.slug);
     if (conflict && conflict.id !== id) return jsonError(`Slug "${body.slug}" is already in use`, 409);
     fields.slug = body.slug;

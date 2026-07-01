@@ -90,7 +90,9 @@ export async function recordVisit(
       warningEnabled: link.warning_enabled === 1,
     };
     await setCachedLink(env, domain, cacheEntry);
-  } catch {
-    // Statistics must never affect redirect
+  } catch (err) {
+    // Statistics must never affect the redirect, but the failure should still
+    // be logged so silently-dropped visits are diagnosable.
+    console.error(`Failed to record visit for slug "${link.slug}":`, err);
   }
 }

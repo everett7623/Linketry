@@ -8,6 +8,9 @@ import type { KVCacheEntry } from '@linkora/shared';
 
 export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Response> {
   const slug = c.req.param('slug');
+  if (!slug) {
+    return notFound('The short link you are looking for does not exist.');
+  }
   const domain = new URL(c.req.url).hostname;
 
   // Try KV cache first
@@ -60,11 +63,18 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
     return new Response(null, { status: 302, headers: { Location: '/' } });
   }
 
-  // Async stats from KV hit
-  const link = await getLinkBySlug(c.env, slug);
-  if (link) {
-    c.executionCtx.waitUntil(recordVisit(c.env, link, c.req.raw, domain));
-  }
+  // Async stats from KV hit. The DB lookup here is stats-only, so it must never
+  // block or break a redirect that can already be served from the cache entry.
+  c.executionCtx.waitUntil(
+    (async () => {
+      try {
+        const link = await getLinkBySlug(c.env, slug);
+        if (link) await recordVisit(c.env, link, c.req.raw, domain);
+      } catch (err) {
+        console.error('Failed to record visit for cached redirect:', err);
+      }
+    })()
+  );
 
   return new Response(null, {
     status: cached.redirectType,

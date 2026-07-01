@@ -10,7 +10,7 @@ import exportRoutes from './routes/export';
 import importRoutes from './routes/importRoutes';
 import { getOverviewStats } from './db/index';
 import { requireAuth } from './auth/index';
-import { jsonOk } from './utils/response';
+import { jsonOk, jsonError, notFound } from './utils/response';
 
 const RESERVED_PATHS = new Set([
   'admin', 'api', 'health', 'login', 'settings',
@@ -73,6 +73,28 @@ app.get('/:slug', async (c) => {
 // Root
 app.get('/', (c) => {
   return jsonOk({ name: 'Linkora', version: c.env.LINKORA_VERSION ?? '0.1.0', status: 'ok' });
+});
+
+// Unmatched API routes return a structured JSON 404 instead of Hono's default plaintext.
+app.notFound((c) => {
+  if (c.req.path.startsWith('/api/')) {
+    return jsonError('Not Found', 404);
+  }
+  return notFound('The page you are looking for does not exist.');
+});
+
+// Global error handler: unexpected errors thrown from any route (e.g. D1/KV
+// failures) are surfaced as a structured API response rather than Hono's
+// default plaintext 500, which the admin client cannot parse.
+app.onError((err, c) => {
+  console.error('Unhandled error:', err);
+  if (c.req.path.startsWith('/api/')) {
+    return jsonError('Internal server error', 500);
+  }
+  return new Response('Internal Server Error', {
+    status: 500,
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+  });
 });
 
 export default app;
