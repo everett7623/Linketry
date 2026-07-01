@@ -1,8 +1,8 @@
-import type { Link, KVCacheEntry } from '@linkora/shared';
+import type { Link } from '@linkora/shared';
 import type { Env } from '../types';
 import { generateId, now, sha256 } from '../utils/id';
 import { incrementClicks, insertVisit } from '../db/index';
-import { setCachedLink } from '../cache/index';
+import { setCachedLink, linkToCacheEntry } from '../cache/index';
 
 const BOT_UA_PATTERNS = [
   /bot/i, /crawler/i, /spider/i, /scraper/i, /curl/i,
@@ -78,18 +78,7 @@ export async function recordVisit(
     ]);
 
     // Update KV cache with fresh click count
-    const cacheEntry: KVCacheEntry = {
-      id: link.id,
-      slug: link.slug,
-      domain: link.domain ?? undefined,
-      longUrl: link.long_url,
-      redirectType: (link.redirect_type as 301 | 302),
-      status: link.status,
-      expiresAt: link.expires_at ?? undefined,
-      maxClicks: link.max_clicks ?? undefined,
-      warningEnabled: link.warning_enabled === 1,
-    };
-    await setCachedLink(env, domain, cacheEntry);
+    await setCachedLink(env, domain, linkToCacheEntry(link));
   } catch {
     // Statistics must never affect redirect
   }

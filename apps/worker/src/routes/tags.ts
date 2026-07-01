@@ -1,17 +1,13 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
-import { requireAuth } from '../auth/index';
+import { authMiddleware } from '../auth/index';
 import { getAllTags, createTag, deleteTag } from '../db/index';
-import { jsonOk, jsonError, jsonCreated } from '../utils/response';
+import { jsonOk, jsonError, jsonCreated, parseJsonBody } from '../utils/response';
 import { generateId, now } from '../utils/id';
 
 const tags = new Hono<{ Bindings: Env }>();
 
-tags.use('*', async (c, next) => {
-  const authError = requireAuth(c);
-  if (authError) return authError;
-  await next();
-});
+tags.use('*', authMiddleware);
 
 tags.get('/', async (c) => {
   const allTags = await getAllTags(c.env);
@@ -19,12 +15,8 @@ tags.get('/', async (c) => {
 });
 
 tags.post('/', async (c) => {
-  let body: { name?: string; color?: string; description?: string };
-  try {
-    body = await c.req.json();
-  } catch {
-    return jsonError('Invalid JSON body', 400);
-  }
+  const body = await parseJsonBody<{ name?: string; color?: string; description?: string }>(c);
+  if (body instanceof Response) return body;
 
   if (!body.name?.trim()) return jsonError('name is required', 400);
 

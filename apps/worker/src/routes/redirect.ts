@@ -1,10 +1,9 @@
 import type { Context } from 'hono';
 import type { Env } from '../types';
-import { getCachedLink, setCachedLink } from '../cache/index';
+import { getCachedLink, setCachedLink, linkToCacheEntry } from '../cache/index';
 import { getLinkBySlug } from '../db/index';
 import { recordVisit } from '../analytics/index';
 import { notFound, disabledPage } from '../utils/response';
-import type { KVCacheEntry } from '@linkora/shared';
 
 export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Response> {
   const slug = c.req.param('slug');
@@ -20,17 +19,7 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
       return notFound('The short link you are looking for does not exist.');
     }
 
-    cached = {
-      id: link.id,
-      slug: link.slug,
-      domain: link.domain ?? undefined,
-      longUrl: link.long_url,
-      redirectType: link.redirect_type as 301 | 302,
-      status: link.status,
-      expiresAt: link.expires_at ?? undefined,
-      maxClicks: link.max_clicks ?? undefined,
-      warningEnabled: link.warning_enabled === 1,
-    } satisfies KVCacheEntry;
+    cached = linkToCacheEntry(link);
 
     // Populate cache for future requests
     await setCachedLink(c.env, domain, cached);

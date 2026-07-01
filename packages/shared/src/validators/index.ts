@@ -1,3 +1,5 @@
+import type { ImportValidationResult, NormalizedImportItem } from '../types/index';
+
 const RESERVED_SLUGS = new Set([
   'admin',
   'api',
@@ -53,4 +55,13 @@ export function validateLongUrl(url: string): { valid: boolean; error?: string }
 
 export function isReservedSlug(slug: string): boolean {
   return RESERVED_SLUGS.has(slug.toLowerCase());
+}
+
+export function validateImportItem(item: NormalizedImportItem): ImportValidationResult {
+  const errors: string[] = [];
+  const slugResult = validateSlug(item.slug);
+  if (!slugResult.valid) errors.push(`Invalid slug: ${slugResult.error}`);
+  const urlResult = validateLongUrl(item.longUrl);
+  if (!urlResult.valid) errors.push(`Invalid URL: ${urlResult.error}`);
+  return { valid: errors.length === 0, errors };
 }

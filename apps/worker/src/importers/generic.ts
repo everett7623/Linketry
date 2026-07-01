@@ -1,5 +1,6 @@
-import type { ImportAdapter, NormalizedImportItem, ImportValidationResult } from '@linkora/shared';
-import { validateSlug, validateLongUrl } from '@linkora/shared';
+import type { ImportAdapter, NormalizedImportItem } from '@linkora/shared';
+import { validateImportItem } from '@linkora/shared';
+import { parseCsvRows } from '../utils/csv';
 
 interface GenericRow {
   slug?: string;
@@ -63,22 +64,7 @@ function normalizeGenericRow(row: GenericRow): NormalizedImportItem {
 }
 
 function parseGenericCsv(input: string): NormalizedImportItem[] {
-  const lines = input.split('\n').filter((l) => l.trim().length > 0);
-  if (lines.length < 2) return [];
-
-  const headers = lines[0].split(',').map((h) => h.trim().replace(/^"|"$/g, '').toLowerCase());
-  const items: NormalizedImportItem[] = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(',').map((c) => c.trim().replace(/^"|"$/g, ''));
-    const row: GenericRow = {};
-    headers.forEach((h, idx) => {
-      (row as Record<string, unknown>)[h] = cols[idx] ?? '';
-    });
-    items.push(normalizeGenericRow(row));
-  }
-
-  return items;
+  return parseCsvRows(input, { lowercaseHeaders: true }).map((row) => normalizeGenericRow(row as GenericRow));
 }
 
 export const GenericCsvAdapter: ImportAdapter = {
@@ -95,14 +81,7 @@ export const GenericCsvAdapter: ImportAdapter = {
     return parseGenericCsv(input);
   },
 
-  validate(item: NormalizedImportItem): ImportValidationResult {
-    const errors: string[] = [];
-    const slugResult = validateSlug(item.slug);
-    if (!slugResult.valid) errors.push(`Invalid slug: ${slugResult.error}`);
-    const urlResult = validateLongUrl(item.longUrl);
-    if (!urlResult.valid) errors.push(`Invalid URL: ${urlResult.error}`);
-    return { valid: errors.length === 0, errors };
-  },
+  validate: validateImportItem,
 };
 
 export const GenericJsonAdapter: ImportAdapter = {
@@ -149,12 +128,5 @@ export const GenericJsonAdapter: ImportAdapter = {
     return items.map(normalizeGenericRow);
   },
 
-  validate(item: NormalizedImportItem): ImportValidationResult {
-    const errors: string[] = [];
-    const slugResult = validateSlug(item.slug);
-    if (!slugResult.valid) errors.push(`Invalid slug: ${slugResult.error}`);
-    const urlResult = validateLongUrl(item.longUrl);
-    if (!urlResult.valid) errors.push(`Invalid URL: ${urlResult.error}`);
-    return { valid: errors.length === 0, errors };
-  },
+  validate: validateImportItem,
 };

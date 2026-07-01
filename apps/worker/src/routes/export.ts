@@ -1,16 +1,12 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
-import { requireAuth } from '../auth/index';
+import { authMiddleware } from '../auth/index';
 import { getAllLinks, getAllTags, getSettings } from '../db/index';
 import type { Link } from '@linkora/shared';
 
 const exportRoutes = new Hono<{ Bindings: Env }>();
 
-exportRoutes.use('*', async (c, next) => {
-  const authError = requireAuth(c);
-  if (authError) return authError;
-  await next();
-});
+exportRoutes.use('*', authMiddleware);
 
 exportRoutes.get('/links.csv', async (c) => {
   const links = await getAllLinks(c.env);

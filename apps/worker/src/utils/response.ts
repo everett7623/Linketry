@@ -1,4 +1,6 @@
 import type { ApiResponse } from '@linkora/shared';
+import type { Context } from 'hono';
+import type { Env } from '../types';
 
 export function jsonOk<T>(data: T, status = 200): Response {
   const body: ApiResponse<T> = { success: true, data };
@@ -18,6 +20,14 @@ export function jsonError(error: string, status = 400): Response {
 
 export function jsonCreated<T>(data: T): Response {
   return jsonOk(data, 201);
+}
+
+export async function parseJsonBody<T>(c: Context<{ Bindings: Env }>): Promise<T | Response> {
+  try {
+    return await c.req.json<T>();
+  } catch {
+    return jsonError('Invalid JSON body', 400);
+  }
 }
 
 export function notFound(message = 'Not Found'): Response {

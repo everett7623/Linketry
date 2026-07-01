@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
-import { requireAuth } from '../auth/index';
+import { authMiddleware } from '../auth/index';
 import {
   listLinks,
   getLinkById,
@@ -8,20 +8,16 @@ import {
   updateLink,
   deleteLink,
 } from '../db/index';
-import { setCachedLink, deleteCachedLink } from '../cache/index';
-import { jsonOk, jsonError, jsonCreated } from '../utils/response';
+import { setCachedLink, deleteCachedLink, linkToCacheEntry } from '../cache/index';
+import { jsonOk, jsonError, jsonCreated, parseJsonBody } from '../utils/response';
+import { normalizeTags } from '../utils/tags';
 import { generateId, now } from '../utils/id';
 import { validateSlug, validateLongUrl } from '@linkora/shared';
-import type { Link, KVCacheEntry } from '@linkora/shared';
+import type { Link } from '@linkora/shared';
 
 const links = new Hono<{ Bindings: Env }>();
 
-// Auth middleware
-links.use('*', async (c, next) => {
-  const authError = requireAuth(c);
-  if (authError) return authError;
-  await next();
-});
+links.use('*', authMiddleware);
 
 // GET /api/links
 links.get('/', async (c) => {
@@ -54,12 +50,8 @@ links.get('/', async (c) => {
 
 // POST /api/links
 links.post('/', async (c) => {
-  let body: Partial<Link> & { tags?: string | string[] };
-  try {
-    body = await c.req.json();
-  } catch {
-    return jsonError('Invalid JSON body', 400);
-  }
+  const body = await parseJsonBody<Partial<Link> & { tags?: string | string[] }>(c);
+  if (body instanceof Response) return body;
 
   const { long_url, slug: rawSlug, title, description, redirect_type, status, source } = body;
 
@@ -97,9 +89,7 @@ links.post('/', async (c) => {
 
   let tagsStr: string | null = null;
   if (body.tags) {
-    const tagsArr = Array.isArray(body.tags)
-      ? body.tags
-      : String(body.tags).split(',').map((t) => t.trim()).filter(Boolean);
+    const tagsArr = normalizeTags(body.tags);
     tagsStr = JSON.stringify(tagsArr);
   }
 
@@ -131,18 +121,7 @@ links.post('/', async (c) => {
   await createLink(c.env, link);
 
   // Write to KV
-  const cacheEntry: KVCacheEntry = {
-    id: link.id,
-    slug: link.slug,
-    domain: link.domain,
-    longUrl: link.long_url,
-    redirectType: link.redirect_type,
-    status: link.status,
-    expiresAt: link.expires_at ?? undefined,
-    maxClicks: link.max_clicks ?? undefined,
-    warningEnabled: false,
-  };
-  await setCachedLink(c.env, domain, cacheEntry);
+  await setCachedLink(c.env, domain, linkToCacheEntry(link));
 
   return jsonCreated(link);
 });
@@ -160,12 +139,8 @@ links.put('/:id', async (c) => {
   const existing = await getLinkById(c.env, id);
   if (!existing) return jsonError('Link not found', 404);
 
-  let body: Partial<Link> & { tags?: string | string[] };
-  try {
-    body = await c.req.json();
-  } catch {
-    return jsonError('Invalid JSON body', 400);
-  }
+  const body = await parseJsonBody<Partial<Link> & { tags?: string | string[] }>(c);
+  if (body instanceof Response) return body;
 
   const fields: Partial<Link> = {};
   const domain = new URL(c.req.url).hostname;
@@ -193,9 +168,7 @@ links.put('/:id', async (c) => {
   if (body.redirect_type !== undefined) fields.redirect_type = body.redirect_type;
 
   if (body.tags !== undefined) {
-    const tagsArr = Array.isArray(body.tags)
-      ? body.tags
-      : String(body.tags).split(',').map((t) => t.trim()).filter(Boolean);
+    const tagsArr = normalizeTags(body.tags);
     fields.tags = JSON.stringify(tagsArr);
   }
 
@@ -206,18 +179,7 @@ links.put('/:id', async (c) => {
   // Refresh KV
   const updated = await getLinkById(c.env, id);
   if (updated) {
-    const cacheEntry: KVCacheEntry = {
-      id: updated.id,
-      slug: updated.slug,
-      domain: updated.domain ?? undefined,
-      longUrl: updated.long_url,
-      redirectType: updated.redirect_type,
-      status: updated.status,
-      expiresAt: updated.expires_at ?? undefined,
-      maxClicks: updated.max_clicks ?? undefined,
-      warningEnabled: updated.warning_enabled === 1,
-    };
-    await setCachedLink(c.env, domain, cacheEntry);
+    await setCachedLink(c.env, domain, linkToCacheEntry(updated));
   }
 
   return jsonOk(updated);
@@ -259,18 +221,7 @@ links.post('/:id/enable', async (c) => {
   const domain = new URL(c.req.url).hostname;
   await updateLink(c.env, id, { status: 'active', updated_at: now() });
 
-  const cacheEntry: KVCacheEntry = {
-    id: existing.id,
-    slug: existing.slug,
-    domain: existing.domain ?? undefined,
-    longUrl: existing.long_url,
-    redirectType: existing.redirect_type,
-    status: 'active',
-    expiresAt: existing.expires_at ?? undefined,
-    maxClicks: existing.max_clicks ?? undefined,
-    warningEnabled: existing.warning_enabled === 1,
-  };
-  await setCachedLink(c.env, domain, cacheEntry);
+  await setCachedLink(c.env, domain, linkToCacheEntry({ ...existing, status: 'active' }));
 
   return jsonOk({ message: 'Link enabled' });
 });
@@ -297,18 +248,7 @@ links.post('/:id/restore', async (c) => {
   const domain = new URL(c.req.url).hostname;
   await updateLink(c.env, id, { archived: 0, status: 'active', updated_at: now() });
 
-  const cacheEntry: KVCacheEntry = {
-    id: existing.id,
-    slug: existing.slug,
-    domain: existing.domain ?? undefined,
-    longUrl: existing.long_url,
-    redirectType: existing.redirect_type,
-    status: 'active',
-    expiresAt: existing.expires_at ?? undefined,
-    maxClicks: existing.max_clicks ?? undefined,
-    warningEnabled: existing.warning_enabled === 1,
-  };
-  await setCachedLink(c.env, domain, cacheEntry);
+  await setCachedLink(c.env, domain, linkToCacheEntry({ ...existing, status: 'active' }));
 
   return jsonOk({ message: 'Link restored' });
 });

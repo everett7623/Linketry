@@ -1,4 +1,5 @@
 import type { KVCacheEntry } from '@linkora/shared';
+import type { Link } from '@linkora/shared';
 import type { Env } from '../types';
 
 const KV_TTL = 60 * 60 * 24; // 24 hours
@@ -37,4 +38,18 @@ export async function deleteCachedLink(env: Env, domain: string, slug: string): 
   } catch {
     // Ignore cache errors
   }
+}
+
+export function linkToCacheEntry(link: Link): KVCacheEntry {
+  return {
+    id: link.id,
+    slug: link.slug,
+    domain: link.domain ?? undefined,
+    longUrl: link.long_url,
+    redirectType: link.redirect_type,
+    status: link.status,
+    expiresAt: link.expires_at ?? undefined,
+    maxClicks: link.max_clicks ?? undefined,
+    warningEnabled: link.warning_enabled === 1,
+  };
 }

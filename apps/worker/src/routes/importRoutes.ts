@@ -1,21 +1,17 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
-import { requireAuth } from '../auth/index';
+import { authMiddleware } from '../auth/index';
 import { getLinkBySlug, createLink, createImportJob, updateImportJob, getImportJobs, getImportJobById } from '../db/index';
-import { setCachedLink } from '../cache/index';
-import { jsonOk, jsonError, jsonCreated } from '../utils/response';
+import { setCachedLink, linkToCacheEntry } from '../cache/index';
+import { jsonOk, jsonError, parseJsonBody } from '../utils/response';
 import { generateId, now } from '../utils/id';
 import { ShlinkAdapter } from '../importers/shlink';
 import { GenericCsvAdapter, GenericJsonAdapter } from '../importers/generic';
-import type { NormalizedImportItem, ImportAdapter, KVCacheEntry } from '@linkora/shared';
+import type { NormalizedImportItem, ImportAdapter, Link } from '@linkora/shared';
 
 const importRoutes = new Hono<{ Bindings: Env }>();
 
-importRoutes.use('*', async (c, next) => {
-  const authError = requireAuth(c);
-  if (authError) return authError;
-  await next();
-});
+importRoutes.use('*', authMiddleware);
 
 const ADAPTERS: ImportAdapter[] = [ShlinkAdapter, GenericCsvAdapter, GenericJsonAdapter];
 
@@ -79,12 +75,8 @@ async function previewItems(
 
 // POST /api/import/preview
 importRoutes.post('/preview', async (c) => {
-  let body: { content?: string; source?: string };
-  try {
-    body = await c.req.json();
-  } catch {
-    return jsonError('Invalid JSON body', 400);
-  }
+  const body = await parseJsonBody<{ content?: string; source?: string }>(c);
+  if (body instanceof Response) return body;
 
   const { content, source } = body;
   if (!content) return jsonError('content is required', 400);
@@ -107,12 +99,8 @@ importRoutes.post('/preview', async (c) => {
 
 // POST /api/import/confirm
 importRoutes.post('/confirm', async (c) => {
-  let body: { content?: string; source?: string; filename?: string };
-  try {
-    body = await c.req.json();
-  } catch {
-    return jsonError('Invalid JSON body', 400);
-  }
+  const body = await parseJsonBody<{ content?: string; source?: string; filename?: string }>(c);
+  if (body instanceof Response) return body;
 
   const { content, source, filename } = body;
   if (!content) return jsonError('content is required', 400);
@@ -175,7 +163,7 @@ importRoutes.post('/confirm', async (c) => {
       const id = generateId();
       const linkTs = item.createdAt ?? ts;
 
-      await createLink(c.env, {
+      const link: Link = {
         id,
         slug: item.slug,
         domain,
@@ -198,21 +186,12 @@ importRoutes.post('/confirm', async (c) => {
         warning_enabled: 0,
         fallback_url: null,
         archived: 0,
-      });
+      };
+
+      await createLink(c.env, link);
 
       // Write to KV cache
-      const cacheEntry: KVCacheEntry = {
-        id,
-        slug: item.slug,
-        domain,
-        longUrl: item.longUrl,
-        redirectType: 302,
-        status: 'active',
-        expiresAt: undefined,
-        maxClicks: undefined,
-        warningEnabled: false,
-      };
-      await setCachedLink(c.env, domain, cacheEntry);
+      await setCachedLink(c.env, domain, linkToCacheEntry(link));
 
       successCount++;
       reportRows.push(`${item.slug},success,`);

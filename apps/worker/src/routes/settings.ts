@@ -1,17 +1,13 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
-import { requireAuth } from '../auth/index';
+import { authMiddleware } from '../auth/index';
 import { getSettings, setSetting } from '../db/index';
-import { jsonOk, jsonError } from '../utils/response';
+import { jsonOk, jsonError, parseJsonBody } from '../utils/response';
 import { now } from '../utils/id';
 
 const settings = new Hono<{ Bindings: Env }>();
 
-settings.use('*', async (c, next) => {
-  const authError = requireAuth(c);
-  if (authError) return authError;
-  await next();
-});
+settings.use('*', authMiddleware);
 
 settings.get('/', async (c) => {
   const allSettings = await getSettings(c.env);
@@ -19,12 +15,8 @@ settings.get('/', async (c) => {
 });
 
 settings.put('/', async (c) => {
-  let body: Record<string, string>;
-  try {
-    body = await c.req.json();
-  } catch {
-    return jsonError('Invalid JSON body', 400);
-  }
+  const body = await parseJsonBody<Record<string, string>>(c);
+  if (body instanceof Response) return body;
 
   const ts = now();
   const updates: Promise<void>[] = [];

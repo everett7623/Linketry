@@ -1,4 +1,4 @@
-import type { Context } from 'hono';
+import type { Context, Next } from 'hono';
 import type { Env } from '../types';
 
 export function requireAuth(c: Context<{ Bindings: Env }>): Response | null {
@@ -28,4 +28,10 @@ export function isAuthenticated(c: Context<{ Bindings: Env }>): boolean {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
   const token = authHeader.slice(7);
   return !!c.env.ADMIN_TOKEN && token === c.env.ADMIN_TOKEN;
+}
+
+export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
+  const authError = requireAuth(c);
+  if (authError) return authError;
+  await next();
 }
