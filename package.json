@@ -12,9 +12,13 @@
     "build:admin": "npm run build --workspace=apps/admin",
     "deploy:worker": "npm run deploy --workspace=apps/worker",
     "db:migrate:local": "npm run db:migrate:local --workspace=apps/worker",
-    "db:migrate:remote": "npm run db:migrate:remote --workspace=apps/worker"
+    "db:migrate:remote": "npm run db:migrate:remote --workspace=apps/worker",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.8",
+    "vitest": "^2.1.8",
     "typescript": "^5.4.5",
     "prettier": "^3.3.3",
     "eslint": "^9.8.0"

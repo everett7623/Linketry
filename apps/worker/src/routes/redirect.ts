@@ -7,7 +7,7 @@ import { notFound, disabledPage } from '../utils/response';
 import type { KVCacheEntry } from '@linkora/shared';
 
 export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Response> {
-  const slug = c.req.param('slug');
+  const slug = c.req.param('slug') ?? '';
   const domain = new URL(c.req.url).hostname;
 
   // Try KV cache first
