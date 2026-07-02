@@ -9,6 +9,7 @@ import CreateLinkPage from './pages/CreateLinkPage';
 import ImportExportPage from './pages/ImportExportPage';
 import TagsPage from './pages/TagsPage';
 import SettingsPage from './pages/SettingsPage';
+import AuditLogsPage from './pages/AuditLogsPage';
 
 interface AuthContextType {
   authenticated: boolean;
@@ -75,6 +76,7 @@ export default function App() {
             <Route path="import-export" element={<ImportExportPage />} />
             <Route path="tags" element={<TagsPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="audit-logs" element={<AuditLogsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

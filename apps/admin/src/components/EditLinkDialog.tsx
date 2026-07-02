@@ -9,6 +9,17 @@ interface Props {
   onSaved: () => void;
 }
 
+function isoToLocalDatetime(iso: string | null | undefined): string {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } catch {
+    return '';
+  }
+}
+
 export default function EditLinkDialog({ link, onClose, onSaved }: Props) {
   const [longUrl, setLongUrl] = useState(link.long_url);
   const [slug, setSlug] = useState(link.slug);
@@ -17,6 +28,8 @@ export default function EditLinkDialog({ link, onClose, onSaved }: Props) {
   const [tags, setTags] = useState(parseTags(link.tags).join(', '));
   const [redirectType, setRedirectType] = useState<number>(link.redirect_type);
   const [status, setStatus] = useState(link.status);
+  const [expiresAt, setExpiresAt] = useState(isoToLocalDatetime(link.expires_at));
+  const [maxClicks, setMaxClicks] = useState(link.max_clicks != null ? String(link.max_clicks) : '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -34,6 +47,8 @@ export default function EditLinkDialog({ link, onClose, onSaved }: Props) {
         tags: tagsArr.length > 0 ? tagsArr : [],
         redirect_type: redirectType,
         status,
+        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null,
+        max_clicks: maxClicks ? parseInt(maxClicks, 10) : null,
       });
       onSaved();
     } catch (err) {
@@ -52,7 +67,7 @@ export default function EditLinkDialog({ link, onClose, onSaved }: Props) {
             <X className="h-5 w-5" />
           </button>
         </div>
-        <form onSubmit={handleSave} className="space-y-4 px-5 py-4">
+        <form onSubmit={handleSave} className="max-h-[70vh] overflow-y-auto space-y-4 px-5 py-4 scrollbar-thin">
           <Field label="Long URL" value={longUrl} onChange={setLongUrl} required />
           <Field label="Slug" value={slug} onChange={setSlug} required />
           <Field label="Title" value={title} onChange={setTitle} />
@@ -80,6 +95,30 @@ export default function EditLinkDialog({ link, onClose, onSaved }: Props) {
                 <option value="active">Active</option>
                 <option value="disabled">Disabled</option>
               </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300">Expires At</label>
+              <input
+                type="datetime-local"
+                value={expiresAt}
+                onChange={(e) => setExpiresAt(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white focus:border-brand-500 focus:outline-none [color-scheme:dark]"
+              />
+              <p className="mt-1 text-xs text-slate-500">Leave empty for no expiration</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300">Max Clicks</label>
+              <input
+                type="number"
+                value={maxClicks}
+                onChange={(e) => setMaxClicks(e.target.value)}
+                placeholder="Unlimited"
+                min="1"
+                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none"
+              />
+              <p className="mt-1 text-xs text-slate-500">Leave empty for unlimited</p>
             </div>
           </div>
           {error && <p className="text-sm text-red-400">{error}</p>}

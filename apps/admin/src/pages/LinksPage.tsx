@@ -5,6 +5,7 @@ import type { Link as LinkType, PaginatedResult } from '@linkora/shared';
 import {
   Search, Plus, Copy, Pencil, Trash2, Ban, CheckCircle,
   Archive, ArchiveRestore, ExternalLink, ChevronLeft, ChevronRight,
+  Tags, XCircle,
 } from 'lucide-react';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
@@ -26,6 +27,10 @@ export default function LinksPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [editingLink, setEditingLink] = useState<LinkType | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkTagInput, setBulkTagInput] = useState('');
+  const [showBulkTagInput, setShowBulkTagInput] = useState(false);
 
   const keyword = searchParams.get('keyword') ?? '';
   const status = searchParams.get('status') ?? '';
@@ -56,6 +61,7 @@ export default function LinksPage() {
   }, [keyword, status, tag, sort, page]);
 
   useEffect(() => { fetchLinks(); }, [fetchLinks]);
+  useEffect(() => { setSelectedIds(new Set()); }, [links]);
 
   function setParam(key: string, value: string) {
     const next = new URLSearchParams(searchParams);
@@ -83,6 +89,64 @@ export default function LinksPage() {
     const url = link.short_url ?? `/${link.slug}`;
     navigator.clipboard.writeText(url).catch(() => {});
   }
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (selectedIds.size === links.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(links.map((l) => l.id)));
+    }
+  }
+
+  async function handleBulkAction(action: string) {
+    if (selectedIds.size === 0) return;
+    const ids = Array.from(selectedIds);
+
+    if (action === 'bulk-delete') {
+      if (!confirm(`Delete ${ids.length} link(s) permanently?`)) return;
+    }
+
+    setBulkLoading(true);
+    try {
+      await apiPost(`/api/links/${action}`, { ids });
+      setSelectedIds(new Set());
+      fetchLinks();
+    } catch {
+      alert('Bulk action failed');
+    } finally {
+      setBulkLoading(false);
+    }
+  }
+
+  async function handleBulkTag() {
+    if (selectedIds.size === 0 || !bulkTagInput.trim()) return;
+    const ids = Array.from(selectedIds);
+    const tags = bulkTagInput.split(',').map((t) => t.trim()).filter(Boolean);
+
+    setBulkLoading(true);
+    try {
+      await apiPost('/api/links/bulk-tag', { ids, tags, mode: 'add' });
+      setSelectedIds(new Set());
+      setShowBulkTagInput(false);
+      setBulkTagInput('');
+      fetchLinks();
+    } catch {
+      alert('Bulk tag failed');
+    } finally {
+      setBulkLoading(false);
+    }
+  }
+
+  const hasSelection = selectedIds.size > 0;
 
   return (
     <div className="space-y-4">
@@ -131,6 +195,70 @@ export default function LinksPage() {
         </select>
       </div>
 
+      {/* Bulk Actions Toolbar */}
+      {hasSelection && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-brand-600/30 bg-brand-600/10 px-4 py-2.5">
+          <span className="text-sm font-medium text-brand-300">{selectedIds.size} selected</span>
+          <div className="mx-2 h-4 w-px bg-slate-700" />
+          <BulkBtn
+            icon={<Ban className="h-3.5 w-3.5" />}
+            label="Disable"
+            onClick={() => handleBulkAction('bulk-disable')}
+            disabled={bulkLoading}
+          />
+          <BulkBtn
+            icon={<CheckCircle className="h-3.5 w-3.5" />}
+            label="Enable"
+            onClick={() => handleBulkAction('bulk-enable')}
+            disabled={bulkLoading}
+          />
+          <BulkBtn
+            icon={<Archive className="h-3.5 w-3.5" />}
+            label="Archive"
+            onClick={() => handleBulkAction('bulk-archive')}
+            disabled={bulkLoading}
+          />
+          <BulkBtn
+            icon={<Tags className="h-3.5 w-3.5" />}
+            label="Tag"
+            onClick={() => setShowBulkTagInput(!showBulkTagInput)}
+            disabled={bulkLoading}
+          />
+          <BulkBtn
+            icon={<Trash2 className="h-3.5 w-3.5 text-red-400" />}
+            label="Delete"
+            onClick={() => handleBulkAction('bulk-delete')}
+            disabled={bulkLoading}
+            className="text-red-400 hover:bg-red-500/20"
+          />
+          <BulkBtn
+            icon={<XCircle className="h-3.5 w-3.5" />}
+            label="Clear"
+            onClick={() => setSelectedIds(new Set())}
+            disabled={bulkLoading}
+          />
+          {showBulkTagInput && (
+            <div className="flex items-center gap-2 ml-2">
+              <input
+                type="text"
+                value={bulkTagInput}
+                onChange={(e) => setBulkTagInput(e.target.value)}
+                placeholder="tag1, tag2"
+                className="rounded-lg border border-slate-600 bg-slate-800 px-2 py-1 text-sm text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none"
+                onKeyDown={(e) => { if (e.key === 'Enter') handleBulkTag(); }}
+              />
+              <button
+                onClick={handleBulkTag}
+                disabled={bulkLoading || !bulkTagInput.trim()}
+                className="rounded-lg bg-brand-600 px-2 py-1 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+              >
+                Apply
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Table */}
       <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900">
         {loading ? (
@@ -143,6 +271,14 @@ export default function LinksPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-slate-800 text-xs font-medium uppercase text-slate-500">
+                <th className="px-3 py-3 w-8">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.size === links.length && links.length > 0}
+                    onChange={toggleSelectAll}
+                    className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-800 text-brand-600 focus:ring-brand-500"
+                  />
+                </th>
                 <th className="px-4 py-3">Short URL</th>
                 <th className="px-4 py-3">Long URL</th>
                 <th className="px-4 py-3">Title</th>
@@ -159,6 +295,8 @@ export default function LinksPage() {
                 <LinkRow
                   key={link.id}
                   link={link}
+                  selected={selectedIds.has(link.id)}
+                  onToggleSelect={() => toggleSelect(link.id)}
                   onCopy={() => copyShortUrl(link)}
                   onAction={(a) => handleAction(link.id, a)}
                   onEdit={() => setEditingLink(link)}
@@ -214,11 +352,15 @@ const STATUS_COLORS: Record<string, string> = {
 
 function LinkRow({
   link,
+  selected,
+  onToggleSelect,
   onCopy,
   onAction,
   onEdit,
 }: {
   link: LinkType;
+  selected: boolean;
+  onToggleSelect: () => void;
   onCopy: () => void;
   onAction: (action: string) => void;
   onEdit: () => void;
@@ -226,7 +368,15 @@ function LinkRow({
   const tags = parseTags(link.tags);
 
   return (
-    <tr className="hover:bg-slate-800/50">
+    <tr className={clsx('hover:bg-slate-800/50', selected && 'bg-brand-600/5')}>
+      <td className="px-3 py-3">
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={onToggleSelect}
+          className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-800 text-brand-600 focus:ring-brand-500"
+        />
+      </td>
       <td className="whitespace-nowrap px-4 py-3">
         <div className="flex items-center gap-1.5">
           <span className="font-medium text-brand-400">/{link.slug}</span>
@@ -280,6 +430,34 @@ function LinkRow({
         </div>
       </td>
     </tr>
+  );
+}
+
+function BulkBtn({
+  icon,
+  label,
+  onClick,
+  disabled,
+  className,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  className?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={clsx(
+        'flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-300 hover:bg-slate-700/50 disabled:opacity-50',
+        className
+      )}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }
 

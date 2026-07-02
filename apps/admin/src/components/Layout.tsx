@@ -8,6 +8,7 @@ import {
   Tags,
   Settings,
   LogOut,
+  ScrollText,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { to: '/import-export', icon: ArrowLeftRight, label: 'Import / Export', end: true },
   { to: '/tags', icon: Tags, label: 'Tags', end: true },
   { to: '/settings', icon: Settings, label: 'Settings', end: true },
+  { to: '/audit-logs', icon: ScrollText, label: 'Audit Logs', end: true },
 ];
 
 export default function Layout() {

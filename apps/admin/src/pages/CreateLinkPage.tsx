@@ -11,6 +11,8 @@ export default function CreateLinkPage() {
   const [tags, setTags] = useState('');
   const [redirectType, setRedirectType] = useState<number>(302);
   const [status, setStatus] = useState<string>('active');
+  const [expiresAt, setExpiresAt] = useState('');
+  const [maxClicks, setMaxClicks] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,6 +29,8 @@ export default function CreateLinkPage() {
         tags: tagsArr.length > 0 ? tagsArr : undefined,
         redirect_type: redirectType,
         status,
+        expires_at: expiresAt ? new Date(expiresAt).toISOString() : undefined,
+        max_clicks: maxClicks ? parseInt(maxClicks, 10) : undefined,
       });
       navigate('/links');
     } catch (err) {
@@ -105,6 +109,30 @@ export default function CreateLinkPage() {
               <option value="active">Active</option>
               <option value="disabled">Disabled</option>
             </select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300">Expires At</label>
+            <input
+              type="datetime-local"
+              value={expiresAt}
+              onChange={(e) => setExpiresAt(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white focus:border-brand-500 focus:outline-none [color-scheme:dark]"
+            />
+            <p className="mt-1 text-xs text-slate-500">Leave empty for no expiration</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300">Max Clicks</label>
+            <input
+              type="number"
+              value={maxClicks}
+              onChange={(e) => setMaxClicks(e.target.value)}
+              placeholder="Unlimited"
+              min="1"
+              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none"
+            />
+            <p className="mt-1 text-xs text-slate-500">Leave empty for unlimited</p>
           </div>
         </div>
         {error && <p className="text-sm text-red-400">{error}</p>}
