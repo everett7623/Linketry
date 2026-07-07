@@ -106,6 +106,7 @@ _(none currently)_
 - [x] `src/pages/EditLink.tsx`
 - [x] `src/pages/ImportExport.tsx`
 - [x] `src/pages/Settings.tsx`
+- [x] `src/pages/Tags.tsx`
 
 ### Documentation
 - [x] `README.md`
@@ -113,6 +114,14 @@ _(none currently)_
 - [x] `CUTOVER_S_Y8O_DE.md`
 - [x] `AGENTS.md`
 - [x] `DEVELOPMENT_GUIDE.md`
+- [x] `docs/DEPLOYMENT.md`
+- [x] `docs/IMPORT_SHLINK.md`
+- [x] `docs/IMPORT_ADAPTERS.md`
+- [x] `docs/MIGRATION_FROM_SHLINK.md`
+- [x] `docs/BACKUP_AND_RESTORE.md`
+- [x] `docs/API.md`
+- [x] `docs/ROADMAP.md`
+- [x] `docs/SECURITY.md`
 - [x] `TASKS.md`
 - [x] `PROGRESS.md`
 - [x] `CHANGELOG.md`
@@ -127,7 +136,10 @@ _(none currently)_
 - [x] Local E2E: create link, redirect, async click increment, disable page, delete then 404
 - [x] Local KV direct test: create writes KV, disable clears KV, enable rewrites KV, delete clears KV
 - [x] Local export test: `links.csv`, `links.json`, and `backup.json`
+- [x] Local visits export test: `visits.csv`
 - [x] Local Shlink import test: preview, confirm, duplicate slug conflict skip
+- [x] Admin import confirm downloads a pre-import `backup.json` before mutating data
+- [x] Local Tags API smoke test: create, update, list, delete
 - [x] Local Admin browser check: login flow reaches Overview
 - [x] Local Admin browser check: Overview stats load
 - [x] Production smoke test: create, list/search, edit, disable, enable, archive, restore, delete
@@ -152,7 +164,7 @@ _(none currently)_
 - [ ] Password-protected links
 - [ ] Safety warning page
 - [ ] UTM parameter templates
-- [ ] Tags management page
+- [x] Tags management page
 - [ ] Sink importer adapter
 - [ ] YOURLS importer adapter
 - [ ] Dub importer adapter

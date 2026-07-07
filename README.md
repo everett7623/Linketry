@@ -12,11 +12,11 @@ A lightweight, stable, self-hosted short link system built on Cloudflare Workers
 - 🔒 Admin panel with token authentication
 - 🔗 Create, edit, disable, archive, and delete short links
 - 🔍 Search by slug, URL, title; filter by tag and status
-- 🏷️ Tag support
+- 🏷️ Tag support and tag management
 - 📊 Basic click count tracking
 - 📥 Import from Shlink (JSON / JSONL / CSV) with preview + conflict detection
 - 📥 Import from generic CSV / JSON
-- 📤 Export links as CSV / JSON / full backup
+- 📤 Export links as CSV / JSON, visits as CSV, and full backups
 - ⚙️ System settings
 - 🏥 Health check endpoint (`/health`)
 

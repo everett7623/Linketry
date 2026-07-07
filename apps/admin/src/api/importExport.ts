@@ -47,6 +47,11 @@ export function downloadImportReport(id: string, date: string): Promise<void> {
   return downloadFile(`/api/import/jobs/${id}/report.csv`, `import-report-${date}.csv`);
 }
 
+function timestampForFilename(): string {
+  const iso = new Date().toISOString();
+  return `${iso.slice(0, 10)}-${iso.slice(11, 19).replace(/:/g, '')}`;
+}
+
 export function exportLinksCSV(): Promise<void> {
   const today = new Date().toISOString().slice(0, 10);
   return downloadFile('/api/export/links.csv', `linkora-links-${today}.csv`);
@@ -57,7 +62,15 @@ export function exportLinksJSON(): Promise<void> {
   return downloadFile('/api/export/links.json', `linkora-links-${today}.json`);
 }
 
-export function exportBackup(): Promise<void> {
+export function exportVisitsCSV(): Promise<void> {
   const today = new Date().toISOString().slice(0, 10);
-  return downloadFile('/api/export/backup.json', `linkora-backup-${today}.json`);
+  return downloadFile('/api/export/visits.csv', `linkora-visits-${today}.csv`);
+}
+
+export function exportBackup(filename = `linkora-backup-${timestampForFilename()}.json`): Promise<void> {
+  return downloadFile('/api/export/backup.json', filename);
+}
+
+export function exportPreImportBackup(): Promise<void> {
+  return exportBackup(`linkora-pre-import-backup-${timestampForFilename()}.json`);
 }

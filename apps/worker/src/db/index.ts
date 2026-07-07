@@ -1,4 +1,4 @@
-import type { Link, Tag, ImportJob, Setting } from '@linkora/shared';
+import type { Link, Tag, ImportJob, Setting, Visit } from '@linkora/shared';
 import type { Env } from '../types';
 
 export async function getLinkBySlug(env: Env, slug: string): Promise<Link | null> {
@@ -281,9 +281,19 @@ export async function getAllLinks(env: Env): Promise<Link[]> {
   return result.results ?? [];
 }
 
+export async function getAllVisits(env: Env): Promise<Visit[]> {
+  const result = await env.DB.prepare('SELECT * FROM visits ORDER BY created_at DESC').all<Visit>();
+  return result.results ?? [];
+}
+
 export async function getAllTags(env: Env): Promise<Tag[]> {
   const result = await env.DB.prepare('SELECT * FROM tags ORDER BY name ASC').all<Tag>();
   return result.results ?? [];
+}
+
+export async function getTagById(env: Env, id: string): Promise<Tag | null> {
+  const result = await env.DB.prepare('SELECT * FROM tags WHERE id = ? LIMIT 1').bind(id).first<Tag>();
+  return result ?? null;
 }
 
 export async function getTagByName(env: Env, name: string): Promise<Tag | null> {
@@ -296,6 +306,14 @@ export async function createTag(env: Env, tag: Tag): Promise<void> {
     'INSERT INTO tags (id, name, color, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
   )
     .bind(tag.id, tag.name, tag.color ?? null, tag.description ?? null, tag.created_at, tag.updated_at)
+    .run();
+}
+
+export async function updateTag(env: Env, id: string, fields: Pick<Tag, 'name' | 'color' | 'description' | 'updated_at'>): Promise<void> {
+  await env.DB.prepare(
+    'UPDATE tags SET name = ?, color = ?, description = ?, updated_at = ? WHERE id = ?'
+  )
+    .bind(fields.name, fields.color ?? null, fields.description ?? null, fields.updated_at, id)
     .run();
 }
 

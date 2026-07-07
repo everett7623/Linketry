@@ -13,7 +13,7 @@ Last updated: 2026-07-07
 | Worker backend  | ✅ Code complete | Local type-check passing; deployed on Cloudflare Workers |
 | Admin frontend  | ✅ Code complete | Production build passing; deployed on `admin.y8o.de` |
 | Database schema | ✅ Complete      | Local and production D1 migrations applied      |
-| Documentation   | ✅ Complete      | README, DEPLOYMENT, CUTOVER, AGENTS, GUIDE, TASKS, PROGRESS, CHANGELOG |
+| Documentation   | ✅ Complete      | README, root runbooks, and `docs/` reference set |
 | Deployment      | ✅ Deployed      | Worker on `go.y8o.de`, Admin on `admin.y8o.de` |
 | End-to-end test | ✅ V1 passed | Production Worker, Admin auth, Links CRUD, Settings, Import/Export, and Shlink import passed |
 
@@ -48,14 +48,17 @@ Last updated: 2026-07-07
 | `POST   /api/links/:id/enable`    | ✅    | ✅     |
 | `POST   /api/links/:id/archive`   | ✅    | ✅     |
 | `POST   /api/links/:id/restore`   | ✅    | ✅     |
-| `GET    /api/tags`                | ✅    | ⏳     |
-| `POST   /api/tags`                | ✅    | ⏳     |
-| `DELETE /api/tags/:id`            | ✅    | ⏳     |
+| `GET    /api/tags`                | ✅    | ✅     |
+| `POST   /api/tags`                | ✅    | ✅     |
+| `PUT    /api/tags/:id`            | ✅    | ✅     |
+| `DELETE /api/tags/:id`            | ✅    | ✅     |
 | `GET    /api/settings`            | ✅    | ✅     |
 | `PUT    /api/settings`            | ✅    | ✅     |
 | `GET    /api/export/links.csv`    | ✅    | ✅     |
 | `GET    /api/export/links.json`   | ✅    | ✅     |
 | `GET    /api/export/backup.json`  | ✅    | ✅     |
+| `GET    /api/export/visits.csv`   | ✅    | ✅     |
+| Pre-import backup download         | ✅    | ⏳     |
 | `POST   /api/import/preview`      | ✅    | ✅     |
 | `POST   /api/import/confirm`      | ✅    | ✅     |
 | `GET    /api/import/jobs`         | ✅    | ✅     |
@@ -81,6 +84,7 @@ Last updated: 2026-07-07
 | Edit Link       | ✅    | ✅     |
 | Import / Export | ✅    | ✅     |
 | Settings        | ✅    | ✅     |
+| Tags            | ✅    | ⏳     |
 
 ---
 
@@ -131,3 +135,5 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Bulk tag assignment | ✅ Done | Links table supports multi-select add, replace, remove, and clear tag modes |
 | Expiry / max clicks | ✅ Done | Create/Edit forms support `expires_at` and `max_clicks`; redirects return expired page when limits are reached |
 | Auto-fetch page title | ✅ Done | Create/Edit forms can fetch the target page title through an authenticated Worker metadata endpoint |
+| Visits CSV export | ✅ Done | `/api/export/visits.csv` and Admin download button added; local API smoke test passed |
+| Tags management page | ✅ Done | Admin page supports tag create, edit, search, color, description, and delete |

@@ -10,7 +10,10 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
-- Nothing yet pending for V1.1
+- Admin import confirmation now downloads a pre-import `backup.json` before mutating link data.
+- Visits can now be exported from `GET /api/export/visits.csv` and the Admin Import / Export page.
+- Added the `docs/` reference set for deployment, imports, migration, backup, API, roadmap, and security.
+- Added `PUT /api/tags/:id` and a Tags management page with color and description editing.
 
 ---
 

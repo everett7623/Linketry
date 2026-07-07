@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
-import { getAllLinks, getAllTags, getSettings } from '../db/index';
-import type { Link } from '@linkora/shared';
+import { getAllLinks, getAllTags, getAllVisits, getSettings } from '../db/index';
+import type { Link, Visit } from '@linkora/shared';
 
 const exportRoutes = new Hono<{ Bindings: Env }>();
 
@@ -53,6 +53,34 @@ exportRoutes.get('/links.json', async (c) => {
   });
 });
 
+exportRoutes.get('/visits.csv', async (c) => {
+  const visits = await getAllVisits(c.env);
+  const header = 'id,link_id,slug,domain,referer,country,user_agent,browser,os,device_type,ip_hash,is_bot,created_at\r\n';
+  const rows = visits.map((v: Visit) => [
+    csv(v.id),
+    csv(v.link_id),
+    csv(v.slug),
+    csv(v.domain),
+    csv(v.referer),
+    csv(v.country),
+    csv(v.user_agent),
+    csv(v.browser),
+    csv(v.os),
+    csv(v.device_type),
+    csv(v.ip_hash),
+    csv(v.is_bot),
+    csv(v.created_at),
+  ].join(','));
+
+  const today = new Date().toISOString().slice(0, 10);
+  return new Response(header + rows.join('\r\n'), {
+    headers: {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="linkora-visits-${today}.csv"`,
+    },
+  });
+});
+
 exportRoutes.get('/backup.json', async (c) => {
   const [links, tags, settings] = await Promise.all([
     getAllLinks(c.env),
@@ -78,11 +106,12 @@ exportRoutes.get('/backup.json', async (c) => {
   });
 });
 
-function csv(value: string): string {
-  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-    return `"${value.replace(/"/g, '""')}"`;
+function csv(value: string | number | null | undefined): string {
+  const text = value === null || value === undefined ? '' : String(value);
+  if (text.includes(',') || text.includes('"') || text.includes('\n') || text.includes('\r')) {
+    return `"${text.replace(/"/g, '""')}"`;
   }
-  return value;
+  return text;
 }
 
 export default exportRoutes;

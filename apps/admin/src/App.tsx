@@ -8,6 +8,7 @@ import { Links } from './pages/Links';
 import { CreateLink } from './pages/CreateLink';
 import { EditLink } from './pages/EditLink';
 import { ImportExport } from './pages/ImportExport';
+import { Tags } from './pages/Tags';
 import { Settings } from './pages/Settings';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -39,6 +40,7 @@ export function App() {
         <Route path="links" element={<Links />} />
         <Route path="links/create" element={<CreateLink />} />
         <Route path="links/:id/edit" element={<EditLink />} />
+        <Route path="tags" element={<Tags />} />
         <Route path="import-export" element={<ImportExport />} />
         <Route path="settings" element={<Settings />} />
       </Route>

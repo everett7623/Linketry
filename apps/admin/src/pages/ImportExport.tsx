@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Upload, Download, FileText, CheckCircle, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import {
   previewImport, confirmImport, listImportJobs,
-  exportLinksCSV, exportLinksJSON, exportBackup,
+  exportLinksCSV, exportLinksJSON, exportVisitsCSV, exportBackup, exportPreImportBackup,
   downloadImportReport,
 } from '../api/importExport';
 import { Button } from '../components/ui/Button';
@@ -65,8 +65,9 @@ export function ImportExport() {
     }
     setConfirming(true);
     try {
+      await exportPreImportBackup();
       const result = await confirmImport(content, source || undefined, filename || undefined);
-      success(`Import complete: ${result.success} imported, ${result.skipped} skipped, ${result.failed} failed`);
+      success(`Backup downloaded. Import complete: ${result.success} imported, ${result.skipped} skipped, ${result.failed} failed`);
       setPreview(null);
       setContent('');
       setFilename('');
@@ -192,6 +193,15 @@ export function ImportExport() {
                 <p className="text-xs text-slate-500">All links in JSON format</p>
               </div>
               <Button variant="secondary" size="sm" icon={<Download size={14} />} onClick={() => exportLinksJSON().catch((e) => error(String(e)))}>
+                Download
+              </Button>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-slate-950 rounded-lg border border-slate-800">
+              <div>
+                <p className="text-sm font-medium text-slate-200">Visits CSV</p>
+                <p className="text-xs text-slate-500">Raw visit records in CSV format</p>
+              </div>
+              <Button variant="secondary" size="sm" icon={<Download size={14} />} onClick={() => exportVisitsCSV().catch((e) => error(String(e)))}>
                 Download
               </Button>
             </div>
