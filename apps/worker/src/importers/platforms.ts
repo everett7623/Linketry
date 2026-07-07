@@ -165,6 +165,7 @@ function normalizeBackupLink(row: SourceRow): NormalizedImportItem {
     redirectType: link.redirect_type,
     expiresAt: link.expires_at,
     maxClicks: link.max_clicks,
+    passwordHash: link.password_hash,
     warningEnabled: link.warning_enabled === 1,
     fallbackUrl: link.fallback_url,
     archived: link.archived,

@@ -3,7 +3,7 @@ import { Upload, Download, FileText, CheckCircle, AlertCircle, ChevronDown, Chev
 import {
   previewImport, confirmImport, listImportJobs,
   exportLinksCSV, exportLinksJSON, exportVisitsCSV, exportBackup, exportPreImportBackup,
-  downloadImportReport,
+  downloadImportReport, fetchShlinkApi,
 } from '../api/importExport';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
@@ -17,6 +17,9 @@ export function ImportExport() {
   const [content, setContent] = useState('');
   const [filename, setFilename] = useState('');
   const [source, setSource] = useState('');
+  const [shlinkBaseUrl, setShlinkBaseUrl] = useState('');
+  const [shlinkApiKey, setShlinkApiKey] = useState('');
+  const [shlinkFetching, setShlinkFetching] = useState(false);
   const [conflictStrategy, setConflictStrategy] = useState<ImportConflictStrategy>('skip');
   const [preview, setPreview] = useState<Awaited<ReturnType<typeof previewImport>> | null>(null);
   const [previewing, setPreviewing] = useState(false);
@@ -46,6 +49,28 @@ export function ImportExport() {
     reader.onload = (ev) => setContent(ev.target?.result as string ?? '');
     reader.readAsText(file);
     setPreview(null);
+  };
+
+  const handleFetchShlink = async () => {
+    if (!shlinkBaseUrl.trim() || !shlinkApiKey.trim()) {
+      error('Enter Shlink URL and API key');
+      return;
+    }
+
+    setShlinkFetching(true);
+    try {
+      const result = await fetchShlinkApi(shlinkBaseUrl.trim(), shlinkApiKey.trim());
+      setContent(result.content);
+      setFilename(result.filename);
+      setSource(result.source);
+      setPreview(null);
+      setShowPreview(false);
+      success(`Fetched ${result.total} Shlink links`);
+    } catch (e) {
+      error(String(e));
+    } finally {
+      setShlinkFetching(false);
+    }
   };
 
   const handlePreview = async () => {
@@ -115,6 +140,31 @@ export function ImportExport() {
                 <option value="generic-csv">Generic CSV</option>
                 <option value="generic-json">Generic JSON / JSONL</option>
             </select>
+          </div>
+
+          <div className="grid gap-3 border-t border-slate-800 pt-5 md:grid-cols-[1fr_1fr_auto] md:items-end">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">Shlink URL</label>
+              <input
+                value={shlinkBaseUrl}
+                onChange={(e) => setShlinkBaseUrl(e.target.value)}
+                placeholder="https://s.example.com"
+                className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">Shlink API Key</label>
+              <input
+                value={shlinkApiKey}
+                onChange={(e) => setShlinkApiKey(e.target.value)}
+                type="password"
+                placeholder="Temporary API key"
+                className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+            <Button type="button" variant="secondary" onClick={handleFetchShlink} loading={shlinkFetching}>
+              Fetch Shlink
+            </Button>
           </div>
 
           <div>

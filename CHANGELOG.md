@@ -19,6 +19,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Create/Edit Link forms now show existing Tags catalog entries as selectable tag chips.
 - Added Sink, YOURLS, Dub, and Linkora `backup.json` import adapters.
 - Import confirm now supports `skip`, `rename`, and `overwrite` conflict strategies.
+- Added Shlink API pull import, password-protected links, safety warning pages, UTM templates, and Audit Logs.
 
 ---
 

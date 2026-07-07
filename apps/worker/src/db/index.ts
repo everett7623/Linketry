@@ -1,4 +1,4 @@
-import type { Link, Tag, ImportJob, Setting, Visit } from '@linkora/shared';
+import type { AuditLog, Link, Tag, ImportJob, Setting, Visit } from '@linkora/shared';
 import type { Env } from '../types';
 
 export async function getLinkBySlug(env: Env, slug: string): Promise<Link | null> {
@@ -171,8 +171,8 @@ export async function updateLink(
   const allowedFields = [
     'slug', 'domain', 'long_url', 'short_url', 'title', 'description',
     'tags', 'status', 'redirect_type', 'clicks', 'source', 'source_id',
-    'updated_at', 'last_clicked_at', 'expires_at', 'max_clicks', 'warning_enabled',
-    'fallback_url', 'archived',
+    'updated_at', 'last_clicked_at', 'expires_at', 'max_clicks', 'password_hash',
+    'warning_enabled', 'fallback_url', 'archived',
   ] as const;
 
   const setClauses: string[] = [];
@@ -467,4 +467,71 @@ export async function getImportJobs(env: Env): Promise<ImportJob[]> {
 export async function getImportJobById(env: Env, id: string): Promise<ImportJob | null> {
   const result = await env.DB.prepare('SELECT * FROM import_jobs WHERE id = ? LIMIT 1').bind(id).first<ImportJob>();
   return result ?? null;
+}
+
+export interface ListAuditLogsOptions {
+  action?: string;
+  targetType?: string;
+  keyword?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export async function insertAuditLog(env: Env, log: AuditLog): Promise<void> {
+  await env.DB.prepare(
+    `INSERT INTO audit_logs (id, action, target_type, target_id, detail, ip_hash, user_agent, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  )
+    .bind(
+      log.id,
+      log.action,
+      log.target_type ?? null,
+      log.target_id ?? null,
+      log.detail ?? null,
+      log.ip_hash ?? null,
+      log.user_agent ?? null,
+      log.created_at
+    )
+    .run();
+}
+
+export async function listAuditLogs(
+  env: Env,
+  options: ListAuditLogsOptions = {}
+): Promise<{ items: AuditLog[]; total: number }> {
+  const { action, targetType, keyword, page = 1, pageSize = 50 } = options;
+  const conditions: string[] = ['1=1'];
+  const params: unknown[] = [];
+
+  if (action) {
+    conditions.push('action = ?');
+    params.push(action);
+  }
+
+  if (targetType) {
+    conditions.push('target_type = ?');
+    params.push(targetType);
+  }
+
+  if (keyword) {
+    conditions.push('(action LIKE ? OR target_type LIKE ? OR target_id LIKE ? OR detail LIKE ?)');
+    const kw = `%${keyword}%`;
+    params.push(kw, kw, kw, kw);
+  }
+
+  const where = conditions.join(' AND ');
+  const offset = (page - 1) * pageSize;
+
+  const countResult = await env.DB.prepare(`SELECT COUNT(*) as count FROM audit_logs WHERE ${where}`)
+    .bind(...params)
+    .first<{ count: number }>();
+  const total = countResult?.count ?? 0;
+
+  const result = await env.DB.prepare(
+    `SELECT * FROM audit_logs WHERE ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+  )
+    .bind(...params, pageSize, offset)
+    .all<AuditLog>();
+
+  return { items: result.results ?? [], total };
 }

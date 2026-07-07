@@ -24,6 +24,7 @@ or:
 |--------|------|-------------|
 | `GET` | `/health` | Health check |
 | `GET` | `/:slug` | Short-link redirect |
+| `POST` | `/:slug` | Password-protected short-link continuation |
 
 Redirect analytics are recorded asynchronously. Stats failures must not block redirects.
 
@@ -55,6 +56,7 @@ Redirect analytics are recorded asynchronously. Stats failures must not block re
 
 | Method | Path |
 |--------|------|
+| `POST` | `/api/import/shlink-api/fetch` |
 | `POST` | `/api/import/preview` |
 | `POST` | `/api/import/confirm` |
 | `GET` | `/api/import/jobs` |
@@ -86,3 +88,9 @@ Redirect analytics are recorded asynchronously. Stats failures must not block re
 | Method | Path | Description |
 |--------|------|-------------|
 | `POST` | `/api/metadata/title` | Fetch a page title for Create/Edit forms |
+
+## Audit Logs
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/audit` | List admin action and import audit events |

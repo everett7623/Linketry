@@ -10,9 +10,10 @@ import {
   deleteLink,
   createTagsIfMissing,
 } from '../db/index';
+import { recordAudit } from '../audit/index';
 import { setCachedLink, deleteCachedLink } from '../cache/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
-import { generateId, now } from '../utils/id';
+import { generateId, now, sha256 } from '../utils/id';
 import { validateSlug, validateLongUrl } from '@linkora/shared';
 import type { Link, KVCacheEntry } from '@linkora/shared';
 
@@ -20,6 +21,7 @@ const links = new Hono<{ Bindings: Env }>();
 
 type BulkAction = 'disable' | 'enable' | 'archive' | 'restore' | 'delete';
 type BulkTagMode = 'add' | 'replace' | 'remove' | 'clear';
+type LinkBody = Partial<Link> & { tags?: string | string[]; password?: unknown };
 
 async function ensureTagRecords(env: Env, tags: string[], ts = now()): Promise<void> {
   if (tags.length === 0) return;
@@ -59,6 +61,26 @@ function parseOptionalPositiveInteger(value: unknown, fieldName: string): { valu
   return { value: numberValue };
 }
 
+function parseOptionalBoolean(value: unknown): number | undefined {
+  if (value === undefined) return undefined;
+  if (value === true || value === 1 || value === '1' || value === 'true') return 1;
+  if (value === false || value === 0 || value === '0' || value === 'false' || value === null || value === '') return 0;
+  return undefined;
+}
+
+async function parsePasswordHash(value: unknown): Promise<{ value: string | null; error?: string }> {
+  if (value === undefined) return { value: null };
+  if (value === null || value === '') return { value: null };
+  if (typeof value !== 'string') return { value: null, error: 'password must be a string' };
+
+  const password = value.trim();
+  if (!password) return { value: null };
+  if (password.length < 4) return { value: null, error: 'password must be at least 4 characters' };
+  if (password.length > 200) return { value: null, error: 'password must be 200 characters or less' };
+
+  return { value: `sha256:${await sha256(password)}` };
+}
+
 function parseTagsInput(value: unknown): { tags: string[]; error?: string } {
   const rawTags = Array.isArray(value)
     ? value.map((tag) => String(tag))
@@ -80,6 +102,18 @@ function parseTagsInput(value: unknown): { tags: string[]; error?: string } {
 
   if (tags.length > 50) return { tags: [], error: 'A link can have at most 50 tags' };
   return { tags };
+}
+
+function sanitizeLink(link: Link): Link {
+  return {
+    ...link,
+    password_hash: null,
+    password_protected: !!link.password_hash,
+  };
+}
+
+function sanitizeLinks(items: Link[]): Link[] {
+  return items.map(sanitizeLink);
 }
 
 function parseStoredTags(value?: string | null): string[] {
@@ -142,6 +176,7 @@ function shouldCacheLink(link: Link): boolean {
   return (
     link.status === 'active' &&
     link.archived === 0 &&
+    !link.password_hash &&
     !isPastDate(link.expires_at) &&
     !hasReachedMaxClicks(link)
   );
@@ -183,7 +218,7 @@ links.get('/', async (c) => {
   });
 
   return jsonOk({
-    items,
+    items: sanitizeLinks(items),
     total,
     page,
     pageSize,
@@ -193,7 +228,7 @@ links.get('/', async (c) => {
 
 // POST /api/links
 links.post('/', async (c) => {
-  let body: Partial<Link> & { tags?: string | string[] };
+  let body: LinkBody;
   try {
     body = await c.req.json();
   } catch {
@@ -240,6 +275,14 @@ links.post('/', async (c) => {
   const maxClicks = parseOptionalPositiveInteger(body.max_clicks, 'max_clicks');
   if (maxClicks.error) return jsonError(maxClicks.error, 400);
 
+  const passwordHash = await parsePasswordHash(body.password);
+  if (passwordHash.error) return jsonError(passwordHash.error, 400);
+
+  const warningEnabled = parseOptionalBoolean(body.warning_enabled);
+  if (body.warning_enabled !== undefined && warningEnabled === undefined) {
+    return jsonError('warning_enabled must be a boolean', 400);
+  }
+
   const parsedTags = parseTagsInput(body.tags);
   if (parsedTags.error) return jsonError(parsedTags.error, 400);
   const tagsStr = parsedTags.tags.length > 0 ? JSON.stringify(parsedTags.tags) : null;
@@ -263,8 +306,8 @@ links.post('/', async (c) => {
     last_clicked_at: null,
     expires_at: expiresAt.value,
     max_clicks: maxClicks.value,
-    password_hash: null,
-    warning_enabled: 0,
+    password_hash: passwordHash.value,
+    warning_enabled: warningEnabled ?? 0,
     fallback_url: null,
     archived: 0,
   };
@@ -273,8 +316,9 @@ links.post('/', async (c) => {
   await ensureTagRecords(c.env, parsedTags.tags, ts);
 
   await refreshLinkCache(c.env, domain, link);
+  await recordAudit(c.env, c.req.raw, 'link.create', 'link', id, { slug });
 
-  return jsonCreated(link);
+  return jsonCreated(sanitizeLink(link));
 });
 
 // POST /api/links/bulk
@@ -338,6 +382,12 @@ links.post('/bulk', async (c) => {
     }
   }
 
+  await recordAudit(c.env, c.req.raw, `link.bulk.${action}`, 'link', undefined, {
+    ids,
+    success: successCount,
+    notFound: ids.length - existing.length,
+  });
+
   return jsonOk({
     action,
     total: ids.length,
@@ -385,6 +435,13 @@ links.post('/bulk-tag', async (c) => {
     successCount++;
   }
 
+  await recordAudit(c.env, c.req.raw, `link.bulk_tag.${mode}`, 'link', undefined, {
+    ids,
+    tags: parsedTags.tags,
+    success: successCount,
+    notFound: ids.length - existing.length,
+  });
+
   return jsonOk({
     mode,
     tags: parsedTags.tags,
@@ -398,7 +455,7 @@ links.post('/bulk-tag', async (c) => {
 links.get('/:id', async (c) => {
   const link = await getLinkById(c.env, c.req.param('id'));
   if (!link) return jsonError('Link not found', 404);
-  return jsonOk(link);
+  return jsonOk(sanitizeLink(link));
 });
 
 // PUT /api/links/:id
@@ -407,7 +464,7 @@ links.put('/:id', async (c) => {
   const existing = await getLinkById(c.env, id);
   if (!existing) return jsonError('Link not found', 404);
 
-  let body: Partial<Link> & { tags?: string | string[] };
+  let body: LinkBody;
   try {
     body = await c.req.json();
   } catch {
@@ -449,6 +506,18 @@ links.put('/:id', async (c) => {
     fields.max_clicks = maxClicks.value;
   }
 
+  if (body.password !== undefined) {
+    const passwordHash = await parsePasswordHash(body.password);
+    if (passwordHash.error) return jsonError(passwordHash.error, 400);
+    fields.password_hash = passwordHash.value;
+  }
+
+  if (body.warning_enabled !== undefined) {
+    const warningEnabled = parseOptionalBoolean(body.warning_enabled);
+    if (warningEnabled === undefined) return jsonError('warning_enabled must be a boolean', 400);
+    fields.warning_enabled = warningEnabled;
+  }
+
   if (body.tags !== undefined) {
     const parsedTags = parseTagsInput(body.tags);
     if (parsedTags.error) return jsonError(parsedTags.error, 400);
@@ -464,8 +533,13 @@ links.put('/:id', async (c) => {
   if (updated) {
     await refreshLinkCache(c.env, domain, updated);
   }
+  await recordAudit(c.env, c.req.raw, 'link.update', 'link', id, {
+    slug: fields.slug ?? existing.slug,
+    changed: Object.keys(fields).filter((field) => field !== 'password_hash'),
+    password_changed: 'password_hash' in fields,
+  });
 
-  return jsonOk(updated);
+  return jsonOk(updated ? sanitizeLink(updated) : null);
 });
 
 // DELETE /api/links/:id
@@ -478,6 +552,7 @@ links.delete('/:id', async (c) => {
 
   await deleteLink(c.env, id);
   await deleteCachedLink(c.env, domain, existing.slug);
+  await recordAudit(c.env, c.req.raw, 'link.delete', 'link', id, { slug: existing.slug });
 
   return jsonOk({ message: 'Link deleted' });
 });
@@ -491,6 +566,7 @@ links.post('/:id/disable', async (c) => {
   const domain = new URL(c.req.url).hostname;
   await updateLink(c.env, id, { status: 'disabled', updated_at: now() });
   await deleteCachedLink(c.env, domain, existing.slug);
+  await recordAudit(c.env, c.req.raw, 'link.disable', 'link', id, { slug: existing.slug });
 
   return jsonOk({ message: 'Link disabled' });
 });
@@ -505,6 +581,7 @@ links.post('/:id/enable', async (c) => {
   await updateLink(c.env, id, { status: 'active', updated_at: now() });
 
   await refreshLinkCache(c.env, domain, { ...existing, status: 'active' });
+  await recordAudit(c.env, c.req.raw, 'link.enable', 'link', id, { slug: existing.slug });
 
   return jsonOk({ message: 'Link enabled' });
 });
@@ -518,6 +595,7 @@ links.post('/:id/archive', async (c) => {
   const domain = new URL(c.req.url).hostname;
   await updateLink(c.env, id, { archived: 1, status: 'archived', updated_at: now() });
   await deleteCachedLink(c.env, domain, existing.slug);
+  await recordAudit(c.env, c.req.raw, 'link.archive', 'link', id, { slug: existing.slug });
 
   return jsonOk({ message: 'Link archived' });
 });
@@ -532,6 +610,7 @@ links.post('/:id/restore', async (c) => {
   await updateLink(c.env, id, { archived: 0, status: 'active', updated_at: now() });
 
   await refreshLinkCache(c.env, domain, { ...existing, archived: 0, status: 'active' });
+  await recordAudit(c.env, c.req.raw, 'link.restore', 'link', id, { slug: existing.slug });
 
   return jsonOk({ message: 'Link restored' });
 });

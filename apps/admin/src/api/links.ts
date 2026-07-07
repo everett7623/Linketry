@@ -36,6 +36,8 @@ export interface CreateLinkPayload {
   status?: string;
   expires_at?: string | null;
   max_clicks?: number | null;
+  password?: string | null;
+  warning_enabled?: number;
 }
 
 export function createLink(payload: CreateLinkPayload): Promise<Link> {

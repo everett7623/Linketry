@@ -43,6 +43,15 @@ export function confirmImport(
   return apiPost('/api/import/confirm', { content, source, filename, conflictStrategy });
 }
 
+export function fetchShlinkApi(baseUrl: string, apiKey: string): Promise<{
+  source: 'shlink';
+  total: number;
+  content: string;
+  filename: string;
+}> {
+  return apiPost('/api/import/shlink-api/fetch', { baseUrl, apiKey });
+}
+
 export function listImportJobs(): Promise<ImportJob[]> {
   return apiGet('/api/import/jobs');
 }

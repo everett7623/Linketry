@@ -12,6 +12,7 @@ import {
   getImportJobs,
   getImportJobById,
 } from '../db/index';
+import { recordAudit } from '../audit/index';
 import { deleteCachedLink, setCachedLink } from '../cache/index';
 import { jsonOk, jsonError } from '../utils/response';
 import { generateId, now } from '../utils/id';
@@ -44,6 +45,7 @@ const ADAPTERS: ImportAdapter[] = [
   GenericJsonAdapter,
 ];
 type ConflictStrategy = 'skip' | 'rename' | 'overwrite';
+type ShlinkApiPagination = { currentPage?: number; pagesTotal?: number; totalItems?: number };
 
 function detectAdapter(input: unknown, hint?: string): ImportAdapter | null {
   if (hint) {
@@ -101,7 +103,7 @@ function cacheEntryFromLink(link: Link): KVCacheEntry {
 async function syncImportCache(env: Env, domain: string, link: Link): Promise<void> {
   const isExpired = !!link.expires_at && Date.parse(link.expires_at) < Date.now();
   const reachedMaxClicks = link.max_clicks !== null && link.max_clicks !== undefined && link.clicks >= link.max_clicks;
-  if (link.status === 'active' && link.archived === 0 && !isExpired && !reachedMaxClicks) {
+  if (link.status === 'active' && link.archived === 0 && !link.password_hash && !isExpired && !reachedMaxClicks) {
     await setCachedLink(env, domain, cacheEntryFromLink(link));
   } else {
     await deleteCachedLink(env, domain, link.slug);
@@ -130,7 +132,7 @@ function linkFromImportItem(item: NormalizedImportItem, id: string, slug: string
     last_clicked_at: item.lastClickedAt ?? null,
     expires_at: item.expiresAt ?? null,
     max_clicks: item.maxClicks ?? null,
-    password_hash: null,
+    password_hash: item.passwordHash ?? null,
     warning_enabled: item.warningEnabled ? 1 : 0,
     fallback_url: item.fallbackUrl ?? null,
     archived: item.archived ?? 0,
@@ -153,6 +155,7 @@ function overwriteFieldsFromImportItem(item: NormalizedImportItem, existing: Lin
     last_clicked_at: item.lastClickedAt ?? existing.last_clicked_at,
     expires_at: item.expiresAt ?? existing.expires_at,
     max_clicks: item.maxClicks ?? existing.max_clicks,
+    password_hash: item.passwordHash ?? existing.password_hash,
     warning_enabled: item.warningEnabled === undefined ? existing.warning_enabled : item.warningEnabled ? 1 : 0,
     fallback_url: item.fallbackUrl ?? existing.fallback_url,
     archived: item.archived ?? existing.archived,
@@ -204,6 +207,98 @@ async function previewItems(
 
   return { total: items.length, valid, invalid, conflicts, preview };
 }
+
+function shlinkShortUrlsEndpoint(baseUrl: string): string {
+  const url = new URL(baseUrl);
+  const clean = url.toString().replace(/\/+$/, '');
+  if (/\/short-urls$/i.test(clean)) return clean;
+  if (/\/rest\/v\d+$/i.test(clean)) return `${clean}/short-urls`;
+  return `${clean}/rest/v3/short-urls`;
+}
+
+function extractShlinkShortUrls(payload: unknown): { items: unknown[]; pagination?: ShlinkApiPagination } {
+  const root = payload as Record<string, unknown>;
+  const data = root?.data && typeof root.data === 'object' ? root.data as Record<string, unknown> : root;
+  const shortUrls = data?.shortUrls as unknown;
+
+  if (Array.isArray(shortUrls)) {
+    return { items: shortUrls, pagination: data.pagination as ShlinkApiPagination | undefined };
+  }
+
+  if (shortUrls && typeof shortUrls === 'object') {
+    const container = shortUrls as Record<string, unknown>;
+    const items = Array.isArray(container.data) ? container.data : [];
+    return { items, pagination: container.pagination as ShlinkApiPagination | undefined };
+  }
+
+  if (Array.isArray(root)) return { items: root };
+  return { items: [] };
+}
+
+async function fetchShlinkApiItems(baseUrl: string, apiKey: string): Promise<unknown[]> {
+  const endpoint = shlinkShortUrlsEndpoint(baseUrl);
+  const items: unknown[] = [];
+  const pageSize = 100;
+
+  for (let page = 1; page <= 100; page++) {
+    const url = new URL(endpoint);
+    url.searchParams.set('page', String(page));
+    url.searchParams.set('itemsPerPage', String(pageSize));
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        Accept: 'application/json',
+        'X-Api-Key': apiKey,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Shlink API returned ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const { items: pageItems, pagination } = extractShlinkShortUrls(payload);
+    items.push(...pageItems);
+
+    const pagesTotal = pagination?.pagesTotal;
+    if (!pagesTotal || page >= pagesTotal || pageItems.length === 0) break;
+    if (items.length >= 5000) break;
+  }
+
+  return items;
+}
+
+// POST /api/import/shlink-api/fetch
+importRoutes.post('/shlink-api/fetch', async (c) => {
+  let body: { baseUrl?: string; apiKey?: string };
+  try {
+    body = await c.req.json();
+  } catch {
+    return jsonError('Invalid JSON body', 400);
+  }
+
+  const baseUrl = body.baseUrl?.trim();
+  const apiKey = body.apiKey?.trim();
+  if (!baseUrl) return jsonError('baseUrl is required', 400);
+  if (!apiKey) return jsonError('apiKey is required', 400);
+
+  try {
+    const items = await fetchShlinkApiItems(baseUrl, apiKey);
+    const content = JSON.stringify({ data: { shortUrls: { data: items } } }, null, 2);
+    await recordAudit(c.env, c.req.raw, 'import.shlink_api.fetch', 'import', undefined, {
+      baseUrl,
+      total: items.length,
+    });
+    return jsonOk({
+      source: 'shlink',
+      total: items.length,
+      content,
+      filename: `shlink-api-${new Date().toISOString().slice(0, 10)}.json`,
+    });
+  } catch (err) {
+    return jsonError(String(err), 502);
+  }
+});
 
 // POST /api/import/preview
 importRoutes.post('/preview', async (c) => {
@@ -358,6 +453,15 @@ importRoutes.post('/confirm', async (c) => {
     status: 'completed',
     report: reportRows.join('\n'),
     completed_at: completedAt,
+  });
+  await recordAudit(c.env, c.req.raw, 'import.confirm', 'import', jobId, {
+    source: adapter.source,
+    total: items.length,
+    success: successCount,
+    skipped: skippedCount,
+    conflicts: conflictCount,
+    failed: failedCount,
+    conflictStrategy,
   });
 
   return jsonOk({

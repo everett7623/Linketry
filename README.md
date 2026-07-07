@@ -16,6 +16,8 @@ A lightweight, stable, self-hosted short link system built on Cloudflare Workers
 - 📊 Basic click count tracking
 - 📥 Import from Shlink, Sink, YOURLS, Dub, Linkora backup, and generic CSV / JSON
 - 🧭 Import preview with skip, rename, or overwrite conflict handling
+- Password-protected links, safety warning pages, and UTM builder templates
+- Audit Logs page for admin actions and imports
 - 📤 Export links as CSV / JSON, visits as CSV, and full backups
 - ⚙️ System settings
 - 🏥 Health check endpoint (`/health`)
@@ -154,9 +156,9 @@ VITE_API_URL=https://go.example.com npm run build --workspace=apps/admin
 See [docs/IMPORT_SHLINK.md](docs/IMPORT_SHLINK.md) for the full import guide.
 
 Quick steps:
-1. Export from Shlink: **Admin → Export** → download JSON or CSV
-2. In Linkora Admin → **Import / Export** → upload file
-3. Select source: **Shlink**
+1. Export from Shlink, or enter Shlink URL + API key in Linkora Admin.
+2. In Linkora Admin → **Import / Export** → upload file or click **Fetch Shlink**.
+3. Select source: **Shlink** when uploading manually.
 4. Click **Preview** to review conflicts
 5. Click **Import** to confirm
 

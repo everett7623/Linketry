@@ -5,6 +5,7 @@ import { createLink } from '../api/links';
 import { fetchPageTitle } from '../api/metadata';
 import { listTags } from '../api/tags';
 import { TagSuggestions } from '../components/TagSuggestions';
+import { UtmBuilder } from '../components/UtmBuilder';
 import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
@@ -24,6 +25,8 @@ export function CreateLink() {
     redirect_type: '302' as '301' | '302',
     expires_at: '',
     max_clicks: '',
+    password: '',
+    warning_enabled: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -33,7 +36,7 @@ export function CreateLink() {
       .catch(() => undefined);
   }, []);
 
-  const set = (key: string, value: string) => {
+  const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
     setErrors((e) => ({ ...e, [key]: '' }));
   };
@@ -48,6 +51,7 @@ export function CreateLink() {
       const maxClicks = Number(form.max_clicks);
       if (!Number.isInteger(maxClicks) || maxClicks < 1) errs.max_clicks = 'Max clicks must be a positive integer';
     }
+    if (form.password && form.password.trim().length < 4) errs.password = 'Password must be at least 4 characters';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -91,6 +95,8 @@ export function CreateLink() {
         redirect_type: form.redirect_type === '301' ? 301 : 302,
         expires_at: expiresAt,
         max_clicks: maxClicks,
+        password: form.password.trim() || undefined,
+        warning_enabled: form.warning_enabled ? 1 : 0,
       });
       success(`Link /${link.slug} created!`);
       navigate('/links');
@@ -169,7 +175,7 @@ export function CreateLink() {
         <Select
           label="Redirect Type"
           value={form.redirect_type}
-          onChange={(e) => set('redirect_type', e.target.value)}
+          onChange={(e) => set('redirect_type', e.target.value as '301' | '302')}
         >
           <option value="302">302 — Temporary (recommended)</option>
           <option value="301">301 — Permanent (cached by browser)</option>
@@ -195,6 +201,33 @@ export function CreateLink() {
             error={errors.max_clicks}
           />
         </div>
+
+        <div className="space-y-4 border-t border-slate-800 pt-5">
+          <label className="flex items-center gap-3 text-sm text-slate-300">
+            <input
+              type="checkbox"
+              checked={form.warning_enabled}
+              onChange={(e) => set('warning_enabled', e.target.checked)}
+              className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+            />
+            Show safety warning before redirect
+          </label>
+
+          <Input
+            label="Password (optional)"
+            type="password"
+            value={form.password}
+            onChange={(e) => set('password', e.target.value)}
+            error={errors.password}
+            hint="Visitors must enter this password before opening the destination."
+          />
+        </div>
+
+        <UtmBuilder
+          longUrl={form.long_url}
+          onApply={(url) => set('long_url', url)}
+          disabled={loading}
+        />
 
         <div className="flex gap-3 pt-2">
           <Button type="submit" loading={loading}>Create Link</Button>

@@ -21,6 +21,7 @@ export interface Link {
   expires_at?: string | null;
   max_clicks?: number | null;
   password_hash?: string | null;
+  password_protected?: boolean;
   warning_enabled: number;
   fallback_url?: string | null;
   archived: number;
@@ -66,6 +67,17 @@ export interface ImportJob {
   completed_at?: string | null;
 }
 
+export interface AuditLog {
+  id: string;
+  action: string;
+  target_type?: string | null;
+  target_id?: string | null;
+  detail?: string | null;
+  ip_hash?: string | null;
+  user_agent?: string | null;
+  created_at: string;
+}
+
 export interface Setting {
   key: string;
   value?: string | null;
@@ -89,6 +101,7 @@ export interface NormalizedImportItem {
   redirectType?: RedirectType;
   expiresAt?: string | null;
   maxClicks?: number | null;
+  passwordHash?: string | null;
   warningEnabled?: boolean;
   fallbackUrl?: string | null;
   archived?: number;

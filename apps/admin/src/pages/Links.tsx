@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search, Plus, Copy, Pencil, Trash2, PowerOff, Power,
   Archive, RotateCcw, ExternalLink, ChevronLeft, ChevronRight,
-  QrCode, Download, Tag,
+  QrCode, Download, Tag, KeyRound, ShieldAlert,
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import {
@@ -370,6 +370,12 @@ export function Links() {
                           <span className="font-mono text-brand-400">/{link.slug}</span>
                           {link.source && (
                             <span className="text-xs text-slate-600 bg-slate-800 px-1.5 py-0.5 rounded">{link.source}</span>
+                          )}
+                          {link.password_protected && (
+                            <span title="Password protected" className="inline-flex text-slate-500"><KeyRound size={13} /></span>
+                          )}
+                          {link.warning_enabled === 1 && (
+                            <span title="Safety warning enabled" className="inline-flex text-yellow-500"><ShieldAlert size={13} /></span>
                           )}
                         </div>
                       </td>

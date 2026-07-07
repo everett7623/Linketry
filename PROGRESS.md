@@ -139,6 +139,11 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Tags management page | ✅ Done | Admin page supports tag create, edit, search, color, description, and delete |
 | Link tag catalog sync | ✅ Done | Link tags auto-create catalog entries; local rename/delete sync smoke test passed |
 | Link form tag picker | ✅ Done | Create/Edit forms load Tags catalog and offer clickable tag chips |
+| Password-protected links | ✅ Done | Create/Edit forms set password hashes; redirect requires password and does not cache protected links |
+| Safety warning page | ✅ Done | Links can show a confirmation page before redirecting |
+| UTM templates | ✅ Done | Create/Edit forms include newsletter, social, ads, affiliate, and custom UTM builder |
+| Audit logs page | ✅ Done | Admin page lists link and import audit events |
+| Shlink API pull import | ✅ Done | Admin Import / Export can fetch Shlink links via URL + API key without storing the key |
 | Sink importer adapter | ✅ Done | JSON / JSONL-style payloads supported; local smoke test passed |
 | YOURLS importer adapter | ✅ Done | JSON / JSONL-style payloads supported; local smoke test passed |
 | Dub importer adapter | ✅ Done | JSON / JSONL-style payloads supported; local smoke test passed |

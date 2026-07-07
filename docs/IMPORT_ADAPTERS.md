@@ -15,7 +15,7 @@ export interface ImportAdapter {
 
 | Adapter | File | Formats |
 |---------|------|---------|
-| Shlink | `apps/worker/src/importers/shlink.ts` | JSON, JSONL, CSV |
+| Shlink | `apps/worker/src/importers/shlink.ts` | JSON, JSONL, CSV, API pull |
 | Sink | `apps/worker/src/importers/platforms.ts` | JSON, JSONL |
 | YOURLS | `apps/worker/src/importers/platforms.ts` | JSON, JSONL |
 | Dub | `apps/worker/src/importers/platforms.ts` | JSON, JSONL |

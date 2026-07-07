@@ -5,6 +5,7 @@ import { getLink, updateLink } from '../api/links';
 import { fetchPageTitle } from '../api/metadata';
 import { listTags } from '../api/tags';
 import { TagSuggestions } from '../components/TagSuggestions';
+import { UtmBuilder } from '../components/UtmBuilder';
 import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
@@ -36,6 +37,9 @@ export function EditLink() {
     status: 'active',
     expires_at: '',
     max_clicks: '',
+    password: '',
+    clear_password: false,
+    warning_enabled: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -54,6 +58,9 @@ export function EditLink() {
           status: l.status,
           expires_at: toDatetimeLocal(l.expires_at),
           max_clicks: l.max_clicks ? String(l.max_clicks) : '',
+          password: '',
+          clear_password: false,
+          warning_enabled: l.warning_enabled === 1,
         });
       })
       .catch(() => error('Failed to load link'))
@@ -66,7 +73,7 @@ export function EditLink() {
       .catch(() => undefined);
   }, []);
 
-  const set = (key: string, value: string) => {
+  const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
     setErrors((e) => ({ ...e, [key]: '' }));
   };
@@ -81,6 +88,9 @@ export function EditLink() {
     if (form.max_clicks) {
       const maxClicks = Number(form.max_clicks);
       if (!Number.isInteger(maxClicks) || maxClicks < 1) errs.max_clicks = 'Max clicks must be a positive integer';
+    }
+    if (!form.clear_password && form.password && form.password.trim().length < 4) {
+      errs.password = 'Password must be at least 4 characters';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -117,7 +127,7 @@ export function EditLink() {
       const tags = form.tags ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
       const expiresAt = form.expires_at ? new Date(form.expires_at).toISOString() : null;
       const maxClicks = form.max_clicks ? Number(form.max_clicks) : null;
-      await updateLink(id, {
+      const payload = {
         long_url: form.long_url.trim(),
         slug: form.slug.trim(),
         title: form.title.trim() || undefined,
@@ -126,6 +136,11 @@ export function EditLink() {
         status: form.status,
         expires_at: expiresAt,
         max_clicks: maxClicks,
+        warning_enabled: form.warning_enabled ? 1 : 0,
+      } as const;
+      await updateLink(id, {
+        ...payload,
+        password: form.clear_password ? null : form.password.trim() || undefined,
       });
       success('Link updated!');
       navigate('/links');
@@ -209,7 +224,7 @@ export function EditLink() {
         <Select
           label="Redirect Type"
           value={form.redirect_type}
-          onChange={(e) => set('redirect_type', e.target.value)}
+          onChange={(e) => set('redirect_type', e.target.value as '301' | '302')}
         >
           <option value="302">302 — Temporary</option>
           <option value="301">301 — Permanent</option>
@@ -233,6 +248,44 @@ export function EditLink() {
             error={errors.max_clicks}
           />
         </div>
+        <div className="space-y-4 border-t border-slate-800 pt-5">
+          <label className="flex items-center gap-3 text-sm text-slate-300">
+            <input
+              type="checkbox"
+              checked={form.warning_enabled}
+              onChange={(e) => set('warning_enabled', e.target.checked)}
+              className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+            />
+            Show safety warning before redirect
+          </label>
+
+          <Input
+            label={link.password_protected ? 'New Password (optional)' : 'Password (optional)'}
+            type="password"
+            value={form.password}
+            onChange={(e) => set('password', e.target.value)}
+            error={errors.password}
+            hint={link.password_protected ? 'Leave blank to keep the current password.' : 'Visitors must enter this password before opening the destination.'}
+            disabled={form.clear_password}
+          />
+
+          {link.password_protected && (
+            <label className="flex items-center gap-3 text-sm text-slate-400">
+              <input
+                type="checkbox"
+                checked={form.clear_password}
+                onChange={(e) => set('clear_password', e.target.checked)}
+                className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+              />
+              Clear existing password
+            </label>
+          )}
+        </div>
+        <UtmBuilder
+          longUrl={form.long_url}
+          onApply={(url) => set('long_url', url)}
+          disabled={saving}
+        />
         <Select
           label="Status"
           value={form.status}

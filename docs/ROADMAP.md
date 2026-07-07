@@ -31,6 +31,11 @@ Done:
 - Auto-fetch page title
 - Visits CSV export
 - Tags management page
+- Password-protected links
+- Safety warning page
+- UTM templates
+- Audit logs
+- Shlink API pull import
 - Sink importer
 - YOURLS importer
 - Dub importer
@@ -39,10 +44,9 @@ Done:
 
 Backlog:
 
-- Password-protected links
-- Safety warning page
-- UTM templates
-- Audit logs
+- Bulk create links
+- Generic CSV field mapping enhancements
+- Generic JSON / JSONL field mapping enhancements
 
 ## V3: Analytics And Automation
 

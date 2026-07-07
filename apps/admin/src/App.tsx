@@ -10,6 +10,7 @@ import { EditLink } from './pages/EditLink';
 import { ImportExport } from './pages/ImportExport';
 import { Tags } from './pages/Tags';
 import { Settings } from './pages/Settings';
+import { AuditLogs } from './pages/AuditLogs';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { authenticated, loading } = useAuth();
@@ -42,6 +43,7 @@ export function App() {
         <Route path="links/:id/edit" element={<EditLink />} />
         <Route path="tags" element={<Tags />} />
         <Route path="import-export" element={<ImportExport />} />
+        <Route path="audit-logs" element={<AuditLogs />} />
         <Route path="settings" element={<Settings />} />
       </Route>
       <Route path="*" element={<Navigate to="/overview" replace />} />

@@ -9,6 +9,7 @@ import settingsRoutes from './routes/settings';
 import exportRoutes from './routes/export';
 import importRoutes from './routes/importRoutes';
 import metadataRoutes from './routes/metadata';
+import auditRoutes from './routes/audit';
 import { getOverviewStats } from './db/index';
 import { requireAuth } from './auth/index';
 import { jsonOk } from './utils/response';
@@ -57,6 +58,9 @@ app.route('/api/import', importRoutes);
 // Metadata helpers
 app.route('/api/metadata', metadataRoutes);
 
+// Audit logs
+app.route('/api/audit', auditRoutes);
+
 // Overview stats
 app.get('/api/overview', async (c) => {
   const authError = requireAuth(c);
@@ -67,6 +71,14 @@ app.get('/api/overview', async (c) => {
 
 // Slug redirect - catch all (must be last)
 app.get('/:slug', async (c) => {
+  const slug = c.req.param('slug');
+  if (RESERVED_PATHS.has(slug.toLowerCase())) {
+    return new Response('Not Found', { status: 404 });
+  }
+  return handleRedirect(c);
+});
+
+app.post('/:slug', async (c) => {
   const slug = c.req.param('slug');
   if (RESERVED_PATHS.has(slug.toLowerCase())) {
     return new Response('Not Found', { status: 404 });

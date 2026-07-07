@@ -77,6 +77,8 @@ export async function recordVisit(
       }),
     ]);
 
+    if (link.password_hash) return;
+
     // Update KV cache with fresh click count
     const cacheEntry: KVCacheEntry = {
       id: link.id,

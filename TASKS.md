@@ -163,9 +163,9 @@ _(none currently)_
 - [x] Bulk tag assignment
 - [x] Auto-fetch page title
 - [x] QR code generation
-- [ ] Password-protected links
-- [ ] Safety warning page
-- [ ] UTM parameter templates
+- [x] Password-protected links
+- [x] Safety warning page
+- [x] UTM parameter templates
 - [x] Tags management page
 - [x] Link tags and Tags catalog synchronization
 - [x] Create/Edit Link forms can select existing Tags catalog entries
@@ -175,8 +175,10 @@ _(none currently)_
 - [x] YOURLS importer adapter
 - [x] Dub importer adapter
 - [x] Import conflict strategies: rename / overwrite
-- [ ] Audit logs page
+- [x] Audit logs page
 - [x] Linkora backup.json restore import
+- [x] Shlink API pull import
+- [x] Local V2 security smoke test: password page, warning page, normal redirect, audit log write
 
 ## 🔵 Backlog — V3
 

@@ -12,6 +12,25 @@ interface ShlinkJsonItem {
   id?: string;
 }
 
+function isShlinkJsonShape(input: unknown): boolean {
+  if (Array.isArray(input)) {
+    return input.some((item) => typeof item === 'object' && item !== null && ('shortCode' in item || 'longUrl' in item));
+  }
+
+  if (typeof input !== 'object' || input === null) return false;
+  const obj = input as Record<string, unknown>;
+  if (obj.shortCode !== undefined || obj.shortUrl !== undefined) return true;
+  if (Array.isArray(obj.shortUrls)) return true;
+  if (obj.shortUrls && typeof obj.shortUrls === 'object') return true;
+
+  if (obj.data && typeof obj.data === 'object') {
+    const data = obj.data as Record<string, unknown>;
+    return Array.isArray(data.shortUrls) || (typeof data.shortUrls === 'object' && data.shortUrls !== null);
+  }
+
+  return false;
+}
+
 function parseShlinkJson(input: unknown): NormalizedImportItem[] {
   const data = input as Record<string, unknown>;
 
@@ -32,6 +51,11 @@ function parseShlinkJson(input: unknown): NormalizedImportItem[] {
     }
   } else if (Array.isArray((data as { shortUrls?: unknown })?.shortUrls)) {
     items = (data as { shortUrls: ShlinkJsonItem[] }).shortUrls;
+  } else if ((data as { shortUrls?: unknown })?.shortUrls && typeof (data as { shortUrls?: unknown }).shortUrls === 'object') {
+    const su = (data as { shortUrls: Record<string, unknown> }).shortUrls;
+    if (Array.isArray(su.data)) {
+      items = su.data as ShlinkJsonItem[];
+    }
   }
 
   return items.map((item) => ({
@@ -116,11 +140,21 @@ export const ShlinkAdapter: ImportAdapter = {
   detect(input: unknown): boolean {
     if (typeof input === 'string') {
       const trimmed = input.trim();
-      // JSONL: first line is a JSON object with shortCode
       if (trimmed.startsWith('{')) {
         try {
-          const obj = JSON.parse(trimmed.split('\n')[0]) as Record<string, unknown>;
-          return 'shortCode' in obj || 'shortUrl' in obj;
+          return isShlinkJsonShape(JSON.parse(trimmed) as unknown);
+        } catch {
+          try {
+            const obj = JSON.parse(trimmed.split('\n')[0]) as unknown;
+            return isShlinkJsonShape(obj);
+          } catch {
+            return false;
+          }
+        }
+      }
+      if (trimmed.startsWith('[')) {
+        try {
+          return isShlinkJsonShape(JSON.parse(trimmed) as unknown);
         } catch {
           return false;
         }
@@ -133,9 +167,7 @@ export const ShlinkAdapter: ImportAdapter = {
     }
     if (typeof input === 'object' && input !== null) {
       const obj = input as Record<string, unknown>;
-      if (obj.shortCode !== undefined) return true;
-      if (obj.data && typeof obj.data === 'object') return true;
-      if (Array.isArray(obj.shortUrls)) return true;
+      return isShlinkJsonShape(obj);
     }
     return false;
   },
@@ -146,10 +178,6 @@ export const ShlinkAdapter: ImportAdapter = {
       if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
         try {
           const parsed = JSON.parse(trimmed) as unknown;
-          // Could be JSONL if first char is '{' but each line is separate
-          if (trimmed.startsWith('{') && trimmed.includes('\n')) {
-            return parseShlinkJsonl(trimmed);
-          }
           return parseShlinkJson(parsed);
         } catch {
           // Try JSONL
