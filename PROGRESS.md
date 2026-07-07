@@ -14,7 +14,7 @@ Last updated: 2026-07-07
 | Admin frontend  | ✅ Code complete | Production build passing; deployed on `admin.y8o.de` |
 | Database schema | ✅ Complete      | Local and production D1 migrations applied      |
 | Documentation   | ✅ Complete      | README, root runbooks, and `docs/` reference set |
-| Deployment      | ✅ Deployed      | Worker on `go.y8o.de`, Admin on `admin.y8o.de` |
+| Deployment      | ✅ Deployed      | Worker on `go.y8o.de`, Admin on `admin.y8o.de`; GitHub Actions deploy workflow added |
 | End-to-end test | ✅ V1 passed | Production Worker, Admin auth, Links CRUD, Settings, Import/Export, and Shlink import passed |
 
 ---
@@ -137,3 +137,4 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Auto-fetch page title | ✅ Done | Create/Edit forms can fetch the target page title through an authenticated Worker metadata endpoint |
 | Visits CSV export | ✅ Done | `/api/export/visits.csv` and Admin download button added; local API smoke test passed |
 | Tags management page | ✅ Done | Admin page supports tag create, edit, search, color, description, and delete |
+| Link tag catalog sync | ✅ Done | Link tags auto-create catalog entries; local rename/delete sync smoke test passed |

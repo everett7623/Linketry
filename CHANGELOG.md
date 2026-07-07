@@ -14,6 +14,8 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Visits can now be exported from `GET /api/export/visits.csv` and the Admin Import / Export page.
 - Added the `docs/` reference set for deployment, imports, migration, backup, API, roadmap, and security.
 - Added `PUT /api/tags/:id` and a Tags management page with color and description editing.
+- Link tags are now synchronized with the Tags catalog during list, create, edit, import, rename, and delete flows.
+- Added a GitHub Actions workflow for automatic Worker and Admin deployment on pushes to `main`.
 
 ---
 

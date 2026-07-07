@@ -21,6 +21,18 @@ const links = new Hono<{ Bindings: Env }>();
 type BulkAction = 'disable' | 'enable' | 'archive' | 'restore' | 'delete';
 type BulkTagMode = 'add' | 'replace' | 'remove' | 'clear';
 
+async function ensureTagRecords(env: Env, tags: string[], ts = now()): Promise<void> {
+  if (tags.length === 0) return;
+  await createTagsIfMissing(env, tags.map((tag) => ({
+    id: generateId(),
+    name: tag,
+    color: null,
+    description: null,
+    created_at: ts,
+    updated_at: ts,
+  })));
+}
+
 function parseOptionalDate(value: unknown, fieldName: string): { value: string | null; error?: string } {
   if (value === undefined || value === null || value === '') return { value: null };
   if (typeof value !== 'string') return { value: null, error: `${fieldName} must be an ISO date string` };
@@ -228,13 +240,9 @@ links.post('/', async (c) => {
   const maxClicks = parseOptionalPositiveInteger(body.max_clicks, 'max_clicks');
   if (maxClicks.error) return jsonError(maxClicks.error, 400);
 
-  let tagsStr: string | null = null;
-  if (body.tags) {
-    const tagsArr = Array.isArray(body.tags)
-      ? body.tags
-      : String(body.tags).split(',').map((t) => t.trim()).filter(Boolean);
-    tagsStr = JSON.stringify(tagsArr);
-  }
+  const parsedTags = parseTagsInput(body.tags);
+  if (parsedTags.error) return jsonError(parsedTags.error, 400);
+  const tagsStr = parsedTags.tags.length > 0 ? JSON.stringify(parsedTags.tags) : null;
 
   const link: Link = {
     id,
@@ -262,6 +270,7 @@ links.post('/', async (c) => {
   };
 
   await createLink(c.env, link);
+  await ensureTagRecords(c.env, parsedTags.tags, ts);
 
   await refreshLinkCache(c.env, domain, link);
 
@@ -363,14 +372,7 @@ links.post('/bulk-tag', async (c) => {
   let successCount = 0;
 
   if ((mode === 'add' || mode === 'replace') && parsedTags.tags.length > 0) {
-    await createTagsIfMissing(c.env, parsedTags.tags.map((tag) => ({
-      id: generateId(),
-      name: tag,
-      color: null,
-      description: null,
-      created_at: ts,
-      updated_at: ts,
-    })));
+    await ensureTagRecords(c.env, parsedTags.tags, ts);
   }
 
   for (const link of existing) {
@@ -448,10 +450,10 @@ links.put('/:id', async (c) => {
   }
 
   if (body.tags !== undefined) {
-    const tagsArr = Array.isArray(body.tags)
-      ? body.tags
-      : String(body.tags).split(',').map((t) => t.trim()).filter(Boolean);
-    fields.tags = JSON.stringify(tagsArr);
+    const parsedTags = parseTagsInput(body.tags);
+    if (parsedTags.error) return jsonError(parsedTags.error, 400);
+    fields.tags = parsedTags.tags.length > 0 ? JSON.stringify(parsedTags.tags) : null;
+    await ensureTagRecords(c.env, parsedTags.tags);
   }
 
   fields.updated_at = now();

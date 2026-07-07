@@ -126,6 +126,8 @@ See `.env.example` and `apps/worker/.dev.vars.example` for all required variable
 
 ## Deploy
 
+Pushing to `main` can deploy automatically through GitHub Actions after the Cloudflare secrets in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) are configured.
+
 ### Worker
 
 ```bash

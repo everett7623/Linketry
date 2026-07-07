@@ -1,7 +1,18 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
-import { getAllTags, getTagById, getTagByName, createTag, updateTag, deleteTag } from '../db/index';
+import {
+  getAllTags,
+  getAllLinkTagNames,
+  getTagById,
+  getTagByName,
+  createTag,
+  createTagsIfMissing,
+  updateTag,
+  renameTagInLinks,
+  removeTagFromLinks,
+  deleteTag,
+} from '../db/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
 import { generateId, now } from '../utils/id';
 import type { Tag } from '@linkora/shared';
@@ -15,9 +26,25 @@ tags.use('*', async (c, next) => {
 });
 
 tags.get('/', async (c) => {
+  await syncTagsFromLinks(c.env);
   const allTags = await getAllTags(c.env);
   return jsonOk(allTags);
 });
+
+async function syncTagsFromLinks(env: Env): Promise<void> {
+  const names = await getAllLinkTagNames(env);
+  if (names.length === 0) return;
+
+  const ts = now();
+  await createTagsIfMissing(env, names.map((name) => ({
+    id: generateId(),
+    name,
+    color: null,
+    description: null,
+    created_at: ts,
+    updated_at: ts,
+  })));
+}
 
 function normalizeTagPayload(body: { name?: unknown; color?: unknown; description?: unknown }): {
   value?: Pick<Tag, 'name' | 'color' | 'description'>;
@@ -96,6 +123,7 @@ tags.put('/:id', async (c) => {
     updated_at: now(),
   };
   await updateTag(c.env, id, updated);
+  await renameTagInLinks(c.env, existing.name, parsed.value!.name, updated.updated_at);
 
   return jsonOk({
     ...existing,
@@ -104,7 +132,12 @@ tags.put('/:id', async (c) => {
 });
 
 tags.delete('/:id', async (c) => {
-  await deleteTag(c.env, c.req.param('id'));
+  const existing = await getTagById(c.env, c.req.param('id'));
+  if (!existing) return jsonError('Tag not found', 404);
+
+  const ts = now();
+  await removeTagFromLinks(c.env, existing.name, ts);
+  await deleteTag(c.env, existing.id);
   return jsonOk({ message: 'Tag deleted' });
 });
 

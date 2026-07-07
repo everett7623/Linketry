@@ -291,6 +291,27 @@ export async function getAllTags(env: Env): Promise<Tag[]> {
   return result.results ?? [];
 }
 
+export async function getAllLinkTagNames(env: Env): Promise<string[]> {
+  const result = await env.DB.prepare('SELECT tags FROM links WHERE tags IS NOT NULL AND tags != ""').all<{ tags: string }>();
+  const tags = new Set<string>();
+
+  for (const row of result.results ?? []) {
+    try {
+      const parsed = JSON.parse(row.tags) as unknown;
+      if (Array.isArray(parsed)) {
+        for (const tag of parsed) {
+          const name = String(tag).trim();
+          if (name) tags.add(name);
+        }
+      }
+    } catch {
+      // Ignore malformed historical tag payloads.
+    }
+  }
+
+  return [...tags].sort((a, b) => a.localeCompare(b));
+}
+
 export async function getTagById(env: Env, id: string): Promise<Tag | null> {
   const result = await env.DB.prepare('SELECT * FROM tags WHERE id = ? LIMIT 1').bind(id).first<Tag>();
   return result ?? null;
@@ -317,6 +338,44 @@ export async function updateTag(env: Env, id: string, fields: Pick<Tag, 'name' |
     .run();
 }
 
+export async function renameTagInLinks(env: Env, oldName: string, newName: string, updatedAt: string): Promise<void> {
+  if (oldName === newName) return;
+
+  const result = await env.DB.prepare('SELECT id, tags FROM links WHERE tags LIKE ?')
+    .bind(`%"${oldName}"%`)
+    .all<{ id: string; tags: string }>();
+
+  for (const row of result.results ?? []) {
+    try {
+      const parsed = JSON.parse(row.tags) as unknown;
+      if (!Array.isArray(parsed)) continue;
+
+      let changed = false;
+      const nextTags: string[] = [];
+      const seen = new Set<string>();
+
+      for (const rawTag of parsed) {
+        const tag = String(rawTag).trim();
+        if (!tag) continue;
+        const nextTag = tag === oldName ? newName : tag;
+        changed = changed || nextTag !== tag;
+        if (!seen.has(nextTag)) {
+          seen.add(nextTag);
+          nextTags.push(nextTag);
+        }
+      }
+
+      if (changed) {
+        await env.DB.prepare('UPDATE links SET tags = ?, updated_at = ? WHERE id = ?')
+          .bind(nextTags.length > 0 ? JSON.stringify(nextTags) : null, updatedAt, row.id)
+          .run();
+      }
+    } catch {
+      // Ignore malformed historical tag payloads.
+    }
+  }
+}
+
 export async function createTagsIfMissing(env: Env, tags: Tag[]): Promise<void> {
   for (const tag of tags) {
     await env.DB.prepare(
@@ -324,6 +383,29 @@ export async function createTagsIfMissing(env: Env, tags: Tag[]): Promise<void> 
     )
       .bind(tag.id, tag.name, tag.color ?? null, tag.description ?? null, tag.created_at, tag.updated_at)
       .run();
+  }
+}
+
+export async function removeTagFromLinks(env: Env, name: string, updatedAt: string): Promise<void> {
+  const result = await env.DB.prepare('SELECT id, tags FROM links WHERE tags LIKE ?')
+    .bind(`%"${name}"%`)
+    .all<{ id: string; tags: string }>();
+
+  for (const row of result.results ?? []) {
+    try {
+      const parsed = JSON.parse(row.tags) as unknown;
+      if (!Array.isArray(parsed)) continue;
+
+      const nextTags = parsed
+        .map((tag) => String(tag).trim())
+        .filter((tag) => tag && tag !== name);
+
+      await env.DB.prepare('UPDATE links SET tags = ?, updated_at = ? WHERE id = ?')
+        .bind(nextTags.length > 0 ? JSON.stringify(nextTags) : null, updatedAt, row.id)
+        .run();
+    } catch {
+      // Ignore malformed historical tag payloads.
+    }
   }
 }
 

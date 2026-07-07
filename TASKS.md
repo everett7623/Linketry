@@ -31,6 +31,7 @@ _(none currently)_
 
 - [x] Deploy Worker to Cloudflare (`wrangler deploy`)
 - [x] Deploy Admin to Cloudflare Pages or static host
+- [x] Add GitHub Actions workflow for automatic Cloudflare deploy on push to `main`
 - [x] Test `GET /health` on production URL
 - [x] Test short link redirect on production domain
 - [x] Verify API auth rejects requests without token
@@ -140,6 +141,7 @@ _(none currently)_
 - [x] Local Shlink import test: preview, confirm, duplicate slug conflict skip
 - [x] Admin import confirm downloads a pre-import `backup.json` before mutating data
 - [x] Local Tags API smoke test: create, update, list, delete
+- [x] Local tag sync smoke test: link tags create catalog entries; rename/delete syncs back to links
 - [x] Local Admin browser check: login flow reaches Overview
 - [x] Local Admin browser check: Overview stats load
 - [x] Production smoke test: create, list/search, edit, disable, enable, archive, restore, delete
@@ -165,6 +167,7 @@ _(none currently)_
 - [ ] Safety warning page
 - [ ] UTM parameter templates
 - [x] Tags management page
+- [x] Link tags and Tags catalog synchronization
 - [ ] Sink importer adapter
 - [ ] YOURLS importer adapter
 - [ ] Dub importer adapter

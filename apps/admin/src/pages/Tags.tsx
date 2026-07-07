@@ -266,7 +266,7 @@ export function Tags() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
         title="Delete Tag"
-        message={deleteTarget ? `Delete "${deleteTarget.name}"? Existing link tag text is not removed.` : ''}
+        message={deleteTarget ? `Delete "${deleteTarget.name}"? It will also be removed from links that use it.` : ''}
         confirmLabel="Delete"
         confirmVariant="danger"
         loading={saving}

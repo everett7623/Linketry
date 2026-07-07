@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
-import { getExistingSlugs, createLink, createImportJob, updateImportJob, getImportJobs, getImportJobById } from '../db/index';
+import { getExistingSlugs, createLink, createTagsIfMissing, createImportJob, updateImportJob, getImportJobs, getImportJobById } from '../db/index';
 import { setCachedLink } from '../cache/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
 import { generateId, now } from '../utils/id';
@@ -198,6 +198,17 @@ importRoutes.post('/confirm', async (c) => {
         fallback_url: null,
         archived: 0,
       });
+
+      if (item.tags && item.tags.length > 0) {
+        await createTagsIfMissing(c.env, item.tags.map((tag) => ({
+          id: generateId(),
+          name: tag,
+          color: null,
+          description: null,
+          created_at: linkTs,
+          updated_at: linkTs,
+        })));
+      }
 
       // Write to KV cache
       const cacheEntry: KVCacheEntry = {
