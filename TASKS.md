@@ -15,20 +15,21 @@ _(none currently)_
 
 Product direction:
 
-- [ ] Keep Linkora free and open source first; do not add paid SaaS or subscription billing yet
-- [ ] Preserve a complete, practical self-hosted version for personal users and small teams
-- [ ] Treat paid deployment, migration help, hosted service, or support as future optional business models only
+- [x] Keep Linkora free and open source first; do not add paid SaaS or subscription billing yet
+- [x] Preserve a complete, practical self-hosted version for personal users and small teams
+- [x] Treat paid deployment, migration help, hosted service, or support as future optional business models only
 
 Deployment experience:
 
-- [ ] Rewrite README for first-time external users
-- [ ] Add a clean self-hosted deployment guide with example domains only
-- [ ] Add `apps/worker/wrangler.toml.example`
-- [ ] Add GitHub Actions documentation using repo variables for API URL and Pages project name
-- [ ] Document Cloudflare resources required by a fresh install: Workers, D1, KV, R2, Queues, Pages, secrets, and custom domains
-- [ ] Add post-deploy smoke test commands for health, auth rejection, create/edit/delete, redirect, import preview, and export
-- [ ] Remove or isolate personal deployment values such as `go.y8o.de`, `admin.y8o.de`, and `linkora-admin`
+- [x] Rewrite README for first-time external users
+- [x] Add a clean self-hosted deployment guide with example domains only
+- [x] Add `apps/worker/wrangler.toml.example`
+- [x] Add GitHub Actions documentation using repo variables for API URL and Pages project name
+- [x] Document Cloudflare resources required by a fresh install: Workers, D1, KV, R2, Queues, Pages, secrets, and custom domains
+- [x] Add post-deploy smoke test commands for health, auth rejection, create/edit/delete, redirect, import preview, and export
+- [x] Isolate personal deployment values from public docs and reusable GitHub Actions defaults
 - [ ] Improve first-run Admin guidance for system status and missing setup checks
+- [ ] Move maintainer production Worker config out of the public default path, or generate it from deployment variables
 
 ---
 

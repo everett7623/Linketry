@@ -356,16 +356,26 @@ Defined in `apps/worker/wrangler.toml`:
 |------|-------|---------|
 | `VITE_API_URL` | Build env / Pages env | `https://go.example.com` |
 
-### GitHub Actions Secrets
+### GitHub Actions Secrets And Variables
 
-The `.github/workflows/deploy.yml` workflow always installs dependencies, type-checks the Worker, and builds Admin on pushes to `main`. It deploys to Cloudflare only when these repository secrets are configured:
+The `.github/workflows/deploy.yml` workflow always installs dependencies, type-checks the Worker, and builds Admin on pushes to `main`.
+
+It deploys the Worker only when these repository secrets are configured:
 
 | Name | Purpose |
 |------|---------|
 | `CLOUDFLARE_API_TOKEN` | Authenticates Wrangler in GitHub Actions |
 | `CLOUDFLARE_ACCOUNT_ID` | Selects the Cloudflare account for Worker and Pages deploys |
 
-If either secret is missing, the workflow skips the Cloudflare deploy steps and leaves manual Wrangler deployment as the source of production updates.
+It deploys Admin only when the Cloudflare secrets and these repository variables are configured:
+
+| Name | Example | Purpose |
+|------|---------|---------|
+| `LINKORA_API_URL` | `https://go.example.com` | Builds Admin with the Worker short/API origin |
+| `LINKORA_PAGES_PROJECT` | `linkora-admin` | Selects the Cloudflare Pages project |
+
+If either Cloudflare secret is missing, the workflow skips all Cloudflare deploy steps and leaves manual Wrangler deployment as the source of production updates.
+If either Linkora variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.
 
 ---
 

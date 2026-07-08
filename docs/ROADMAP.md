@@ -81,7 +81,7 @@ Future optional enhancements:
 
 ## V5: Open Source Release And Self-Hosted Deployment
 
-Status: next recommended phase.
+Status: in progress.
 
 Product direction:
 
@@ -100,3 +100,10 @@ Planned:
 - Add post-deploy smoke test commands
 - Remove or isolate personal deployment values such as `go.y8o.de`, `admin.y8o.de`, and `linkora-admin`
 - Improve first-run guidance in Admin so new self-hosters can verify system status quickly
+
+Completed in the first V5 pass:
+
+- Public self-hosting guide
+- Worker `wrangler.toml` example
+- Admin `.env.example`
+- GitHub Actions variables for reusable Admin builds and Pages deploys

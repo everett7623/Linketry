@@ -6,7 +6,13 @@ A lightweight, stable, self-hosted short link system built on Cloudflare Workers
 
 ---
 
-## Features (V1)
+## Product Direction
+
+Linkora is free and open source first. The project prioritizes self-hosting on your own Cloudflare account, data ownership, migration safety, and stable redirects over SaaS complexity.
+
+For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
+
+## Features
 
 - ⚡ Fast short link redirects via Cloudflare Workers + KV cache
 - 🔒 Admin panel with token authentication
@@ -89,7 +95,9 @@ npm run dev --workspace=apps/admin
 
 ## Cloudflare Setup
 
-For the complete production deployment flow, see [DEPLOYMENT.md](DEPLOYMENT.md).
+For a new self-hosted deployment, follow [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md). It includes the Cloudflare resource checklist, template configuration, GitHub Actions variables, and smoke tests.
+
+This repository also keeps a maintainer production runbook in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ### 1. Create D1 Database
 
@@ -97,7 +105,7 @@ For the complete production deployment flow, see [DEPLOYMENT.md](DEPLOYMENT.md).
 wrangler d1 create linkora-db
 ```
 
-Copy the returned `database_id` into `apps/worker/wrangler.toml`.
+Copy `apps/worker/wrangler.toml.example` to `apps/worker/wrangler.toml`, then put the returned `database_id` into the D1 binding.
 
 ### 2. Run Migrations
 
@@ -143,7 +151,7 @@ wrangler secret put ADMIN_TOKEN
 
 ## Environment Variables
 
-See `.env.example` and `apps/worker/.dev.vars.example` for all required variables.
+See `.env.example`, `apps/worker/.dev.vars.example`, and `apps/admin/.env.example` for all required variables.
 
 | Variable           | Description                             |
 |--------------------|-----------------------------------------|
@@ -154,6 +162,22 @@ See `.env.example` and `apps/worker/.dev.vars.example` for all required variable
 ## Deploy
 
 Pushing to `main` can deploy automatically through GitHub Actions after the Cloudflare secrets in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) are configured.
+
+For a reusable open-source setup, configure these GitHub repository values:
+
+Secrets:
+
+```txt
+CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
+```
+
+Variables:
+
+```txt
+LINKORA_API_URL=https://go.example.com
+LINKORA_PAGES_PROJECT=linkora-admin
+```
 
 ### Worker
 
@@ -212,6 +236,7 @@ If Linkora has issues, point the production domain DNS back to Shlink. No data i
 | **V2** ✅ | Bulk ops, expiry, password, QR codes, Sink/YOURLS/Dub import, audit logs |
 | **V3** ✅ | Advanced analytics, auto R2 backup, API tokens, multi-domain, Webhooks, Queues, Cron |
 | **V4** ✅ | Smart redirects (country/device/browser/referer/language/A-B), local smart suggestions, UTM templates, campaigns, health checks |
+| **V5** 🚧 | Open-source packaging, self-hosting docs, template config, reusable deploy workflow |
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for details.
 
