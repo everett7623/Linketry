@@ -194,7 +194,7 @@ _(none currently)_
 - [x] Cloudflare Queues for async stats
 - [x] Cron Triggers for daily backup
 - [x] Multi-domain support
-- [ ] Webhook notifications
+- [x] Webhook notifications
 
 ## 🔵 Backlog — V4
 

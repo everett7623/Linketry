@@ -13,6 +13,7 @@ import {
   getImportJobById,
 } from '../db/index';
 import { recordAudit } from '../audit/index';
+import { emitWebhook } from '../webhooks/index';
 import { deleteCachedLink, setCachedLink } from '../cache/index';
 import { jsonOk, jsonError } from '../utils/response';
 import { generateId, now } from '../utils/id';
@@ -483,6 +484,17 @@ importRoutes.post('/confirm', async (c) => {
     failed: failedCount,
     conflictStrategy,
   });
+  c.executionCtx.waitUntil(emitWebhook(c.env, 'import.completed', {
+    jobId,
+    source: adapter.source,
+    total: items.length,
+    success: successCount,
+    skipped: skippedCount,
+    conflicts: conflictCount,
+    failed: failedCount,
+    conflictStrategy,
+    completedAt,
+  }));
 
   return jsonOk({
     jobId,

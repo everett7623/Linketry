@@ -15,6 +15,9 @@ settings.use('*', async (c, next) => {
 
 settings.get('/', async (c) => {
   const allSettings = await getSettings(c.env);
+  if ('webhook_secret' in allSettings) {
+    allSettings.webhook_secret = '';
+  }
   return jsonOk(allSettings);
 });
 

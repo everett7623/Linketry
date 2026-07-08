@@ -67,6 +67,34 @@ Domain endpoints require admin access. Link creation and update payloads can inc
 | `DELETE` | `/api/domains/:id` | Delete a domain catalog entry |
 | `POST` | `/api/domains/:id/set-default` | Mark a domain as the default |
 
+## Webhooks
+
+Webhook endpoints require admin access. Deliveries are sent asynchronously and do not block link, import, backup, or redirect flows.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/webhooks/config` | Read webhook config without returning the signing secret |
+| `PUT` | `/api/webhooks/config` | Update enabled state, URL, events, and optional signing secret |
+| `POST` | `/api/webhooks/test` | Send a test delivery to the configured URL |
+
+Supported event names:
+
+```txt
+link.created
+link.updated
+link.deleted
+link.disabled
+link.enabled
+link.archived
+link.restored
+link.bulk
+import.completed
+backup.completed
+backup.failed
+```
+
+Delivery headers include `X-Linkora-Event`, `X-Linkora-Timestamp`, and, when a secret is configured, `X-Linkora-Signature: sha256=<hex-hmac>`.
+
 ## Links
 
 | Method | Path |

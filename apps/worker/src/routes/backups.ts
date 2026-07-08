@@ -4,6 +4,7 @@ import { requireAuth } from '../auth/index';
 import { getBackupById, listBackups } from '../db/index';
 import { backupDownloadName, createR2Backup } from '../backups/index';
 import { recordAudit } from '../audit/index';
+import { emitWebhook } from '../webhooks/index';
 import { jsonError, jsonOk } from '../utils/response';
 
 const backupRoutes = new Hono<{ Bindings: Env }>();
@@ -31,8 +32,13 @@ backupRoutes.post('/create', async (c) => {
       size: backup.size,
       storage: backup.storage,
     });
+    c.executionCtx.waitUntil(emitWebhook(c.env, 'backup.completed', { backup, trigger: 'manual' }));
     return jsonOk(backup, 201);
   } catch (error) {
+    c.executionCtx.waitUntil(emitWebhook(c.env, 'backup.failed', {
+      trigger: 'manual',
+      error: error instanceof Error ? error.message : String(error),
+    }));
     return jsonError(error instanceof Error ? error.message : 'Backup failed', 503);
   }
 });

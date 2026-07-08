@@ -91,7 +91,7 @@ Last updated: 2026-07-08
 ## Next Steps
 
 1. Revoke or rotate the Shlink API key used during migration
-2. Continue V3 with webhook notifications
+2. Start V4 smart redirects when ready
 3. Cut over `s.y8o.de` from Shlink to Linkora when ready
 
 ---
@@ -121,7 +121,7 @@ Last updated: 2026-07-08
 | Version | Status      |
 |---------|-------------|
 | V2      | ✅ Done |
-| V3      | In progress |
+| V3      | ✅ Done |
 | V4      | Not started |
 
 Database columns for V2–V4 are already present in `migrations/0001_init.sql` to avoid future migration complexity. They are not used by V1 code.
@@ -166,3 +166,4 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | API Token management page | ✅ Done | Admin can create/revoke scoped tokens; Worker stores hashes and authorizes API requests by scope |
 | Cloudflare Queues for async stats | ✅ Done | Redirects enqueue visit snapshots when `VISITS_QUEUE` exists; max-click links and queue failures fall back to direct `ctx.waitUntil()` recording |
 | Multi-domain support | ✅ Done | Admin can manage short domains; links store a selected domain; redirects resolve by request host plus slug with legacy domainless fallback |
+| Webhook notifications | ✅ Done | Admin configures signed webhook deliveries for link, import, and backup events; delivery runs asynchronously and never blocks primary flows |

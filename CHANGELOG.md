@@ -26,6 +26,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Completed V2 production regression and marked V2 as done.
 - Added optional Cloudflare Queues processing for visit statistics with direct `ctx.waitUntil()` fallback.
 - Added multi-domain management, per-link short domain selection, and domain-aware redirect lookups.
+- Added webhook notifications with signed deliveries for link, import, and backup events.
 
 ---
 

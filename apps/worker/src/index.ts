@@ -14,8 +14,10 @@ import auditRoutes from './routes/audit';
 import analyticsRoutes from './routes/analytics';
 import backupRoutes from './routes/backups';
 import tokenRoutes from './routes/tokens';
+import webhookRoutes from './routes/webhooks';
 import { processVisitQueueBatch } from './analytics/index';
 import { createR2Backup } from './backups/index';
+import { emitWebhook } from './webhooks/index';
 import type { VisitQueueMessage } from '@linkora/shared';
 import { getOverviewStats } from './db/index';
 import { requireAuth } from './auth/index';
@@ -80,6 +82,9 @@ app.route('/api/backups', backupRoutes);
 // API Tokens
 app.route('/api/tokens', tokenRoutes);
 
+// Webhooks
+app.route('/api/webhooks', webhookRoutes);
+
 // Overview stats
 app.get('/api/overview', async (c) => {
   const authError = await requireAuth(c);
@@ -119,9 +124,15 @@ const handler: ExportedHandler<Env, VisitQueueMessage> = {
   },
   scheduled(_controller, env, ctx) {
     ctx.waitUntil(
-      createR2Backup(env, 'scheduled').catch((error) => {
-        console.error('Scheduled Linkora backup failed', error);
-      })
+      createR2Backup(env, 'scheduled')
+        .then((backup) => emitWebhook(env, 'backup.completed', { backup, trigger: 'scheduled' }))
+        .catch((error) => {
+          console.error('Scheduled Linkora backup failed', error);
+          return emitWebhook(env, 'backup.failed', {
+            trigger: 'scheduled',
+            error: error instanceof Error ? error.message : String(error),
+          });
+        })
     );
   },
 };

@@ -12,6 +12,7 @@ import {
   createTagsIfMissing,
 } from '../db/index';
 import { recordAudit } from '../audit/index';
+import { emitWebhook } from '../webhooks/index';
 import { setCachedLink, deleteCachedLink } from '../cache/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
 import { generateId, now, sha256 } from '../utils/id';
@@ -367,6 +368,7 @@ links.post('/', async (c) => {
 
   await refreshLinkCache(c.env, cacheDomainForLink(link, fallbackDomain), link);
   await recordAudit(c.env, c.req.raw, 'link.create', 'link', link.id, { slug: link.slug });
+  c.executionCtx.waitUntil(emitWebhook(c.env, 'link.created', { link: sanitizeLink(link) }));
 
   return jsonCreated(sanitizeLink(link));
 });
@@ -423,6 +425,13 @@ links.post('/bulk-create', async (c) => {
     failed: failedCount,
     slugs: createdLinks.map((link) => link.slug),
   });
+  c.executionCtx.waitUntil(emitWebhook(c.env, 'link.bulk', {
+    action: 'bulk_create',
+    total: items.length,
+    success: successCount,
+    failed: failedCount,
+    links: sanitizeLinks(createdLinks),
+  }));
 
   return jsonOk({
     total: items.length,
@@ -501,6 +510,12 @@ links.post('/bulk', async (c) => {
     success: successCount,
     notFound: ids.length - existing.length,
   });
+  c.executionCtx.waitUntil(emitWebhook(c.env, 'link.bulk', {
+    action,
+    ids,
+    success: successCount,
+    notFound: ids.length - existing.length,
+  }));
 
   return jsonOk({
     action,
@@ -663,6 +678,13 @@ links.put('/:id', async (c) => {
     changed: Object.keys(fields).filter((field) => field !== 'password_hash'),
     password_changed: 'password_hash' in fields,
   });
+  if (updated) {
+    c.executionCtx.waitUntil(emitWebhook(c.env, 'link.updated', {
+      link: sanitizeLink(updated),
+      changed: Object.keys(fields).filter((field) => field !== 'password_hash'),
+      password_changed: 'password_hash' in fields,
+    }));
+  }
 
   return jsonOk(updated ? sanitizeLink(updated) : null);
 });
@@ -678,6 +700,7 @@ links.delete('/:id', async (c) => {
   await deleteLink(c.env, id);
   await deleteCachedLink(c.env, domain, existing.slug);
   await recordAudit(c.env, c.req.raw, 'link.delete', 'link', id, { slug: existing.slug });
+  c.executionCtx.waitUntil(emitWebhook(c.env, 'link.deleted', { link: sanitizeLink(existing) }));
 
   return jsonOk({ message: 'Link deleted' });
 });
@@ -692,6 +715,9 @@ links.post('/:id/disable', async (c) => {
   await updateLink(c.env, id, { status: 'disabled', updated_at: now() });
   await deleteCachedLink(c.env, domain, existing.slug);
   await recordAudit(c.env, c.req.raw, 'link.disable', 'link', id, { slug: existing.slug });
+  c.executionCtx.waitUntil(emitWebhook(c.env, 'link.disabled', {
+    link: sanitizeLink({ ...existing, status: 'disabled' }),
+  }));
 
   return jsonOk({ message: 'Link disabled' });
 });
@@ -707,6 +733,9 @@ links.post('/:id/enable', async (c) => {
 
   await refreshLinkCache(c.env, domain, { ...existing, status: 'active' });
   await recordAudit(c.env, c.req.raw, 'link.enable', 'link', id, { slug: existing.slug });
+  c.executionCtx.waitUntil(emitWebhook(c.env, 'link.enabled', {
+    link: sanitizeLink({ ...existing, status: 'active' }),
+  }));
 
   return jsonOk({ message: 'Link enabled' });
 });
@@ -721,6 +750,9 @@ links.post('/:id/archive', async (c) => {
   await updateLink(c.env, id, { archived: 1, status: 'archived', updated_at: now() });
   await deleteCachedLink(c.env, domain, existing.slug);
   await recordAudit(c.env, c.req.raw, 'link.archive', 'link', id, { slug: existing.slug });
+  c.executionCtx.waitUntil(emitWebhook(c.env, 'link.archived', {
+    link: sanitizeLink({ ...existing, archived: 1, status: 'archived' }),
+  }));
 
   return jsonOk({ message: 'Link archived' });
 });
@@ -736,6 +768,9 @@ links.post('/:id/restore', async (c) => {
 
   await refreshLinkCache(c.env, domain, { ...existing, archived: 0, status: 'active' });
   await recordAudit(c.env, c.req.raw, 'link.restore', 'link', id, { slug: existing.slug });
+  c.executionCtx.waitUntil(emitWebhook(c.env, 'link.restored', {
+    link: sanitizeLink({ ...existing, archived: 0, status: 'active' }),
+  }));
 
   return jsonOk({ message: 'Link restored' });
 });

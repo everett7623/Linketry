@@ -9,7 +9,7 @@ export interface LinkoraBackupPayload {
   exportedAt: string;
   links: Awaited<ReturnType<typeof getAllLinks>>;
   tags: Awaited<ReturnType<typeof getAllTags>>;
-  settings: Awaited<ReturnType<typeof getSettings>>;
+  settings: Record<string, string>;
 }
 
 export type BackupTrigger = 'manual' | 'scheduled';
@@ -27,7 +27,7 @@ export async function buildBackupPayload(env: Env): Promise<LinkoraBackupPayload
     exportedAt: now(),
     links,
     tags,
-    settings,
+    settings: redactBackupSettings(settings),
   };
 }
 
@@ -90,4 +90,12 @@ export function backupDownloadName(filename: string): string {
 function createBackupObjectKey(createdAt: string): string {
   const stamp = createdAt.slice(0, 19).replace(/[-:T]/g, '');
   return `backups/linkora-backup-${stamp}.json`;
+}
+
+function redactBackupSettings(settings: Record<string, string>): Record<string, string> {
+  const redacted = { ...settings };
+  if ('webhook_secret' in redacted) {
+    redacted.webhook_secret = '';
+  }
+  return redacted;
 }

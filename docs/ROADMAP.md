@@ -57,9 +57,6 @@ Done:
 - Cloudflare Queues for async stats
 - Cron backups
 - Multi-domain management
-
-Backlog:
-
 - Webhooks
 
 ## V4: Smart Redirects And Operations
