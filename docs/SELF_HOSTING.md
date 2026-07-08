@@ -202,6 +202,8 @@ Log in with `ADMIN_TOKEN`, then open Settings and set:
 | Default Domain | `go.example.com` |
 | Default Redirect Type | `302` |
 
+Then open **Setup** in the sidebar. It summarizes whether the Admin can reach the API, whether a default short domain is configured, whether the domain catalog has an active default, whether R2 backups are available, and whether the first link has been created.
+
 ## 10. Smoke Test
 
 Run these after every first deployment:

@@ -28,7 +28,7 @@ Deployment experience:
 - [x] Document Cloudflare resources required by a fresh install: Workers, D1, KV, R2, Queues, Pages, secrets, and custom domains
 - [x] Add post-deploy smoke test commands for health, auth rejection, create/edit/delete, redirect, import preview, and export
 - [x] Isolate personal deployment values from public docs and reusable GitHub Actions defaults
-- [ ] Improve first-run Admin guidance for system status and missing setup checks
+- [x] Improve first-run Admin guidance for system status and missing setup checks
 - [ ] Move maintainer production Worker config out of the public default path, or generate it from deployment variables
 
 ---

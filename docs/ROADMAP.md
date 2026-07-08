@@ -107,3 +107,4 @@ Completed in the first V5 pass:
 - Worker `wrangler.toml` example
 - Admin `.env.example`
 - GitHub Actions variables for reusable Admin builds and Pages deploys
+- Admin Setup page for first-run deployment checks

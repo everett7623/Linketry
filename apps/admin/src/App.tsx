@@ -19,6 +19,7 @@ import { Domains } from './pages/Domains';
 import { RedirectRules } from './pages/RedirectRules';
 import { Groups } from './pages/Groups';
 import { HealthChecks } from './pages/HealthChecks';
+import { Setup } from './pages/Setup';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { authenticated, loading } = useAuth();
@@ -46,6 +47,7 @@ export function App() {
       >
         <Route index element={<Navigate to="/overview" replace />} />
         <Route path="overview" element={<Overview />} />
+        <Route path="setup" element={<Setup />} />
         <Route path="links" element={<Links />} />
         <Route path="links/create" element={<CreateLink />} />
         <Route path="links/bulk-create" element={<BulkCreateLinks />} />

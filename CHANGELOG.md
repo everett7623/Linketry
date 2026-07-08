@@ -33,6 +33,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Added V4 manual link health checks for individual URLs, single links, and capped batches of active links.
 - Added V4 local smart link suggestions for slugs, titles, descriptions, and tags from URL/page metadata.
 - Added V5 self-hosting documentation, a public `wrangler.toml` template, Admin env example, and reusable GitHub Actions variables for open-source deployments.
+- Added an Admin Setup page that summarizes API reachability, short-domain configuration, domain catalog, backups, and first-link readiness for self-hosted installs.
 
 ---
 
