@@ -22,6 +22,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Added Shlink API pull import, password-protected links, safety warning pages, UTM templates, and Audit Logs.
 - Added bulk link creation, Links advanced filters, Generic CSV / JSON field mapping, and an Analytics dashboard backed by daily stats aggregation.
 - Added R2 backup snapshots with manual Admin creation, download, backup records, and daily Worker cron scheduling.
+- Added scoped API token management with hash-only storage, Admin creation/revocation, and API token auth for protected routes.
 
 ---
 

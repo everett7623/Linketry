@@ -30,7 +30,7 @@ import type { ImportFieldMapping, Link, NormalizedImportItem, ImportAdapter, KVC
 const importRoutes = new Hono<{ Bindings: Env }>();
 
 importRoutes.use('*', async (c, next) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
   await next();
 });

@@ -9,7 +9,7 @@ import { jsonError, jsonOk } from '../utils/response';
 const backupRoutes = new Hono<{ Bindings: Env }>();
 
 backupRoutes.use('*', async (c, next) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
   await next();
 });

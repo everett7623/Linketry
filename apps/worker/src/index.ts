@@ -12,6 +12,7 @@ import metadataRoutes from './routes/metadata';
 import auditRoutes from './routes/audit';
 import analyticsRoutes from './routes/analytics';
 import backupRoutes from './routes/backups';
+import tokenRoutes from './routes/tokens';
 import { createR2Backup } from './backups/index';
 import { getOverviewStats } from './db/index';
 import { requireAuth } from './auth/index';
@@ -70,9 +71,12 @@ app.route('/api/analytics', analyticsRoutes);
 // Backups
 app.route('/api/backups', backupRoutes);
 
+// API Tokens
+app.route('/api/tokens', tokenRoutes);
+
 // Overview stats
 app.get('/api/overview', async (c) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
   const stats = await getOverviewStats(c.env);
   return jsonOk(stats);

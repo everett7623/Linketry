@@ -9,11 +9,13 @@
 
 ## Admin API
 
-V1 uses bearer-token auth:
+Admin login uses bearer-token auth:
 
 ```http
 Authorization: Bearer <ADMIN_TOKEN>
 ```
+
+API tokens are stored as SHA-256 hashes in D1 and can be scoped as `read`, `write`, or `admin`. New token plaintext is returned only once when it is created.
 
 All `/api/*` routes must pass through `src/auth/index.ts`.
 
@@ -54,4 +56,3 @@ Reserved paths such as `api`, `admin`, `health`, `login`, `settings`, static ass
 - Default conflict strategy is skip.
 - Never silently overwrite existing slugs.
 - Admin downloads a pre-import backup before confirm import mutates data.
-

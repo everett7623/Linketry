@@ -282,7 +282,7 @@ async function refreshLinkCache(env: Env, domain: string, link: Link): Promise<v
 
 // Auth middleware
 links.use('*', async (c, next) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
   await next();
 });

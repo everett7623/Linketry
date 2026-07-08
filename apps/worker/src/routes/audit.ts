@@ -7,7 +7,7 @@ import { jsonOk } from '../utils/response';
 const auditRoutes = new Hono<{ Bindings: Env }>();
 
 auditRoutes.use('*', async (c, next) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c, 'admin');
   if (authError) return authError;
   await next();
 });

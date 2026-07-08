@@ -1,5 +1,15 @@
-import type { AuditLog, Backup, Link, Tag, ImportJob, Setting, Visit } from '@linkora/shared';
+import type { ApiToken, ApiTokenScope, AuditLog, Backup, Link, Tag, ImportJob, Setting, Visit } from '@linkora/shared';
 import type { Env } from '../types';
+
+export interface ApiTokenRecord {
+  id: string;
+  name: string;
+  token_hash: string;
+  scopes: string;
+  last_used_at?: string | null;
+  created_at: string;
+  revoked_at?: string | null;
+}
 
 export async function getLinkBySlug(env: Env, slug: string): Promise<Link | null> {
   const result = await env.DB.prepare('SELECT * FROM links WHERE slug = ? LIMIT 1')
@@ -762,4 +772,81 @@ export async function listBackups(env: Env): Promise<Backup[]> {
 export async function getBackupById(env: Env, id: string): Promise<Backup | null> {
   const result = await env.DB.prepare('SELECT * FROM backups WHERE id = ? LIMIT 1').bind(id).first<Backup>();
   return result ?? null;
+}
+
+export async function listApiTokens(env: Env): Promise<ApiToken[]> {
+  const result = await env.DB.prepare(
+    'SELECT id, name, scopes, last_used_at, created_at, revoked_at FROM api_tokens ORDER BY created_at DESC'
+  ).all<Omit<ApiTokenRecord, 'token_hash'>>();
+
+  return (result.results ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    scopes: parseApiTokenScopes(row.scopes),
+    last_used_at: row.last_used_at ?? null,
+    created_at: row.created_at,
+    revoked_at: row.revoked_at ?? null,
+  }));
+}
+
+export async function createApiTokenRecord(env: Env, token: ApiTokenRecord): Promise<void> {
+  await env.DB.prepare(
+    'INSERT INTO api_tokens (id, name, token_hash, scopes, last_used_at, created_at, revoked_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  )
+    .bind(
+      token.id,
+      token.name,
+      token.token_hash,
+      token.scopes,
+      token.last_used_at ?? null,
+      token.created_at,
+      token.revoked_at ?? null
+    )
+    .run();
+}
+
+export async function getActiveApiTokenByHash(env: Env, tokenHash: string): Promise<ApiTokenRecord | null> {
+  const result = await env.DB.prepare(
+    'SELECT * FROM api_tokens WHERE token_hash = ? AND revoked_at IS NULL LIMIT 1'
+  )
+    .bind(tokenHash)
+    .first<ApiTokenRecord>();
+  return result ?? null;
+}
+
+export async function touchApiTokenLastUsed(env: Env, id: string, lastUsedAt: string): Promise<void> {
+  await env.DB.prepare('UPDATE api_tokens SET last_used_at = ? WHERE id = ?')
+    .bind(lastUsedAt, id)
+    .run();
+}
+
+export async function revokeApiToken(env: Env, id: string, revokedAt: string): Promise<boolean> {
+  const result = await env.DB.prepare(
+    'UPDATE api_tokens SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL'
+  )
+    .bind(revokedAt, id)
+    .run();
+  return (result.meta.changes ?? 0) > 0;
+}
+
+export function parseApiTokenScopes(value: string): ApiTokenScope[] {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (Array.isArray(parsed)) {
+      const scopes = parsed.filter((scope): scope is ApiTokenScope =>
+        scope === 'read' || scope === 'write' || scope === 'admin'
+      );
+      return scopes.length > 0 ? [...new Set(scopes)] : ['read'];
+    }
+  } catch {
+    // Fall through to legacy comma-separated parsing.
+  }
+
+  const scopes = value
+    .split(',')
+    .map((scope) => scope.trim())
+    .filter((scope): scope is ApiTokenScope =>
+      scope === 'read' || scope === 'write' || scope === 'admin'
+    );
+  return scopes.length > 0 ? [...new Set(scopes)] : ['read'];
 }

@@ -8,7 +8,7 @@ import type { Link, Visit } from '@linkora/shared';
 const exportRoutes = new Hono<{ Bindings: Env }>();
 
 exportRoutes.use('*', async (c, next) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
   await next();
 });

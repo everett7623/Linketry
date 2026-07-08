@@ -11,7 +11,7 @@ const MAX_TITLE_LENGTH = 200;
 const FETCH_TIMEOUT_MS = 6000;
 
 metadata.use('*', async (c, next) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
   await next();
 });

@@ -20,7 +20,7 @@ import type { Tag } from '@linkora/shared';
 const tags = new Hono<{ Bindings: Env }>();
 
 tags.use('*', async (c, next) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
   await next();
 });

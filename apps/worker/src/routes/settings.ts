@@ -8,7 +8,7 @@ import { now } from '../utils/id';
 const settings = new Hono<{ Bindings: Env }>();
 
 settings.use('*', async (c, next) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c, 'admin');
   if (authError) return authError;
   await next();
 });

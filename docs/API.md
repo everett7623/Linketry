@@ -1,10 +1,18 @@
 # Linkora API
 
-All `/api/*` endpoints require:
+All `/api/*` endpoints require either the admin token or a scoped API token:
 
 ```http
 Authorization: Bearer <ADMIN_TOKEN>
 ```
+
+API token scopes:
+
+| Scope | Access |
+|-------|--------|
+| `read` | Read-only `GET` endpoints |
+| `write` | Read and mutating link/import/export helper endpoints |
+| `admin` | Full access, including settings, audit logs, and API token management |
 
 Responses use:
 
@@ -35,6 +43,17 @@ Redirect analytics are recorded asynchronously. Stats failures must not block re
 | `POST` | `/api/auth/login` |
 | `GET` | `/api/auth/me` |
 | `POST` | `/api/auth/logout` |
+
+Admin login still uses `ADMIN_TOKEN`. API tokens are for API requests and are managed from the Admin panel.
+
+## API Tokens
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/tokens` | List API tokens without hashes |
+| `POST` | `/api/tokens` | Create a token and return the plaintext value once |
+| `POST` | `/api/tokens/:id/revoke` | Revoke a token |
+| `DELETE` | `/api/tokens/:id` | Revoke a token |
 
 ## Links
 

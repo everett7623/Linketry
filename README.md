@@ -15,6 +15,7 @@ A lightweight, stable, self-hosted short link system built on Cloudflare Workers
 - 🔍 Search by slug, URL, title; filter by tag, status, source, domain, created date, password, warning, and limits
 - 🏷️ Tag support and tag management
 - 📊 Click tracking with analytics dashboard and daily aggregation
+- 🔑 Scoped API tokens for read, write, and admin API access
 - 📥 Import from Shlink, Sink, YOURLS, Dub, Linkora backup, and generic CSV / JSON with field mapping
 - 🧭 Import preview with skip, rename, or overwrite conflict handling
 - Password-protected links, safety warning pages, and UTM builder templates

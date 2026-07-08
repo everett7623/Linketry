@@ -7,7 +7,7 @@ import { jsonOk } from '../utils/response';
 const analyticsRoutes = new Hono<{ Bindings: Env }>();
 
 analyticsRoutes.use('*', async (c, next) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
   await next();
 });

@@ -91,7 +91,7 @@ Last updated: 2026-07-08
 ## Next Steps
 
 1. Revoke or rotate the Shlink API key used during migration
-2. Continue V3 with API Token management or Cloudflare Queues for async stats
+2. Continue V3 with Cloudflare Queues for async stats or multi-domain support
 3. Cut over `s.y8o.de` from Shlink to Linkora when ready
 
 ---
@@ -162,3 +162,4 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Daily stats aggregation | ✅ Done | Visit recording updates `daily_stats` asynchronously via `ctx.waitUntil()` alongside raw visits |
 | Auto-backup to Cloudflare R2 | ✅ Done | Worker creates full backup snapshots in R2 through Admin and scheduled cron |
 | Cron Triggers for daily backup | ✅ Done | Wrangler cron runs daily at 18:00 UTC / 02:00 Asia/Shanghai |
+| API Token management page | ✅ Done | Admin can create/revoke scoped tokens; Worker stores hashes and authorizes API requests by scope |

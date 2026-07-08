@@ -89,6 +89,17 @@ export interface Backup {
   created_at: string;
 }
 
+export type ApiTokenScope = 'read' | 'write' | 'admin';
+
+export interface ApiToken {
+  id: string;
+  name: string;
+  scopes: ApiTokenScope[];
+  last_used_at?: string | null;
+  created_at: string;
+  revoked_at?: string | null;
+}
+
 export interface Setting {
   key: string;
   value?: string | null;

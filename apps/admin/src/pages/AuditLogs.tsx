@@ -76,6 +76,8 @@ export function AuditLogs() {
           <option value="import.confirm">Import Confirm</option>
           <option value="import.shlink_api.fetch">Shlink API Fetch</option>
           <option value="backup.create">Backup Create</option>
+          <option value="api_token.create">API Token Create</option>
+          <option value="api_token.revoke">API Token Revoke</option>
         </Select>
       </div>
 

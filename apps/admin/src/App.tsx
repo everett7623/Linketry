@@ -14,6 +14,7 @@ import { Settings } from './pages/Settings';
 import { AuditLogs } from './pages/AuditLogs';
 import { Analytics } from './pages/Analytics';
 import { Backups } from './pages/Backups';
+import { ApiTokens } from './pages/ApiTokens';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { authenticated, loading } = useAuth();
@@ -49,6 +50,7 @@ export function App() {
         <Route path="tags" element={<Tags />} />
         <Route path="import-export" element={<ImportExport />} />
         <Route path="backups" element={<Backups />} />
+        <Route path="api-tokens" element={<ApiTokens />} />
         <Route path="audit-logs" element={<AuditLogs />} />
         <Route path="settings" element={<Settings />} />
       </Route>
