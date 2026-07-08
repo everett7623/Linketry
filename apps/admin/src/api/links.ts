@@ -42,6 +42,7 @@ export function getLink(id: string): Promise<Link> {
 export interface CreateLinkPayload {
   long_url: string;
   slug?: string;
+  domain?: string | null;
   title?: string;
   tags?: string[];
   redirect_type?: 301 | 302;

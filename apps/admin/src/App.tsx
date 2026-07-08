@@ -15,6 +15,7 @@ import { AuditLogs } from './pages/AuditLogs';
 import { Analytics } from './pages/Analytics';
 import { Backups } from './pages/Backups';
 import { ApiTokens } from './pages/ApiTokens';
+import { Domains } from './pages/Domains';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { authenticated, loading } = useAuth();
@@ -47,6 +48,7 @@ export function App() {
         <Route path="links/bulk-create" element={<BulkCreateLinks />} />
         <Route path="links/:id/edit" element={<EditLink />} />
         <Route path="analytics" element={<Analytics />} />
+        <Route path="domains" element={<Domains />} />
         <Route path="tags" element={<Tags />} />
         <Route path="import-export" element={<ImportExport />} />
         <Route path="backups" element={<Backups />} />

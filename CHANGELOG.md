@@ -25,6 +25,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Added scoped API token management with hash-only storage, Admin creation/revocation, and API token auth for protected routes.
 - Completed V2 production regression and marked V2 as done.
 - Added optional Cloudflare Queues processing for visit statistics with direct `ctx.waitUntil()` fallback.
+- Added multi-domain management, per-link short domain selection, and domain-aware redirect lookups.
 
 ---
 

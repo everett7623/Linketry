@@ -1,4 +1,4 @@
-import type { ApiToken, ApiTokenScope, AuditLog, Backup, Link, Tag, ImportJob, Setting, Visit } from '@linkora/shared';
+import type { ApiToken, ApiTokenScope, AuditLog, Backup, Domain, Link, Tag, ImportJob, Setting, Visit } from '@linkora/shared';
 import type { Env } from '../types';
 
 export interface ApiTokenRecord {
@@ -13,6 +13,20 @@ export interface ApiTokenRecord {
 
 export async function getLinkBySlug(env: Env, slug: string): Promise<Link | null> {
   const result = await env.DB.prepare('SELECT * FROM links WHERE slug = ? LIMIT 1')
+    .bind(slug)
+    .first<Link>();
+  return result ?? null;
+}
+
+export async function getLinkByDomainAndSlug(env: Env, domain: string, slug: string): Promise<Link | null> {
+  const result = await env.DB.prepare('SELECT * FROM links WHERE domain = ? AND slug = ? LIMIT 1')
+    .bind(domain, slug)
+    .first<Link>();
+  return result ?? null;
+}
+
+export async function getDomainlessLinkBySlug(env: Env, slug: string): Promise<Link | null> {
+  const result = await env.DB.prepare('SELECT * FROM links WHERE (domain IS NULL OR domain = "") AND slug = ? LIMIT 1')
     .bind(slug)
     .first<Link>();
   return result ?? null;
@@ -624,6 +638,56 @@ export async function removeTagFromLinks(env: Env, name: string, updatedAt: stri
 
 export async function deleteTag(env: Env, id: string): Promise<void> {
   await env.DB.prepare('DELETE FROM tags WHERE id = ?').bind(id).run();
+}
+
+export async function listDomains(env: Env): Promise<Domain[]> {
+  const result = await env.DB.prepare('SELECT * FROM domains ORDER BY is_default DESC, domain ASC').all<Domain>();
+  return result.results ?? [];
+}
+
+export async function getDomainById(env: Env, id: string): Promise<Domain | null> {
+  const result = await env.DB.prepare('SELECT * FROM domains WHERE id = ? LIMIT 1').bind(id).first<Domain>();
+  return result ?? null;
+}
+
+export async function getDomainByName(env: Env, domain: string): Promise<Domain | null> {
+  const result = await env.DB.prepare('SELECT * FROM domains WHERE domain = ? LIMIT 1').bind(domain).first<Domain>();
+  return result ?? null;
+}
+
+export async function createDomain(env: Env, domain: Domain): Promise<void> {
+  await env.DB.prepare(
+    'INSERT INTO domains (id, domain, is_default, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+  )
+    .bind(domain.id, domain.domain, domain.is_default, domain.status, domain.created_at, domain.updated_at)
+    .run();
+}
+
+export async function updateDomain(
+  env: Env,
+  id: string,
+  fields: Pick<Domain, 'domain' | 'is_default' | 'status' | 'updated_at'>
+): Promise<void> {
+  await env.DB.prepare('UPDATE domains SET domain = ?, is_default = ?, status = ?, updated_at = ? WHERE id = ?')
+    .bind(fields.domain, fields.is_default, fields.status, fields.updated_at, id)
+    .run();
+}
+
+export async function clearDefaultDomains(env: Env, updatedAt: string): Promise<void> {
+  await env.DB.prepare('UPDATE domains SET is_default = 0, updated_at = ? WHERE is_default = 1')
+    .bind(updatedAt)
+    .run();
+}
+
+export async function setDefaultDomain(env: Env, id: string, updatedAt: string): Promise<void> {
+  await clearDefaultDomains(env, updatedAt);
+  await env.DB.prepare('UPDATE domains SET is_default = 1, status = "active", updated_at = ? WHERE id = ?')
+    .bind(updatedAt, id)
+    .run();
+}
+
+export async function deleteDomain(env: Env, id: string): Promise<void> {
+  await env.DB.prepare('DELETE FROM domains WHERE id = ?').bind(id).run();
 }
 
 export async function getSettings(env: Env): Promise<Record<string, string>> {

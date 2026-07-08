@@ -55,6 +55,18 @@ Admin login still uses `ADMIN_TOKEN`. API tokens are for API requests and are ma
 | `POST` | `/api/tokens/:id/revoke` | Revoke a token |
 | `DELETE` | `/api/tokens/:id` | Revoke a token |
 
+## Domains
+
+Domain endpoints require admin access. Link creation and update payloads can include a `domain` string. Redirects resolve by request host plus slug, with a fallback for legacy links that do not have a stored domain.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/domains` | List registered short domains |
+| `POST` | `/api/domains` | Create a domain |
+| `PUT` | `/api/domains/:id` | Update domain, default flag, or status |
+| `DELETE` | `/api/domains/:id` | Delete a domain catalog entry |
+| `POST` | `/api/domains/:id/set-default` | Mark a domain as the default |
+
 ## Links
 
 | Method | Path |
@@ -73,6 +85,8 @@ Admin login still uses `ADMIN_TOKEN`. API tokens are for API requests and are ma
 | `POST` | `/api/links/bulk-create` |
 
 `GET /api/links` supports search, pagination, status, tag, source, domain, created date range, password, warning, limits, and sort query parameters.
+
+`POST /api/links` and `PUT /api/links/:id` accept `domain` to set the short-link domain. If omitted, the Worker request host is used.
 
 `POST /api/links/bulk-create` accepts `{ "items": [...] }` with up to 100 create-link payloads. Existing slugs are not overwritten.
 

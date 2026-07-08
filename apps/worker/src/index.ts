@@ -6,6 +6,7 @@ import authRoutes from './routes/auth';
 import linksRoutes from './routes/links';
 import tagsRoutes from './routes/tags';
 import settingsRoutes from './routes/settings';
+import domainRoutes from './routes/domains';
 import exportRoutes from './routes/export';
 import importRoutes from './routes/importRoutes';
 import metadataRoutes from './routes/metadata';
@@ -54,6 +55,9 @@ app.route('/api/tags', tagsRoutes);
 
 // Settings
 app.route('/api/settings', settingsRoutes);
+
+// Domains
+app.route('/api/domains', domainRoutes);
 
 // Export
 app.route('/api/export', exportRoutes);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { getLink, updateLink } from '../api/links';
+import { listDomains } from '../api/domains';
 import { fetchPageTitle } from '../api/metadata';
 import { listTags } from '../api/tags';
 import { TagSuggestions } from '../components/TagSuggestions';
@@ -9,7 +10,7 @@ import { UtmBuilder } from '../components/UtmBuilder';
 import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
-import type { Link, Tag } from '@linkora/shared';
+import type { Domain, Link, Tag } from '@linkora/shared';
 
 function toDatetimeLocal(value?: string | null): string {
   if (!value) return '';
@@ -28,9 +29,11 @@ export function EditLink() {
   const [saving, setSaving] = useState(false);
   const [titleLoading, setTitleLoading] = useState(false);
   const [tagCatalog, setTagCatalog] = useState<Tag[]>([]);
+  const [domains, setDomains] = useState<Domain[]>([]);
   const [form, setForm] = useState({
     long_url: '',
     slug: '',
+    domain: '',
     title: '',
     tags: '',
     redirect_type: '302' as '301' | '302',
@@ -52,6 +55,7 @@ export function EditLink() {
         setForm({
           long_url: l.long_url,
           slug: l.slug,
+          domain: l.domain ?? '',
           title: l.title ?? '',
           tags,
           redirect_type: l.redirect_type === 301 ? '301' : '302',
@@ -70,6 +74,12 @@ export function EditLink() {
   useEffect(() => {
     listTags()
       .then(setTagCatalog)
+      .catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    listDomains()
+      .then(setDomains)
       .catch(() => undefined);
   }, []);
 
@@ -130,6 +140,7 @@ export function EditLink() {
       const payload = {
         long_url: form.long_url.trim(),
         slug: form.slug.trim(),
+        domain: form.domain || undefined,
         title: form.title.trim() || undefined,
         tags: tags.length ? tags : [],
         redirect_type: form.redirect_type === '301' ? 301 : 302,
@@ -163,6 +174,21 @@ export function EditLink() {
     return <div className="text-slate-400">Link not found.</div>;
   }
 
+  const activeDomains = domains.filter((domain) => domain.status === 'active');
+  const domainOptions = form.domain && !activeDomains.some((domain) => domain.domain === form.domain)
+    ? [
+        ...activeDomains,
+        {
+          id: form.domain,
+          domain: form.domain,
+          is_default: 0,
+          status: 'active' as const,
+          created_at: '',
+          updated_at: '',
+        },
+      ]
+    : activeDomains;
+
   return (
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-8">
@@ -190,6 +216,18 @@ export function EditLink() {
           onChange={(e) => set('slug', e.target.value)}
           error={errors.slug}
         />
+        <Select
+          label="Short Domain"
+          value={form.domain}
+          onChange={(e) => set('domain', e.target.value)}
+        >
+          <option value="">API host</option>
+          {domainOptions.map((domain) => (
+            <option key={domain.id} value={domain.domain}>
+              {domain.domain}{domain.is_default === 1 ? ' (default)' : ''}
+            </option>
+          ))}
+        </Select>
         <div className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end">
           <Input
             label="Title (optional)"

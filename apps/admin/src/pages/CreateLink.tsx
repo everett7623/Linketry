@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { createLink } from '../api/links';
+import { listDomains } from '../api/domains';
 import { fetchPageTitle } from '../api/metadata';
 import { listTags } from '../api/tags';
 import { TagSuggestions } from '../components/TagSuggestions';
@@ -9,7 +10,7 @@ import { UtmBuilder } from '../components/UtmBuilder';
 import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
-import type { Tag } from '@linkora/shared';
+import type { Domain, Tag } from '@linkora/shared';
 
 export function CreateLink() {
   const navigate = useNavigate();
@@ -17,9 +18,11 @@ export function CreateLink() {
   const [loading, setLoading] = useState(false);
   const [titleLoading, setTitleLoading] = useState(false);
   const [tagCatalog, setTagCatalog] = useState<Tag[]>([]);
+  const [domains, setDomains] = useState<Domain[]>([]);
   const [form, setForm] = useState({
     long_url: '',
     slug: '',
+    domain: '',
     title: '',
     tags: '',
     redirect_type: '302' as '301' | '302',
@@ -33,6 +36,18 @@ export function CreateLink() {
   useEffect(() => {
     listTags()
       .then(setTagCatalog)
+      .catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    listDomains()
+      .then((items) => {
+        setDomains(items);
+        const defaultDomain = items.find((domain) => domain.is_default === 1 && domain.status === 'active');
+        if (defaultDomain) {
+          setForm((current) => ({ ...current, domain: defaultDomain.domain }));
+        }
+      })
       .catch(() => undefined);
   }, []);
 
@@ -90,6 +105,7 @@ export function CreateLink() {
       const link = await createLink({
         long_url: form.long_url.trim(),
         slug: form.slug.trim() || undefined,
+        domain: form.domain || undefined,
         title: form.title.trim() || undefined,
         tags: tags.length ? tags : undefined,
         redirect_type: form.redirect_type === '301' ? 301 : 302,
@@ -138,6 +154,21 @@ export function CreateLink() {
           error={errors.slug}
           hint="Leave blank to auto-generate. Letters, numbers, - and _ only."
         />
+
+        <Select
+          label="Short Domain"
+          value={form.domain}
+          onChange={(e) => set('domain', e.target.value)}
+        >
+          <option value="">API host</option>
+          {domains
+            .filter((domain) => domain.status === 'active')
+            .map((domain) => (
+              <option key={domain.id} value={domain.domain}>
+                {domain.domain}{domain.is_default === 1 ? ' (default)' : ''}
+              </option>
+            ))}
+        </Select>
 
         <div className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end">
           <Input

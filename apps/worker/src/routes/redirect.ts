@@ -1,7 +1,7 @@
 import type { Context } from 'hono';
 import type { Env } from '../types';
 import { getCachedLink, setCachedLink } from '../cache/index';
-import { getLinkBySlug } from '../db/index';
+import { getDomainlessLinkBySlug, getLinkByDomainAndSlug } from '../db/index';
 import { queueOrRecordVisit } from '../analytics/index';
 import { notFound, disabledPage, expiredPage, passwordPage, warningPage } from '../utils/response';
 import { sha256 } from '../utils/id';
@@ -57,6 +57,10 @@ function shouldCacheRedirect(link: Link): boolean {
   return !link.password_hash;
 }
 
+async function getRedirectLink(env: Env, domain: string, slug: string): Promise<Link | null> {
+  return (await getLinkByDomainAndSlug(env, domain, slug)) ?? getDomainlessLinkBySlug(env, slug);
+}
+
 function warningConfirmed(c: Context<{ Bindings: Env }>): boolean {
   return c.req.query('linkora_confirm') === '1';
 }
@@ -105,14 +109,14 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
     return notFound('The short link you are looking for does not exist.');
   }
 
-  const domain = new URL(c.req.url).hostname;
+  const domain = new URL(c.req.url).hostname.toLowerCase();
 
   // Try KV cache first
   let cached = await getCachedLink(c.env, domain, slug);
 
   if (!cached) {
     // Fallback to D1
-    const link = await getLinkBySlug(c.env, slug);
+    const link = await getRedirectLink(c.env, domain, slug);
     if (!link) {
       return notFound('The short link you are looking for does not exist.');
     }
@@ -139,7 +143,7 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
   // Re-check D1 on cache hits. This keeps admin changes authoritative even if
   // Cloudflare KV has a briefly stale active entry after disable/delete.
   try {
-    const link = await getLinkBySlug(c.env, slug);
+    const link = await getRedirectLink(c.env, domain, slug);
     if (!link) {
       return notFound('The short link you are looking for does not exist.');
     }

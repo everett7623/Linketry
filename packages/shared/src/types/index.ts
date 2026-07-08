@@ -52,6 +52,15 @@ export interface Tag {
   updated_at: string;
 }
 
+export interface Domain {
+  id: string;
+  domain: string;
+  is_default: number;
+  status: 'active' | 'disabled';
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ImportJob {
   id: string;
   source: string;

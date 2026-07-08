@@ -193,7 +193,7 @@ _(none currently)_
 - [x] API Token management page
 - [x] Cloudflare Queues for async stats
 - [x] Cron Triggers for daily backup
-- [ ] Multi-domain support
+- [x] Multi-domain support
 - [ ] Webhook notifications
 
 ## 🔵 Backlog — V4

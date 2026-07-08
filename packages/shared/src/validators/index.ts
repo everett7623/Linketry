@@ -54,3 +54,24 @@ export function validateLongUrl(url: string): { valid: boolean; error?: string }
 export function isReservedSlug(slug: string): boolean {
   return RESERVED_SLUGS.has(slug.toLowerCase());
 }
+
+export function normalizeDomain(value: string): string {
+  return value.trim().replace(/^https?:\/\//i, '').replace(/\/+$/g, '').toLowerCase();
+}
+
+export function validateDomain(value: string): { valid: boolean; error?: string; domain?: string } {
+  const domain = normalizeDomain(value);
+  if (!domain) return { valid: false, error: 'Domain cannot be empty' };
+  if (domain.includes('/') || domain.includes('?') || domain.includes('#')) {
+    return { valid: false, error: 'Domain must not include a path, query, or fragment' };
+  }
+  if (domain.length > 253) return { valid: false, error: 'Domain cannot exceed 253 characters' };
+  if (!/^[a-z0-9.-]+(?::[0-9]{1,5})?$/i.test(domain)) {
+    return { valid: false, error: 'Domain contains invalid characters' };
+  }
+  const host = domain.split(':')[0];
+  if (host.split('.').some((label) => !label || label.length > 63 || label.startsWith('-') || label.endsWith('-'))) {
+    return { valid: false, error: 'Domain label is invalid' };
+  }
+  return { valid: true, domain };
+}

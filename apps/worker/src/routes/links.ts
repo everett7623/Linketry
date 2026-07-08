@@ -15,7 +15,7 @@ import { recordAudit } from '../audit/index';
 import { setCachedLink, deleteCachedLink } from '../cache/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
 import { generateId, now, sha256 } from '../utils/id';
-import { validateSlug, validateLongUrl } from '@linkora/shared';
+import { validateSlug, validateLongUrl, validateDomain } from '@linkora/shared';
 import type { Link, KVCacheEntry } from '@linkora/shared';
 
 const links = new Hono<{ Bindings: Env }>();
@@ -23,6 +23,14 @@ const links = new Hono<{ Bindings: Env }>();
 type BulkAction = 'disable' | 'enable' | 'archive' | 'restore' | 'delete';
 type BulkTagMode = 'add' | 'replace' | 'remove' | 'clear';
 type LinkBody = Partial<Link> & { tags?: string | string[]; password?: unknown };
+
+function requestDomain(requestUrl: string): string {
+  return new URL(requestUrl).hostname.toLowerCase();
+}
+
+function cacheDomainForLink(link: Pick<Link, 'domain'>, fallbackDomain: string): string {
+  return link.domain?.trim() || fallbackDomain;
+}
 
 function parseLinkStatus(value: unknown): Link['status'] {
   return value === 'disabled' || value === 'expired' || value === 'archived' ? value : 'active';
@@ -71,6 +79,15 @@ function parseOptionalBoolean(value: unknown): number | undefined {
   if (value === true || value === 1 || value === '1' || value === 'true') return 1;
   if (value === false || value === 0 || value === '0' || value === 'false' || value === null || value === '') return 0;
   return undefined;
+}
+
+function parseOptionalDomain(value: unknown): { value?: string; error?: string } {
+  if (value === undefined || value === null || value === '') return {};
+  if (typeof value !== 'string') return { error: 'domain must be a string' };
+
+  const validation = validateDomain(value);
+  if (!validation.valid) return { error: validation.error };
+  return { value: validation.domain };
 }
 
 async function parsePasswordHash(value: unknown): Promise<{ value: string | null; error?: string }> {
@@ -174,7 +191,10 @@ async function prepareNewLink(
   const parsedTags = parseTagsInput(body.tags);
   if (parsedTags.error) return { error: parsedTags.error, status: 400 };
 
-  const domain = new URL(requestUrl).hostname;
+  const parsedDomain = parseOptionalDomain(body.domain);
+  if (parsedDomain.error) return { error: parsedDomain.error, status: 400 };
+
+  const domain = parsedDomain.value ?? requestDomain(requestUrl);
   const id = generateId();
   const ts = now();
   const link: Link = {
@@ -339,13 +359,13 @@ links.post('/', async (c) => {
 
   const prepared = await prepareNewLink(c.env, c.req.url, body, new Set<string>());
   if (prepared.error || !prepared.link) return jsonError(prepared.error ?? 'Invalid link', prepared.status ?? 400);
-  const domain = new URL(c.req.url).hostname;
+  const fallbackDomain = requestDomain(c.req.url);
   const link = prepared.link;
 
   await createLink(c.env, link);
   await ensureTagRecords(c.env, prepared.tags ?? [], link.created_at);
 
-  await refreshLinkCache(c.env, domain, link);
+  await refreshLinkCache(c.env, cacheDomainForLink(link, fallbackDomain), link);
   await recordAudit(c.env, c.req.raw, 'link.create', 'link', link.id, { slug: link.slug });
 
   return jsonCreated(sanitizeLink(link));
@@ -365,7 +385,7 @@ links.post('/bulk-create', async (c) => {
   if (items.length > 100) return jsonError('Bulk create supports up to 100 links at a time', 400);
 
   const reservedSlugs = new Set<string>();
-  const domain = new URL(c.req.url).hostname;
+  const fallbackDomain = requestDomain(c.req.url);
   const results: Array<{ index: number; status: 'created' | 'failed'; slug?: string; id?: string; error?: string }> = [];
   const createdLinks: Link[] = [];
   let successCount = 0;
@@ -382,7 +402,7 @@ links.post('/bulk-create', async (c) => {
 
       await createLink(c.env, prepared.link);
       await ensureTagRecords(c.env, prepared.tags ?? [], prepared.link.created_at);
-      await refreshLinkCache(c.env, domain, prepared.link);
+      await refreshLinkCache(c.env, cacheDomainForLink(prepared.link, fallbackDomain), prepared.link);
       createdLinks.push(prepared.link);
       successCount++;
       results.push({
@@ -433,12 +453,14 @@ links.post('/bulk', async (c) => {
     return jsonError('Invalid bulk action', 400);
   }
 
-  const domain = new URL(c.req.url).hostname;
+  const fallbackDomain = requestDomain(c.req.url);
   const existing = await getLinksByIds(c.env, ids);
   const ts = now();
   let successCount = 0;
 
   for (const link of existing) {
+    const domain = cacheDomainForLink(link, fallbackDomain);
+
     if (action === 'delete') {
       await deleteLink(c.env, link.id);
       await deleteCachedLink(c.env, domain, link.slug);
@@ -564,7 +586,7 @@ links.put('/:id', async (c) => {
   }
 
   const fields: Partial<Link> = {};
-  const domain = new URL(c.req.url).hostname;
+  const fallbackDomain = requestDomain(c.req.url);
 
   if (body.long_url !== undefined) {
     const urlValidation = validateLongUrl(body.long_url);
@@ -575,12 +597,15 @@ links.put('/:id', async (c) => {
   if (body.slug !== undefined && body.slug !== existing.slug) {
     const slugValidation = validateSlug(body.slug);
     if (!slugValidation.valid) return jsonError(slugValidation.error!, 400);
-    const { getLinkBySlug } = await import('../db/index');
     const conflict = await getLinkBySlug(c.env, body.slug);
     if (conflict && conflict.id !== id) return jsonError(`Slug "${body.slug}" is already in use`, 409);
     fields.slug = body.slug;
-    // Delete old KV entry
-    await deleteCachedLink(c.env, domain, existing.slug);
+  }
+
+  if (body.domain !== undefined) {
+    const parsedDomain = parseOptionalDomain(body.domain);
+    if (parsedDomain.error) return jsonError(parsedDomain.error, 400);
+    fields.domain = parsedDomain.value ?? fallbackDomain;
   }
 
   if (body.title !== undefined) fields.title = body.title;
@@ -618,12 +643,20 @@ links.put('/:id', async (c) => {
   }
 
   fields.updated_at = now();
+  const domainChanged = fields.domain !== undefined && fields.domain !== existing.domain;
+  const slugChanged = fields.slug !== undefined && fields.slug !== existing.slug;
+  if (domainChanged || slugChanged) {
+    await deleteCachedLink(c.env, cacheDomainForLink(existing, fallbackDomain), existing.slug);
+    const nextDomain = fields.domain ?? existing.domain ?? fallbackDomain;
+    const nextSlug = fields.slug ?? existing.slug;
+    fields.short_url = `https://${nextDomain}/${nextSlug}`;
+  }
 
   await updateLink(c.env, id, fields);
 
   const updated = await getLinkById(c.env, id);
   if (updated) {
-    await refreshLinkCache(c.env, domain, updated);
+    await refreshLinkCache(c.env, cacheDomainForLink(updated, fallbackDomain), updated);
   }
   await recordAudit(c.env, c.req.raw, 'link.update', 'link', id, {
     slug: fields.slug ?? existing.slug,
@@ -640,7 +673,7 @@ links.delete('/:id', async (c) => {
   const existing = await getLinkById(c.env, id);
   if (!existing) return jsonError('Link not found', 404);
 
-  const domain = new URL(c.req.url).hostname;
+  const domain = cacheDomainForLink(existing, requestDomain(c.req.url));
 
   await deleteLink(c.env, id);
   await deleteCachedLink(c.env, domain, existing.slug);
@@ -655,7 +688,7 @@ links.post('/:id/disable', async (c) => {
   const existing = await getLinkById(c.env, id);
   if (!existing) return jsonError('Link not found', 404);
 
-  const domain = new URL(c.req.url).hostname;
+  const domain = cacheDomainForLink(existing, requestDomain(c.req.url));
   await updateLink(c.env, id, { status: 'disabled', updated_at: now() });
   await deleteCachedLink(c.env, domain, existing.slug);
   await recordAudit(c.env, c.req.raw, 'link.disable', 'link', id, { slug: existing.slug });
@@ -669,7 +702,7 @@ links.post('/:id/enable', async (c) => {
   const existing = await getLinkById(c.env, id);
   if (!existing) return jsonError('Link not found', 404);
 
-  const domain = new URL(c.req.url).hostname;
+  const domain = cacheDomainForLink(existing, requestDomain(c.req.url));
   await updateLink(c.env, id, { status: 'active', updated_at: now() });
 
   await refreshLinkCache(c.env, domain, { ...existing, status: 'active' });
@@ -684,7 +717,7 @@ links.post('/:id/archive', async (c) => {
   const existing = await getLinkById(c.env, id);
   if (!existing) return jsonError('Link not found', 404);
 
-  const domain = new URL(c.req.url).hostname;
+  const domain = cacheDomainForLink(existing, requestDomain(c.req.url));
   await updateLink(c.env, id, { archived: 1, status: 'archived', updated_at: now() });
   await deleteCachedLink(c.env, domain, existing.slug);
   await recordAudit(c.env, c.req.raw, 'link.archive', 'link', id, { slug: existing.slug });
@@ -698,7 +731,7 @@ links.post('/:id/restore', async (c) => {
   const existing = await getLinkById(c.env, id);
   if (!existing) return jsonError('Link not found', 404);
 
-  const domain = new URL(c.req.url).hostname;
+  const domain = cacheDomainForLink(existing, requestDomain(c.req.url));
   await updateLink(c.env, id, { archived: 0, status: 'active', updated_at: now() });
 
   await refreshLinkCache(c.env, domain, { ...existing, archived: 0, status: 'active' });

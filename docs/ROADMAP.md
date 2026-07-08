@@ -19,7 +19,7 @@ Status: complete and production smoke tested.
 
 ## V2: Admin Enhancements
 
-Status: in progress.
+Status: complete.
 
 Done:
 
@@ -52,14 +52,14 @@ Done:
 
 - Advanced analytics dashboard
 - Daily stats aggregation
-
-Backlog:
-
 - R2 backups
 - API token management
 - Cloudflare Queues for async stats
 - Cron backups
 - Multi-domain management
+
+Backlog:
+
 - Webhooks
 
 ## V4: Smart Redirects And Operations

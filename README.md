@@ -16,6 +16,7 @@ A lightweight, stable, self-hosted short link system built on Cloudflare Workers
 - 🏷️ Tag support and tag management
 - 📊 Click tracking with analytics dashboard and daily aggregation
 - 🔑 Scoped API tokens for read, write, and admin API access
+- 🌐 Multi-domain catalog with per-link short domain selection
 - 📥 Import from Shlink, Sink, YOURLS, Dub, Linkora backup, and generic CSV / JSON with field mapping
 - 🧭 Import preview with skip, rename, or overwrite conflict handling
 - Password-protected links, safety warning pages, and UTM builder templates
@@ -203,8 +204,8 @@ If Linkora has issues, point the production domain DNS back to Shlink. No data i
 | Version | Focus |
 |---------|-------|
 | **V1** ✅ | Stable redirects, CRUD, Shlink import, basic stats, export |
-| **V2** | Bulk ops, expiry, password, QR codes, Sink/YOURLS/Dub import, audit logs |
-| **V3** | Advanced analytics, auto R2 backup, API tokens, Webhooks, Queues, Cron |
+| **V2** ✅ | Bulk ops, expiry, password, QR codes, Sink/YOURLS/Dub import, audit logs |
+| **V3** | Advanced analytics, auto R2 backup, API tokens, multi-domain, Webhooks, Queues, Cron |
 | **V4** | Smart redirects (country/device/A-B), AI slug, UTM templates, campaigns |
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for details.
