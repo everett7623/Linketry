@@ -356,6 +356,17 @@ Defined in `apps/worker/wrangler.toml`:
 |------|-------|---------|
 | `VITE_API_URL` | Build env / Pages env | `https://go.example.com` |
 
+### GitHub Actions Secrets
+
+The `.github/workflows/deploy.yml` workflow always installs dependencies, type-checks the Worker, and builds Admin on pushes to `main`. It deploys to Cloudflare only when these repository secrets are configured:
+
+| Name | Purpose |
+|------|---------|
+| `CLOUDFLARE_API_TOKEN` | Authenticates Wrangler in GitHub Actions |
+| `CLOUDFLARE_ACCOUNT_ID` | Selects the Cloudflare account for Worker and Pages deploys |
+
+If either secret is missing, the workflow skips the Cloudflare deploy steps and leaves manual Wrangler deployment as the source of production updates.
+
 ---
 
 ## 13. Production Smoke Test

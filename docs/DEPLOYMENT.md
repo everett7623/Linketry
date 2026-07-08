@@ -48,8 +48,8 @@ The repository includes `.github/workflows/deploy.yml`. On every push to `main`,
 1. install dependencies
 2. type-check the Worker
 3. build Admin with `VITE_API_URL=https://go.y8o.de`
-4. deploy the Worker
-5. deploy Admin to the `linkora-admin` Cloudflare Pages project
+4. deploy the Worker, only when Cloudflare repository secrets are configured
+5. deploy Admin to the `linkora-admin` Cloudflare Pages project, only when Cloudflare repository secrets are configured
 
 Add these GitHub repository secrets before relying on automatic deployment:
 
@@ -59,6 +59,8 @@ CLOUDFLARE_ACCOUNT_ID
 ```
 
 The Cloudflare API token needs Workers, D1, KV, R2, Queues, and Pages deployment permissions for the account that owns Linkora.
+
+If either secret is missing, the workflow intentionally skips Cloudflare deployment after the type-check and Admin build pass. Use manual Wrangler deploys until the secrets are configured.
 
 ## Smoke Checks
 
