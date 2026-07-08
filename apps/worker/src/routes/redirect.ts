@@ -2,7 +2,7 @@ import type { Context } from 'hono';
 import type { Env } from '../types';
 import { getCachedLink, setCachedLink } from '../cache/index';
 import { getLinkBySlug } from '../db/index';
-import { recordVisit } from '../analytics/index';
+import { queueOrRecordVisit } from '../analytics/index';
 import { notFound, disabledPage, expiredPage, passwordPage, warningPage } from '../utils/response';
 import { sha256 } from '../utils/id';
 import type { KVCacheEntry, Link } from '@linkora/shared';
@@ -128,7 +128,7 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
     }
 
     // Async: record visit (stats failure must NOT block redirect)
-    c.executionCtx.waitUntil(recordVisit(c.env, link, c.req.raw, domain));
+    c.executionCtx.waitUntil(queueOrRecordVisit(c.env, link, c.req.raw, domain));
 
     return new Response(null, {
       status: link.redirect_type,
@@ -152,7 +152,7 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
       c.executionCtx.waitUntil(setCachedLink(c.env, domain, freshCache));
     }
 
-    c.executionCtx.waitUntil(recordVisit(c.env, link, c.req.raw, domain));
+    c.executionCtx.waitUntil(queueOrRecordVisit(c.env, link, c.req.raw, domain));
 
     return new Response(null, {
       status: link.redirect_type,

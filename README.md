@@ -121,7 +121,15 @@ wrangler r2 bucket create linkora-backups-dev
 
 The Worker binds these buckets as `BACKUPS` and runs a daily scheduled backup.
 
-### 5. Set Admin Token (Production)
+### 5. Create Queue for Visit Stats
+
+```bash
+wrangler queues create linkora-visits --message-retention-period-secs 60
+```
+
+The Worker uses this queue for asynchronous visit statistics and falls back to direct `ctx.waitUntil()` recording if queue send fails.
+
+### 6. Set Admin Token (Production)
 
 ```bash
 wrangler secret put ADMIN_TOKEN

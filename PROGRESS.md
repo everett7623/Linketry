@@ -164,3 +164,4 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Auto-backup to Cloudflare R2 | ✅ Done | Worker creates full backup snapshots in R2 through Admin and scheduled cron |
 | Cron Triggers for daily backup | ✅ Done | Wrangler cron runs daily at 18:00 UTC / 02:00 Asia/Shanghai |
 | API Token management page | ✅ Done | Admin can create/revoke scoped tokens; Worker stores hashes and authorizes API requests by scope |
+| Cloudflare Queues for async stats | ✅ Done | Redirects enqueue visit snapshots when `VISITS_QUEUE` exists; max-click links and queue failures fall back to direct `ctx.waitUntil()` recording |

@@ -24,6 +24,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Added R2 backup snapshots with manual Admin creation, download, backup records, and daily Worker cron scheduling.
 - Added scoped API token management with hash-only storage, Admin creation/revocation, and API token auth for protected routes.
 - Completed V2 production regression and marked V2 as done.
+- Added optional Cloudflare Queues processing for visit statistics with direct `ctx.waitUntil()` fallback.
 
 ---
 

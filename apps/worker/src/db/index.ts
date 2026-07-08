@@ -317,7 +317,7 @@ export async function insertVisit(
 
 export async function upsertDailyStats(
   env: Env,
-  link: Link,
+  link: Pick<Link, 'id' | 'slug'>,
   date: string,
   country: string | undefined,
   referer: string | undefined,

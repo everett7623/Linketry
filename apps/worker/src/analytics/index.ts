@@ -1,4 +1,4 @@
-import type { Link, KVCacheEntry } from '@linkora/shared';
+import type { Link, KVCacheEntry, VisitLinkSnapshot, VisitQueueMessage, VisitRequestSnapshot } from '@linkora/shared';
 import type { Env } from '../types';
 import { generateId, now, sha256 } from '../utils/id';
 import { incrementClicks, insertVisit, upsertDailyStats } from '../db/index';
@@ -46,11 +46,46 @@ export async function recordVisit(
   request: Request,
   domain: string
 ): Promise<void> {
+  const message = createVisitQueueMessage(link, request, domain);
+  await recordVisitMessage(env, message);
+}
+
+export async function queueOrRecordVisit(
+  env: Env,
+  link: Link,
+  request: Request,
+  domain: string
+): Promise<void> {
+  const message = createVisitQueueMessage(link, request, domain);
+  const needsImmediateClickAccounting =
+    link.max_clicks !== null && link.max_clicks !== undefined;
+
+  if (!env.VISITS_QUEUE || needsImmediateClickAccounting) {
+    await recordVisitMessage(env, message);
+    return;
+  }
+
   try {
-    const ua = request.headers.get('User-Agent') ?? '';
-    const referer = request.headers.get('Referer') ?? undefined;
-    const country = (request as Request & { cf?: { country?: string } }).cf?.country ?? undefined;
-    const ip = request.headers.get('CF-Connecting-IP') ?? '';
+    await env.VISITS_QUEUE.send(message);
+  } catch {
+    await recordVisitMessage(env, message);
+  }
+}
+
+export async function processVisitQueueBatch(
+  env: Env,
+  batch: MessageBatch<VisitQueueMessage>
+): Promise<void> {
+  await Promise.all(batch.messages.map((message) => recordVisitMessage(env, message.body)));
+}
+
+export async function recordVisitMessage(env: Env, message: VisitQueueMessage): Promise<void> {
+  try {
+    const { link, request, domain } = message;
+    const ua = request.user_agent ?? '';
+    const referer = request.referer ?? undefined;
+    const country = request.country ?? undefined;
+    const ip = request.ip ?? '';
 
     const isBot = detectBot(ua) ? 1 : 0;
     const ipHash = ip ? await sha256(ip) : undefined;
@@ -78,7 +113,7 @@ export async function recordVisit(
       upsertDailyStats(env, link, createdAt.slice(0, 10), country, referer, createdAt),
     ]);
 
-    if (link.password_hash) return;
+    if (link.password_protected) return;
 
     // Update KV cache with fresh click count
     const cacheEntry: KVCacheEntry = {
@@ -96,4 +131,33 @@ export async function recordVisit(
   } catch {
     // Statistics must never affect redirect
   }
+}
+
+function createVisitQueueMessage(link: Link, request: Request, domain: string): VisitQueueMessage {
+  return {
+    link: {
+      id: link.id,
+      slug: link.slug,
+      domain: link.domain ?? null,
+      long_url: link.long_url,
+      redirect_type: link.redirect_type,
+      status: link.status,
+      expires_at: link.expires_at ?? null,
+      max_clicks: link.max_clicks ?? null,
+      warning_enabled: link.warning_enabled,
+      password_protected: !!link.password_hash,
+    },
+    request: snapshotRequest(request),
+    domain,
+    queued_at: now(),
+  };
+}
+
+function snapshotRequest(request: Request): VisitRequestSnapshot {
+  return {
+    user_agent: request.headers.get('User-Agent') ?? null,
+    referer: request.headers.get('Referer') ?? null,
+    country: (request as Request & { cf?: { country?: string } }).cf?.country ?? null,
+    ip: request.headers.get('CF-Connecting-IP') ?? null,
+  };
 }

@@ -25,6 +25,15 @@ binding = "BACKUPS"
 bucket_name = "linkora-backups"
 preview_bucket_name = "linkora-backups-dev"
 
+[[queues.producers]]
+binding = "VISITS_QUEUE"
+queue = "linkora-visits"
+
+[[queues.consumers]]
+queue = "linkora-visits"
+max_batch_size = 10
+max_batch_timeout = 5
+
 [triggers]
 # Cloudflare cron uses UTC. 18:00 UTC runs at 02:00 Asia/Shanghai.
 crons = ["0 18 * * *"]

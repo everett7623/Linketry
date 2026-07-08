@@ -140,7 +140,19 @@ R2 stores scheduled and manually created `backup.json` snapshots. D1 remains the
 
 ---
 
-## 6. Configure Worker
+## 6. Create Cloudflare Queue
+
+Create the queue used for asynchronous visit statistics:
+
+```bash
+npx wrangler queues create linkora-visits --message-retention-period-secs 60
+```
+
+If the queue binding is unavailable, the Worker falls back to the current `ctx.waitUntil()` D1 write path so redirects remain stable.
+
+---
+
+## 7. Configure Worker
 
 Edit `apps/worker/wrangler.toml`:
 
@@ -172,6 +184,15 @@ preview_id = "<your-kv-preview-id>"
 binding = "BACKUPS"
 bucket_name = "linkora-backups"
 preview_bucket_name = "linkora-backups-dev"
+
+[[queues.producers]]
+binding = "VISITS_QUEUE"
+queue = "linkora-visits"
+
+[[queues.consumers]]
+queue = "linkora-visits"
+max_batch_size = 10
+max_batch_timeout = 5
 
 [triggers]
 crons = ["0 18 * * *"]
@@ -207,7 +228,7 @@ Expected response:
 
 ---
 
-## 7. Configure DNS for Short/API Domain
+## 8. Configure DNS for Short/API Domain
 
 If you use a Worker custom domain route, Cloudflare will attach the Worker to the hostname.
 
@@ -228,7 +249,7 @@ https://go.example.com/<slug>
 
 ---
 
-## 8. Build Admin Frontend
+## 9. Build Admin Frontend
 
 The Admin frontend needs the short/API domain at build time:
 
@@ -247,7 +268,7 @@ If Admin and Worker are on the same origin, `VITE_API_URL` can be empty. For the
 
 ---
 
-## 9. Deploy Admin to Cloudflare Pages
+## 10. Deploy Admin to Cloudflare Pages
 
 Create a Pages project and deploy `apps/admin/dist`:
 
@@ -281,7 +302,7 @@ Log in with `ADMIN_TOKEN`.
 
 ---
 
-## 10. Configure Linkora Settings
+## 11. Configure Linkora Settings
 
 In the Admin panel, open **Settings**.
 
@@ -302,7 +323,7 @@ For a Shlink migration:
 
 ---
 
-## 11. Required Environment Values
+## 12. Required Environment Values
 
 ### Worker Secrets
 
@@ -327,6 +348,7 @@ Defined in `apps/worker/wrangler.toml`:
 | `DB` | D1 | Source of truth |
 | `KV` | KV | Redirect cache |
 | `BACKUPS` | R2 | Backup snapshot storage |
+| `VISITS_QUEUE` | Queues | Asynchronous visit statistics |
 
 ### Admin Build Variable
 
@@ -336,7 +358,7 @@ Defined in `apps/worker/wrangler.toml`:
 
 ---
 
-## 12. Production Smoke Test
+## 13. Production Smoke Test
 
 Run these checks after deployment:
 
@@ -392,7 +414,7 @@ Login with `ADMIN_TOKEN`, then verify:
 
 ---
 
-## 13. Shlink Cutover Checklist
+## 14. Shlink Cutover Checklist
 
 Use this when moving an existing Shlink domain to Linkora.
 

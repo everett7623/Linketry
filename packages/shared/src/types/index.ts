@@ -156,6 +156,33 @@ export interface KVCacheEntry {
   warningEnabled: boolean;
 }
 
+export interface VisitLinkSnapshot {
+  id: string;
+  slug: string;
+  domain?: string | null;
+  long_url: string;
+  redirect_type: RedirectType;
+  status: LinkStatus;
+  expires_at?: string | null;
+  max_clicks?: number | null;
+  warning_enabled: number;
+  password_protected: boolean;
+}
+
+export interface VisitRequestSnapshot {
+  user_agent?: string | null;
+  referer?: string | null;
+  country?: string | null;
+  ip?: string | null;
+}
+
+export interface VisitQueueMessage {
+  link: VisitLinkSnapshot;
+  request: VisitRequestSnapshot;
+  domain: string;
+  queued_at: string;
+}
+
 export interface PaginatedResult<T> {
   items: T[];
   total: number;

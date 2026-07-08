@@ -13,7 +13,9 @@ import auditRoutes from './routes/audit';
 import analyticsRoutes from './routes/analytics';
 import backupRoutes from './routes/backups';
 import tokenRoutes from './routes/tokens';
+import { processVisitQueueBatch } from './analytics/index';
 import { createR2Backup } from './backups/index';
+import type { VisitQueueMessage } from '@linkora/shared';
 import { getOverviewStats } from './db/index';
 import { requireAuth } from './auth/index';
 import { jsonOk } from './utils/response';
@@ -104,9 +106,12 @@ app.get('/', (c) => {
   return jsonOk({ name: 'Linkora', version: c.env.LINKORA_VERSION ?? '0.1.0', status: 'ok' });
 });
 
-const handler: ExportedHandler<Env> = {
+const handler: ExportedHandler<Env, VisitQueueMessage> = {
   fetch(request, env, ctx) {
     return app.fetch(request, env, ctx);
+  },
+  queue(batch, env, ctx) {
+    ctx.waitUntil(processVisitQueueBatch(env, batch));
   },
   scheduled(_controller, env, ctx) {
     ctx.waitUntil(

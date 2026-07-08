@@ -17,6 +17,7 @@ Do not cut over `s.y8o.de` until imported links have been tested on `go.y8o.de`.
 npm install
 npx wrangler r2 bucket create linkora-backups
 npx wrangler r2 bucket create linkora-backups-dev
+npx wrangler queues create linkora-visits --message-retention-period-secs 60
 npm run type-check --workspace=apps/worker
 npm run db:migrate:remote --workspace=apps/worker
 npm run deploy --workspace=apps/worker
@@ -57,7 +58,7 @@ CLOUDFLARE_API_TOKEN
 CLOUDFLARE_ACCOUNT_ID
 ```
 
-The Cloudflare API token needs Workers, D1, KV, R2, and Pages deployment permissions for the account that owns Linkora.
+The Cloudflare API token needs Workers, D1, KV, R2, Queues, and Pages deployment permissions for the account that owns Linkora.
 
 ## Smoke Checks
 
