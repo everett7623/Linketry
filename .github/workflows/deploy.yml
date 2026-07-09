@@ -19,6 +19,7 @@ jobs:
       LINKORA_API_URL: ${{ vars.LINKORA_API_URL }}
       LINKORA_PAGES_PROJECT: ${{ vars.LINKORA_PAGES_PROJECT }}
       LINKORA_WORKER_NAME: ${{ vars.LINKORA_WORKER_NAME }}
+      LINKORA_WORKER_DOMAINS: ${{ vars.LINKORA_WORKER_DOMAINS }}
       LINKORA_SHORT_DOMAIN: ${{ vars.LINKORA_SHORT_DOMAIN }}
       LINKORA_COMPATIBILITY_DATE: ${{ vars.LINKORA_COMPATIBILITY_DATE }}
       LINKORA_VERSION: ${{ vars.LINKORA_VERSION }}
@@ -48,6 +49,16 @@ jobs:
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
           echo "RESOLVED_LINKORA_VERSION=${LINKORA_VERSION:-$PACKAGE_VERSION}" >> "$GITHUB_ENV"
 
+      - name: Resolve Worker domains
+        run: |
+          RESOLVED_WORKER_DOMAINS="$(node <<'NODE'
+          const source = process.env.LINKORA_WORKER_DOMAINS || process.env.LINKORA_SHORT_DOMAIN || '';
+          const domains = [...new Set(source.split(',').map((value) => value.trim().toLowerCase()).filter(Boolean))];
+          process.stdout.write(domains.join(','));
+          NODE
+          )"
+          echo "RESOLVED_WORKER_DOMAINS=${RESOLVED_WORKER_DOMAINS}" >> "$GITHUB_ENV"
+
       - name: Type-check Worker
         run: npm run type-check --workspace=apps/worker
 
@@ -57,56 +68,68 @@ jobs:
           VITE_API_URL: ${{ env.LINKORA_API_URL }}
 
       - name: Generate Worker config
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.LINKORA_SHORT_DOMAIN != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != '' && env.LINKORA_KV_PREVIEW_ID != '' && env.LINKORA_R2_BUCKET != '' && env.LINKORA_R2_PREVIEW_BUCKET != '' && env.LINKORA_VISITS_QUEUE != ''
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != '' && env.LINKORA_KV_PREVIEW_ID != '' && env.LINKORA_R2_BUCKET != '' && env.LINKORA_R2_PREVIEW_BUCKET != '' && env.LINKORA_VISITS_QUEUE != ''
         run: |
-          cat > apps/worker/wrangler.toml <<EOF
-          name = "${LINKORA_WORKER_NAME}"
-          main = "src/index.ts"
-          compatibility_date = "${LINKORA_COMPATIBILITY_DATE:-2026-07-08}"
-          compatibility_flags = ["nodejs_compat"]
-          routes = [
-            { pattern = "${LINKORA_SHORT_DOMAIN}", custom_domain = true }
-          ]
+          node <<'NODE'
+          const fs = require('node:fs');
 
-          [vars]
-          LINKORA_VERSION = "${RESOLVED_LINKORA_VERSION:-0.7.3}"
+          const env = process.env;
+          const domains = env.RESOLVED_WORKER_DOMAINS.split(',').filter(Boolean);
+          const routeLines = domains
+            .map((domain) => `  { pattern = "${domain}", custom_domain = true }`)
+            .join(',\n');
+          const config = [
+            `name = "${env.LINKORA_WORKER_NAME}"`,
+            'main = "src/index.ts"',
+            `compatibility_date = "${env.LINKORA_COMPATIBILITY_DATE || '2026-07-08'}"`,
+            'compatibility_flags = ["nodejs_compat"]',
+            'routes = [',
+            routeLines,
+            ']',
+            '',
+            '[vars]',
+            `LINKORA_VERSION = "${env.RESOLVED_LINKORA_VERSION || '0.7.4'}"`,
+            '',
+            '[[d1_databases]]',
+            'binding = "DB"',
+            `database_name = "${env.LINKORA_D1_DATABASE_NAME}"`,
+            `database_id = "${env.LINKORA_D1_DATABASE_ID}"`,
+            'migrations_dir = "../../migrations"',
+            '',
+            '[[kv_namespaces]]',
+            'binding = "KV"',
+            `id = "${env.LINKORA_KV_NAMESPACE_ID}"`,
+            `preview_id = "${env.LINKORA_KV_PREVIEW_ID}"`,
+            '',
+            '[[r2_buckets]]',
+            'binding = "BACKUPS"',
+            `bucket_name = "${env.LINKORA_R2_BUCKET}"`,
+            `preview_bucket_name = "${env.LINKORA_R2_PREVIEW_BUCKET}"`,
+            '',
+            '[[queues.producers]]',
+            'binding = "VISITS_QUEUE"',
+            `queue = "${env.LINKORA_VISITS_QUEUE}"`,
+            '',
+            '[[queues.consumers]]',
+            `queue = "${env.LINKORA_VISITS_QUEUE}"`,
+            'max_batch_size = 10',
+            'max_batch_timeout = 5',
+            '',
+            '[triggers]',
+            'crons = ["0 18 * * *"]',
+            '',
+          ].join('\n');
 
-          [[d1_databases]]
-          binding = "DB"
-          database_name = "${LINKORA_D1_DATABASE_NAME}"
-          database_id = "${LINKORA_D1_DATABASE_ID}"
-          migrations_dir = "../../migrations"
-
-          [[kv_namespaces]]
-          binding = "KV"
-          id = "${LINKORA_KV_NAMESPACE_ID}"
-          preview_id = "${LINKORA_KV_PREVIEW_ID}"
-
-          [[r2_buckets]]
-          binding = "BACKUPS"
-          bucket_name = "${LINKORA_R2_BUCKET}"
-          preview_bucket_name = "${LINKORA_R2_PREVIEW_BUCKET}"
-
-          [[queues.producers]]
-          binding = "VISITS_QUEUE"
-          queue = "${LINKORA_VISITS_QUEUE}"
-
-          [[queues.consumers]]
-          queue = "${LINKORA_VISITS_QUEUE}"
-          max_batch_size = 10
-          max_batch_timeout = 5
-
-          [triggers]
-          crons = ["0 18 * * *"]
-          EOF
+          fs.writeFileSync('apps/worker/wrangler.toml', config);
+          NODE
 
       - name: Apply D1 migrations
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.LINKORA_SHORT_DOMAIN != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != '' && env.LINKORA_KV_PREVIEW_ID != '' && env.LINKORA_R2_BUCKET != '' && env.LINKORA_R2_PREVIEW_BUCKET != '' && env.LINKORA_VISITS_QUEUE != ''
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != '' && env.LINKORA_KV_PREVIEW_ID != '' && env.LINKORA_R2_BUCKET != '' && env.LINKORA_R2_PREVIEW_BUCKET != '' && env.LINKORA_VISITS_QUEUE != ''
         run: npx wrangler d1 migrations apply "$LINKORA_D1_DATABASE_NAME" --remote
         working-directory: apps/worker
 
       - name: Deploy Worker
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.LINKORA_SHORT_DOMAIN != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != '' && env.LINKORA_KV_PREVIEW_ID != '' && env.LINKORA_R2_BUCKET != '' && env.LINKORA_R2_PREVIEW_BUCKET != '' && env.LINKORA_VISITS_QUEUE != ''
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != '' && env.LINKORA_KV_PREVIEW_ID != '' && env.LINKORA_R2_BUCKET != '' && env.LINKORA_R2_PREVIEW_BUCKET != '' && env.LINKORA_VISITS_QUEUE != ''
         run: npx wrangler deploy
         working-directory: apps/worker
 
@@ -121,9 +144,10 @@ jobs:
           echo "Type-check and Admin build completed successfully."
 
       - name: Skip Worker deploy
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && (env.LINKORA_WORKER_NAME == '' || env.LINKORA_SHORT_DOMAIN == '' || env.LINKORA_D1_DATABASE_NAME == '' || env.LINKORA_D1_DATABASE_ID == '' || env.LINKORA_KV_NAMESPACE_ID == '' || env.LINKORA_KV_PREVIEW_ID == '' || env.LINKORA_R2_BUCKET == '' || env.LINKORA_R2_PREVIEW_BUCKET == '' || env.LINKORA_VISITS_QUEUE == '')
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && (env.LINKORA_WORKER_NAME == '' || env.RESOLVED_WORKER_DOMAINS == '' || env.LINKORA_D1_DATABASE_NAME == '' || env.LINKORA_D1_DATABASE_ID == '' || env.LINKORA_KV_NAMESPACE_ID == '' || env.LINKORA_KV_PREVIEW_ID == '' || env.LINKORA_R2_BUCKET == '' || env.LINKORA_R2_PREVIEW_BUCKET == '' || env.LINKORA_VISITS_QUEUE == '')
         run: |
           echo "Worker deploy skipped because one or more LINKORA_* Worker repository variables are not configured."
+          echo "Set LINKORA_WORKER_DOMAINS to a comma-separated list, or set the legacy LINKORA_SHORT_DOMAIN fallback."
           echo "See docs/SELF_HOSTING.md for the required variable list."
 
       - name: Skip Admin deploy

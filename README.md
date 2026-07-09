@@ -190,7 +190,7 @@ Variables:
 LINKORA_API_URL=https://go.example.com
 LINKORA_PAGES_PROJECT=linkora-admin
 LINKORA_WORKER_NAME=linkora-worker
-LINKORA_SHORT_DOMAIN=go.example.com
+LINKORA_WORKER_DOMAINS=go.example.com,s.example.com
 LINKORA_D1_DATABASE_NAME=linkora-db
 LINKORA_D1_DATABASE_ID=<your-d1-database-id>
 LINKORA_KV_NAMESPACE_ID=<your-kv-namespace-id>
@@ -215,11 +215,13 @@ npm run build --workspace=apps/admin
 # Deploy the dist/ folder to Cloudflare Pages, Netlify, or any static host
 ```
 
-For production builds where Admin and Worker use separate domains, set `VITE_API_URL` to the Worker short/API domain:
+For production builds where Admin and Worker use separate domains, set `VITE_API_URL` to the stable Worker API domain:
 
 ```bash
 VITE_API_URL=https://go.example.com npm run build --workspace=apps/admin
 ```
+
+For migrations, keep `go.example.com` as the stable Admin API domain and add the public short-link domain, such as `s.example.com`, through `LINKORA_WORKER_DOMAINS`. This keeps the Admin reachable while the short-link domain is being cut over.
 
 ## Shlink Import
 
@@ -239,7 +241,7 @@ Original `shortCode` values are preserved as slugs. Conflicts are skipped by def
 See [docs/MIGRATION_FROM_SHLINK.md](docs/MIGRATION_FROM_SHLINK.md).
 
 **Summary:**
-1. Deploy Linkora to `go.example.com` (test domain)
+1. Deploy Linkora to `go.example.com` as the stable API domain
 2. Import Shlink data and verify old slugs work
 3. Run for 1–2 weeks in parallel
 4. Switch DNS for production domain to Linkora Worker

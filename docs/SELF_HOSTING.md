@@ -6,8 +6,9 @@ Linkora is free and open source first. The recommended setup uses two hostnames:
 
 | Hostname | Purpose | Example |
 |----------|---------|---------|
-| Short/API domain | Short-link redirects and `/api/*` | `go.example.com` |
 | Admin domain | React admin panel | `admin.example.com` |
+| API domain | Stable Worker API for Admin | `go.example.com` |
+| Short-link domain | Public short-link redirects | `s.example.com` |
 
 Use your own domains everywhere below. Do not copy another deployment's domains, resource IDs, or secrets.
 
@@ -36,8 +37,9 @@ R2 bucket:         linkora-backups
 R2 preview bucket: linkora-backups-dev
 Queue:             linkora-visits
 Pages project:     linkora-admin
-Short/API domain:  go.example.com
 Admin domain:      admin.example.com
+API domain:        go.example.com
+Short-link domain: s.example.com
 ```
 
 For the easiest first deployment, keep the resource names above. You can rename them, but then you must update `apps/worker/wrangler.toml`, GitHub repository variables, and any direct Wrangler commands that include the resource name.
@@ -97,7 +99,8 @@ Edit `apps/worker/wrangler.toml` and replace:
 
 | Placeholder | Value |
 |-------------|-------|
-| `<your-short-domain>` | Your short/API hostname, for example `go.example.com` |
+| `<your-api-domain>` | Your stable API hostname, for example `go.example.com` |
+| `<your-short-domain>` | Your public short-link hostname, for example `s.example.com` |
 | `<your-d1-database-id>` | The `database_id` returned by `wrangler d1 create` |
 | `<your-kv-namespace-id>` | The production KV namespace ID |
 | `<your-kv-preview-id>` | The preview KV namespace ID |
@@ -149,12 +152,12 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.7.3"}}
+{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.7.4"}}
 ```
 
 ## 7. Build and Deploy Admin
 
-Build Admin with your short/API domain:
+Build Admin with your stable API domain:
 
 ```bash
 VITE_API_URL=https://go.example.com npm run build --workspace=apps/admin
@@ -193,7 +196,7 @@ Add repository variables:
 LINKORA_API_URL=https://go.example.com
 LINKORA_PAGES_PROJECT=linkora-admin
 LINKORA_WORKER_NAME=linkora-worker
-LINKORA_SHORT_DOMAIN=go.example.com
+LINKORA_WORKER_DOMAINS=go.example.com,s.example.com
 LINKORA_D1_DATABASE_NAME=linkora-db
 LINKORA_D1_DATABASE_ID=<your-d1-database-id>
 LINKORA_KV_NAMESPACE_ID=<your-kv-namespace-id>
@@ -206,7 +209,7 @@ LINKORA_VISITS_QUEUE=linkora-visits
 Optional variables:
 
 ```txt
-LINKORA_VERSION=0.7.3
+LINKORA_VERSION=0.7.4
 LINKORA_COMPATIBILITY_DATE=2026-07-08
 ```
 
@@ -225,7 +228,7 @@ Log in with `ADMIN_TOKEN`, then open Settings and set:
 | Setting | Value |
 |---------|-------|
 | Site Name | Your project name |
-| Default Domain | `go.example.com` |
+| Default Domain | `s.example.com` |
 | Default Redirect Type | `302` |
 
 Then open **Setup** in the sidebar. It summarizes whether the Admin can reach the API, whether a default short domain is configured, whether the domain catalog has an active default, whether R2 backups are available, and whether the first link has been created.
@@ -289,7 +292,7 @@ Linkora can import from Shlink, Sink, YOURLS, Dub, Linkora backup JSON, and gene
 For a Shlink migration:
 
 1. Keep Shlink running.
-2. Deploy Linkora on a temporary domain like `go.example.com`.
+2. Deploy Linkora with a stable API domain like `go.example.com`.
 3. Import Shlink data and verify important slugs.
 4. Cut over the old short domain only after testing.
 5. Keep Shlink available for rollback for 1-2 weeks.

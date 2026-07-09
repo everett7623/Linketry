@@ -48,12 +48,23 @@ _(none currently)_
 
 ## ✅ Completed — Project Consistency Cleanup
 
-- [x] Bump Linkora package/runtime version to `0.7.3`
+- [x] Bump Linkora package/runtime version to `0.7.4`
 - [x] Add shared version constant for Worker and Admin displays
 - [x] Update GitHub Actions version resolution and repository `LINKORA_VERSION` variable
 - [x] Update docs, env examples, wrangler example, changelog, and package lock
 - [x] Update GitHub Actions Node runtime to Node 24
 - [x] Add release hygiene rule requiring version, changelog, and progress/task updates for every intentional change
+
+---
+
+## ✅ Completed — Domain Split Deployment Safety
+
+- [x] Keep Admin UI, Worker API, and public short-link domains as separate operational roles
+- [x] Add `LINKORA_WORKER_DOMAINS` for comma-separated Worker custom domains
+- [x] Preserve legacy `LINKORA_SHORT_DOMAIN` as a single-domain fallback
+- [x] Add Admin login API Origin override for recovery when a build points at the wrong API URL
+- [x] Fall back from a stale browser API Origin override to the build-time API URL during Admin auth startup
+- [x] Document `admin.example.com`, `go.example.com`, and `s.example.com` deployment roles
 
 ---
 

@@ -13,6 +13,18 @@ _(none)_
 
 ---
 
+## [0.7.4] — 2026-07-09
+
+### Added
+- GitHub Actions Worker deployment now supports multiple custom domains through `LINKORA_WORKER_DOMAINS`, so a stable API domain and a public short-link domain can be bound at the same time.
+- Admin login now allows an API Origin override stored in the browser, providing a recovery path when the Admin was built with the wrong API URL.
+- Admin authentication bootstrap now falls back from a stale browser API Origin override to the build-time API URL.
+
+### Changed
+- Deployment docs now recommend separating `admin`, `go` API, and `s` short-link domains for safer Shlink cutovers.
+
+---
+
 ## [0.7.3] — 2026-07-09
 
 ### Changed

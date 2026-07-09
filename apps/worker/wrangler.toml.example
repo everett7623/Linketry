@@ -6,14 +6,16 @@ main = "src/index.ts"
 compatibility_date = "2026-07-08"
 compatibility_flags = ["nodejs_compat"]
 
-# Short/API domain. This Worker serves redirects and /api/*.
-# Example: go.example.com or s.example.com
+# Worker custom domains. Use one stable API domain for Admin and one public
+# short-link domain for users when you want to keep Admin/API independent from
+# short-domain migrations.
 routes = [
+  { pattern = "<your-api-domain>", custom_domain = true },
   { pattern = "<your-short-domain>", custom_domain = true }
 ]
 
 [vars]
-LINKORA_VERSION = "0.7.3"
+LINKORA_VERSION = "0.7.4"
 
 [[d1_databases]]
 binding = "DB"

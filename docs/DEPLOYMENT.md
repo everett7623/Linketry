@@ -10,11 +10,12 @@ The longer maintainer production runbook is in [../DEPLOYMENT.md](../DEPLOYMENT.
 
 Choose your own hostnames:
 
-- Worker/API and short links: `go.example.com`
+- Stable Worker API: `go.example.com`
+- Public short links: `s.example.com`
 - Admin frontend: `admin.example.com`
 - Optional migration cutover target: your old Shlink/Sink/YOURLS/Dub short domain
 
-Do not cut over an existing production short domain until imported links have been tested on a temporary Linkora short/API domain.
+Do not cut over an existing production short domain until imported links have been tested while the stable Linkora API domain remains reachable.
 
 ## Worker
 
@@ -74,7 +75,7 @@ Add these GitHub repository variables:
 LINKORA_API_URL=https://go.example.com
 LINKORA_PAGES_PROJECT=linkora-admin
 LINKORA_WORKER_NAME=linkora-worker
-LINKORA_SHORT_DOMAIN=go.example.com
+LINKORA_WORKER_DOMAINS=go.example.com,s.example.com
 LINKORA_D1_DATABASE_NAME=linkora-db
 LINKORA_D1_DATABASE_ID=<your-d1-database-id>
 LINKORA_KV_NAMESPACE_ID=<your-kv-namespace-id>
@@ -88,7 +89,7 @@ The Cloudflare API token needs Workers, D1, KV, R2, Queues, and Pages deployment
 
 If either secret is missing, the workflow intentionally skips Cloudflare deployment after the type-check and Admin build pass. Use manual Wrangler deploys until the secrets are configured.
 If an Admin variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.
-If a Worker variable is missing, the workflow skips Worker deploy rather than relying on a committed production `wrangler.toml`.
+If a Worker variable is missing, the workflow skips Worker deploy rather than relying on a committed production `wrangler.toml`. `LINKORA_SHORT_DOMAIN` remains supported as a legacy single-domain fallback when `LINKORA_WORKER_DOMAINS` is not set.
 
 ## Smoke Checks
 

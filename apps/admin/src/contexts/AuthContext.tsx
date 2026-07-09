@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { login as apiLogin, checkMe } from '../api/auth';
+import { getApiBaseOverride, getBuildApiBase, setApiBaseOverride } from '../api/client';
 
 interface AuthState {
   authenticated: boolean;
@@ -22,7 +23,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setState({ authenticated: false, loading: false });
       return;
     }
-    checkMe().then((ok) => {
+    checkMe().then(async (ok) => {
+      const overrideApiBase = getApiBaseOverride();
+      const buildApiBase = getBuildApiBase();
+      if (!ok && overrideApiBase && buildApiBase && overrideApiBase !== buildApiBase) {
+        setApiBaseOverride('');
+        ok = await checkMe();
+      }
       setState({ authenticated: ok, loading: false });
       if (!ok) localStorage.removeItem('linkora_token');
     });

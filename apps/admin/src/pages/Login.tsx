@@ -5,9 +5,11 @@ import { Zap, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
+import { getApiBase, getBuildApiBase, normalizeApiBase, setApiBaseOverride } from '../api/client';
 
 export function Login() {
   const [token, setToken] = useState('');
+  const [apiOrigin, setApiOrigin] = useState(() => getApiBase());
   const [showToken, setShowToken] = useState(false);
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -17,6 +19,12 @@ export function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token.trim()) return;
+    const normalizedApiOrigin = normalizeApiBase(apiOrigin);
+    if (apiOrigin.trim() && !normalizedApiOrigin) {
+      error('Invalid API origin. Use a full URL like https://go.example.com.');
+      return;
+    }
+    setApiBaseOverride(apiOrigin);
     setLoading(true);
     const ok = await login(token.trim());
     setLoading(false);
@@ -62,6 +70,22 @@ export function Login() {
                 {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+          </div>
+
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              API Origin
+            </label>
+            <input
+              type="url"
+              value={apiOrigin}
+              onChange={(e) => setApiOrigin(e.target.value)}
+              placeholder="https://go.example.com"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
+            />
+            <p className="mt-1.5 text-xs text-slate-500">
+              {getBuildApiBase() ? `Default: ${getBuildApiBase()}` : 'Default: same origin'}
+            </p>
           </div>
 
           <Button type="submit" className="w-full justify-center" loading={loading} disabled={!token.trim()}>

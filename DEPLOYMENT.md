@@ -2,12 +2,13 @@
 
 This guide deploys Linkora as a self-hosted short link system on Cloudflare.
 
-Linkora uses two public domains:
+Linkora uses three public roles:
 
 | Domain type | Purpose | Example |
 |-------------|---------|---------|
 | Admin domain | React admin panel | `admin.example.com` |
-| Short/API domain | Short-link redirects and `/api/*` | `go.example.com` or `s.example.com` |
+| API domain | Stable Worker API for Admin | `go.example.com` |
+| Short-link domain | Public short-link redirects | `s.example.com` |
 
 Do not hard-code these example domains for another deployment. Replace them with your own domains.
 
@@ -35,31 +36,32 @@ npm install
 
 ## 2. Choose Domains
 
-Pick two hostnames:
+Pick three hostnames:
 
 ```txt
-Admin domain:     admin.example.com
-Short/API domain: go.example.com
+Admin domain:      admin.example.com
+API domain:        go.example.com
+Short-link domain: s.example.com
 ```
 
-The short/API domain is the domain users will share, for example:
+The short-link domain is the domain users will share, for example:
 
 ```txt
-https://go.example.com/my-link
+https://s.example.com/my-link
 ```
 
-The Admin frontend calls the Worker API through the same short/API domain:
+The Admin frontend calls the Worker API through the stable API domain:
 
 ```txt
 https://go.example.com/api/*
 ```
 
-For a Shlink migration, use a temporary short/API domain first, then switch the old Shlink domain after testing:
+For a Shlink migration, keep the API domain stable and only cut over the old Shlink short domain after testing:
 
 ```txt
-Temporary test domain: go.example.com
-Old Shlink domain:     s.example.com
-Final short domain:    s.example.com
+Admin domain:      admin.example.com
+Stable API domain: go.example.com
+Old Shlink domain: s.example.com
 ```
 
 ---
@@ -155,11 +157,12 @@ compatibility_date = "2024-07-01"
 compatibility_flags = ["nodejs_compat"]
 
 routes = [
-  { pattern = "go.example.com", custom_domain = true }
+  { pattern = "go.example.com", custom_domain = true },
+  { pattern = "s.example.com", custom_domain = true }
 ]
 
 [vars]
-LINKORA_VERSION = "0.7.3"
+LINKORA_VERSION = "0.7.4"
 
 [[d1_databases]]
 binding = "DB"
@@ -190,7 +193,7 @@ max_batch_timeout = 5
 crons = ["0 18 * * *"]
 ```
 
-Replace `go.example.com` with your short/API domain.
+Replace `go.example.com` with your stable API domain and `s.example.com` with your public short-link domain.
 
 Set the production admin token:
 
@@ -215,12 +218,12 @@ curl https://go.example.com/health
 Expected response:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.7.3"}}
+{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.7.4"}}
 ```
 
 ---
 
-## 8. Configure DNS for Short/API Domain
+## 8. Configure DNS for Worker Domains
 
 If you use a Worker custom domain route, Cloudflare will attach the Worker to the hostname.
 
@@ -243,7 +246,7 @@ https://go.example.com/<slug>
 
 ## 9. Build Admin Frontend
 
-The Admin frontend needs the short/API domain at build time:
+The Admin frontend needs the stable API domain at build time:
 
 ```bash
 $env:VITE_API_URL="https://go.example.com"
@@ -256,7 +259,7 @@ On macOS/Linux:
 VITE_API_URL=https://go.example.com npm run build --workspace=apps/admin
 ```
 
-If Admin and Worker are on the same origin, `VITE_API_URL` can be empty. For the recommended two-domain setup, set it to the short/API domain.
+If Admin and Worker are on the same origin, `VITE_API_URL` can be empty. For the recommended three-role setup, set it to the stable API domain.
 
 ---
 
@@ -303,15 +306,15 @@ Set:
 | Setting | Value |
 |---------|-------|
 | Site Name | `Linkora` or your own name |
-| Default Domain | `go.example.com` |
+| Default Domain | `s.example.com` |
 | Default Redirect Type | `302` |
 
 `Default Domain` is used by the Admin UI to copy/open short links. It does not overwrite imported `short_url` values in the database.
 
 For a Shlink migration:
 
-1. During testing, set `Default Domain` to the temporary domain, for example `go.example.com`
-2. After final cutover, change it to the real short domain, for example `s.example.com`
+1. Keep the Admin API on the stable API domain, for example `go.example.com`
+2. Set `Default Domain` to the real short-link domain, for example `s.example.com`, before creating public links
 
 ---
 
@@ -329,7 +332,7 @@ Defined in `apps/worker/wrangler.toml`:
 
 | Name | Example |
 |------|---------|
-| `LINKORA_VERSION` | `0.7.3` |
+| `LINKORA_VERSION` | `0.7.4` |
 
 ### Worker Bindings
 
@@ -363,10 +366,11 @@ It deploys Admin only when the Cloudflare secrets and these repository variables
 
 | Name | Example | Purpose |
 |------|---------|---------|
-| `LINKORA_API_URL` | `https://go.example.com` | Builds Admin with the Worker short/API origin |
+| `LINKORA_API_URL` | `https://go.example.com` | Builds Admin with the stable Worker API origin |
 | `LINKORA_PAGES_PROJECT` | `linkora-admin` | Selects the Cloudflare Pages project |
 | `LINKORA_WORKER_NAME` | `linkora-worker` | Generates the Worker config name |
-| `LINKORA_SHORT_DOMAIN` | `go.example.com` | Generates the Worker custom domain route |
+| `LINKORA_WORKER_DOMAINS` | `go.example.com,s.example.com` | Generates one or more Worker custom domain routes |
+| `LINKORA_SHORT_DOMAIN` | `go.example.com` | Legacy single-domain fallback when `LINKORA_WORKER_DOMAINS` is not set |
 | `LINKORA_D1_DATABASE_NAME` | `linkora-db` | Generates the D1 binding database name |
 | `LINKORA_D1_DATABASE_ID` | `<id>` | Generates the D1 binding database ID |
 | `LINKORA_KV_NAMESPACE_ID` | `<id>` | Generates the production KV binding ID |
@@ -443,7 +447,7 @@ Use this when moving an existing Shlink domain to Linkora.
 
 Before cutover:
 
-- Deploy Linkora to a temporary short/API domain, for example `go.example.com`
+- Deploy Linkora to a stable API domain, for example `go.example.com`
 - Import Shlink links
 - Verify important slugs on the temporary domain
 - Keep Shlink running
