@@ -15,7 +15,7 @@ Do not hard-code these example domains for another deployment. Replace them with
 
 ## 1. Prerequisites
 
-- Node.js 20+
+- Node.js 24 recommended
 - npm 10+
 - A Cloudflare account
 - A domain managed by Cloudflare DNS
@@ -159,7 +159,7 @@ routes = [
 ]
 
 [vars]
-LINKORA_VERSION = "0.1.0"
+LINKORA_VERSION = "0.7.0"
 
 [[d1_databases]]
 binding = "DB"
@@ -215,7 +215,7 @@ curl https://go.example.com/health
 Expected response:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.1.0"}}
+{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.7.0"}}
 ```
 
 ---
@@ -329,7 +329,7 @@ Defined in `apps/worker/wrangler.toml`:
 
 | Name | Example |
 |------|---------|
-| `LINKORA_VERSION` | `0.1.0` |
+| `LINKORA_VERSION` | `0.7.0` |
 
 ### Worker Bindings
 

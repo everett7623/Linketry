@@ -13,9 +13,11 @@ Last updated: 2026-07-09
 | Worker backend  | ✅ Code complete | Local type-check passing; deployed on Cloudflare Workers |
 | Admin frontend  | ✅ Code complete | Production build passing; deployed on Cloudflare Pages |
 | Database schema | ✅ Complete      | V6 analytics migration applied in production through GitHub Actions      |
-| Documentation   | ✅ Complete      | README, self-hosting guide, analytics guide, backup restore guide, root runbooks, `docs/` reference set, and V7-V10 long-term roadmap |
+| Documentation   | ✅ Complete      | README, self-hosting guide, analytics guide, backup/reset guide, root runbooks, `docs/` reference set, and V7-V10 long-term roadmap |
 | Deployment      | ✅ Deployed      | Worker and Admin deployed; GitHub Actions deploy workflow added |
 | End-to-end test | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed |
+| Current version | ✅ 0.7.0 | Package versions, Worker fallback, Admin display, examples, docs, changelog, and GitHub Actions variable are synchronized |
+| Shlink migration readiness | ✅ Complete | Shlink imports preserve original short domains from `shortUrl`, so a reset followed by `s.y8o.de` migration can keep legacy short URLs |
 
 ---
 
@@ -209,6 +211,7 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | R2 one-click restore | ✅ Done | Admin Backups page can restore completed R2 snapshots with `skip`, `rename`, or `overwrite` |
 | Pre-restore backup | ✅ Done | Restore creates a fresh `pre-restore` R2 snapshot before mutating D1 |
 | Restore report | ✅ Done | Restore result includes created, overwritten, renamed, skipped, failed, redirect-rule counts, and a CSV-style report |
+| Factory reset | ✅ Done | Admin Settings danger zone previews affected rows, requires `RESET LINKORA`, creates optional `pre-reset` R2 backup, clears KV cache, and preserves backup records plus `ADMIN_TOKEN` |
 | Backup retention | Planned | Configurable retention and cleanup still pending |
 | Target monitoring and alerts | Planned | Periodic checks, status history, and alerts still pending |
 

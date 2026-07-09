@@ -8,6 +8,7 @@ import type {
   Tag,
 } from '@linkora/shared';
 import { validateLongUrl, validateSlug } from '@linkora/shared';
+import { domainFromUrl, normalizeDomain } from './domain';
 
 interface SourceRow {
   [key: string]: unknown;
@@ -117,6 +118,8 @@ export const SinkAdapter = makeAdapter(
   (row) => ({
     slug: asString(row.slug ?? row.key) ?? '',
     longUrl: asString(row.url ?? row.target ?? row.longUrl) ?? '',
+    domain: normalizeDomain(row.domain) ?? domainFromUrl(row.shortUrl ?? row.short_url),
+    shortUrl: asString(row.shortUrl ?? row.short_url),
     title: asString(row.title),
     tags: asTags(row.tags),
     clicks: asNumber(row.clicks ?? row.count),
@@ -150,6 +153,7 @@ export const DubAdapter = makeAdapter(
   (row) => ({
     slug: asString(row.key) ?? '',
     longUrl: asString(row.url) ?? '',
+    domain: normalizeDomain(row.domain) ?? domainFromUrl(row.shortLink),
     shortUrl: asString(row.shortLink),
     title: asString(row.title),
     tags: asTags(row.tags),
@@ -167,6 +171,7 @@ function normalizeBackupLink(row: SourceRow): NormalizedImportItem {
   return {
     slug: asString(link.slug) ?? '',
     longUrl: asString(link.long_url) ?? '',
+    domain: normalizeDomain(link.domain),
     shortUrl: asString(link.short_url),
     title: asString(link.title),
     description: asString(link.description),

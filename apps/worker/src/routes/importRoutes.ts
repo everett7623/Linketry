@@ -29,6 +29,7 @@ import {
   SinkAdapter,
   YourlsAdapter,
 } from '../importers/platforms';
+import { normalizeDomain } from '../importers/domain';
 import type { ImportFieldMapping, Link, NormalizedImportItem, ImportAdapter, KVCacheEntry, RedirectRule } from '@linkora/shared';
 
 const importRoutes = new Hono<{ Bindings: Env }>();
@@ -123,24 +124,26 @@ function cacheEntryFromLink(link: Link): KVCacheEntry {
 }
 
 async function syncImportCache(env: Env, domain: string, link: Link): Promise<void> {
+  const cacheDomain = normalizeDomain(link.domain) ?? domain;
   const isExpired = !!link.expires_at && Date.parse(link.expires_at) < Date.now();
   const reachedMaxClicks = link.max_clicks !== null && link.max_clicks !== undefined && link.clicks >= link.max_clicks;
   if (link.status === 'active' && link.archived === 0 && !link.password_hash && !isExpired && !reachedMaxClicks) {
-    await setCachedLink(env, domain, cacheEntryFromLink(link));
+    await setCachedLink(env, cacheDomain, cacheEntryFromLink(link));
   } else {
-    await deleteCachedLink(env, domain, link.slug);
+    await deleteCachedLink(env, cacheDomain, link.slug);
   }
 }
 
 function linkFromImportItem(item: NormalizedImportItem, id: string, slug: string, domain: string, ts: string): Link {
   const createdAt = item.createdAt ?? ts;
   const updatedAt = item.updatedAt ?? createdAt;
+  const importedDomain = normalizeDomain(item.domain) ?? domain;
   return {
     id,
     slug,
-    domain,
+    domain: importedDomain,
     long_url: item.longUrl,
-    short_url: item.shortUrl ?? `https://${domain}/${slug}`,
+    short_url: item.shortUrl ?? `https://${importedDomain}/${slug}`,
     title: item.title ?? null,
     description: item.description ?? null,
     tags: itemTags(item).length > 0 ? JSON.stringify(itemTags(item)) : null,
@@ -163,6 +166,7 @@ function linkFromImportItem(item: NormalizedImportItem, id: string, slug: string
 
 function overwriteFieldsFromImportItem(item: NormalizedImportItem, existing: Link, ts: string): Partial<Link> {
   return {
+    domain: normalizeDomain(item.domain) ?? existing.domain,
     long_url: item.longUrl,
     short_url: item.shortUrl ?? existing.short_url,
     title: item.title ?? null,
@@ -489,8 +493,10 @@ importRoutes.post('/confirm', async (c) => {
           continue;
         }
 
-        await updateLink(c.env, existing.id, overwriteFieldsFromImportItem(item, existing, ts));
-        const overwritten = { ...existing, ...overwriteFieldsFromImportItem(item, existing, ts) } as Link;
+        const fields = overwriteFieldsFromImportItem(item, existing, ts);
+        await deleteCachedLink(c.env, normalizeDomain(existing.domain) ?? domain, existing.slug);
+        await updateLink(c.env, existing.id, fields);
+        const overwritten = { ...existing, ...fields } as Link;
         await ensureImportedTags(c.env, item, ts);
         await syncImportCache(c.env, domain, overwritten);
         const backupLinkId = backupLinkIdFromItem(item);

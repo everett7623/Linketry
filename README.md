@@ -36,6 +36,7 @@ For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING
 - Audit Logs page for admin actions and imports
 - 📤 Export links as CSV / JSON, visits as CSV, full backups, and R2 backup snapshots
 - R2 backup restore preview and one-click restore with pre-restore snapshots
+- Factory reset with preview, confirmation phrase, pre-reset backup, and KV cache clearing
 - ⚙️ System settings
 - 🏥 Health check endpoint (`/health`)
 
@@ -68,7 +69,7 @@ linkora/
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 24 recommended
 - npm 10+
 - Wrangler CLI: `npm install -g wrangler`
 - Cloudflare account

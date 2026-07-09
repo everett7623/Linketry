@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Save } from 'lucide-react';
+import { LINKORA_VERSION } from '@linkora/shared';
 import { getSettings, updateSettings } from '../api/settings';
+import { ResetSettingsPanel } from '../components/settings/ResetSettingsPanel';
 import { WebhookSettingsPanel } from '../components/settings/WebhookSettingsPanel';
 import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
@@ -103,10 +105,12 @@ export function Settings() {
 
       <WebhookSettingsPanel />
 
+      <ResetSettingsPanel />
+
       <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-900 p-6">
         <h2 className="border-b border-slate-800 pb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">About</h2>
         <div className="space-y-1 text-sm text-slate-400">
-          <p>Version: <span className="font-mono text-slate-200">0.1.0</span></p>
+          <p>Version: <span className="font-mono text-slate-200">{LINKORA_VERSION}</span></p>
           <p>Platform: <span className="text-slate-200">Cloudflare Workers + D1 + KV</span></p>
           <p>
             Documentation:{' '}

@@ -22,6 +22,7 @@ Shlink API keys are used only for the fetch request and are not stored by Linkor
 |--------------|---------------|
 | `shortCode` | `slug` |
 | `shortUrl` | `short_url` |
+| `shortUrl` hostname | `domain` |
 | `longUrl` | `long_url` |
 | `title` | `title` |
 | `tags` | `tags` |
@@ -35,7 +36,12 @@ V1 conflict handling is intentionally conservative:
 - Existing slugs are skipped.
 - Existing links are never overwritten silently.
 - The original Shlink `shortCode` is preserved when imported.
+- The original Shlink short domain is preserved from `shortUrl`, for example `https://s.y8o.de/example` imports as domain `s.y8o.de`.
 - Import jobs keep a CSV report that can be downloaded from Import History.
+
+## Domain Cutover Note
+
+For a full Shlink-to-Linkora cutover, import from the Shlink API or export file before moving DNS. After import, the stored Linkora domain should match the legacy short domain, such as `s.y8o.de`. Only switch Cloudflare DNS or Worker custom domain after spot-checking imported links in Linkora.
 
 ## Validation
 

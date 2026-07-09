@@ -126,6 +126,7 @@ function itemTags(item: NormalizedImportItem): string[] {
 }
 
 function backupDomainFromItem(item: NormalizedImportItem): string | undefined {
+  if (item.domain?.trim()) return item.domain.trim().toLowerCase();
   if (typeof item.raw !== 'object' || item.raw === null || Array.isArray(item.raw)) return undefined;
   const domain = (item.raw as { domain?: unknown }).domain;
   if (typeof domain !== 'string') return undefined;

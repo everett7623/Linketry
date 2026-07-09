@@ -1,3 +1,4 @@
+import { LINKORA_VERSION } from '@linkora/shared';
 import type { Env } from '../types';
 import { getSettings, setSetting } from '../db/index';
 import { generateId, now } from '../utils/id';
@@ -172,7 +173,7 @@ async function deliverWebhook(
     id: generateId(),
     event,
     created_at: createdAt,
-    version: env.LINKORA_VERSION ?? '0.1.0',
+    version: env.LINKORA_VERSION ?? LINKORA_VERSION,
     data,
   });
 

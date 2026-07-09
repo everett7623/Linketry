@@ -60,7 +60,7 @@ Authenticated API endpoints:
 ```json
 {
   "name": "Linkora Backup",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "exportedAt": "2026-07-01T00:00:00.000Z",
   "links": [],
   "tags": [],
@@ -91,5 +91,21 @@ The Admin Backups page can restore a completed R2 snapshot with a preview-first 
 4. Confirm the restore.
 
 Before applying a restore, Linkora creates a fresh `pre-restore` R2 snapshot. If the selected backup is too large for one-click restore, the API rejects it with a clear error so the operator can download and restore manually.
+
+## Factory Reset Safety
+
+The Admin Settings danger zone includes a factory reset workflow for cleaning a test or migration instance before long-term use.
+
+Factory reset:
+
+- previews affected table row counts before deletion;
+- requires the exact confirmation phrase `RESET LINKORA`;
+- creates a `pre-reset` R2 backup by default;
+- clears short-link KV cache;
+- deletes links, analytics, tags, domains, imports, API tokens, audit logs, redirect rules, and settings;
+- restores default settings after deletion;
+- preserves R2 backup records, R2 backup objects, and the environment `ADMIN_TOKEN`.
+
+Reset does not delete R2 backups. Backup deletion and retention are handled separately so recovery points are not removed by accident.
 
 Keep exported backups and D1 backups for disaster recovery, especially before using overwrite.

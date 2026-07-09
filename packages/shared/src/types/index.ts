@@ -221,6 +221,7 @@ export interface Setting {
 export interface NormalizedImportItem {
   slug: string;
   longUrl: string;
+  domain?: string;
   shortUrl?: string;
   title?: string;
   description?: string;

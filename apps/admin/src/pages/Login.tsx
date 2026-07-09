@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { LINKORA_VERSION } from '@linkora/shared';
 import { useNavigate } from 'react-router-dom';
 import { Zap, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -69,7 +70,7 @@ export function Login() {
         </form>
 
         <p className="text-center text-xs text-slate-600 mt-6">
-          Linkora v0.1.0 — Self-hosted link management
+          Linkora v{LINKORA_VERSION} — Self-hosted link management
         </p>
       </div>
     </div>

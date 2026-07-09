@@ -1,5 +1,6 @@
 import type { ImportAdapter, ImportFieldMapping, NormalizedImportItem, ImportValidationResult } from '@linkora/shared';
 import { validateSlug, validateLongUrl } from '@linkora/shared';
+import { domainFromUrl, normalizeDomain } from './domain';
 
 interface GenericRow {
   slug?: string;
@@ -12,6 +13,7 @@ interface GenericRow {
   target?: string;
   short_url?: string;
   shortUrl?: string;
+  domain?: string;
   title?: string;
   description?: string;
   tags?: string | string[];
@@ -34,6 +36,7 @@ const FIELD_ALIASES: Record<string, string[]> = {
   slug: ['slug', 'short_code', 'shortCode', 'short code', 'code', 'key', 'keyword', 'alias', 'path'],
   longUrl: ['long_url', 'longUrl', 'long url', 'url', 'target', 'target_url', 'destination', 'destination_url', 'original_url', 'link'],
   shortUrl: ['short_url', 'shortUrl', 'short url'],
+  domain: ['domain', 'short_domain', 'shortDomain', 'host', 'hostname'],
   title: ['title', 'name', 'label'],
   description: ['description', 'desc', 'notes', 'note'],
   tags: ['tags', 'tag', 'labels', 'categories'],
@@ -134,6 +137,7 @@ function normalizeGenericRow(row: GenericRow, mapping?: ImportFieldMapping): Nor
   return {
     slug,
     longUrl,
+    domain: normalizeDomain(readMappedValue(row, 'domain', mapping)) ?? domainFromUrl(readMappedValue(row, 'shortUrl', mapping)),
     shortUrl: asString(readMappedValue(row, 'shortUrl', mapping)),
     title: asString(readMappedValue(row, 'title', mapping)),
     description: asString(readMappedValue(row, 'description', mapping)),

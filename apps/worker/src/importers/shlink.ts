@@ -1,5 +1,6 @@
 import type { ImportAdapter, NormalizedImportItem, ImportValidationResult } from '@linkora/shared';
 import { validateSlug, validateLongUrl } from '@linkora/shared';
+import { domainFromUrl } from './domain';
 
 interface ShlinkJsonItem {
   shortCode?: string;
@@ -61,6 +62,7 @@ function parseShlinkJson(input: unknown): NormalizedImportItem[] {
   return items.map((item) => ({
     slug: item.shortCode ?? '',
     longUrl: item.longUrl ?? '',
+    domain: domainFromUrl(item.shortUrl),
     shortUrl: item.shortUrl,
     title: item.title,
     tags: Array.isArray(item.tags) ? item.tags : [],
@@ -81,6 +83,7 @@ function parseShlinkJsonl(input: string): NormalizedImportItem[] {
       items.push({
         slug: obj.shortCode ?? '',
         longUrl: obj.longUrl ?? '',
+        domain: domainFromUrl(obj.shortUrl),
         shortUrl: obj.shortUrl,
         title: obj.title,
         tags: Array.isArray(obj.tags) ? obj.tags : [],
@@ -113,6 +116,7 @@ function parseShlinkCsv(input: string): NormalizedImportItem[] {
 
     const slug = row['Short Code'] ?? row['shortCode'] ?? row['short_code'] ?? '';
     const longUrl = row['Long URL'] ?? row['longUrl'] ?? row['long_url'] ?? '';
+    const shortUrl = row['Short URL'] ?? row['shortUrl'] ?? row['short_url'] ?? '';
     const title = row['Title'] ?? row['title'] ?? '';
     const tags = (row['Tags'] ?? row['tags'] ?? '').split('|').filter(Boolean);
     const clicks = parseInt(row['Visits'] ?? row['clicks'] ?? '0', 10) || 0;
@@ -121,6 +125,8 @@ function parseShlinkCsv(input: string): NormalizedImportItem[] {
     items.push({
       slug,
       longUrl,
+      domain: domainFromUrl(shortUrl),
+      shortUrl: shortUrl || undefined,
       title: title || undefined,
       tags,
       clicks,

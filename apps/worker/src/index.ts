@@ -19,11 +19,12 @@ import webhookRoutes from './routes/webhooks';
 import redirectRuleRoutes from './routes/redirectRules';
 import groupRoutes from './routes/groups';
 import healthCheckRoutes from './routes/healthChecks';
+import maintenanceRoutes from './routes/maintenance';
 import { processVisitQueueBatch } from './analytics/index';
 import { createR2Backup } from './backups/index';
 import { emitWebhook } from './webhooks/index';
 import { cleanupAnalyticsRetention } from './db/analytics';
-import type { VisitQueueMessage } from '@linkora/shared';
+import { LINKORA_VERSION, type VisitQueueMessage } from '@linkora/shared';
 import { getOverviewStats } from './db/index';
 import { requireAuth } from './auth/index';
 import { jsonOk } from './utils/response';
@@ -47,7 +48,7 @@ app.get('/health', (c) => {
   return jsonOk({
     status: 'ok',
     name: 'Linkora',
-    version: c.env.LINKORA_VERSION ?? '0.1.0',
+    version: c.env.LINKORA_VERSION ?? LINKORA_VERSION,
   });
 });
 
@@ -102,6 +103,9 @@ app.route('/api/groups', groupRoutes);
 // Link health checks
 app.route('/api/health-checks', healthCheckRoutes);
 
+// Maintenance
+app.route('/api/maintenance', maintenanceRoutes);
+
 // Overview stats
 app.get('/api/overview', async (c) => {
   const authError = await requireAuth(c);
@@ -129,7 +133,7 @@ app.post('/:slug', async (c) => {
 
 // Root
 app.get('/', (c) => {
-  return jsonOk({ name: 'Linkora', version: c.env.LINKORA_VERSION ?? '0.1.0', status: 'ok' });
+  return jsonOk({ name: 'Linkora', version: c.env.LINKORA_VERSION ?? LINKORA_VERSION, status: 'ok' });
 });
 
 const handler: ExportedHandler<Env, VisitQueueMessage> = {

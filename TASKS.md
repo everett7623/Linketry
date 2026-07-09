@@ -34,6 +34,37 @@ _(none currently)_
 
 ---
 
+## ✅ Completed — V7 Instance Reset
+
+- [x] Add reset preview for affected row counts and KV prefix
+- [x] Add factory reset API with exact confirmation phrase
+- [x] Add pre-reset R2 backup, enabled by default
+- [x] Clear short-link KV cache during reset
+- [x] Reset links, analytics, tags, domains, imports, API tokens, audit logs, redirect rules, and settings
+- [x] Preserve R2 backup records, R2 objects, and environment `ADMIN_TOKEN`
+- [x] Add Admin Settings danger-zone reset panel
+
+---
+
+## ✅ Completed — Project Consistency Cleanup
+
+- [x] Bump Linkora package/runtime version to `0.7.0`
+- [x] Add shared version constant for Worker and Admin displays
+- [x] Update GitHub Actions version resolution and repository `LINKORA_VERSION` variable
+- [x] Update docs, env examples, wrangler example, changelog, and package lock
+- [x] Update GitHub Actions Node runtime to Node 24
+
+---
+
+## ✅ Completed — Shlink Migration Readiness
+
+- [x] Preserve original short domains from Shlink `shortUrl` during import
+- [x] Write imported domains to `links.domain`
+- [x] Refresh import KV cache using stored link domain instead of API host
+- [x] Document reset-then-import cutover safety for `s.y8o.de`
+
+---
+
 ## ✅ Completed — V6 Production Validation
 
 - [x] Apply `migrations/0002_analytics_depth.sql` to production D1
@@ -301,6 +332,7 @@ Deployment experience:
 - [x] One-click restore from R2 backup records in the Backups page
 - [x] Restore dry-run preview with conflict summary
 - [x] Pre-restore backup and restore report
+- [x] Factory reset with preview, confirmation phrase, pre-reset backup, and KV cache clearing
 - [ ] Configurable R2 backup retention with a 30-day default
 - [ ] Retention cleanup for old backup records and R2 objects
 - [ ] Periodic target health monitoring through Cron

@@ -1,4 +1,4 @@
-import type { Backup } from '@linkora/shared';
+import { LINKORA_VERSION, type Backup } from '@linkora/shared';
 import type { Env } from '../types';
 import { createBackupRecord, getAllLinks, getAllRedirectRules, getAllTags, getSettings } from '../db/index';
 import { generateId, now } from '../utils/id';
@@ -13,7 +13,7 @@ export interface LinkoraBackupPayload {
   settings: Record<string, string>;
 }
 
-export type BackupTrigger = 'manual' | 'scheduled' | 'pre-restore';
+export type BackupTrigger = 'manual' | 'scheduled' | 'pre-restore' | 'pre-reset';
 
 export async function buildBackupPayload(env: Env): Promise<LinkoraBackupPayload> {
   const [links, tags, redirectRules, settings] = await Promise.all([
@@ -25,7 +25,7 @@ export async function buildBackupPayload(env: Env): Promise<LinkoraBackupPayload
 
   return {
     name: 'Linkora Backup',
-    version: env.LINKORA_VERSION ?? '0.1.0',
+    version: env.LINKORA_VERSION ?? LINKORA_VERSION,
     exportedAt: now(),
     links,
     tags,

@@ -233,6 +233,26 @@ Restore preview payload:
 }
 ```
 
+## Maintenance
+
+Maintenance endpoints require admin access. Reset is destructive and should be previewed first.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/maintenance/reset-preview` | Count rows and cache prefix affected by a factory reset |
+| `POST` | `/api/maintenance/reset` | Reset the instance after exact confirmation |
+
+Reset payload:
+
+```json
+{
+  "confirmation": "RESET LINKORA",
+  "createBackup": true
+}
+```
+
+Reset deletes links, analytics, tags, domains, imports, API tokens, audit logs, redirect rules, settings, and short-link KV cache. It preserves R2 backup records, R2 backup objects, and the environment `ADMIN_TOKEN`. When `createBackup` is true, Linkora creates a `pre-reset` R2 backup before deleting data.
+
 ## Groups
 
 Campaign and project groups require admin access. They are stored as normal tags using the `campaign:<name>` and `project:<name>` naming convention, so existing link tag filters, bulk tag assignment, import, and backup flows keep working without a new table.

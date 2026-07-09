@@ -143,7 +143,7 @@ Linkora is intended to remain useful for long-term self-hosted operation, not ju
 
 ## V7: Operations, Recovery, And Monitoring
 
-Status: in progress. R2 backup restore preview, one-click restore, pre-restore backup, and restore reporting are implemented.
+Status: in progress. R2 backup restore preview, one-click restore, pre-restore backup, restore reporting, and factory reset are implemented.
 
 Goal: make Linkora safer to operate for years, with stronger recovery paths and proactive monitoring.
 
@@ -151,6 +151,7 @@ Planned:
 
 - Done: one-click restore from R2 backup records in the Backups page
 - Done: restore dry-run preview, conflict summary, pre-restore backup, and restore report
+- Done: factory reset with preview, confirmation phrase, pre-reset backup, and KV cache clearing
 - Backup retention policy for R2 objects and D1 backup records, starting with a 30-day default and configurable retention
 - Periodic target health monitoring through Cron, with manual checks kept available
 - Target status history for links, including last status code, last checked time, and failure count

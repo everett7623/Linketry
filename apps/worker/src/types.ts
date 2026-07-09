@@ -6,5 +6,5 @@ export interface Env {
   BACKUPS?: R2Bucket;
   VISITS_QUEUE?: Queue<VisitQueueMessage>;
   ADMIN_TOKEN: string;
-  LINKORA_VERSION: string;
+  LINKORA_VERSION?: string;
 }

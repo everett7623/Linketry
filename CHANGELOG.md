@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+_(none)_
+
+---
+
+## [0.7.0] — 2026-07-09
+
 ### Added
 - Admin import confirmation now downloads a pre-import `backup.json` before mutating link data.
 - Visits can now be exported from `GET /api/export/visits.csv` and the Admin Import / Export page.
@@ -38,6 +44,13 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Added MIT licensing, public repository cleanup, analytics documentation, and clearer local self-hosting bootstrap instructions.
 - Analytics now reports approximate unique visitors and operating system breakdowns, and the Admin Analytics page displays device and OS breakdown cards.
 - Added V6 analytics depth: filterable Analytics dashboard, single-link analytics page, UTM breakdowns, redirect target/A-B statistics, conversion events, Analytics CSV export, and scheduled raw analytics retention.
+- Added V7 R2 backup restore preview, one-click restore, conflict strategies, pre-restore backup, and restore reporting.
+- Added factory reset with reset preview, exact confirmation phrase, pre-reset R2 backup, KV cache clearing, and default settings restoration.
+
+### Changed
+- Bumped Linkora package and runtime version to `0.7.0`.
+- Added a shared `LINKORA_VERSION` constant used by Worker fallbacks and Admin version display.
+- GitHub Actions now resolves the deployment version from `package.json` when `LINKORA_VERSION` is not explicitly set.
 
 ---
 

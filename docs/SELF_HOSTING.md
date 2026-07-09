@@ -13,7 +13,7 @@ Use your own domains everywhere below. Do not copy another deployment's domains,
 
 ## 1. Prerequisites
 
-- Node.js 20+
+- Node.js 24 recommended
 - npm 10+
 - A Cloudflare account
 - A domain managed by Cloudflare DNS
@@ -149,7 +149,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.1.0"}}
+{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.7.0"}}
 ```
 
 ## 7. Build and Deploy Admin
@@ -206,7 +206,7 @@ LINKORA_VISITS_QUEUE=linkora-visits
 Optional variables:
 
 ```txt
-LINKORA_VERSION=0.1.0
+LINKORA_VERSION=0.7.0
 LINKORA_COMPATIBILITY_DATE=2026-07-08
 ```
 
