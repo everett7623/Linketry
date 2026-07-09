@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-07-08
+Last updated: 2026-07-09
 
 ---
 
@@ -11,11 +11,11 @@ Last updated: 2026-07-08
 | Layer           | Status         | Notes                                          |
 |-----------------|----------------|------------------------------------------------|
 | Worker backend  | ✅ Code complete | Local type-check passing; deployed on Cloudflare Workers |
-| Admin frontend  | ✅ Code complete | Production build passing; deployed on `admin.y8o.de` |
-| Database schema | ✅ Complete      | Local and production D1 migrations applied      |
-| Documentation   | ✅ Complete      | README, root runbooks, and `docs/` reference set |
-| Deployment      | ✅ Deployed      | Worker on `go.y8o.de`, Admin on `admin.y8o.de`; GitHub Actions deploy workflow added |
-| End-to-end test | ✅ V1-V4 slices passed | Full V1-V3 regression passed; V4 smart redirects, groups, health checks, and smart suggestions production smoke passed on `go.y8o.de`; final V4 core regression passed |
+| Admin frontend  | ✅ Code complete | Production build passing; deployed on Cloudflare Pages |
+| Database schema | ✅ Complete      | Local migrations applied; production needs `0002_analytics_depth.sql` applied before V6 deploy      |
+| Documentation   | ✅ Complete      | README, self-hosting guide, analytics guide, root runbooks, and `docs/` reference set |
+| Deployment      | ✅ Deployed      | Worker and Admin deployed; GitHub Actions deploy workflow added |
+| End-to-end test | ✅ V1-V4 slices passed | Full V1-V3 regression passed; V4 smart redirects, groups, health checks, and smart suggestions production smoke passed; final V4 core regression passed |
 
 ---
 
@@ -91,8 +91,8 @@ Last updated: 2026-07-08
 ## Next Steps
 
 1. Revoke or rotate the Shlink API key used during migration
-2. Plan optional V4 long-tail enhancements only if needed: bulk UTM automation, target failure alerts, link notes, public stats, OpenGraph previews, or long-idle auto-archive
-3. Cut over `s.y8o.de` from Shlink to Linkora when ready
+2. Apply the V6 analytics migration and deploy the Worker/Admin build to production
+3. Cut over the legacy short domain from Shlink to Linkora when ready
 
 ---
 
@@ -101,7 +101,7 @@ Last updated: 2026-07-08
 | Issue                                | Status  | Notes                                            |
 |--------------------------------------|---------|--------------------------------------------------|
 | Browser plugin instability           | ℹ️ Not blocking | API and production smoke checks completed; browser plugin not required for remaining cutover |
-| Admin API on `workers.dev` unavailable | ℹ️ Not blocking | Admin has been rebuilt to use `https://go.y8o.de` |
+| Admin API on `workers.dev` unavailable | ℹ️ Not blocking | Admin should be built with the configured Worker/API origin |
 | Wrangler v3 update warning           | ℹ️ Not blocking | Local checks passed; consider upgrade separately |
 | KV stale active entry after admin changes | ✅ Fixed | Redirect handler now re-checks D1 on KV hits and preserves active KV only if D1 is unavailable |
 
@@ -109,10 +109,10 @@ Last updated: 2026-07-08
 
 | Source | Status | Notes |
 |--------|--------|-------|
-| Shlink API (`s.y8o.de`) | ✅ Imported | 195 links imported into production Linkora, 0 failed, 0 skipped |
+| Shlink API | ✅ Imported | 195 links imported into production Linkora, 0 failed, 0 skipped |
 | Duplicate import safety | ✅ Verified | Re-preview after import reports 195 conflicts and 0 valid imports |
 | Imported redirect spot-check | ✅ Verified | Sample slugs return 302 from production Worker |
-| `s.y8o.de` cutover plan | ✅ Prepared | See `CUTOVER_S_Y8O_DE.md`; cutover not executed yet |
+| Legacy short-domain cutover plan | ✅ Prepared | See `CUTOVER.md`; cutover not executed yet |
 
 ---
 
@@ -123,6 +123,8 @@ Last updated: 2026-07-08
 | V2      | ✅ Done |
 | V3      | ✅ Done |
 | V4      | ✅ Done |
+| V5      | ✅ Done |
+| V6      | ✅ First pass complete |
 
 Database columns for V2–V4 are already present in `migrations/0001_init.sql` to avoid future migration complexity.
 
@@ -153,13 +155,13 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Links advanced filters | ✅ Done | Links list filters by source, domain, password, warning, limits, and created date range |
 | Generic CSV field mapping | ✅ Done | Generic CSV import accepts explicit field mapping for non-standard headers |
 | Generic JSON / JSONL field mapping | ✅ Done | Generic JSON import accepts mapped fields and common wrapped arrays |
-| V2 production regression | ✅ Done | 49 production checks passed on `go.y8o.de`; temporary `lk-v2-reg-*` links cleaned up |
+| V2 production regression | ✅ Done | 49 production checks passed; temporary `lk-v2-reg-*` links cleaned up |
 
 ### V3 Progress
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Advanced analytics dashboard | ✅ Done | Admin Analytics page shows click totals, daily trend, top links, countries, referrers, browsers, devices, and recent visits |
+| Advanced analytics dashboard | ✅ Done | Admin Analytics page shows click totals, approximate unique visitors, daily trend, top links, countries, referrers, browsers, devices, operating systems, bot metrics, and recent visits |
 | Daily stats aggregation | ✅ Done | Visit recording updates `daily_stats` asynchronously via `ctx.waitUntil()` alongside raw visits |
 | Auto-backup to Cloudflare R2 | ✅ Done | Worker creates full backup snapshots in R2 through Admin and scheduled cron |
 | Cron Triggers for daily backup | ✅ Done | Wrangler cron runs daily at 18:00 UTC / 02:00 Asia/Shanghai |
@@ -180,3 +182,16 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Campaign / project grouping | ✅ Done | Admin Groups page and `/api/groups` manage `campaign:*` / `project:*` tags; 15-check production smoke passed and temporary groups cleaned up |
 | Local smart link suggestions | ✅ Done | Authenticated `/api/metadata/suggestions` suggests slugs, title, description, and tags from URL/page metadata; Create/Edit forms can apply suggestions; 8-check production smoke plus 10-check core regression passed and temporary `lk-v4-ai-*` / `lk-v4-final-*` links cleaned up |
 | Link health checker | ✅ Done | Manual URL, single-link, and capped active-link batch checks; 15-check production smoke passed and temporary `lk-v4-health-*` links cleaned up |
+
+### V6 Progress
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Single-link analytics page | ✅ Done | `/analytics/links/:id` shows per-link trend, referrers, devices, targets, UTM, and conversions |
+| Analytics filters | ✅ Done | API/Admin filters cover link, slug, domain, tag, campaign, project, country, device, browser, referer, and UTM values |
+| UTM breakdown | ✅ Done | Summary includes top UTM sources, mediums, and campaigns |
+| A/B target statistics | ✅ Done | Redirect target decisions are stored in `visit_targets` without changing redirect behavior |
+| Conversion events | ✅ Done | `POST /api/conversions` records authenticated goal events |
+| Analytics report export | ✅ Done | `/api/export/analytics.csv` exports summary report sections |
+| Raw analytics retention | ✅ Done | `analytics_retention_days` setting is enforced by scheduled Worker cleanup |
+| V6 validation | ✅ Local passed | Worker type-check, Admin production build, and local D1 migration passed |

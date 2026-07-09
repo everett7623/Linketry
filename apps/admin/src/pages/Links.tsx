@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search, Plus, Copy, Pencil, Trash2, PowerOff, Power,
   Archive, RotateCcw, ExternalLink, ChevronLeft, ChevronRight,
-  QrCode, Download, Tag, KeyRound, ShieldAlert, SlidersHorizontal,
+  QrCode, Download, Tag, KeyRound, ShieldAlert, SlidersHorizontal, BarChart3,
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import {
@@ -520,6 +520,7 @@ export function Links() {
                           <button onClick={() => copyLink(link)} title="Copy" className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"><Copy size={14} /></button>
                           <a href={buildShortUrl(link, defaultDomain)} target="_blank" rel="noopener noreferrer" title="Open" className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"><ExternalLink size={14} /></a>
                           <button onClick={() => showQr(link)} title="QR Code" className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"><QrCode size={14} /></button>
+                          <Link to={`/analytics/links/${link.id}`} title="Analytics" className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"><BarChart3 size={14} /></Link>
                           <Link to={`/links/${link.id}/edit`} title="Edit" className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"><Pencil size={14} /></Link>
                           {link.status === 'active'
                             ? <button onClick={() => confirmAction('disable', link)} title="Disable" className="p-1.5 text-slate-500 hover:text-yellow-400 hover:bg-slate-700 rounded transition-colors"><PowerOff size={14} /></button>

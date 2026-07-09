@@ -3,7 +3,7 @@ import type { Env } from '../types';
 import { getCachedLink, setCachedLink } from '../cache/index';
 import { getDomainlessLinkBySlug, getLinkByDomainAndSlug, getRedirectRulesForLink } from '../db/index';
 import { queueOrRecordVisit } from '../analytics/index';
-import { resolveRedirectTarget } from '../redirectRules/index';
+import { resolveRedirectDecision, type RedirectDecision } from '../redirectRules/index';
 import { notFound, disabledPage, expiredPage, passwordPage, warningPage } from '../utils/response';
 import { sha256 } from '../utils/id';
 import type { KVCacheEntry, Link } from '@linkora/shared';
@@ -62,12 +62,12 @@ async function getRedirectLink(env: Env, domain: string, slug: string): Promise<
   return (await getLinkByDomainAndSlug(env, domain, slug)) ?? getDomainlessLinkBySlug(env, slug);
 }
 
-async function getSmartRedirectTarget(env: Env, link: Link, request: Request): Promise<string> {
+async function getSmartRedirectDecision(env: Env, link: Link, request: Request): Promise<RedirectDecision> {
   try {
     const rules = await getRedirectRulesForLink(env, link.id);
-    return resolveRedirectTarget(link, rules, request);
+    return resolveRedirectDecision(link, rules, request);
   } catch {
-    return link.long_url;
+    return { targetUrl: link.long_url, redirectRuleId: null, redirectRuleType: null, matched: false };
   }
 }
 
@@ -141,14 +141,18 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
       await setCachedLink(c.env, domain, cached);
     }
 
-    const targetUrl = await getSmartRedirectTarget(c.env, link, c.req.raw);
+    const decision = await getSmartRedirectDecision(c.env, link, c.req.raw);
 
     // Async: record visit (stats failure must NOT block redirect)
-    c.executionCtx.waitUntil(queueOrRecordVisit(c.env, link, c.req.raw, domain));
+    c.executionCtx.waitUntil(queueOrRecordVisit(c.env, link, c.req.raw, domain, {
+      url: decision.targetUrl,
+      redirect_rule_id: decision.redirectRuleId,
+      redirect_rule_type: decision.redirectRuleType,
+    }));
 
     return new Response(null, {
       status: link.redirect_type,
-      headers: { Location: targetUrl },
+      headers: { Location: decision.targetUrl },
     });
   }
 
@@ -168,13 +172,17 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
       c.executionCtx.waitUntil(setCachedLink(c.env, domain, freshCache));
     }
 
-    const targetUrl = await getSmartRedirectTarget(c.env, link, c.req.raw);
+    const decision = await getSmartRedirectDecision(c.env, link, c.req.raw);
 
-    c.executionCtx.waitUntil(queueOrRecordVisit(c.env, link, c.req.raw, domain));
+    c.executionCtx.waitUntil(queueOrRecordVisit(c.env, link, c.req.raw, domain, {
+      url: decision.targetUrl,
+      redirect_rule_id: decision.redirectRuleId,
+      redirect_rule_type: decision.redirectRuleType,
+    }));
 
     return new Response(null, {
       status: link.redirect_type,
-      headers: { Location: targetUrl },
+      headers: { Location: decision.targetUrl },
     });
   } catch {
     // If D1 is temporarily unavailable but KV has an active entry, preserve the redirect.

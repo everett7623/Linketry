@@ -95,6 +95,11 @@ jobs:
           crons = ["0 18 * * *"]
           EOF
 
+      - name: Apply D1 migrations
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.LINKORA_SHORT_DOMAIN != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != '' && env.LINKORA_KV_PREVIEW_ID != '' && env.LINKORA_R2_BUCKET != '' && env.LINKORA_R2_PREVIEW_BUCKET != '' && env.LINKORA_VISITS_QUEUE != ''
+        run: npx wrangler d1 migrations apply "$LINKORA_D1_DATABASE_NAME" --remote
+        working-directory: apps/worker
+
       - name: Deploy Worker
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.LINKORA_SHORT_DOMAIN != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != '' && env.LINKORA_KV_PREVIEW_ID != '' && env.LINKORA_R2_BUCKET != '' && env.LINKORA_R2_PREVIEW_BUCKET != '' && env.LINKORA_VISITS_QUEUE != ''
         run: npx wrangler deploy

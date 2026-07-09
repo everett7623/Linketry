@@ -11,7 +11,33 @@ _(none currently)_
 
 ---
 
-## 🟡 Next — V5 Open Source Self-Hosted Release
+## 🟡 Next — V6 Production Validation
+
+- [ ] Apply `migrations/0002_analytics_depth.sql` to production D1
+- [ ] Deploy Worker and Admin with V6 analytics changes
+- [ ] Production smoke test Analytics filters and single-link analytics
+- [ ] Production smoke test `POST /api/conversions`
+- [ ] Production smoke test `/api/export/analytics.csv`
+- [ ] Confirm scheduled retention setting is saved
+- [ ] Consider public read-only stats pages
+- [ ] Improve bot classification
+
+---
+
+## ✅ Completed — V6 Analytics Depth First Pass
+
+- [x] Add per-link analytics detail page
+- [x] Add Analytics filters for link, domain, tag, campaign, project, country, device, browser, referer, and UTM values
+- [x] Add UTM parameter breakdown
+- [x] Add smart redirect rule and A/B target breakdown
+- [x] Add conversion or goal event tracking
+- [x] Add exportable Analytics reports
+- [x] Add configurable raw visit retention controls
+- [x] Run Worker type-check, Admin production build, and local D1 migration
+
+---
+
+## ✅ Completed — V5 Open Source Self-Hosted Release
 
 Product direction:
 
@@ -30,6 +56,8 @@ Deployment experience:
 - [x] Isolate personal deployment values from public docs and reusable GitHub Actions defaults
 - [x] Improve first-run Admin guidance for system status and missing setup checks
 - [x] Move maintainer production Worker config out of the public default path, or generate it from deployment variables
+- [x] Add MIT license and public repository readiness cleanup
+- [x] Document current dashboard/analytics coverage and next tracking gaps
 
 ---
 
@@ -57,11 +85,11 @@ Deployment experience:
 - [x] Test `GET /health` on production URL
 - [x] Test short link redirect on production domain
 - [x] Verify API auth rejects requests without token
-- [x] Configure test short-link domain `go.y8o.de`
-- [x] Add DNS CNAME for `admin.y8o.de` → `linkora-admin.pages.dev`
-- [x] Verify Admin custom domain `https://admin.y8o.de`
-- [x] Rebuild and deploy Admin with API base `https://go.y8o.de`
-- [x] Configure Admin short-link copy/open domain via Settings (`default_domain=go.y8o.de`)
+- [x] Configure a test short-link domain
+- [x] Add DNS CNAME for the Admin custom domain to the Cloudflare Pages project
+- [x] Verify Admin custom domain
+- [x] Rebuild and deploy Admin with the Worker/API base URL
+- [x] Configure Admin short-link copy/open domain via Settings
 
 ### Migration
 
@@ -70,9 +98,9 @@ Deployment experience:
 - [x] Import 195 Shlink links into production Linkora
 - [x] Verify duplicate import preview reports conflicts instead of overwriting
 - [x] Spot-check imported redirects on production Worker
-- [x] Prepare `s.y8o.de` cutover and rollback checklist
+- [x] Prepare legacy short-domain cutover and rollback checklist
 - [ ] Revoke or rotate the Shlink API key used for migration
-- [ ] Cut over `s.y8o.de` from Shlink to Linkora
+- [ ] Cut over the legacy short domain from Shlink to Linkora
 
 ---
 
@@ -134,7 +162,7 @@ Deployment experience:
 ### Documentation
 - [x] `README.md`
 - [x] `DEPLOYMENT.md`
-- [x] `CUTOVER_S_Y8O_DE.md`
+- [x] `CUTOVER.md`
 - [x] `AGENTS.md`
 - [x] `DEVELOPMENT_GUIDE.md`
 - [x] `docs/DEPLOYMENT.md`
@@ -174,7 +202,7 @@ Deployment experience:
 - [x] V2 expiry/max-clicks production check: expired links show expired page; max-click links stop after limit
 - [x] V2 auto-fetch page title production check: metadata endpoint rejects unauthenticated requests and fetches `Example Domain`
 - [x] V2 bulk tag assignment production check: add, replace, remove, and clear tags on temporary links
-- [x] V2 full production regression: 49 checks passed on `go.y8o.de`; temporary `lk-v2-reg-*` links cleaned up
+- [x] V2 full production regression: 49 checks passed; temporary `lk-v2-reg-*` links cleaned up
 
 ---
 

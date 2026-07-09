@@ -43,6 +43,31 @@ export interface Visit {
   created_at: string;
 }
 
+export interface VisitTarget {
+  visit_id: string;
+  link_id?: string | null;
+  slug: string;
+  domain?: string | null;
+  target_url: string;
+  redirect_rule_id?: string | null;
+  redirect_rule_type?: string | null;
+  created_at: string;
+}
+
+export interface ConversionEvent {
+  id: string;
+  link_id?: string | null;
+  slug: string;
+  domain?: string | null;
+  event_name: string;
+  value?: number | null;
+  currency?: string | null;
+  metadata?: string | null;
+  ip_hash?: string | null;
+  user_agent?: string | null;
+  created_at: string;
+}
+
 export interface Tag {
   id: string;
   name: string;
@@ -267,6 +292,11 @@ export interface VisitQueueMessage {
   link: VisitLinkSnapshot;
   request: VisitRequestSnapshot;
   domain: string;
+  target?: {
+    url: string;
+    redirect_rule_id?: string | null;
+    redirect_rule_type?: string | null;
+  };
   queued_at: string;
 }
 

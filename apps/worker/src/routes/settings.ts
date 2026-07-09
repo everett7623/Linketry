@@ -33,12 +33,23 @@ settings.put('/', async (c) => {
   const updates: Promise<void>[] = [];
   for (const [key, value] of Object.entries(body)) {
     if (typeof value === 'string') {
-      updates.push(setSetting(c.env, key, value, ts));
+      const normalized = normalizeSetting(key, value);
+      if (normalized.error) return jsonError(normalized.error, 400);
+      updates.push(setSetting(c.env, key, normalized.value, ts));
     }
   }
   await Promise.all(updates);
 
   return jsonOk({ message: 'Settings updated' });
 });
+
+function normalizeSetting(key: string, value: string): { value: string; error?: string } {
+  if (key !== 'analytics_retention_days') return { value };
+  const days = parseInt(value, 10);
+  if (!Number.isFinite(days) || days < 0 || days > 3650) {
+    return { value: '0', error: 'analytics_retention_days must be between 0 and 3650' };
+  }
+  return { value: String(days) };
+}
 
 export default settings;

@@ -81,7 +81,7 @@ Future optional enhancements:
 
 ## V5: Open Source Release And Self-Hosted Deployment
 
-Status: in progress.
+Status: complete.
 
 Product direction:
 
@@ -98,7 +98,7 @@ Planned:
 - Parameterize GitHub Actions with repository variables instead of project-specific domains
 - Document all Cloudflare resources: Workers, D1, KV, R2, Queues, Pages, secrets, and custom domains
 - Add post-deploy smoke test commands
-- Remove or isolate personal deployment values such as `go.y8o.de`, `admin.y8o.de`, and `linkora-admin`
+- Remove or isolate maintainer-specific deployment values from reusable public setup paths
 - Improve first-run guidance in Admin so new self-hosters can verify system status quickly
 
 Completed in the first V5 pass:
@@ -109,3 +109,25 @@ Completed in the first V5 pass:
 - GitHub Actions variables for reusable Admin builds and Pages deploys
 - Admin Setup page for first-run deployment checks
 - Generated Worker deploy config from repository variables instead of a tracked production `wrangler.toml`
+- MIT license and public repository readiness cleanup
+- Analytics documentation for the current dashboard and next tracking gaps
+
+## V6: Analytics Depth And Product Polish
+
+Status: first pass complete.
+
+Done:
+
+- Per-link analytics detail page
+- Filter analytics by link, domain, tag, campaign, project, country, device, browser, referer, and UTM values
+- UTM source, medium, and campaign breakdown
+- Smart redirect and A/B target breakdown through `visit_targets`
+- Authenticated conversion or goal event API
+- Exportable Analytics CSV reports
+- Configurable raw analytics retention
+
+Future optional enhancements:
+
+- Better bot classification
+- Public read-only stats pages
+- Session or visitor-level conversion attribution

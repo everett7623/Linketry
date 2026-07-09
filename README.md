@@ -20,7 +20,7 @@ For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING
 - Bulk create short links and bulk update selected links
 - 🔍 Search by slug, URL, title; filter by tag, status, source, domain, created date, password, warning, and limits
 - 🏷️ Tag support and tag management
-- 📊 Click tracking with analytics dashboard and daily aggregation
+- 📊 Overview dashboard, filterable analytics, single-link analytics, UTM/target/conversion breakdowns, reports, and visits export
 - 🔑 Scoped API tokens for read, write, and admin API access
 - 🌐 Multi-domain catalog with per-link short domain selection
 - Smart redirect rules for country, device, browser, referer, language, and weighted/A-B traffic
@@ -56,7 +56,8 @@ linkora/
 ├── packages/
 │   └── shared/          # Shared types & validators
 ├── migrations/
-│   └── 0001_init.sql    # D1 schema
+│   ├── 0001_init.sql    # Base D1 schema
+│   └── 0002_analytics_depth.sql
 └── docs/                # Extended documentation
 ```
 
@@ -78,13 +79,20 @@ npm install
 ### Worker (backend)
 
 ```bash
+# Copy Worker config and local secrets
+cp apps/worker/wrangler.toml.example apps/worker/wrangler.toml
 # Copy example vars
 cp apps/worker/.dev.vars.example apps/worker/.dev.vars
 # Edit .dev.vars and set ADMIN_TOKEN
 
+# Prepare local D1 state
+npm run db:migrate:local --workspace=apps/worker
+
 # Start local dev
 npm run dev --workspace=apps/worker
 ```
+
+On Windows PowerShell, use `Copy-Item` instead of `cp`.
 
 ### Admin (frontend)
 
@@ -111,10 +119,10 @@ Copy `apps/worker/wrangler.toml.example` to `apps/worker/wrangler.toml`, then pu
 
 ```bash
 # Local
-wrangler d1 execute linkora-db --local --file=migrations/0001_init.sql
+npm run db:migrate:local --workspace=apps/worker
 
 # Production
-wrangler d1 execute linkora-db --file=migrations/0001_init.sql
+npm run db:migrate:remote --workspace=apps/worker
 ```
 
 ### 3. Create KV Namespace
@@ -237,6 +245,10 @@ See [docs/MIGRATION_FROM_SHLINK.md](docs/MIGRATION_FROM_SHLINK.md).
 
 If Linkora has issues, point the production domain DNS back to Shlink. No data is lost.
 
+## Analytics
+
+The Admin includes an **Overview** dashboard, a filterable **Analytics** dashboard, and per-link analytics pages. See [docs/ANALYTICS.md](docs/ANALYTICS.md) for tracking fields, filters, conversion events, reports, retention, and privacy notes.
+
 ## Roadmap
 
 | Version | Focus |
@@ -245,7 +257,8 @@ If Linkora has issues, point the production domain DNS back to Shlink. No data i
 | **V2** ✅ | Bulk ops, expiry, password, QR codes, Sink/YOURLS/Dub import, audit logs |
 | **V3** ✅ | Advanced analytics, auto R2 backup, API tokens, multi-domain, Webhooks, Queues, Cron |
 | **V4** ✅ | Smart redirects (country/device/browser/referer/language/A-B), local smart suggestions, UTM templates, campaigns, health checks |
-| **V5** 🚧 | Open-source packaging, self-hosting docs, template config, reusable deploy workflow |
+| **V5** ✅ | Open-source packaging, self-hosting docs, template config, reusable deploy workflow |
+| **V6** ✅ | Analytics depth: per-link pages, filters, UTM, A/B targets, conversions, reports, retention |
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for details.
 

@@ -12,6 +12,7 @@ import importRoutes from './routes/importRoutes';
 import metadataRoutes from './routes/metadata';
 import auditRoutes from './routes/audit';
 import analyticsRoutes from './routes/analytics';
+import conversionRoutes from './routes/conversions';
 import backupRoutes from './routes/backups';
 import tokenRoutes from './routes/tokens';
 import webhookRoutes from './routes/webhooks';
@@ -21,6 +22,7 @@ import healthCheckRoutes from './routes/healthChecks';
 import { processVisitQueueBatch } from './analytics/index';
 import { createR2Backup } from './backups/index';
 import { emitWebhook } from './webhooks/index';
+import { cleanupAnalyticsRetention } from './db/analytics';
 import type { VisitQueueMessage } from '@linkora/shared';
 import { getOverviewStats } from './db/index';
 import { requireAuth } from './auth/index';
@@ -79,6 +81,9 @@ app.route('/api/audit', auditRoutes);
 // Analytics
 app.route('/api/analytics', analyticsRoutes);
 
+// Conversion events
+app.route('/api/conversions', conversionRoutes);
+
 // Backups
 app.route('/api/backups', backupRoutes);
 
@@ -135,6 +140,11 @@ const handler: ExportedHandler<Env, VisitQueueMessage> = {
     ctx.waitUntil(processVisitQueueBatch(env, batch));
   },
   scheduled(_controller, env, ctx) {
+    ctx.waitUntil(
+      cleanupAnalyticsRetention(env).catch((error) => {
+        console.error('Scheduled Linkora analytics retention cleanup failed', error);
+      })
+    );
     ctx.waitUntil(
       createR2Backup(env, 'scheduled')
         .then((backup) => emitWebhook(env, 'backup.completed', { backup, trigger: 'scheduled' }))

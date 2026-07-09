@@ -408,6 +408,7 @@ export async function getAnalyticsSummary(
   days: number;
   totalClicks: number;
   botClicks: number;
+  uniqueVisitors: number;
   uniqueLinks: number;
   daily: Array<{ date: string; clicks: number }>;
   topLinks: Array<{ slug: string; title?: string | null; clicks: number }>;
@@ -415,6 +416,7 @@ export async function getAnalyticsSummary(
   topReferrers: Array<{ referer: string; clicks: number }>;
   topBrowsers: Array<{ browser: string; clicks: number }>;
   topDevices: Array<{ device_type: string; clicks: number }>;
+  topOperatingSystems: Array<{ os: string; clicks: number }>;
   recentVisits: Visit[];
 }> {
   const days = Math.max(1, Math.min(options.days ?? 30, 365));
@@ -423,6 +425,7 @@ export async function getAnalyticsSummary(
   const [
     totalClicksResult,
     botClicksResult,
+    uniqueVisitorsResult,
     uniqueLinksResult,
     dailyResult,
     topLinksResult,
@@ -430,10 +433,12 @@ export async function getAnalyticsSummary(
     topReferrersResult,
     topBrowsersResult,
     topDevicesResult,
+    topOperatingSystemsResult,
     recentVisitsResult,
   ] = await Promise.all([
     env.DB.prepare('SELECT COUNT(*) as count FROM visits WHERE created_at >= ?').bind(since).first<{ count: number }>(),
     env.DB.prepare('SELECT COUNT(*) as count FROM visits WHERE created_at >= ? AND is_bot = 1').bind(since).first<{ count: number }>(),
+    env.DB.prepare('SELECT COUNT(DISTINCT ip_hash) as count FROM visits WHERE created_at >= ? AND ip_hash IS NOT NULL AND ip_hash != ""').bind(since).first<{ count: number }>(),
     env.DB.prepare('SELECT COUNT(DISTINCT slug) as count FROM visits WHERE created_at >= ?').bind(since).first<{ count: number }>(),
     env.DB.prepare(
       `SELECT substr(created_at, 1, 10) as date, COUNT(*) as clicks
@@ -484,6 +489,14 @@ export async function getAnalyticsSummary(
        LIMIT 10`
     ).bind(since).all<{ device_type: string; clicks: number }>(),
     env.DB.prepare(
+      `SELECT COALESCE(os, 'Other') as os, COUNT(*) as clicks
+       FROM visits
+       WHERE created_at >= ?
+       GROUP BY COALESCE(os, 'Other')
+       ORDER BY clicks DESC
+       LIMIT 10`
+    ).bind(since).all<{ os: string; clicks: number }>(),
+    env.DB.prepare(
       'SELECT * FROM visits WHERE created_at >= ? ORDER BY created_at DESC LIMIT 20'
     ).bind(since).all<Visit>(),
   ]);
@@ -492,6 +505,7 @@ export async function getAnalyticsSummary(
     days,
     totalClicks: totalClicksResult?.count ?? 0,
     botClicks: botClicksResult?.count ?? 0,
+    uniqueVisitors: uniqueVisitorsResult?.count ?? 0,
     uniqueLinks: uniqueLinksResult?.count ?? 0,
     daily: dailyResult.results ?? [],
     topLinks: topLinksResult.results ?? [],
@@ -499,6 +513,7 @@ export async function getAnalyticsSummary(
     topReferrers: topReferrersResult.results ?? [],
     topBrowsers: topBrowsersResult.results ?? [],
     topDevices: topDevicesResult.results ?? [],
+    topOperatingSystems: topOperatingSystemsResult.results ?? [],
     recentVisits: recentVisitsResult.results ?? [],
   };
 }

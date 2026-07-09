@@ -9,14 +9,6 @@ Linkora uses two public domains:
 | Admin domain | React admin panel | `admin.example.com` |
 | Short/API domain | Short-link redirects and `/api/*` | `go.example.com` or `s.example.com` |
 
-For this repository's current production setup:
-
-| Domain type | Current value |
-|-------------|---------------|
-| Admin domain | `admin.y8o.de` |
-| Short/API domain | `go.y8o.de` |
-| Future migrated short domain | `s.y8o.de` |
-
 Do not hard-code these example domains for another deployment. Replace them with your own domains.
 
 ---
@@ -90,13 +82,13 @@ database_id = "<your-d1-database-id>"
 migrations_dir = "../../migrations"
 ```
 
-Apply the production migration:
+Apply all production migrations:
 
 ```bash
-npx wrangler d1 execute linkora-db --remote --file=migrations/0001_init.sql
+npm run db:migrate:remote --workspace=apps/worker
 ```
 
-D1 is the source of truth for links, visits, settings, import jobs, and tags.
+D1 is the source of truth for links, visits, settings, import jobs, tags, and analytics records.
 
 ---
 
@@ -360,7 +352,7 @@ Defined in `apps/worker/wrangler.toml`:
 
 The `.github/workflows/deploy.yml` workflow always installs dependencies, type-checks the Worker, and builds Admin on pushes to `main`.
 
-It deploys the Worker only when these repository secrets are configured:
+It applies D1 migrations and deploys the Worker only when these repository secrets are configured:
 
 | Name | Purpose |
 |------|---------|
@@ -383,7 +375,7 @@ It deploys Admin only when the Cloudflare secrets and these repository variables
 | `LINKORA_R2_PREVIEW_BUCKET` | `linkora-backups-dev` | Generates the preview R2 bucket binding |
 | `LINKORA_VISITS_QUEUE` | `linkora-visits` | Generates queue producer and consumer bindings |
 
-If either Cloudflare secret is missing, the workflow skips all Cloudflare deploy steps and leaves manual Wrangler deployment as the source of production updates.
+If either Cloudflare secret is missing, the workflow skips all Cloudflare migration/deploy steps and leaves manual Wrangler deployment as the source of production updates.
 If either Admin variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.
 If any Worker config variable is missing, the workflow skips Worker deploy instead of relying on a committed production `wrangler.toml`.
 

@@ -40,7 +40,9 @@ Short/API domain:  go.example.com
 Admin domain:      admin.example.com
 ```
 
-You can rename these, but keep the binding names in `wrangler.toml` unchanged:
+For the easiest first deployment, keep the resource names above. You can rename them, but then you must update `apps/worker/wrangler.toml`, GitHub repository variables, and any direct Wrangler commands that include the resource name.
+
+Always keep the binding names in `wrangler.toml` unchanged:
 
 ```txt
 DB
@@ -117,6 +119,14 @@ Do not deploy with someone else's Cloudflare resource IDs.
 npm run db:migrate:remote --workspace=apps/worker
 ```
 
+If you renamed the D1 database, run the Wrangler command directly with your database name:
+
+```bash
+cd apps/worker
+npx wrangler d1 migrations apply <your-d1-database-name> --remote
+cd ../..
+```
+
 For local development:
 
 ```bash
@@ -168,7 +178,7 @@ Add your admin custom domain, for example `admin.example.com`, in the Cloudflare
 
 ## 8. GitHub Actions Auto Deploy
 
-The included workflow can deploy on pushes to `main`.
+The included workflow can apply D1 migrations and deploy on pushes to `main`.
 
 Add repository secrets:
 
@@ -200,7 +210,7 @@ LINKORA_VERSION=0.1.0
 LINKORA_COMPATIBILITY_DATE=2026-07-08
 ```
 
-The workflow still type-checks and builds when Cloudflare secrets are missing, but Cloudflare deployment is skipped. Worker deployment uses these variables to generate `apps/worker/wrangler.toml` during CI, so your Cloudflare resource IDs do not need to be committed.
+The workflow still type-checks and builds when Cloudflare secrets are missing, but Cloudflare migration and deployment are skipped. Worker deployment uses these variables to generate `apps/worker/wrangler.toml` during CI, so your Cloudflare resource IDs do not need to be committed.
 
 ## 9. First Login
 
@@ -242,8 +252,37 @@ Then use Admin to verify:
 - Disable the link and confirm it no longer redirects
 - Export links as CSV or JSON
 - Run an import preview and confirm slug conflicts are not overwritten
+- Open Overview and confirm the dashboard counters load
+- Open Analytics and confirm the selected date range loads, even if it is empty
 
-## 11. Migration Notes
+## 11. Local Development Check
+
+For local development from a fresh clone:
+
+```bash
+npm install
+cp -f apps/worker/wrangler.toml.example apps/worker/wrangler.toml
+cp -f apps/worker/.dev.vars.example apps/worker/.dev.vars
+npm run db:migrate:local --workspace=apps/worker
+npm run dev --workspace=apps/worker
+```
+
+In another terminal:
+
+```bash
+npm run dev --workspace=apps/admin
+```
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item apps/worker/wrangler.toml.example apps/worker/wrangler.toml -Force
+Copy-Item apps/worker/.dev.vars.example apps/worker/.dev.vars -Force
+npm run db:migrate:local --workspace=apps/worker
+npm run dev --workspace=apps/worker
+```
+
+## 12. Migration Notes
 
 Linkora can import from Shlink, Sink, YOURLS, Dub, Linkora backup JSON, and generic CSV/JSON.
 
@@ -255,7 +294,7 @@ For a Shlink migration:
 4. Cut over the old short domain only after testing.
 5. Keep Shlink available for rollback for 1-2 weeks.
 
-## 12. Troubleshooting
+## 13. Troubleshooting
 
 | Issue | Check |
 |-------|-------|
@@ -265,3 +304,4 @@ For a Shlink migration:
 | GitHub Actions builds but does not deploy | Confirm Cloudflare secrets are set |
 | Pages deploys to the wrong project | Confirm `LINKORA_PAGES_PROJECT` repository variable |
 | Short links use the wrong copied domain | Update Admin Settings -> Default Domain |
+| Local Worker starts without bindings | Confirm `apps/worker/wrangler.toml` was copied from the example |

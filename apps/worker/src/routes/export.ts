@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { getAllLinks, getAllVisits } from '../db/index';
+import { getAnalyticsSummary, parseAnalyticsFilters, type AnalyticsSummary } from '../db/analytics';
 import { buildBackupPayload } from '../backups/index';
 import type { Link, Visit } from '@linkora/shared';
 
@@ -82,6 +83,17 @@ exportRoutes.get('/visits.csv', async (c) => {
   });
 });
 
+exportRoutes.get('/analytics.csv', async (c) => {
+  const summary = await getAnalyticsSummary(c.env, parseAnalyticsFilters((key) => c.req.query(key)));
+  const today = new Date().toISOString().slice(0, 10);
+  return new Response(analyticsCsv(summary), {
+    headers: {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="linkora-analytics-${today}.csv"`,
+    },
+  });
+});
+
 exportRoutes.get('/backup.json', async (c) => {
   const backup = await buildBackupPayload(c.env);
   const today = new Date().toISOString().slice(0, 10);
@@ -99,6 +111,36 @@ function csv(value: string | number | null | undefined): string {
     return `"${text.replace(/"/g, '""')}"`;
   }
   return text;
+}
+
+function analyticsCsv(summary: AnalyticsSummary): string {
+  const rows: Array<Array<string | number | null | undefined>> = [
+    ['section', 'label', 'value', 'extra'],
+    ['summary', 'days', summary.days, ''],
+    ['summary', 'total_clicks', summary.totalClicks, ''],
+    ['summary', 'unique_visitors', summary.uniqueVisitors, ''],
+    ['summary', 'unique_links', summary.uniqueLinks, ''],
+    ['summary', 'bot_clicks', summary.botClicks, ''],
+    ['summary', 'conversions_total', summary.conversionsTotal, ''],
+    ['summary', 'conversion_rate_percent', summary.conversionRate, ''],
+  ];
+
+  for (const item of summary.daily) rows.push(['daily', item.date, item.clicks, 'clicks']);
+  for (const item of summary.topLinks) rows.push(['top_links', item.slug, item.clicks, item.title ?? item.domain ?? '']);
+  for (const item of summary.topCountries) rows.push(['top_countries', item.country, item.clicks, 'clicks']);
+  for (const item of summary.topReferrers) rows.push(['top_referrers', item.referer, item.clicks, 'clicks']);
+  for (const item of summary.topBrowsers) rows.push(['top_browsers', item.browser, item.clicks, 'clicks']);
+  for (const item of summary.topDevices) rows.push(['top_devices', item.device_type, item.clicks, 'clicks']);
+  for (const item of summary.topOperatingSystems) rows.push(['top_operating_systems', item.os, item.clicks, 'clicks']);
+  for (const item of summary.topUtmSources) rows.push(['utm_source', item.value, item.clicks, 'clicks']);
+  for (const item of summary.topUtmMediums) rows.push(['utm_medium', item.value, item.clicks, 'clicks']);
+  for (const item of summary.topUtmCampaigns) rows.push(['utm_campaign', item.value, item.clicks, 'clicks']);
+  for (const item of summary.topUtmTerms) rows.push(['utm_term', item.value, item.clicks, 'clicks']);
+  for (const item of summary.topUtmContents) rows.push(['utm_content', item.value, item.clicks, 'clicks']);
+  for (const item of summary.topTargets) rows.push(['redirect_targets', item.target_url, item.clicks, item.redirect_rule_type ?? 'default']);
+  for (const item of summary.topConversionEvents) rows.push(['conversion_events', item.event_name, item.conversions, item.value_total]);
+
+  return rows.map((row) => row.map(csv).join(',')).join('\r\n');
 }
 
 export default exportRoutes;

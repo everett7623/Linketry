@@ -13,6 +13,7 @@ import { Tags } from './pages/Tags';
 import { Settings } from './pages/Settings';
 import { AuditLogs } from './pages/AuditLogs';
 import { Analytics } from './pages/Analytics';
+import { LinkAnalytics } from './pages/LinkAnalytics';
 import { Backups } from './pages/Backups';
 import { ApiTokens } from './pages/ApiTokens';
 import { Domains } from './pages/Domains';
@@ -53,6 +54,7 @@ export function App() {
         <Route path="links/bulk-create" element={<BulkCreateLinks />} />
         <Route path="links/:id/edit" element={<EditLink />} />
         <Route path="analytics" element={<Analytics />} />
+        <Route path="analytics/links/:id" element={<LinkAnalytics />} />
         <Route path="domains" element={<Domains />} />
         <Route path="redirect-rules" element={<RedirectRules />} />
         <Route path="groups" element={<Groups />} />

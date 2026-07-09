@@ -2,6 +2,7 @@ import type { Link, KVCacheEntry, VisitLinkSnapshot, VisitQueueMessage, VisitReq
 import type { Env } from '../types';
 import { generateId, now, sha256 } from '../utils/id';
 import { incrementClicks, insertVisit, upsertDailyStats } from '../db/index';
+import { insertVisitTarget } from '../db/analytics';
 import { setCachedLink } from '../cache/index';
 
 const BOT_UA_PATTERNS = [
@@ -44,9 +45,10 @@ export async function recordVisit(
   env: Env,
   link: Link,
   request: Request,
-  domain: string
+  domain: string,
+  target?: VisitQueueMessage['target']
 ): Promise<void> {
-  const message = createVisitQueueMessage(link, request, domain);
+  const message = createVisitQueueMessage(link, request, domain, target);
   await recordVisitMessage(env, message);
 }
 
@@ -54,9 +56,10 @@ export async function queueOrRecordVisit(
   env: Env,
   link: Link,
   request: Request,
-  domain: string
+  domain: string,
+  target?: VisitQueueMessage['target']
 ): Promise<void> {
-  const message = createVisitQueueMessage(link, request, domain);
+  const message = createVisitQueueMessage(link, request, domain, target);
   const needsImmediateClickAccounting =
     link.max_clicks !== null && link.max_clicks !== undefined;
 
@@ -113,6 +116,23 @@ export async function recordVisitMessage(env: Env, message: VisitQueueMessage): 
       upsertDailyStats(env, link, createdAt.slice(0, 10), country, referer, createdAt),
     ]);
 
+    if (message.target?.url) {
+      try {
+        await insertVisitTarget(env, {
+          visit_id: visitId,
+          link_id: link.id,
+          slug: link.slug,
+          domain,
+          target_url: message.target.url,
+          redirect_rule_id: message.target.redirect_rule_id ?? null,
+          redirect_rule_type: message.target.redirect_rule_type ?? null,
+          created_at: createdAt,
+        });
+      } catch {
+        // Target analytics must never affect core visit accounting.
+      }
+    }
+
     if (link.password_protected) return;
 
     // Update KV cache with fresh click count
@@ -133,7 +153,12 @@ export async function recordVisitMessage(env: Env, message: VisitQueueMessage): 
   }
 }
 
-function createVisitQueueMessage(link: Link, request: Request, domain: string): VisitQueueMessage {
+function createVisitQueueMessage(
+  link: Link,
+  request: Request,
+  domain: string,
+  target?: VisitQueueMessage['target']
+): VisitQueueMessage {
   return {
     link: {
       id: link.id,
@@ -149,6 +174,7 @@ function createVisitQueueMessage(link: Link, request: Request, domain: string): 
     },
     request: snapshotRequest(request),
     domain,
+    target,
     queued_at: now(),
   };
 }

@@ -37,7 +37,7 @@ linkora/
 │   │   │   ├── importers/        # Import adapters
 │   │   │   ├── routes/           # API route handlers
 │   │   │   └── utils/            # id, response helpers
-│   │   ├── wrangler.toml
+│   │   ├── wrangler.toml.example
 │   │   └── package.json
 │   │
 │   └── admin/           # React admin panel (frontend)
@@ -59,7 +59,8 @@ linkora/
 │           └── validators/index.ts
 │
 ├── migrations/
-│   └── 0001_init.sql    # Full D1 schema (V1–V4 tables)
+│   ├── 0001_init.sql    # Base D1 schema
+│   └── 0002_analytics_depth.sql
 │
 ├── docs/                # Extended docs
 ├── AGENTS.md            # AI agent instructions
@@ -77,11 +78,12 @@ linkora/
 npm install
 
 # 2. Create local dev vars for the Worker
+cp apps/worker/wrangler.toml.example apps/worker/wrangler.toml
 cp apps/worker/.dev.vars.example apps/worker/.dev.vars
 #    Edit .dev.vars and set:  ADMIN_TOKEN=any-secret-value
 
 # 3. Run DB migrations locally
-wrangler d1 execute linkora-db --local --file=migrations/0001_init.sql
+npm run db:migrate:local --workspace=apps/worker
 
 # 4. Start Worker
 npm run dev --workspace=apps/worker    # http://localhost:8787
@@ -116,7 +118,7 @@ GET /:slug
 linkora:slug:<domain>:<slug>
 ```
 
-`<domain>` is the hostname from the request (e.g., `go.y8o.de`). For local dev it will be `localhost`.
+`<domain>` is the hostname from the request, for example `go.example.com`. For local dev it will be `localhost`.
 
 ### API Auth
 
@@ -214,14 +216,14 @@ interface ImportAdapter {
 
 ## Database Migrations
 
-The full schema (V1–V4 tables) is in `migrations/0001_init.sql`. **Do not edit existing migrations.** Add new numbered migration files if schema changes are needed.
+The base schema is in `migrations/0001_init.sql`, and later schema changes are added as numbered migration files. **Do not edit existing migrations.** Add new numbered migration files if schema changes are needed.
 
 ```bash
 # Apply locally
-wrangler d1 execute linkora-db --local --file=migrations/0001_init.sql
+npm run db:migrate:local --workspace=apps/worker
 
 # Apply to production
-wrangler d1 execute linkora-db --file=migrations/0001_init.sql
+npm run db:migrate:remote --workspace=apps/worker
 ```
 
 ---
@@ -248,7 +250,7 @@ npm run build
 npm run deploy --workspace=apps/worker
 
 # Wrangler: apply migration to production
-wrangler d1 execute linkora-db --file=migrations/0001_init.sql
+npm run db:migrate:remote --workspace=apps/worker
 ```
 
 ---

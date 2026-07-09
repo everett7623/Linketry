@@ -1,66 +1,58 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Activity, Bot, Link2, MousePointerClick } from 'lucide-react';
-import { getAnalytics, type AnalyticsSummary } from '../api/analytics';
-import { Select } from '../components/ui/Input';
+import { Activity, Bot, Download, Link2, MousePointerClick, RotateCcw, Search, Target, Users } from 'lucide-react';
+import { downloadAnalyticsReport, getAnalytics, type AnalyticsFilters, type AnalyticsSummary } from '../api/analytics';
+import { BarList, DailyBars, Metric, RecentVisits } from '../components/analytics/AnalyticsBlocks';
+import { Button } from '../components/ui/Button';
+import { Input, Select } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
-import dayjs from 'dayjs';
 
-function Metric({ label, value, icon }: { label: string; value: number | string; icon: React.ReactNode }) {
-  return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-slate-400">{label}</span>
-        <div className="p-2 rounded-lg bg-brand-500/10 text-brand-400">{icon}</div>
-      </div>
-      <div className="text-2xl font-bold text-slate-100">{typeof value === 'number' ? value.toLocaleString() : value}</div>
-    </div>
-  );
-}
-
-function BarList({ title, items }: { title: string; items: Array<{ label: string; value: number }> }) {
-  const max = Math.max(...items.map((item) => item.value), 1);
-  return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-      <h2 className="text-sm font-semibold text-slate-300 mb-4">{title}</h2>
-      <div className="space-y-3">
-        {items.length === 0 ? (
-          <p className="text-sm text-slate-500">No data yet.</p>
-        ) : items.map((item) => (
-          <div key={item.label} className="space-y-1">
-            <div className="flex justify-between gap-3 text-xs">
-              <span className="truncate text-slate-400">{item.label}</span>
-              <span className="text-slate-500">{item.value.toLocaleString()}</span>
-            </div>
-            <div className="h-2 overflow-hidden rounded-full bg-slate-800">
-              <div className="h-full rounded-full bg-brand-500" style={{ width: `${Math.max(4, (item.value / max) * 100)}%` }} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+const DEFAULT_FILTERS: AnalyticsFilters = { days: 30 };
 
 export function Analytics() {
-  const { error } = useToast();
-  const [days, setDays] = useState(30);
+  const { success, error } = useToast();
+  const [filters, setFilters] = useState<AnalyticsFilters>(DEFAULT_FILTERS);
+  const [draft, setDraft] = useState<AnalyticsFilters>(DEFAULT_FILTERS);
   const [data, setData] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    getAnalytics(days)
+    getAnalytics(filters)
       .then(setData)
       .catch(() => error('Failed to load analytics'))
       .finally(() => setLoading(false));
-  }, [days]);
+  }, [filters]);
 
-  const dailyMax = useMemo(() => Math.max(...(data?.daily.map((item) => item.clicks) ?? [1]), 1), [data]);
+  const hasFilters = useMemo(() => Object.entries(filters).some(([key, value]) => key !== 'days' && !!value), [filters]);
+  const botRate = data?.totalClicks ? Math.round(((data.botClicks ?? 0) / data.totalClicks) * 100) : 0;
+
+  const set = (key: keyof AnalyticsFilters, value: string | number) => {
+    setDraft((current) => ({ ...current, [key]: value }));
+  };
+
+  const apply = () => setFilters(cleanFilters(draft));
+  const reset = () => {
+    setDraft(DEFAULT_FILTERS);
+    setFilters(DEFAULT_FILTERS);
+  };
+
+  const exportReport = async () => {
+    setDownloading(true);
+    try {
+      await downloadAnalyticsReport(filters);
+      success('Analytics report downloaded');
+    } catch {
+      error('Failed to download analytics report');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full" />
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
       </div>
     );
   }
@@ -70,63 +62,91 @@ export function Analytics() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-100">Analytics</h1>
-          <p className="text-sm text-slate-400 mt-0.5">Traffic overview for the selected range</p>
+          <p className="mt-0.5 text-sm text-slate-400">Traffic, attribution, targets, and conversions</p>
         </div>
-        <Select value={String(days)} onChange={(e) => setDays(Number(e.target.value))} className="w-40">
-          <option value="7">Last 7 days</option>
-          <option value="30">Last 30 days</option>
-          <option value="90">Last 90 days</option>
-          <option value="365">Last 365 days</option>
-        </Select>
+        <Button variant="secondary" icon={<Download size={15} />} loading={downloading} onClick={exportReport}>
+          Export CSV
+        </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+        <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <Select label="Range" value={String(draft.days ?? 30)} onChange={(e) => set('days', Number(e.target.value))}>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">Last 365 days</option>
+          </Select>
+          <Input label="Slug" value={draft.slug ?? ''} onChange={(e) => set('slug', e.target.value)} />
+          <Input label="Domain" value={draft.domain ?? ''} onChange={(e) => set('domain', e.target.value)} />
+          <Input label="Tag" value={draft.tag ?? ''} onChange={(e) => set('tag', e.target.value)} />
+          <Input label="Campaign" value={draft.campaign ?? ''} onChange={(e) => set('campaign', e.target.value)} />
+          <Input label="Project" value={draft.project ?? ''} onChange={(e) => set('project', e.target.value)} />
+          <Input label="Country" value={draft.country ?? ''} onChange={(e) => set('country', e.target.value)} />
+          <Select label="Device" value={draft.device ?? ''} onChange={(e) => set('device', e.target.value)}>
+            <option value="">All devices</option>
+            <option value="desktop">Desktop</option>
+            <option value="mobile">Mobile</option>
+            <option value="tablet">Tablet</option>
+          </Select>
+          <Input label="Browser" value={draft.browser ?? ''} onChange={(e) => set('browser', e.target.value)} />
+          <Input label="Referrer" value={draft.referer ?? ''} onChange={(e) => set('referer', e.target.value)} />
+          <Input label="UTM Source" value={draft.utm_source ?? ''} onChange={(e) => set('utm_source', e.target.value)} />
+          <Input label="UTM Medium" value={draft.utm_medium ?? ''} onChange={(e) => set('utm_medium', e.target.value)} />
+          <Input label="UTM Campaign" value={draft.utm_campaign ?? ''} onChange={(e) => set('utm_campaign', e.target.value)} />
+          <Input label="UTM Term" value={draft.utm_term ?? ''} onChange={(e) => set('utm_term', e.target.value)} />
+          <Input label="UTM Content" value={draft.utm_content ?? ''} onChange={(e) => set('utm_content', e.target.value)} />
+        </div>
+        <div className="mt-4 flex flex-wrap justify-end gap-3">
+          <Button variant="secondary" icon={<RotateCcw size={15} />} onClick={reset} disabled={!hasFilters && filters.days === 30}>
+            Reset
+          </Button>
+          <Button icon={<Search size={15} />} onClick={apply}>
+            Apply
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <Metric label="Total Clicks" value={data?.totalClicks ?? 0} icon={<MousePointerClick size={16} />} />
+        <Metric label="Unique Visitors" value={data?.uniqueVisitors ?? 0} icon={<Users size={16} />} />
         <Metric label="Unique Links" value={data?.uniqueLinks ?? 0} icon={<Link2 size={16} />} />
-        <Metric label="Bot Clicks" value={data?.botClicks ?? 0} icon={<Bot size={16} />} />
-        <Metric label="Bot Rate" value={`${data?.totalClicks ? Math.round(((data.botClicks ?? 0) / data.totalClicks) * 100) : 0}%`} icon={<Activity size={16} />} />
+        <Metric label="Conversions" value={data?.conversionsTotal ?? 0} icon={<Target size={16} />} />
+        <Metric label="Conversion Rate" value={`${data?.conversionRate ?? 0}%`} icon={<Activity size={16} />} />
+        <Metric label="Bot Rate" value={`${botRate}%`} icon={<Bot size={16} />} />
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-slate-300 mb-4">Daily Clicks</h2>
-        <div className="flex h-44 items-end gap-1">
-          {(data?.daily ?? []).length === 0 ? (
-            <div className="flex h-full w-full items-center justify-center text-sm text-slate-500">No visits in this range.</div>
-          ) : data?.daily.map((item) => (
-            <div key={item.date} className="flex min-w-4 flex-1 flex-col items-center gap-2">
-              <div
-                title={`${item.date}: ${item.clicks}`}
-                className="w-full rounded-t bg-brand-500"
-                style={{ height: `${Math.max(4, (item.clicks / dailyMax) * 100)}%` }}
-              />
-              <span className="hidden text-[10px] text-slate-600 md:inline">{dayjs(item.date).format('M/D')}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <DailyBars items={data?.daily ?? []} />
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <BarList title="Top Links" items={(data?.topLinks ?? []).map((item) => ({ label: `/${item.slug}${item.title ? ` - ${item.title}` : ''}`, value: item.clicks }))} />
-        <BarList title="Top Countries" items={(data?.topCountries ?? []).map((item) => ({ label: item.country, value: item.clicks }))} />
+        <BarList title="Top Links" items={(data?.topLinks ?? []).map((item) => ({
+          label: `/${item.slug}${item.title ? ` - ${item.title}` : ''}`,
+          value: item.clicks,
+          to: item.id ? `/analytics/links/${item.id}` : undefined,
+        }))} />
+        <BarList title="Redirect Targets" items={(data?.topTargets ?? []).map((item) => ({ label: item.target_url, value: item.clicks }))} />
         <BarList title="Top Referrers" items={(data?.topReferrers ?? []).map((item) => ({ label: item.referer, value: item.clicks }))} />
+        <BarList title="Conversion Events" valueLabel="events" items={(data?.topConversionEvents ?? []).map((item) => ({ label: item.event_name, value: item.conversions }))} />
+        <BarList title="UTM Sources" items={(data?.topUtmSources ?? []).map((item) => ({ label: item.value, value: item.clicks }))} />
+        <BarList title="UTM Mediums" items={(data?.topUtmMediums ?? []).map((item) => ({ label: item.value, value: item.clicks }))} />
+        <BarList title="UTM Campaigns" items={(data?.topUtmCampaigns ?? []).map((item) => ({ label: item.value, value: item.clicks }))} />
+        <BarList title="UTM Terms" items={(data?.topUtmTerms ?? []).map((item) => ({ label: item.value, value: item.clicks }))} />
+        <BarList title="UTM Contents" items={(data?.topUtmContents ?? []).map((item) => ({ label: item.value, value: item.clicks }))} />
+        <BarList title="Countries" items={(data?.topCountries ?? []).map((item) => ({ label: item.country, value: item.clicks }))} />
+        <BarList title="Devices" items={(data?.topDevices ?? []).map((item) => ({ label: item.device_type, value: item.clicks }))} />
         <BarList title="Browsers" items={(data?.topBrowsers ?? []).map((item) => ({ label: item.browser, value: item.clicks }))} />
+        <BarList title="Operating Systems" items={(data?.topOperatingSystems ?? []).map((item) => ({ label: item.os, value: item.clicks }))} />
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-slate-300 mb-4">Recent Visits</h2>
-        <div className="divide-y divide-slate-800">
-          {(data?.recentVisits ?? []).length === 0 ? (
-            <p className="py-4 text-sm text-slate-500">No recent visits.</p>
-          ) : data?.recentVisits.map((visit) => (
-            <div key={visit.id} className="grid gap-2 py-3 text-sm md:grid-cols-[1fr_1fr_1fr_auto]">
-              <span className="font-mono text-brand-400">/{visit.slug}</span>
-              <span className="truncate text-slate-400">{visit.referer ?? 'Direct'}</span>
-              <span className="text-slate-500">{visit.country ?? 'Unknown'} / {visit.browser ?? 'Other'} / {visit.device_type ?? 'unknown'}</span>
-              <span className="text-xs text-slate-600">{dayjs(visit.created_at).format('MMM D HH:mm')}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <RecentVisits visits={data?.recentVisits ?? []} />
     </div>
   );
+}
+
+function cleanFilters(filters: AnalyticsFilters): AnalyticsFilters {
+  const next: AnalyticsFilters = {};
+  for (const [key, value] of Object.entries(filters) as Array<[keyof AnalyticsFilters, string | number | undefined]>) {
+    if (value !== undefined && String(value).trim() !== '') next[key] = value as never;
+  }
+  return next;
 }

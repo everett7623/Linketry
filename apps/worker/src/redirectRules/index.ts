@@ -1,4 +1,4 @@
-import type { Link, RedirectRule, RedirectRuleConfig, RedirectRuleTarget } from '@linkora/shared';
+import type { Link, RedirectRule, RedirectRuleConfig, RedirectRuleTarget, RedirectRuleType } from '@linkora/shared';
 
 interface RedirectContext {
   country?: string;
@@ -9,22 +9,44 @@ interface RedirectContext {
   userKey?: string;
 }
 
-export function resolveRedirectTarget(
+export interface RedirectDecision {
+  targetUrl: string;
+  redirectRuleId?: string | null;
+  redirectRuleType?: RedirectRuleType | null;
+  matched: boolean;
+}
+
+export function resolveRedirectDecision(
   link: Pick<Link, 'id' | 'long_url'>,
   rules: RedirectRule[],
   request: Request
-): string {
+): RedirectDecision {
   try {
     const context = buildRedirectContext(request);
     for (const rule of [...rules].sort((a, b) => a.priority - b.priority)) {
       const target = evaluateRule(link, rule, context);
-      if (target) return target;
+      if (target) {
+        return {
+          targetUrl: target,
+          redirectRuleId: rule.id,
+          redirectRuleType: rule.rule_type,
+          matched: true,
+        };
+      }
     }
   } catch {
     // Smart redirect failures must never break the default redirect.
   }
 
-  return link.long_url;
+  return { targetUrl: link.long_url, redirectRuleId: null, redirectRuleType: null, matched: false };
+}
+
+export function resolveRedirectTarget(
+  link: Pick<Link, 'id' | 'long_url'>,
+  rules: RedirectRule[],
+  request: Request
+): string {
+  return resolveRedirectDecision(link, rules, request).targetUrl;
 }
 
 function evaluateRule(

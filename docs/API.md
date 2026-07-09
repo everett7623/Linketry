@@ -201,6 +201,7 @@ Generic CSV / JSON import preview and confirm requests can include `fieldMapping
 | `GET` | `/api/export/links.csv` |
 | `GET` | `/api/export/links.json` |
 | `GET` | `/api/export/visits.csv` |
+| `GET` | `/api/export/analytics.csv` |
 | `GET` | `/api/export/backup.json` |
 
 ## Backups
@@ -314,6 +315,71 @@ Or:
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/analytics` | Click totals, daily trend, top dimensions, and recent visits |
+| `GET` | `/api/analytics` | Click totals, daily trend, top dimensions, UTM breakdowns, target breakdowns, conversions, and recent visits |
+| `GET` | `/api/analytics/links/:id` | Single-link analytics detail with the same summary shape |
+| `POST` | `/api/conversions` | Record a conversion or goal event for a link |
 
-`GET /api/analytics?days=30` limits the summary window. Visit writes keep using `ctx.waitUntil()` so analytics failures do not block redirects.
+`GET /api/analytics?days=30` limits the summary window. Supported ranges are clamped to 1-365 days.
+
+Supported analytics filters:
+
+```txt
+days
+link_id
+slug
+domain
+tag
+campaign
+project
+country
+device
+browser
+referer
+utm_source
+utm_medium
+utm_campaign
+utm_term
+utm_content
+```
+
+Campaign and project filters map to managed tags, for example `campaign:launch`.
+
+Response data includes:
+
+- `totalClicks`
+- `uniqueVisitors` — approximate, based on distinct hashed IPs
+- `uniqueLinks`
+- `botClicks`
+- `conversionsTotal`
+- `conversionRate`
+- `daily`
+- `topLinks`
+- `topCountries`
+- `topReferrers`
+- `topBrowsers`
+- `topDevices`
+- `topOperatingSystems`
+- `topUtmSources`
+- `topUtmMediums`
+- `topUtmCampaigns`
+- `topUtmTerms`
+- `topUtmContents`
+- `topTargets`
+- `topConversionEvents`
+- `recentVisits`
+
+Conversion payload:
+
+```json
+{
+  "link_id": "link-id",
+  "event_name": "signup",
+  "value": 29,
+  "currency": "USD",
+  "metadata": { "plan": "starter" }
+}
+```
+
+`POST /api/conversions` requires write access. The link can be identified by `link_id`, or by `slug` with optional `domain`.
+
+Visit writes keep using `ctx.waitUntil()` or the optional queue path so analytics failures do not block redirects.

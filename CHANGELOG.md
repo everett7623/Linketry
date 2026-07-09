@@ -35,6 +35,9 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Added V5 self-hosting documentation, a public `wrangler.toml` template, Admin env example, and reusable GitHub Actions variables for open-source deployments.
 - Added an Admin Setup page that summarizes API reachability, short-domain configuration, domain catalog, backups, and first-link readiness for self-hosted installs.
 - Removed the tracked production Worker config and made GitHub Actions generate `wrangler.toml` from repository variables before deploy.
+- Added MIT licensing, public repository cleanup, analytics documentation, and clearer local self-hosting bootstrap instructions.
+- Analytics now reports approximate unique visitors and operating system breakdowns, and the Admin Analytics page displays device and OS breakdown cards.
+- Added V6 analytics depth: filterable Analytics dashboard, single-link analytics page, UTM breakdowns, redirect target/A-B statistics, conversion events, Analytics CSV export, and scheduled raw analytics retention.
 
 ---
 
