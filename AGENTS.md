@@ -27,6 +27,20 @@ Public progress and planning live in `PROGRESS.md`, `TASKS.md`, and `docs/ROADMA
 
 ---
 
+## Release Hygiene
+
+Every intentional project change must keep release metadata synchronized in the same change set:
+
+- Bump the Linkora version using semantic versioning.
+- Update root and workspace package versions, `package-lock.json`, and `packages/shared/src/version.ts`.
+- Update version examples in `.env.example`, `apps/worker/wrangler.toml.example`, deployment docs, and CI fallback values when they contain a literal version.
+- Update `CHANGELOG.md` with the user-visible change, fix, or maintenance note.
+- Update `PROGRESS.md`, `TASKS.md`, and relevant `.codex/tasks/*.md` records when project status or active work changes.
+
+Do not leave code, workflow, config, or documentation changes without matching version and changelog updates.
+
+---
+
 ## Current State
 
 See `PROGRESS.md` for what is built and what is pending.

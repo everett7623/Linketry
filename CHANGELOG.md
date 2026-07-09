@@ -13,6 +13,13 @@ _(none)_
 
 ---
 
+## [0.7.2] — 2026-07-09
+
+### Changed
+- Added a project release hygiene rule requiring every intentional change to update version metadata, changelog, and progress/task records together.
+
+---
+
 ## [0.7.1] — 2026-07-09
 
 ### Fixed
