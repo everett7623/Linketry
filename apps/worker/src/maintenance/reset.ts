@@ -25,6 +25,7 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   default_domain: '',
   site_name: 'Linkora',
   analytics_retention_days: '0',
+  backup_retention_days: '30',
 };
 
 export interface InstanceResetPreview {

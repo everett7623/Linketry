@@ -23,6 +23,7 @@ export function Settings() {
     default_redirect_type: '302',
     default_domain: '',
     analytics_retention_days: '0',
+    backup_retention_days: '30',
   });
 
   useEffect(() => {
@@ -33,11 +34,12 @@ export function Settings() {
           default_redirect_type: s.default_redirect_type ?? '302',
           default_domain: s.default_domain ?? '',
           analytics_retention_days: s.analytics_retention_days ?? '0',
+          backup_retention_days: s.backup_retention_days ?? '30',
         });
       })
       .catch(() => error(t('loadSettingsFailed')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [error, t]);
 
   const set = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
 
@@ -102,15 +104,26 @@ export function Settings() {
         </Select>
 
         {isAdvanced && (
-          <Input
-            label={t('retentionDays')}
-            type="number"
-            min="0"
-            max="3650"
-            value={form.analytics_retention_days}
-            onChange={(e) => set('analytics_retention_days', e.target.value)}
-            hint={t('retentionHint')}
-          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label={t('retentionDays')}
+              type="number"
+              min="0"
+              max="3650"
+              value={form.analytics_retention_days}
+              onChange={(e) => set('analytics_retention_days', e.target.value)}
+              hint={t('retentionHint')}
+            />
+            <Input
+              label={t('backupRetentionDays')}
+              type="number"
+              min="1"
+              max="3650"
+              value={form.backup_retention_days}
+              onChange={(e) => set('backup_retention_days', e.target.value)}
+              hint={t('backupRetentionHint')}
+            />
+          </div>
         )}
 
         <div className="pt-2">

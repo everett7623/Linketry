@@ -13,6 +13,16 @@ _(none)_
 
 ---
 
+## [0.8.3] - 2026-07-11
+
+### Added
+
+- Added configurable R2 backup retention from 1 to 3650 days with a safe 30-day default in Advanced Settings.
+- Added daily cleanup of expired R2 objects and matching D1 backup records, preserving D1 records whenever the R2 binding is unavailable.
+- Added backup retention visibility on the Admin Backups page and Worker unit coverage for policy validation and deletion ordering.
+
+---
+
 ## [0.8.2] - 2026-07-11
 
 ### Changed

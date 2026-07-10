@@ -16,7 +16,7 @@ Last updated: 2026-07-11
 | Documentation              | ✅ Complete            | README, self-hosting guide, analytics guide, backup/reset guide, root runbooks, `docs/` reference set, and V7-V10 long-term roadmap    |
 | Deployment                 | ✅ Deployed            | Worker and Admin deployed; GitHub Actions deploy workflow added                                                                        |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                       |
-| Current version            | ✅ 0.8.2               | V8 EN/ZH Admin localization, browser smoke coverage, and locale-aware operations formatting are complete                              |
+| Current version            | ✅ 0.8.3               | V7 configurable R2 backup retention is complete with a safe 30-day default and scheduled cleanup                                      |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`, so a reset followed by `s.y8o.de` migration can keep legacy short URLs |
 
 ---
@@ -213,7 +213,7 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Pre-restore backup           | ✅ Done | Restore creates a fresh `pre-restore` R2 snapshot before mutating D1                                                                                                                  |
 | Restore report               | ✅ Done | Restore result includes created, overwritten, renamed, skipped, failed, redirect-rule counts, and a CSV-style report                                                                  |
 | Factory reset                | ✅ Done | Admin Settings danger zone previews affected rows, requires `RESET LINKORA`, creates optional `pre-reset` R2 backup, clears KV cache, and preserves backup records plus `ADMIN_TOKEN` |
-| Backup retention             | Planned | Configurable retention and cleanup still pending                                                                                                                                      |
+| Backup retention             | ✅ Done | Advanced Settings configures 1-3650 days (default 30); Cron deletes expired R2 objects before their D1 records and preserves records when R2 is unavailable                           |
 | Target monitoring and alerts | Planned | Periodic checks, status history, and alerts still pending                                                                                                                             |
 
 ### V7-V10 Planning

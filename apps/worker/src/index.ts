@@ -23,6 +23,7 @@ import maintenanceRoutes from './routes/maintenance';
 import systemRoutes from './routes/system';
 import { processVisitQueueBatch } from './analytics/index';
 import { createR2Backup } from './backups/index';
+import { cleanupBackupRetention } from './backups/retention';
 import { emitWebhook } from './webhooks/index';
 import { cleanupAnalyticsRetention } from './db/analytics';
 import { LINKORA_VERSION, type VisitQueueMessage } from '@linkora/shared';
@@ -167,6 +168,11 @@ const handler: ExportedHandler<Env, VisitQueueMessage> = {
     ctx.waitUntil(
       cleanupAnalyticsRetention(env).catch((error) => {
         console.error('Scheduled Linkora analytics retention cleanup failed', error);
+      })
+    );
+    ctx.waitUntil(
+      cleanupBackupRetention(env).catch((error) => {
+        console.error('Scheduled Linkora backup retention cleanup failed', error);
       })
     );
     ctx.waitUntil(

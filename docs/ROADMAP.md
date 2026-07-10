@@ -152,7 +152,7 @@ Planned:
 - Done: one-click restore from R2 backup records in the Backups page
 - Done: restore dry-run preview, conflict summary, pre-restore backup, and restore report
 - Done: factory reset with preview, confirmation phrase, pre-reset backup, and KV cache clearing
-- Backup retention policy for R2 objects and D1 backup records, starting with a 30-day default and configurable retention
+- Done: backup retention policy for R2 objects and D1 backup records, with a configurable 30-day default
 - Periodic target health monitoring through Cron, with manual checks kept available
 - Target status history for links, including last status code, last checked time, and failure count
 - Target failure alerts through Admin notices and optional signed webhooks

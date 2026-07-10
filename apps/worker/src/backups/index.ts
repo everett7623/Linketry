@@ -1,6 +1,12 @@
 import { LINKORA_VERSION, type Backup } from '@linkora/shared';
 import type { Env } from '../types';
-import { createBackupRecord, getAllLinks, getAllRedirectRules, getAllTags, getSettings } from '../db/index';
+import {
+  createBackupRecord,
+  getAllLinks,
+  getAllRedirectRules,
+  getAllTags,
+  getSettings,
+} from '../db/index';
 import { generateId, now } from '../utils/id';
 
 export interface LinkoraBackupPayload {

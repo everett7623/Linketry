@@ -13,7 +13,7 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🟡 Next — Operations And UX Planning
 
-- [ ] V7: Add configurable backup retention, starting with a 30-day default
+- [x] V7: Add configurable backup retention, starting with a 30-day default
 - [ ] V7: Add periodic target health monitoring and failure alerts
 - [x] V8: Add Simple / Advanced Admin mode toggle
 - [x] V8: Add default-English language switcher and first i18n foundation for global/core Admin UI

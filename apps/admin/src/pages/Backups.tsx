@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   Archive,
   CheckCircle,
+  Clock3,
   Cloud,
   Download,
   RefreshCw,
@@ -154,7 +155,7 @@ export function Backups() {
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-400">{t('completed')}</span>
@@ -180,6 +181,19 @@ export function Backups() {
           </div>
           <div className="mt-3 text-lg font-semibold text-slate-100">
             {latestBackup ? compactDateFormatter.format(new Date(latestBackup.created_at)) : '-'}
+          </div>
+        </div>
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-slate-400">{t('retentionPolicy')}</span>
+            <Clock3 size={17} className="text-violet-400" />
+          </div>
+          <div className="mt-3 text-lg font-semibold text-slate-100">
+            {data
+              ? t('retentionPolicyValue', {
+                  count: data.retentionDays.toLocaleString(locale),
+                })
+              : '-'}
           </div>
         </div>
       </div>

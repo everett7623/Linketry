@@ -45,6 +45,8 @@ preview_bucket_name = "linkora-backups-dev"
 
 The Admin Backups page can create an immediate R2 snapshot, download completed snapshots, preview restores, and restore a snapshot back into D1. The Worker also runs a daily scheduled backup through Cloudflare Cron Triggers.
 
+Linkora retains R2 backups for 30 days by default. Advanced Settings can change `backup_retention_days` from 1 to 3650 days. Each scheduled run removes expired R2 objects first, then deletes their D1 backup records. If the R2 binding is unavailable, Linkora preserves the D1 records so recovery references are not lost.
+
 Authenticated API endpoints:
 
 | Endpoint | Purpose |
@@ -60,7 +62,7 @@ Authenticated API endpoints:
 ```json
 {
   "name": "Linkora Backup",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "exportedAt": "2026-07-01T00:00:00.000Z",
   "links": [],
   "tags": [],
