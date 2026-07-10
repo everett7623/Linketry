@@ -18,7 +18,7 @@ import tokenRoutes from './routes/tokens';
 import webhookRoutes from './routes/webhooks';
 import redirectRuleRoutes from './routes/redirectRules';
 import groupRoutes from './routes/groups';
-import healthCheckRoutes from './routes/healthChecks';
+import healthCheckRoutes, { runScheduledHealthChecks } from './routes/healthChecks';
 import maintenanceRoutes from './routes/maintenance';
 import systemRoutes from './routes/system';
 import { processVisitQueueBatch } from './analytics/index';
@@ -176,16 +176,23 @@ const handler: ExportedHandler<Env, VisitQueueMessage> = {
       })
     );
     ctx.waitUntil(
-      createR2Backup(env, 'scheduled')
-        .then((backup) => emitWebhook(env, 'backup.completed', { backup, trigger: 'scheduled' }))
-        .catch((error) => {
-          console.error('Scheduled Linkora backup failed', error);
-          return emitWebhook(env, 'backup.failed', {
-            trigger: 'scheduled',
-            error: error instanceof Error ? error.message : String(error),
-          });
-        })
+      runScheduledHealthChecks(env).catch((error) => {
+        console.error('Scheduled Linkora health monitoring failed', error);
+      })
     );
+    if (env.BACKUPS) {
+      ctx.waitUntil(
+        createR2Backup(env, 'scheduled')
+          .then((backup) => emitWebhook(env, 'backup.completed', { backup, trigger: 'scheduled' }))
+          .catch((error) => {
+            console.error('Scheduled Linkora backup failed', error);
+            return emitWebhook(env, 'backup.failed', {
+              trigger: 'scheduled',
+              error: error instanceof Error ? error.message : String(error),
+            });
+          })
+      );
+    }
   },
 };
 

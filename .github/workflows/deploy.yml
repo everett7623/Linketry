@@ -110,9 +110,7 @@ jobs:
               ''
             );
           }
-          if (env.LINKORA_R2_BUCKET && env.LINKORA_R2_PREVIEW_BUCKET) {
-            optionalConfig.push('[triggers]', 'crons = ["0 18 * * *"]', '');
-          }
+          optionalConfig.push('[triggers]', 'crons = ["0 18 * * *"]', '');
           const config = [
             `name = "${env.LINKORA_WORKER_NAME}"`,
             'main = "src/index.ts"',
@@ -123,7 +121,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKORA_VERSION = "${env.RESOLVED_LINKORA_VERSION || '0.8.3'}"`,
+            `LINKORA_VERSION = "${env.RESOLVED_LINKORA_VERSION || '0.8.4'}"`,
             '',
             '[[d1_databases]]',
             'binding = "DB"',

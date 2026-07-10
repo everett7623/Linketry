@@ -13,7 +13,7 @@ routes = [
 ]
 
 [vars]
-LINKORA_VERSION = "0.8.3"
+LINKORA_VERSION = "0.8.4"
 
 [[d1_databases]]
 binding = "DB"
@@ -25,6 +25,9 @@ migrations_dir = "../../migrations"
 binding = "KV"
 id = "<your-kv-namespace-id>"
 preview_id = "<your-kv-preview-id>"
+
+[triggers]
+crons = ["0 18 * * *"]
 
 # Advanced optional bindings are documented in docs/SELF_HOSTING.md:
 # - R2 enables scheduled backups and one-click restore.

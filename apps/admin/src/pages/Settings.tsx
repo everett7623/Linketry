@@ -24,6 +24,8 @@ export function Settings() {
     default_domain: '',
     analytics_retention_days: '0',
     backup_retention_days: '30',
+    health_monitoring_enabled: 'false',
+    health_monitoring_limit: '20',
   });
 
   useEffect(() => {
@@ -35,6 +37,8 @@ export function Settings() {
           default_domain: s.default_domain ?? '',
           analytics_retention_days: s.analytics_retention_days ?? '0',
           backup_retention_days: s.backup_retention_days ?? '30',
+          health_monitoring_enabled: s.health_monitoring_enabled ?? 'false',
+          health_monitoring_limit: s.health_monitoring_limit ?? '20',
         });
       })
       .catch(() => error(t('loadSettingsFailed')))
@@ -122,6 +126,30 @@ export function Settings() {
               value={form.backup_retention_days}
               onChange={(e) => set('backup_retention_days', e.target.value)}
               hint={t('backupRetentionHint')}
+            />
+          </div>
+        )}
+
+        {isAdvanced && (
+          <div className="space-y-3 rounded-md border border-slate-800 bg-slate-950 p-4">
+            <label className="flex items-center gap-3 text-sm text-slate-300">
+              <input
+                type="checkbox"
+                checked={form.health_monitoring_enabled === 'true'}
+                onChange={(e) => set('health_monitoring_enabled', String(e.target.checked))}
+                className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-brand-600 focus:ring-brand-500"
+              />
+              {t('enableHealthMonitoring')}
+            </label>
+            <Input
+              label={t('healthMonitoringLimit')}
+              type="number"
+              min="1"
+              max="50"
+              disabled={form.health_monitoring_enabled !== 'true'}
+              value={form.health_monitoring_limit}
+              onChange={(e) => set('health_monitoring_limit', e.target.value)}
+              hint={t('healthMonitoringHint')}
             />
           </div>
         )}

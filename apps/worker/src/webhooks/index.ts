@@ -15,6 +15,7 @@ export const WEBHOOK_EVENTS = [
   'import.completed',
   'backup.completed',
   'backup.failed',
+  'health_check.failed',
 ] as const;
 
 export type WebhookEvent = typeof WEBHOOK_EVENTS[number] | 'webhook.test';

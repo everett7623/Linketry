@@ -9,10 +9,15 @@ import type {
 import { validateLongUrl } from '@linkora/shared';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
-import { getLinkById, getLinksByIds, listLinks } from '../db/index';
+import { getLinkById, getLinksByIds, getSettings, listLinks } from '../db/index';
 import { recordAudit } from '../audit/index';
 import { now } from '../utils/id';
 import { jsonError, jsonOk } from '../utils/response';
+import { emitWebhook } from '../webhooks/index';
+import {
+  normalizeHealthMonitoringLimit,
+  parseHealthMonitoringEnabled,
+} from '../health/monitoringPolicy';
 
 const healthChecks = new Hono<{ Bindings: Env }>();
 
@@ -105,6 +110,33 @@ function parseLimit(value: unknown): number | null {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed < 1 || parsed > MAX_BATCH_SIZE) return null;
   return parsed;
+}
+
+export async function runScheduledHealthChecks(env: Env): Promise<LinkHealthBatchResult | null> {
+  const settings = await getSettings(env);
+  if (!parseHealthMonitoringEnabled(settings.health_monitoring_enabled)) return null;
+
+  const limit = normalizeHealthMonitoringLimit(settings.health_monitoring_limit);
+  const links = await listLinks(env, {
+    status: 'active',
+    page: 1,
+    pageSize: limit,
+    sort: 'updated_at_asc',
+  });
+  const results: LinkHealthCheckResult[] = [];
+
+  for (let offset = 0; offset < links.items.length; offset += 5) {
+    results.push(...(await Promise.all(links.items.slice(offset, offset + 5).map(checkLink))));
+  }
+
+  const summary = summarizeResults(results);
+  if (summary.warning > 0 || summary.broken > 0) {
+    await emitWebhook(env, 'health_check.failed', {
+      trigger: 'scheduled',
+      summary,
+    });
+  }
+  return summary;
 }
 
 async function checkLink(link: Link): Promise<LinkHealthCheckResult> {

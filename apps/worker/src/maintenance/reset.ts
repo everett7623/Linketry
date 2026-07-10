@@ -26,6 +26,8 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   site_name: 'Linkora',
   analytics_retention_days: '0',
   backup_retention_days: '30',
+  health_monitoring_enabled: 'false',
+  health_monitoring_limit: '20',
 };
 
 export interface InstanceResetPreview {

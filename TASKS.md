@@ -15,6 +15,8 @@ One item in "In Progress" at a time whenever possible.
 
 - [x] V7: Add configurable backup retention, starting with a 30-day default
 - [ ] V7: Add periodic target health monitoring and failure alerts
+- [x] V7: Add opt-in Cron target monitoring with a configurable 1-50 link batch
+- [x] V7: Send signed `health_check.failed` Webhook summaries for scheduled anomalies
 - [x] V8: Add Simple / Advanced Admin mode toggle
 - [x] V8: Add default-English language switcher and first i18n foundation for global/core Admin UI
 - [x] V8: Add required first-run deployment wizard for API, one domain, and the first short link
@@ -369,9 +371,9 @@ Deployment experience:
 - [x] Restore dry-run preview with conflict summary
 - [x] Pre-restore backup and restore report
 - [x] Factory reset with preview, confirmation phrase, pre-reset backup, and KV cache clearing
-- [ ] Configurable R2 backup retention with a 30-day default
-- [ ] Retention cleanup for old backup records and R2 objects
-- [ ] Periodic target health monitoring through Cron
+- [x] Configurable R2 backup retention with a 30-day default
+- [x] Retention cleanup for old backup records and R2 objects
+- [x] Periodic target health monitoring through Cron
 - [ ] Target status history with last status code, last checked time, and failure count
 - [ ] Target failure alerts through Admin notices and optional webhooks
 - [ ] Alert controls for retry windows, suppression, and recovery notifications

@@ -42,7 +42,7 @@ export function WebhookSettingsPanel() {
       })
       .catch(() => error(t('webhookLoadFailed')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [error, t]);
 
   const setField = <K extends keyof typeof webhook>(key: K, value: (typeof webhook)[K]) => {
     setWebhook((current) => ({ ...current, [key]: value }));
@@ -152,7 +152,7 @@ export function WebhookSettingsPanel() {
                 onChange={() => toggleEvent(event)}
                 className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-brand-600 focus:ring-brand-500"
               />
-              {eventLabel(event)}
+              {event === 'health_check.failed' ? t('healthCheckFailedEvent') : eventLabel(event)}
             </label>
           ))}
         </div>

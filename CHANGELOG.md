@@ -13,6 +13,20 @@ _(none)_
 
 ---
 
+## [0.8.4] - 2026-07-11
+
+### Added
+
+- Added opt-in scheduled target health monitoring with a configurable limit of 1 to 50 active links per daily Cron run.
+- Added signed `health_check.failed` Webhook summaries when scheduled checks find warning or broken targets.
+- Added bilingual Advanced Settings controls and Worker policy tests for scheduled monitoring.
+
+### Changed
+
+- Cron is now configured independently of R2; scheduled backups safely skip execution when the R2 binding is absent.
+
+---
+
 ## [0.8.3] - 2026-07-11
 
 ### Added
