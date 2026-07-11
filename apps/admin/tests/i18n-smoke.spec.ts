@@ -173,6 +173,10 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
+    if (path === '/api/health-checks/alerts' && request.method() === 'GET') {
+      await route.fulfill(apiResponse({ items: [], last_alert_at: null }));
+      return;
+    }
 
     await route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"mock missing"}' });
   });

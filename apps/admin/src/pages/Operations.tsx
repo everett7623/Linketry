@@ -1,8 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Activity, Archive, Database, RefreshCw, Server, Waypoints } from 'lucide-react';
+import { Activity, AlertTriangle, Archive, Database, RefreshCw, Server, Waypoints } from 'lucide-react';
 import type { DeploymentCapabilities, LinkHealthBatchResult } from '@linkora/shared';
 import { listBackups, type BackupsList } from '../api/backups';
-import { runHealthCheckBatch } from '../api/healthChecks';
+import {
+  getHealthAlertStatus,
+  runHealthCheckBatch,
+  type HealthAlertStatus,
+} from '../api/healthChecks';
 import { getSettings } from '../api/settings';
 import { getDeploymentCapabilities } from '../api/system';
 import { Badge } from '../components/ui/Badge';
@@ -14,9 +18,15 @@ interface OperationsState {
   settings: Record<string, string>;
   backups: BackupsList | null;
   capabilities: DeploymentCapabilities | null;
+  alerts: HealthAlertStatus | null;
 }
 
-const EMPTY_STATE: OperationsState = { settings: {}, backups: null, capabilities: null };
+const EMPTY_STATE: OperationsState = {
+  settings: {},
+  backups: null,
+  capabilities: null,
+  alerts: null,
+};
 
 export function Operations() {
   const { error } = useToast();
@@ -29,12 +39,13 @@ export function Operations() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [settings, backups, capabilities] = await Promise.all([
+      const [settings, backups, capabilities, alerts] = await Promise.all([
         getSettings(),
         listBackups(),
         getDeploymentCapabilities(),
+        getHealthAlertStatus(),
       ]);
-      setState({ settings, backups, capabilities });
+      setState({ settings, backups, capabilities, alerts });
     } catch (e) {
       error(String(e));
     } finally {
@@ -133,6 +144,55 @@ export function Operations() {
           healthy={Boolean(state.capabilities)}
         />
       </div>
+
+      <section className="space-y-4 border-t border-slate-800 pt-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">{t('activeHealthAlerts')}</h2>
+            <p className="mt-1 text-xs text-slate-500">{t('activeHealthAlertsHint')}</p>
+          </div>
+          {state.alerts?.last_alert_at && (
+            <span className="text-xs text-slate-500">
+              {t('lastAlertAt', {
+                date: dateFormatter.format(new Date(state.alerts.last_alert_at)),
+              })}
+            </span>
+          )}
+        </div>
+
+        {!state.alerts || state.alerts.items.length === 0 ? (
+          <div className="flex items-center gap-3 text-sm text-emerald-300">
+            <Database size={17} />
+            {t('noActiveHealthAlerts')}
+          </div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {state.alerts.items.map((item) => (
+              <div key={item.link_id} className="border border-slate-800 bg-slate-900 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-mono text-sm text-slate-200">
+                      {item.slug ? `/${item.slug}` : item.link_id}
+                    </p>
+                    <p className="mt-1 truncate text-xs text-slate-600">
+                      {item.domain ?? item.fallback_url ?? item.link_id}
+                    </p>
+                  </div>
+                  <Badge variant={item.alerted ? 'red' : 'yellow'}>
+                    {item.alerted ? t('alertedStatus') : t('pendingStatus')}
+                  </Badge>
+                </div>
+                <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
+                  <AlertTriangle size={14} className="text-yellow-400" />
+                  {t('consecutiveFailuresCount', {
+                    count: item.consecutive_failures.toLocaleString(locale),
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <section className="space-y-4 border-y border-slate-800 py-5">
         <div className="flex flex-wrap items-center justify-between gap-3">

@@ -24,6 +24,7 @@ import {
   normalizeSuppressionMinutes,
   parseHealthAlertState,
 } from '../health/alertPolicy';
+import { buildHealthAlertStatus } from '../health/alertStatus';
 
 const healthChecks = new Hono<{ Bindings: Env }>();
 
@@ -35,6 +36,14 @@ healthChecks.use('*', async (c, next) => {
   const authError = await requireAuth(c);
   if (authError) return authError;
   await next();
+});
+
+healthChecks.get('/alerts', async (c) => {
+  const settings = await getSettings(c.env);
+  const state = parseHealthAlertState(settings.health_alert_state);
+  const ids = Object.keys(state.failures);
+  const links = ids.length > 0 ? await getLinksByIds(c.env, ids) : [];
+  return jsonOk(buildHealthAlertStatus(state, links));
 });
 
 healthChecks.post('/url', async (c) => {

@@ -13,6 +13,20 @@ _(none)_
 
 ---
 
+## [0.8.9] - 2026-07-11
+
+### Added
+
+- Added authenticated `GET /api/health-checks/alerts` with sanitized persisted health alert summaries.
+- Added an Active Health Alerts section to Operations with consecutive failure counts, threshold state, fallback details, and the latest alert time.
+- Added response-mapping tests for sorted alerts and deleted-link remnants, plus browser API coverage.
+
+### Security
+
+- The alert endpoint exposes only operator-facing fields and never returns the internal alert state document.
+
+---
+
 ## [0.8.8] - 2026-07-11
 
 ### Added

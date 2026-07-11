@@ -375,7 +375,7 @@ Deployment experience:
 - [x] Retention cleanup for old backup records and R2 objects
 - [x] Periodic target health monitoring through Cron
 - [ ] Target status history with last status code, last checked time, and failure count
-- [ ] Target failure alerts through Admin notices and optional webhooks
+- [x] Target failure alerts through Admin Operations notices and optional signed Webhooks
 - [x] Alert controls for consecutive-failure thresholds, suppression, and recovery Webhook notifications
 - [x] First-class `fallback_url` editing in Create/Edit Link
 - [ ] Custom 404, expired, disabled, and warning page templates
