@@ -159,7 +159,7 @@ Planned:
 - Alert controls, including retry windows, suppression, and recovery notifications
 - Done: first-class `fallback_url` editing in Create/Edit Link, without changing redirect behavior
 - Custom 404, expired, disabled, and warning page templates with safe defaults
-- Operations dashboard for backup freshness, monitoring status, failed targets, queue health, and deployment health
+- Done: operations dashboard for backup freshness, monitoring status, current failed targets, queue configuration, and deployment health
 - Better bot classification for analytics and monitoring noise reduction
 
 ## V8: Usability Modes And Internationalization

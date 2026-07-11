@@ -13,6 +13,16 @@ _(none)_
 
 ---
 
+## [0.8.6] - 2026-07-11
+
+### Added
+
+- Added an Advanced-mode Operations Dashboard for backup freshness, scheduled monitoring status, Queue configuration, and Worker deployment health.
+- Added an explicit on-demand target health snapshot that lists current warning/broken targets and configured fallback URLs without probing targets on page load.
+- Added English and Simplified Chinese Operations navigation, dashboard copy, API mocks, and browser smoke coverage.
+
+---
+
 ## [0.8.5] - 2026-07-11
 
 ### Added

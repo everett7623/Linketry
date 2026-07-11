@@ -18,6 +18,7 @@ import {
   Folder,
   Activity,
   ShieldCheck,
+  Gauge,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../contexts/AuthContext';
@@ -50,6 +51,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/redirect-rules', icon: <Shuffle size={18} />, label: 'redirectRules', advanced: true },
   { to: '/groups', icon: <Folder size={18} />, label: 'groups', advanced: true },
   { to: '/health-checks', icon: <Activity size={18} />, label: 'healthChecks', advanced: true },
+  { to: '/operations', icon: <Gauge size={18} />, label: 'operationsDashboard', advanced: true },
   { to: '/tags', icon: <Tags size={18} />, label: 'tags' },
   { to: '/import-export', icon: <ArrowLeftRight size={18} />, label: 'importExport' },
   { to: '/backups', icon: <Archive size={18} />, label: 'backups', advanced: true },

@@ -21,6 +21,7 @@ import { RedirectRules } from './pages/RedirectRules';
 import { Groups } from './pages/Groups';
 import { HealthChecks } from './pages/HealthChecks';
 import { Setup } from './pages/Setup';
+import { Operations } from './pages/Operations';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { authenticated, loading } = useAuth();
@@ -59,6 +60,7 @@ export function App() {
         <Route path="redirect-rules" element={<RedirectRules />} />
         <Route path="groups" element={<Groups />} />
         <Route path="health-checks" element={<HealthChecks />} />
+        <Route path="operations" element={<Operations />} />
         <Route path="tags" element={<Tags />} />
         <Route path="import-export" element={<ImportExport />} />
         <Route path="backups" element={<Backups />} />

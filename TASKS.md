@@ -379,7 +379,7 @@ Deployment experience:
 - [ ] Alert controls for retry windows, suppression, and recovery notifications
 - [x] First-class `fallback_url` editing in Create/Edit Link
 - [ ] Custom 404, expired, disabled, and warning page templates
-- [ ] Operations dashboard for backup freshness, monitoring status, failed targets, queue health, and deployment health
+- [x] Operations dashboard for backup freshness, monitoring status, current failed targets, queue configuration, and deployment health
 - [ ] Better bot classification for analytics and monitoring noise reduction
 
 ## 🔵 Backlog — V8 Usability Modes And Internationalization

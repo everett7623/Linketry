@@ -18,6 +18,7 @@ const link = {
   password_hash: null,
   password_protected: false,
   warning_enabled: 0,
+  fallback_url: null,
   source: null,
   source_id: null,
   last_clicked_at: null,
@@ -138,6 +139,38 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
+    if (path === '/api/backups') {
+      await route.fulfill(
+        apiResponse({
+          items: [],
+          total: 0,
+          r2Configured: true,
+          retentionDays: 30,
+        })
+      );
+      return;
+    }
+    if (path === '/api/system/capabilities') {
+      await route.fulfill(
+        apiResponse({
+          profile: 'advanced',
+          core: { d1: true, kv: true },
+          advanced: {
+            r2Backups: true,
+            visitQueue: true,
+            configuredDomains: 1,
+            multipleDomains: false,
+          },
+        })
+      );
+      return;
+    }
+    if (path === '/api/health-checks/batch' && request.method() === 'POST') {
+      await route.fulfill(
+        apiResponse({ items: [], total: 0, healthy: 0, warning: 0, broken: 0 })
+      );
+      return;
+    }
 
     await route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"mock missing"}' });
   });
@@ -202,6 +235,14 @@ test('English core workflow renders overview, links, create link, and settings',
   await expect(page.getByRole('heading', { name: messages.en.settings })).toBeVisible();
   await page.getByRole('button', { name: messages.en.saveSettings }).click();
   await expect(page.getByText(messages.en.settingsSaved)).toBeVisible();
+
+  await page
+    .getByRole('navigation')
+    .getByRole('link', { name: messages.en.operationsDashboard })
+    .click();
+  await expect(page.getByRole('heading', { name: messages.en.operationsDashboard })).toBeVisible();
+  await page.getByRole('button', { name: messages.en.checkNow }).click();
+  await expect(page.getByText(messages.en.allCheckedTargetsHealthy.replace('{count}', '0'))).toBeVisible();
   await page.evaluate(() => window.__assertNoBrowserErrors());
 });
 
