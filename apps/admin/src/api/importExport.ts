@@ -27,7 +27,7 @@ export function previewImport(
 
 export interface ConfirmResult {
   jobId: string;
-  status: 'processing' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'completed' | 'failed';
   total: number;
   success?: number;
   skipped?: number;
@@ -38,6 +38,7 @@ export interface ConfirmResult {
 }
 
 export type ImportConflictStrategy = 'skip' | 'rename' | 'overwrite';
+const IMPORT_CONFIRM_TIMEOUT_MS = 60_000;
 
 export function confirmImport(
   content: string,
@@ -46,7 +47,11 @@ export function confirmImport(
   conflictStrategy: ImportConflictStrategy = 'skip',
   fieldMapping?: ImportFieldMapping
 ): Promise<ConfirmResult> {
-  return apiPost('/api/import/confirm', { content, source, filename, conflictStrategy, fieldMapping });
+  return apiPost(
+    '/api/import/confirm',
+    { content, source, filename, conflictStrategy, fieldMapping },
+    IMPORT_CONFIRM_TIMEOUT_MS
+  );
 }
 
 export function fetchShlinkApi(baseUrl: string, apiKey: string): Promise<{

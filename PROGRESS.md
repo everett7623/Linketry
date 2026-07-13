@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-07-13
+Last updated: 2026-07-14
 
 ---
 
@@ -16,8 +16,8 @@ Last updated: 2026-07-13
 | Documentation              | ✅ Complete            | README, self-hosting guide, analytics guide, backup/reset guide, root runbooks, `docs/` reference set, and V7-V10 long-term roadmap    |
 | Deployment                 | ✅ Deployed            | Worker and Admin deployed; GitHub Actions deploy workflow added                                                                        |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                       |
-| Known issues               | 🟡 Open                | Large Shlink imports still timeout during `confirm`; tracked in `docs/KNOWN_ISSUES.md` |
-| Current version            | ✅ 0.9.12              | Ported Shlink query-param forwarding and automatic title resolution; async import jobs; improved first-time deployment onboarding                                                             |
+| Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md` |
+| Current version            | ✅ 0.9.16              | Large imports use bounded D1 batches; the supplied 195-row CSV completes successfully                                                                    |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`, so a reset followed by `s.y8o.de` migration can keep legacy short URLs |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
@@ -110,6 +110,8 @@ Last updated: 2026-07-13
 | Wrangler v3 update warning                          | ℹ️ Not blocking | Local checks passed; consider upgrade separately                                                |
 | KV stale active entry after admin changes           | ✅ Fixed        | Redirect handler now re-checks D1 on KV hits and preserves active KV only if D1 is unavailable  |
 | API Origin override cleared after transient failure | ✅ Fixed        | Admin only persists fallback to the build-time API after that origin authenticates successfully |
+| Large Shlink import confirm timeout                 | ✅ Fixed        | v0.9.13 returns a pending job before background parsing and reports failed jobs correctly         |
+| Large import stops after about 73 links             | ✅ Fixed        | v0.9.16 batches D1 writes; actual 195-row CSV passed first-import and duplicate-import checks     |
 
 ## Migration Status
 

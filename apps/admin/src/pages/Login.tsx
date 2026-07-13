@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LINKORA_VERSION } from '@linkora/shared';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Eye, EyeOff, HelpCircle, ExternalLink } from 'lucide-react';
+import { Zap, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
@@ -10,6 +10,7 @@ import { getSettings } from '../api/settings';
 import { getOverview } from '../api/links';
 import { useLocale } from '../contexts/LocaleContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { DeploymentAccessGuide } from '../components/setup/DeploymentAccessGuide';
 
 export function Login() {
   const [token, setToken] = useState('');
@@ -51,7 +52,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-600 shadow-lg shadow-brand-600/30 mb-4">
@@ -82,6 +83,7 @@ export function Login() {
               <button
                 type="button"
                 onClick={() => setShowToken(!showToken)}
+                aria-label={t(showToken ? 'hideAdminToken' : 'showAdminToken')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
               >
                 {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -116,22 +118,11 @@ export function Login() {
             {t('signIn')}
           </Button>
 
-          <div className="mt-4 rounded-lg border border-slate-800 bg-slate-950/50 p-3">
-            <p className="mb-1 flex items-start gap-1.5 text-xs text-slate-500">
-              <HelpCircle size={14} className="mt-0.5 shrink-0" />
-              {t('adminTokenHint')}
-            </p>
-            <a
-              href="https://github.com/everett7623/Linkora/blob/main/docs/SELF_HOSTING.md#8-github-actions-auto-deploy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300"
-            >
-              {t('adminTokenHelp')}
-              <ExternalLink size={12} />
-            </a>
-          </div>
         </form>
+
+        <div className="mt-4">
+          <DeploymentAccessGuide apiOrigin={apiOrigin} compact />
+        </div>
 
         <p className="text-center text-xs text-slate-600 mt-6">
           Linkora v{LINKORA_VERSION} — {t('selfHosted')}

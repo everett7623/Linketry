@@ -17,6 +17,7 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+      LINKORA_ADMIN_URL: ${{ vars.LINKORA_ADMIN_URL }}
       LINKORA_API_URL: ${{ vars.LINKORA_API_URL }}
       LINKORA_PAGES_PROJECT: ${{ vars.LINKORA_PAGES_PROJECT }}
       LINKORA_WORKER_NAME: ${{ vars.LINKORA_WORKER_NAME }}
@@ -127,7 +128,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKORA_VERSION = "${env.RESOLVED_LINKORA_VERSION || '0.9.12'}"`,
+            `LINKORA_VERSION = "${env.RESOLVED_LINKORA_VERSION || '0.9.16'}"`,
             '',
             '[[d1_databases]]',
             'binding = "DB"',
@@ -147,19 +148,27 @@ jobs:
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != ''
         run: |
           if [ -n "$ADMIN_TOKEN" ]; then
-            echo "Using ADMIN_TOKEN from GitHub repository secrets."
+            echo "Using ADMIN_TOKEN from the optional recovery override in GitHub repository secrets."
+            echo "ADMIN_TOKEN_SOURCE=configured" >> "$GITHUB_ENV"
             printf '%s' "$ADMIN_TOKEN" | npx wrangler secret put ADMIN_TOKEN
           else
-            echo "No ADMIN_TOKEN repository secret found; generating a new one."
-            GENERATED_TOKEN="linkora_$(openssl rand -hex 32)"
-            printf '%s' "$GENERATED_TOKEN" | npx wrangler secret put ADMIN_TOKEN
-            echo ""
-            echo "============================================================"
-            echo "Generated ADMIN_TOKEN: $GENERATED_TOKEN"
-            echo "============================================================"
-            echo "Save this token and add it to GitHub repository secrets as ADMIN_TOKEN"
-            echo "so future deployments keep the same token."
-            echo ""
+            EXISTING_SECRETS="$(npx wrangler secret list --name "$LINKORA_WORKER_NAME" --format json 2>/dev/null || true)"
+            if printf '%s' "$EXISTING_SECRETS" | grep -q '"name"[[:space:]]*:[[:space:]]*"ADMIN_TOKEN"'; then
+              echo "Existing Worker ADMIN_TOKEN found; preserving it."
+              echo "ADMIN_TOKEN_SOURCE=preserved" >> "$GITHUB_ENV"
+            else
+              echo "No Worker ADMIN_TOKEN found; generating one for the first deployment."
+              GENERATED_TOKEN="linkora_$(openssl rand -hex 32)"
+              echo "ADMIN_TOKEN_SOURCE=generated" >> "$GITHUB_ENV"
+              printf '%s' "$GENERATED_TOKEN" | npx wrangler secret put ADMIN_TOKEN
+              echo ""
+              echo "============================================================"
+              echo "Generated ADMIN_TOKEN: $GENERATED_TOKEN"
+              echo "============================================================"
+              echo "This value is shown only in this first-deployment log."
+              echo "Save it in a password manager. Later deployments preserve the Worker secret."
+              echo ""
+            fi
           fi
         working-directory: apps/worker
 
@@ -176,6 +185,33 @@ jobs:
       - name: Deploy Admin
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_API_URL != '' && env.LINKORA_PAGES_PROJECT != ''
         run: npx wrangler pages deploy apps/admin/dist --project-name "$LINKORA_PAGES_PROJECT" --branch main
+
+      - name: Write deployment access summary
+        if: always()
+        run: |
+          ADMIN_URL="$LINKORA_ADMIN_URL"
+          if [ -z "$ADMIN_URL" ] && [ -n "$LINKORA_PAGES_PROJECT" ]; then
+            ADMIN_URL="https://${LINKORA_PAGES_PROJECT}.pages.dev"
+          fi
+          {
+            echo "## Linkora access"
+            echo ""
+            echo "| Role | URL |"
+            echo "|---|---|"
+            echo "| Admin dashboard | ${ADMIN_URL:-Not configured — recommended: https://admin.example.com} |"
+            echo "| Worker API and short links | ${LINKORA_API_URL:-Not configured — recommended: https://go.example.com} |"
+            echo ""
+            echo "### ADMIN_TOKEN"
+            if [ "$ADMIN_TOKEN_SOURCE" = "generated" ]; then
+              echo "A token was generated automatically during this first deployment. Open the **Ensure ADMIN_TOKEN secret** step log, copy the one-time token, and save it in a password manager. Later deployments preserve the existing Worker secret."
+            elif [ "$ADMIN_TOKEN_SOURCE" = "preserved" ]; then
+              echo "The existing automatically generated Worker token was preserved. Use the value saved from the first deployment. If it was lost, set a new repository secret named **ADMIN_TOKEN** and rerun deployment once to replace it."
+            elif [ "$ADMIN_TOKEN_SOURCE" = "configured" ]; then
+              echo "The optional repository secret **ADMIN_TOKEN** replaced the Worker token for recovery. Use the original value you saved; GitHub cannot display it later."
+            else
+              echo "The token step did not run. Configure Cloudflare credentials, then rerun deployment."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Skip Cloudflare deploy
         if: env.CLOUDFLARE_API_TOKEN == '' || env.CLOUDFLARE_ACCOUNT_ID == ''

@@ -48,10 +48,11 @@ export function setApiBaseOverride(value: string): string {
 
 async function fetchWithTimeout(
   input: RequestInfo | URL,
-  init: RequestInit = {}
+  init: RequestInit = {},
+  timeoutMs = API_TIMEOUT_MS
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeoutId = globalThis.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  const timeoutId = globalThis.setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(input, { ...init, signal: init.signal ?? controller.signal });
   } finally {
@@ -62,7 +63,8 @@ async function fetchWithTimeout(
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
-  apiBase = getApiBase()
+  apiBase = getApiBase(),
+  timeoutMs = API_TIMEOUT_MS
 ): Promise<T> {
   const token = localStorage.getItem('linkora_token');
   const headers: Record<string, string> = {
@@ -73,7 +75,7 @@ export async function apiFetch<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetchWithTimeout(`${apiBase}${path}`, { ...options, headers });
+  const res = await fetchWithTimeout(`${apiBase}${path}`, { ...options, headers }, timeoutMs);
 
   if (!res.ok) {
     let message = `HTTP ${res.status}`;
@@ -96,11 +98,11 @@ export async function apiGet<T>(path: string): Promise<T> {
   return result.data;
 }
 
-export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
+export async function apiPost<T>(path: string, body?: unknown, timeoutMs = API_TIMEOUT_MS): Promise<T> {
   const result = await apiFetch<{ success: boolean; data: T }>(path, {
     method: 'POST',
     body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  }, getApiBase(), timeoutMs);
   return result.data;
 }
 

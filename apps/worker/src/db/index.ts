@@ -211,8 +211,8 @@ export async function listLinks(
   return { items: rows.results ?? [], total };
 }
 
-export async function createLink(env: Env, link: Link): Promise<void> {
-  await env.DB.prepare(
+function prepareCreateLink(env: Env, link: Link): D1PreparedStatement {
+  return env.DB.prepare(
     `INSERT INTO links (id, slug, domain, long_url, short_url, title, description, tags, status, redirect_type, clicks, source, source_id, created_at, updated_at, last_clicked_at, expires_at, max_clicks, password_hash, warning_enabled, fallback_url, archived)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
@@ -239,8 +239,16 @@ export async function createLink(env: Env, link: Link): Promise<void> {
       link.warning_enabled,
       link.fallback_url ?? null,
       link.archived
-    )
-    .run();
+    );
+}
+
+export async function createLink(env: Env, link: Link): Promise<void> {
+  await prepareCreateLink(env, link).run();
+}
+
+export async function createLinksBatch(env: Env, links: Link[]): Promise<void> {
+  if (links.length === 0) return;
+  await env.DB.batch(links.map((link) => prepareCreateLink(env, link)));
 }
 
 export async function updateLink(
@@ -626,12 +634,16 @@ export async function renameTagInLinks(env: Env, oldName: string, newName: strin
 }
 
 export async function createTagsIfMissing(env: Env, tags: Tag[]): Promise<void> {
-  for (const tag of tags) {
-    await env.DB.prepare(
-      'INSERT OR IGNORE INTO tags (id, name, color, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
-    )
-      .bind(tag.id, tag.name, tag.color ?? null, tag.description ?? null, tag.created_at, tag.updated_at)
-      .run();
+  const uniqueTags = [...new Map(tags.map((tag) => [tag.name, tag])).values()];
+  if (uniqueTags.length === 0) return;
+  for (let index = 0; index < uniqueTags.length; index += 100) {
+    const statements = uniqueTags.slice(index, index + 100).map((tag) =>
+      env.DB.prepare(
+        'INSERT OR IGNORE INTO tags (id, name, color, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+      )
+        .bind(tag.id, tag.name, tag.color ?? null, tag.description ?? null, tag.created_at, tag.updated_at)
+    );
+    await env.DB.batch(statements);
   }
 }
 
@@ -791,7 +803,7 @@ export async function createImportJob(env: Env, job: ImportJob): Promise<void> {
 export async function updateImportJob(env: Env, id: string, fields: Partial<ImportJob>): Promise<void> {
   const setClauses: string[] = [];
   const params: unknown[] = [];
-  const allowed = ['success_count', 'skipped_count', 'conflict_count', 'failed_count', 'status', 'report', 'completed_at', 'total_count'] as const;
+  const allowed = ['source', 'success_count', 'skipped_count', 'conflict_count', 'failed_count', 'status', 'report', 'completed_at', 'total_count'] as const;
   for (const f of allowed) {
     if (f in fields) {
       setClauses.push(`${f} = ?`);

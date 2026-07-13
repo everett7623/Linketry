@@ -236,11 +236,16 @@ test.beforeEach(async ({ page }) => {
 test('login page switches between English and Simplified Chinese', async ({ page }) => {
   await page.goto('/login');
   await expect(page.getByRole('button', { name: messages.en.signIn })).toBeVisible();
+  await expect(page.getByRole('heading', { name: messages.en.deploymentAccessTitle })).toBeVisible();
+  await expect(page.getByText(messages.en.tokenHowToTitle)).toBeVisible();
+  await expect(page.getByRole('button', { name: messages.en.showAdminToken })).toBeVisible();
 
   await page.getByLabel(messages.en.language).selectOption('zh-CN');
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
   await expect(page.getByRole('button', { name: messages['zh-CN'].signIn })).toBeVisible();
+  await expect(page.getByRole('heading', { name: messages['zh-CN'].deploymentAccessTitle })).toBeVisible();
+  await expect(page.getByText(messages['zh-CN'].tokenHowToTitle)).toBeVisible();
   await expect(page.getByLabel(messages['zh-CN'].language)).toHaveValue('zh-CN');
   await page.evaluate(() => window.__assertNoBrowserErrors());
 });

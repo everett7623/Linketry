@@ -4,7 +4,7 @@ import { requireAuth } from '../auth/index';
 import {
   getExistingSlugs,
   getLinkBySlug,
-  createLink,
+  createLinksBatch,
   createRedirectRule,
   updateLink,
   createTagsIfMissing,
@@ -30,6 +30,8 @@ import {
   YourlsAdapter,
 } from '../importers/platforms';
 import { normalizeDomain } from '../importers/domain';
+import { runAfterImportQueueBoundary } from '../importers/queue';
+import { chunkImportItems } from '../importers/batching';
 import type { ImportFieldMapping, Link, NormalizedImportItem, ImportAdapter, KVCacheEntry, RedirectRule } from '@linkora/shared';
 
 const importRoutes = new Hono<{ Bindings: Env }>();
@@ -417,7 +419,6 @@ async function runImportJob(
   parsedInput: unknown,
   domain: string,
   conflictStrategy: ConflictStrategy,
-  filename: string | null,
   ts: string
 ): Promise<void> {
   let successCount = 0;
@@ -442,6 +443,8 @@ async function runImportJob(
       .filter((item) => adapter.validate(item).valid)
       .map((item) => item.slug);
     const existingSlugs = await getExistingSlugs(env, validSlugs);
+    const plannedCreates: Array<{ item: NormalizedImportItem; link: Link }> = [];
+    const plannedOverwrites: NormalizedImportItem[] = [];
 
     for (const item of items) {
       const validation = adapter.validate(item);
@@ -466,48 +469,115 @@ async function runImportJob(
         slug = makeUniqueSlug(slug, existingSlugs);
       }
 
-      try {
-        if (hasConflict && conflictStrategy === 'overwrite') {
-          conflictCount++;
-          const existing = await getLinkBySlug(env, slug);
-          if (!existing) {
-            failedCount++;
-            reportRows.push(`${item.slug},failed,conflicting link disappeared before overwrite`);
-            continue;
-          }
+      if (hasConflict && conflictStrategy === 'overwrite') {
+        conflictCount++;
+        plannedOverwrites.push(item);
+        continue;
+      }
 
-          const fields = overwriteFieldsFromImportItem(item, existing, ts);
-          await deleteCachedLink(env, normalizeDomain(existing.domain) ?? domain, existing.slug);
-          await updateLink(env, existing.id, fields);
-          const overwritten = { ...existing, ...fields } as Link;
-          await ensureImportedTags(env, item, ts);
-          await syncImportCache(env, domain, overwritten);
+      const link = linkFromImportItem(item, generateId(), slug, domain, ts);
+      plannedCreates.push({ item, link });
+      existingSlugs.add(slug);
+    }
+
+    const importTagNames = [...new Set(
+      [...plannedCreates.map(({ item }) => item), ...plannedOverwrites]
+        .flatMap((item) => itemTags(item))
+    )];
+    if (importTagNames.length > 0) {
+      await createTagsIfMissing(env, importTagNames.map((name) => ({
+        id: generateId(),
+        name,
+        color: null,
+        description: null,
+        created_at: ts,
+        updated_at: ts,
+      })));
+    }
+
+    const persistProgress = async (): Promise<void> => {
+      await updateImportJob(env, jobId, {
+        success_count: successCount,
+        skipped_count: skippedCount,
+        conflict_count: conflictCount,
+        failed_count: failedCount,
+      });
+    };
+    await persistProgress();
+
+    for (const batch of chunkImportItems(plannedCreates)) {
+      try {
+        await createLinksBatch(env, batch.map(({ link }) => link));
+        for (const { item, link } of batch) {
           const backupLinkId = backupLinkIdFromItem(item);
           if (adapter.source === 'linkora-backup' && backupLinkId) {
-            linkIdByBackupId.set(backupLinkId, existing.id);
-            replaceRuleLinkIds.add(existing.id);
+            linkIdByBackupId.set(backupLinkId, link.id);
           }
           successCount++;
-          reportRows.push(`${item.slug},overwritten,slug already existed`);
+          reportRows.push(link.slug === item.slug ? `${item.slug},success,` : `${item.slug},renamed,${link.slug}`);
+        }
+      } catch (batchError) {
+        console.warn('[import] D1 batch failed; retrying links individually', {
+          jobId,
+          batchSize: batch.length,
+          error: String(batchError),
+        });
+        for (const { item, link } of batch) {
+          try {
+            await createLinksBatch(env, [link]);
+            const backupLinkId = backupLinkIdFromItem(item);
+            if (adapter.source === 'linkora-backup' && backupLinkId) {
+              linkIdByBackupId.set(backupLinkId, link.id);
+            }
+            successCount++;
+            reportRows.push(link.slug === item.slug ? `${item.slug},success,` : `${item.slug},renamed,${link.slug}`);
+          } catch (error) {
+            failedCount++;
+            reportRows.push(`${item.slug},failed,"${String(error)}"`);
+          }
+        }
+      }
+      await persistProgress();
+      console.log('[import] create batch completed', {
+        jobId,
+        batchSize: batch.length,
+        completed: successCount + skippedCount + failedCount,
+        total: items.length,
+      });
+    }
+
+    for (const [index, item] of plannedOverwrites.entries()) {
+      try {
+        const existing = await getLinkBySlug(env, item.slug);
+        if (!existing) {
+          failedCount++;
+          reportRows.push(`${item.slug},failed,conflicting link disappeared before overwrite`);
           continue;
         }
 
-        const id = generateId();
-        const link = linkFromImportItem(item, id, slug, domain, ts);
-        await createLink(env, link);
-        await ensureImportedTags(env, item, link.updated_at);
-        await syncImportCache(env, domain, link);
+        const fields = overwriteFieldsFromImportItem(item, existing, ts);
+        await deleteCachedLink(env, normalizeDomain(existing.domain) ?? domain, existing.slug);
+        await updateLink(env, existing.id, fields);
+        const overwritten = { ...existing, ...fields } as Link;
+        await syncImportCache(env, domain, overwritten);
         const backupLinkId = backupLinkIdFromItem(item);
         if (adapter.source === 'linkora-backup' && backupLinkId) {
-          linkIdByBackupId.set(backupLinkId, link.id);
+          linkIdByBackupId.set(backupLinkId, existing.id);
+          replaceRuleLinkIds.add(existing.id);
         }
-
         successCount++;
-        existingSlugs.add(slug);
-        reportRows.push(slug === item.slug ? `${item.slug},success,` : `${item.slug},renamed,${slug}`);
-      } catch (err) {
+        reportRows.push(`${item.slug},overwritten,slug already existed`);
+      } catch (error) {
         failedCount++;
-        reportRows.push(`${item.slug},failed,"${String(err)}"`);
+        reportRows.push(`${item.slug},failed,"${String(error)}"`);
+      }
+      if ((index + 1) % 10 === 0 || index === plannedOverwrites.length - 1) {
+        await persistProgress();
+        console.log('[import] overwrite progress', {
+          jobId,
+          completed: successCount + skippedCount + failedCount,
+          total: items.length,
+        });
       }
     }
 
@@ -555,6 +625,69 @@ async function runImportJob(
   }
 }
 
+function importFailureReport(error: unknown): string {
+  const reason = (error instanceof Error ? error.message : String(error)).replace(/"/g, '""');
+  return `slug,status,reason\n,failed,"${reason}"`;
+}
+
+async function runQueuedImportJob(
+  env: Env,
+  request: Request,
+  jobId: string,
+  content: string,
+  source: string | undefined,
+  rawFieldMapping: unknown,
+  domain: string,
+  conflictStrategy: ConflictStrategy,
+  ts: string
+): Promise<void> {
+  try {
+    await runAfterImportQueueBoundary(
+      // The first D1 await is intentional: it yields before any expensive parsing so
+      // the confirm request can return the pending job to the Admin immediately.
+      () => updateImportJob(env, jobId, { status: 'processing' }),
+      async () => {
+        console.log('[import] parsing queued job', { jobId, source: source ?? 'auto' });
+
+        let parsedInput: unknown = content;
+        try {
+          parsedInput = JSON.parse(content);
+        } catch {
+          parsedInput = content;
+        }
+
+        const adapter = detectAdapter(parsedInput, source);
+        if (!adapter) throw new Error('Could not detect import format.');
+
+        const fieldMapping = parseFieldMapping(rawFieldMapping);
+        const items = await adapter.parse(inputForAdapter(parsedInput, adapter, fieldMapping));
+        await updateImportJob(env, jobId, {
+          source: adapter.source,
+          total_count: items.length,
+        });
+        await recordAudit(env, request, 'import.confirm', 'import', jobId, {
+          source: adapter.source,
+          total: items.length,
+          conflictStrategy,
+        }).catch(() => {});
+
+        console.log('[import] queued job parsed', { jobId, source: adapter.source, total: items.length });
+        await runImportJob(env, jobId, adapter, items, parsedInput, domain, conflictStrategy, ts);
+      }
+    );
+  } catch (error) {
+    const completedAt = now();
+    await updateImportJob(env, jobId, {
+      status: 'failed',
+      report: importFailureReport(error),
+      completed_at: completedAt,
+    }).catch((updateError) => {
+      console.error('[import] failed to persist queued job failure', { jobId, error: String(updateError) });
+    });
+    console.error('[import] queued job failed', { jobId, error: String(error) });
+  }
+}
+
 // POST /api/import/confirm
 importRoutes.post('/confirm', async (c) => {
   let body: { content?: string; source?: string; filename?: string; conflictStrategy?: string; fieldMapping?: unknown };
@@ -568,18 +701,6 @@ importRoutes.post('/confirm', async (c) => {
   const conflictStrategy = parseConflictStrategy(body.conflictStrategy);
   if (!content) return jsonError('content is required', 400);
 
-  let parsedInput: unknown = content;
-  try {
-    parsedInput = JSON.parse(content);
-  } catch {
-    parsedInput = content;
-  }
-
-  const adapter = detectAdapter(parsedInput, source);
-  if (!adapter) return jsonError('Could not detect import format.', 400);
-
-  const fieldMapping = parseFieldMapping(body.fieldMapping);
-  const items = await adapter.parse(inputForAdapter(parsedInput, adapter, fieldMapping));
   const domain = new URL(c.req.url).hostname;
 
   const jobId = generateId();
@@ -587,33 +708,37 @@ importRoutes.post('/confirm', async (c) => {
 
   await createImportJob(c.env, {
     id: jobId,
-    source: adapter.source,
+    source: source?.trim() || 'auto',
     filename: filename ?? null,
-    total_count: items.length,
+    total_count: 0,
     success_count: 0,
     skipped_count: 0,
     conflict_count: 0,
     failed_count: 0,
-    status: 'processing',
+    status: 'pending',
     report: null,
     created_at: ts,
     completed_at: null,
   });
 
-  recordAudit(c.env, c.req.raw, 'import.confirm', 'import', jobId, {
-    source: adapter.source,
-    total: items.length,
-    conflictStrategy,
-  }).catch(() => {});
-
   c.executionCtx.waitUntil(
-    runImportJob(c.env, jobId, adapter, items, parsedInput, domain, conflictStrategy, filename ?? null, ts)
+    runQueuedImportJob(
+      c.env,
+      c.req.raw,
+      jobId,
+      content,
+      source,
+      body.fieldMapping,
+      domain,
+      conflictStrategy,
+      ts
+    )
   );
 
   return jsonOk({
     jobId,
-    status: 'processing',
-    total: items.length,
+    status: 'pending',
+    total: 0,
     conflictStrategy,
   });
 });

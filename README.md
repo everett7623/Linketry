@@ -182,14 +182,14 @@ Pushing to `main` can deploy automatically through GitHub Actions after the Clou
 
 ### Quick deployment (recommended)
 
-Start with one custom hostname for both short links and `/api/*`. The Admin can use the default Cloudflare Pages hostname, so no separate Admin or API custom domain is required.
+Configure only one custom hostname. Cloudflare Pages automatically provides the Admin URL, so beginners do not need to create an Admin DNS record or custom domain.
 
 ```txt
-go.example.com          Short links + Worker API
-linkora-admin.pages.dev Admin UI
+linkora-admin.pages.dev Admin UI (automatic)
+go.example.com          Worker API + short links (the only custom hostname)
 ```
 
-The basic profile requires Worker, D1, KV, Pages, and `ADMIN_TOKEN`. R2 backups, Queues, Cron, multiple Worker domains, and a branded Admin domain are optional advanced features.
+The basic profile requires Worker, D1, KV, Pages, and only the `go.example.com` custom hostname. The first deployment automatically generates `ADMIN_TOKEN`; a branded Admin domain, R2 backups, Queues, Cron, and a separate public short-link domain remain optional advanced features.
 
 For a reusable open-source setup, configure these GitHub repository values:
 
@@ -212,6 +212,8 @@ LINKORA_D1_DATABASE_ID=<your-d1-database-id>
 LINKORA_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKORA_KV_PREVIEW_ID=<your-kv-preview-id>
 ```
+
+After the first deploy, open the automatic `https://linkora-admin.pages.dev` URL shown in the workflow summary. The same summary points to the automatically generated token in the **Ensure ADMIN_TOKEN secret** step. A branded `admin.example.com` domain can be added later, but is not part of the beginner flow.
 
 For the advanced profile, optionally add `LINKORA_WORKER_DOMAINS`, R2 bucket variables, and `LINKORA_VISITS_QUEUE` as described in [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
 
@@ -236,7 +238,7 @@ For production builds where Admin and Worker use separate domains, set `VITE_API
 VITE_API_URL=https://go.example.com npm run build --workspace=apps/admin
 ```
 
-For migrations or strict operational isolation, keep `go.example.com` as the stable Admin API domain and add the public short-link domain, such as `s.example.com`, through `LINKORA_WORKER_DOMAINS`. Three public roles are an advanced option, not a basic deployment requirement.
+For migrations or strict operational isolation, keep `go.example.com` as the stable Admin API domain and add the public short-link domain, such as `s.example.com`, through `LINKORA_WORKER_DOMAINS`. This third public role is optional.
 
 ## Shlink Import
 

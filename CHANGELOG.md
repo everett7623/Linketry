@@ -13,6 +13,70 @@ _(none)_
 
 ---
 
+## [0.9.16] - 2026-07-14
+
+### Fixed
+
+- Fixed Shlink API and CSV imports stopping partway through at roughly 73 links. Import writes are now grouped into bounded D1 batches instead of performing several sequential database and KV operations for every link inside the Worker's background execution window.
+- Import job counters are persisted after every batch, and a failed D1 batch safely falls back to individual writes so one bad record does not hide the rest of the result.
+- Preserved the default `skip` conflict behavior, including duplicate slugs within the same import, without changing redirect logic.
+
+### Tests
+
+- Added import batching regression coverage, including the 195-link case split into eight bounded batches.
+- Verified the supplied 195-row Linkora CSV end to end against a clean local D1 database: 195 succeeded and 0 failed. Reimporting the same file skipped all 195 conflicts and overwrote none.
+
+---
+
+## [0.9.15] - 2026-07-13
+
+### Changed
+
+- Simplified the beginner deployment to require only one custom hostname: `go.example.com` for the Worker API and short links.
+- The Admin now defaults to Cloudflare Pages' automatically created `linkora-admin.pages.dev` URL in onboarding, deployment summaries, smoke checks, and documentation.
+- Moved `admin.example.com` and `LINKORA_ADMIN_URL` into the optional advanced path so first-time users do not need to configure Admin DNS or a Pages custom domain.
+
+---
+
+## [0.9.14] - 2026-07-13
+
+### Added
+
+- Added a reusable bilingual deployment access guide to the Login and first-run Setup screens. It identifies `admin.example.com` as the Admin entry point, `go.example.com` as the Worker API and basic short-link entry point, and shows the exact GitHub Actions path for retrieving the automatically generated `ADMIN_TOKEN`.
+- Added `LINKORA_ADMIN_URL` as a repository variable for deployment summaries.
+- GitHub Actions now writes a final access summary containing the Admin URL, API URL, and token retrieval or recovery instructions.
+
+### Changed
+
+- The recommended basic deployment now uses two clear public entry points: an Admin domain and a Worker API/short-link domain. A separate public short-link domain remains optional.
+- `ADMIN_TOKEN` is generated automatically only when the Worker does not already have one. Later deployments preserve the existing Worker secret instead of rotating it; a repository secret is accepted only as an explicit recovery override.
+- Updated README, self-hosting, deployment, environment, progress, and task documentation for the simplified onboarding flow.
+
+### Fixed
+
+- Added an accessible label to the Login token visibility control.
+
+### Tests
+
+- Extended the bilingual browser smoke test to verify the deployment access guide, automatic token instructions, and accessible token visibility control.
+
+---
+
+## [0.9.13] - 2026-07-13
+
+### Fixed
+
+- Fixed large Shlink imports still timing out before the Admin received a job ID. Import confirmation now creates a `pending` job with `total_count = 0`, returns it immediately, and performs format detection, parsing, validation, conflict checks, and writes after an asynchronous D1 boundary in `ctx.waitUntil()`.
+- Import jobs now persist the detected source and actual total after parsing, and parsing failures are recorded as failed jobs with a downloadable report.
+- Fixed failed background imports being displayed as successful in the Admin. Failed jobs now show a localized error and preserve the import input for retry.
+- Added a dedicated 60-second Admin timeout for import confirmation while retaining the 15-second default for other API requests.
+
+### Tests
+
+- Added a Worker regression test proving import parsing cannot start before the asynchronous queue boundary completes.
+
+---
+
 ## [0.9.12] - 2026-07-13
 
 ### Added

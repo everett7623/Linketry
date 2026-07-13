@@ -9,7 +9,6 @@ One item in "In Progress" at a time whenever possible.
 
 - [x] V9: Add OpenGraph preview cards for destination pages
 - [ ] V9+: Integrate next high-value Shlink capabilities into Linkora (multi-segment slugs, extra-path forwarding, expired-link cleanup)
-- [ ] Fix large Shlink import confirm timeout: move parsing into background job and extend frontend confirm timeout
 
 ---
 
@@ -108,6 +107,53 @@ One item in "In Progress" at a time whenever possible.
 - [x] Add `importProcessing` EN/ZH i18n messages and disabled button state
 - [x] Prevent duplicate confirm clicks while a job is running
 - [x] Update `CHANGELOG.md`, package versions, env examples, and docs to `0.9.11`
+
+---
+
+## ✅ Completed — Import Confirm Timeout Follow-up (v0.9.13)
+
+- [x] Create a `pending` import job with total 0 before parsing content
+- [x] Move JSON parsing, adapter detection, normalization, validation, and conflict checks behind an asynchronous D1 boundary in `ctx.waitUntil()`
+- [x] Update detected source and total count after background parsing
+- [x] Persist parsing failures as failed jobs with CSV reports
+- [x] Show failed background imports as errors and preserve Admin input for retry
+- [x] Add a dedicated 60-second confirm timeout and queue-boundary regression test
+- [x] Update `CHANGELOG.md`, package versions, env examples, docs, and task records to `0.9.13`
+
+---
+
+## ✅ Completed — Simplified Deployment Access (v0.9.14)
+
+- [x] Recommend `admin.example.com` for Admin and `go.example.com` for Worker API and basic short links
+- [x] Show Admin/API roles and automatic token retrieval steps before login and in the first-run wizard
+- [x] Generate `ADMIN_TOKEN` only on the first deployment and preserve the existing Worker secret later
+- [x] Add an explicit repository-secret recovery override for a lost token
+- [x] Add Admin/API/token guidance to the GitHub Actions deployment summary
+- [x] Document `LINKORA_ADMIN_URL` and the recommended two-domain setup
+- [x] Update release metadata to `0.9.14`
+
+---
+
+## ✅ Completed — Beginner Single-Domain Deployment (v0.9.15)
+
+- [x] Use the automatic `linkora-admin.pages.dev` URL for the beginner Admin flow
+- [x] Require only `go.example.com` as the basic custom Worker domain
+- [x] Make `admin.example.com` and `LINKORA_ADMIN_URL` optional advanced configuration
+- [x] Update onboarding, deployment summary, smoke checks, README, and self-hosting docs
+- [x] Update release metadata to `0.9.15`
+
+---
+
+## ✅ Completed — Large Import Write Cutoff (v0.9.16)
+
+- [x] Reproduce the fixed-count cutoff with the supplied 195-row Linkora CSV
+- [x] Confirm Shlink API and CSV imports share the same sequential write bottleneck
+- [x] Insert new links in bounded D1 batches while keeping D1 as the source of truth
+- [x] Persist import progress after each batch and retry failed batches item by item
+- [x] Preserve default `skip` conflict handling and avoid redirect logic changes
+- [x] Verify 195/195 links import into a clean local D1 database
+- [x] Verify reimport skips 195/195 conflicts without overwriting links
+- [x] Update release metadata to `0.9.16`
 
 ---
 

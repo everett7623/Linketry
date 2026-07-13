@@ -82,6 +82,7 @@ export const managePageMessages = {
     noImportable: 'No importable links found. Existing slugs are skipped by default.',
     importComplete:
       'Backup downloaded. Import complete: {success} imported, {skipped} skipped, {failed} failed',
+    importFailed: 'Backup downloaded, but the import failed. Check the import history report for details.',
     importProcessing: 'Importing…',
     charsLoaded: '{count} chars loaded from {source}',
     pastedInput: 'pasted input',
@@ -257,6 +258,7 @@ export const managePageMessages = {
     invalidFieldMapping: '字段映射必须是有效 JSON',
     noImportable: '没有可导入短链；默认会跳过已有别名。',
     importComplete: '备份已下载。导入完成：成功 {success}，跳过 {skipped}，失败 {failed}',
+    importFailed: '备份已下载，但导入失败。请在导入历史中查看报告详情。',
     importProcessing: '导入中…',
     charsLoaded: '已从 {source} 加载 {count} 个字符',
     pastedInput: '粘贴内容',

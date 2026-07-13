@@ -2,14 +2,14 @@
 
 This guide deploys Linkora as a self-hosted short link system on Cloudflare.
 
-Linkora supports one to three public roles. The recommended basic deployment uses one custom Worker domain and the default Pages hostname:
+The recommended beginner deployment requires one custom Worker hostname; Cloudflare Pages provides the Admin URL automatically:
 
 | Domain type | Purpose | Example |
 |-------------|---------|---------|
-| Worker domain | Short links and `/api/*` | `go.example.com` |
 | Admin URL | React admin panel | `linkora-admin.pages.dev` |
+| Worker domain | Short links and `/api/*` | `go.example.com` |
 
-Advanced deployments may add a branded `admin.example.com` hostname or split the Worker into `go.example.com` for API access and `s.example.com` for public short links.
+Advanced deployments may add `admin.example.com` as a branded Admin domain or split the Worker into `go.example.com` for API access and `s.example.com` for public short links.
 
 Do not hard-code these example domains for another deployment. Replace them with your own domains.
 
@@ -37,11 +37,11 @@ npm install
 
 ## 2. Choose Domains
 
-For the basic profile, pick one hostname:
+For the basic profile, pick one hostname and keep the automatic Pages URL:
 
 ```txt
 Worker domain: go.example.com
-Admin URL:     linkora-admin.pages.dev
+Admin URL:     linkora-admin.pages.dev (automatic)
 ```
 
 The Worker domain is the domain users will share, for example:
@@ -161,7 +161,7 @@ routes = [
 ]
 
 [vars]
-LINKORA_VERSION = "0.9.12"
+LINKORA_VERSION = "0.9.16"
 
 [[d1_databases]]
 binding = "DB"
@@ -202,7 +202,7 @@ curl https://go.example.com/health
 Expected response:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.9.12"}}
+{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.9.16"}}
 ```
 
 ---
@@ -256,13 +256,13 @@ npx wrangler pages project create linkora-admin --production-branch main
 npx wrangler pages deploy apps/admin/dist --project-name linkora-admin
 ```
 
-Add the custom admin domain:
+Open the automatic Pages URL first:
 
 ```txt
-admin.example.com
+https://linkora-admin.pages.dev
 ```
 
-In Cloudflare Dashboard:
+Optional: add a branded Admin domain later in Cloudflare Dashboard:
 
 1. Open **Workers & Pages**
 2. Select the `linkora-admin` Pages project
@@ -271,7 +271,7 @@ In Cloudflare Dashboard:
 5. Add the required DNS record if Cloudflare asks for it
 6. Wait until the domain status is active
 
-Open:
+The optional branded URL is then:
 
 ```txt
 https://admin.example.com
@@ -316,7 +316,7 @@ Defined in `apps/worker/wrangler.toml`:
 
 | Name | Example |
 |------|---------|
-| `LINKORA_VERSION` | `0.9.12` |
+| `LINKORA_VERSION` | `0.9.16` |
 
 ### Worker Bindings
 
@@ -350,6 +350,7 @@ It deploys Admin only when the Cloudflare secrets and these repository variables
 
 | Name | Example | Purpose |
 |------|---------|---------|
+| `LINKORA_ADMIN_URL` | `https://admin.example.com` | Optional: overrides the automatic Pages URL in the deployment summary after adding a branded Admin domain |
 | `LINKORA_API_URL` | `https://go.example.com` | Builds Admin with the stable Worker API origin |
 | `LINKORA_PAGES_PROJECT` | `linkora-admin` | Selects the Cloudflare Pages project |
 | `LINKORA_WORKER_NAME` | `linkora-worker` | Generates the Worker config name |
@@ -366,6 +367,8 @@ It deploys Admin only when the Cloudflare secrets and these repository variables
 If either Cloudflare secret is missing, the workflow skips all Cloudflare migration/deploy steps and leaves manual Wrangler deployment as the source of production updates.
 If either Admin variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.
 If any core Worker variable is missing, the workflow skips Worker deploy instead of relying on a committed production `wrangler.toml`. Missing R2 and Queue variables only disable those advanced bindings.
+
+On the first successful deployment, the workflow automatically creates `ADMIN_TOKEN` as a Worker secret and prints it once in the **Ensure ADMIN_TOKEN secret** step. Later deployments preserve the existing Worker secret. If the token is lost, set a replacement GitHub repository secret named `ADMIN_TOKEN` and rerun deployment once.
 
 ---
 
@@ -411,7 +414,7 @@ Expected:
 Check Admin:
 
 ```txt
-https://admin.example.com
+https://linkora-admin.pages.dev
 ```
 
 Login with `ADMIN_TOKEN`, then verify:

@@ -185,6 +185,7 @@ export function Setup() {
         defaultDomain={defaultDomain}
         totalLinks={data.overview?.totalLinks ?? 0}
         isAdvanced={isAdvanced}
+        apiOrigin={apiOrigin}
       />
 
       <SetupSummary checks={checks} apiOrigin={apiOrigin} />

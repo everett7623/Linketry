@@ -3,12 +3,14 @@ import { CheckCircle2, Circle, ExternalLink, Rocket, ArrowRight } from 'lucide-r
 import { Link } from 'react-router-dom';
 import { useLocale } from '../../contexts/LocaleContext';
 import { getSetupWizardState } from '../../utils/setupWizard';
+import { DeploymentAccessGuide } from './DeploymentAccessGuide';
 
 interface FirstRunWizardProps {
   apiReady: boolean;
   defaultDomain: string;
   totalLinks: number;
   isAdvanced: boolean;
+  apiOrigin: string;
 }
 
 export function FirstRunWizard({
@@ -16,6 +18,7 @@ export function FirstRunWizard({
   defaultDomain,
   totalLinks,
   isAdvanced,
+  apiOrigin,
 }: FirstRunWizardProps) {
   const { t } = useLocale();
   const state = getSetupWizardState(apiReady, defaultDomain, totalLinks);
@@ -101,6 +104,8 @@ export function FirstRunWizard({
           );
         })}
       </div>
+
+      <DeploymentAccessGuide apiOrigin={apiOrigin} />
 
       <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-950/50 px-5 py-3 text-xs text-slate-500">
         <span>{t('wizardOneDomain')}</span>

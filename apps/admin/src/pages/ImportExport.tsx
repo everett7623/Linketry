@@ -131,6 +131,11 @@ export function ImportExport() {
   const finishImport = useCallback((job: ImportJob) => {
     setImportJobId(null);
     setConfirming(false);
+    if (job.status === 'failed') {
+      error(t('importFailed'));
+      loadJobs();
+      return;
+    }
     success(
       t('importComplete', {
         success: job.success_count,
@@ -143,7 +148,7 @@ export function ImportExport() {
     setFilename('');
     if (fileRef.current) fileRef.current.value = '';
     loadJobs();
-  }, [t]);
+  }, [error, success, t]);
 
   useEffect(() => {
     if (!importJobId) return;
