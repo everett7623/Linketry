@@ -47,6 +47,8 @@ export const messages = {
     unreachableApi:
       'Cannot reach the API origin. Check the URL, deployment status, and CORS settings.',
     invalidToken: 'Invalid token. Please check your ADMIN_TOKEN.',
+    adminTokenHint: 'ADMIN_TOKEN is set before deployment as a Wrangler or GitHub Actions secret.',
+    adminTokenHelp: 'Where do I find my admin token?',
     configureInstance: 'Configure your Linkora instance',
     general: 'General',
     siteName: 'Site Name',
@@ -202,6 +204,8 @@ export const messages = {
     invalidOrigin: 'API 地址无效，请填写完整 URL，例如 https://go.example.com。',
     unreachableApi: '无法连接 API，请检查地址、部署状态和 CORS 设置。',
     invalidToken: '令牌无效，请检查 ADMIN_TOKEN。',
+    adminTokenHint: 'ADMIN_TOKEN 需要在部署前通过 Wrangler 或 GitHub Actions secret 设置。',
+    adminTokenHelp: '我的管理员令牌在哪里？',
     configureInstance: '配置 Linkora 实例',
     general: '常规',
     siteName: '站点名称',

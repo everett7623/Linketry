@@ -13,6 +13,15 @@ _(none)_
 
 ---
 
+## [0.9.7] - 2026-07-13
+
+### Added
+
+- Added an ADMIN_TOKEN help hint and documentation link to the Admin login page, guiding first-time users to where the token is configured.
+- Added Chinese and English translations for the new login help text.
+
+---
+
 ## [0.9.6] - 2026-07-13
 
 ### Added

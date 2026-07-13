@@ -150,7 +150,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.9.6"}}
+{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.9.7"}}
 ```
 
 ## 7. Build and Deploy Admin
@@ -211,7 +211,7 @@ Push to `main` and the workflow will type-check, build, migrate D1, deploy the W
 Leave these unset for the basic deployment; enable them later from the Admin Advanced mode.
 
 ```txt
-LINKORA_VERSION=0.9.6
+LINKORA_VERSION=0.9.7
 LINKORA_COMPATIBILITY_DATE=2026-07-08
 LINKORA_WORKER_DOMAINS=go.example.com,s.example.com
 LINKORA_R2_BUCKET=linkora-backups

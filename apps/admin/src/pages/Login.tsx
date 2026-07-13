@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LINKORA_VERSION } from '@linkora/shared';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Eye, EyeOff } from 'lucide-react';
+import { Zap, Eye, EyeOff, HelpCircle, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
@@ -115,6 +115,22 @@ export function Login() {
           >
             {t('signIn')}
           </Button>
+
+          <div className="mt-4 rounded-lg border border-slate-800 bg-slate-950/50 p-3">
+            <p className="mb-1 flex items-start gap-1.5 text-xs text-slate-500">
+              <HelpCircle size={14} className="mt-0.5 shrink-0" />
+              {t('adminTokenHint')}
+            </p>
+            <a
+              href="https://github.com/everett7623/Linkora/blob/main/docs/SELF_HOSTING.md#8-github-actions-auto-deploy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300"
+            >
+              {t('adminTokenHelp')}
+              <ExternalLink size={12} />
+            </a>
+          </div>
         </form>
 
         <p className="text-center text-xs text-slate-600 mt-6">
