@@ -27,13 +27,14 @@ export function previewImport(
 
 export interface ConfirmResult {
   jobId: string;
+  status: 'processing' | 'completed' | 'failed';
   total: number;
-  success: number;
-  skipped: number;
-  conflicts: number;
-  failed: number;
-  conflictStrategy: ImportConflictStrategy;
-  completedAt: string;
+  success?: number;
+  skipped?: number;
+  conflicts?: number;
+  failed?: number;
+  conflictStrategy?: ImportConflictStrategy;
+  completedAt?: string;
 }
 
 export type ImportConflictStrategy = 'skip' | 'rename' | 'overwrite';

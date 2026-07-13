@@ -409,6 +409,152 @@ importRoutes.post('/preview', async (c) => {
   return jsonOk({ source: adapter.source, ...result });
 });
 
+async function runImportJob(
+  env: Env,
+  jobId: string,
+  adapter: ImportAdapter,
+  items: NormalizedImportItem[],
+  parsedInput: unknown,
+  domain: string,
+  conflictStrategy: ConflictStrategy,
+  filename: string | null,
+  ts: string
+): Promise<void> {
+  let successCount = 0;
+  let skippedCount = 0;
+  let conflictCount = 0;
+  let failedCount = 0;
+  const reportRows: string[] = ['slug,status,reason'];
+
+  try {
+    if (adapter.source === 'linkora-backup') {
+      const backupTags = extractLinkoraBackupTags(parsedInput);
+      if (backupTags.length > 0) await createTagsIfMissing(env, backupTags);
+    }
+
+    const backupRedirectRules = adapter.source === 'linkora-backup'
+      ? extractLinkoraBackupRedirectRules(parsedInput)
+      : [];
+    const linkIdByBackupId = new Map<string, string>();
+    const replaceRuleLinkIds = new Set<string>();
+
+    const validSlugs = items
+      .filter((item) => adapter.validate(item).valid)
+      .map((item) => item.slug);
+    const existingSlugs = await getExistingSlugs(env, validSlugs);
+
+    for (const item of items) {
+      const validation = adapter.validate(item);
+      if (!validation.valid) {
+        failedCount++;
+        reportRows.push(`${item.slug},failed,"${validation.errors.join('; ')}"`);
+        continue;
+      }
+
+      let slug = item.slug;
+      const hasConflict = existingSlugs.has(slug);
+
+      if (hasConflict && conflictStrategy === 'skip') {
+        conflictCount++;
+        skippedCount++;
+        reportRows.push(`${item.slug},skipped,slug already exists`);
+        continue;
+      }
+
+      if (hasConflict && conflictStrategy === 'rename') {
+        conflictCount++;
+        slug = makeUniqueSlug(slug, existingSlugs);
+      }
+
+      try {
+        if (hasConflict && conflictStrategy === 'overwrite') {
+          conflictCount++;
+          const existing = await getLinkBySlug(env, slug);
+          if (!existing) {
+            failedCount++;
+            reportRows.push(`${item.slug},failed,conflicting link disappeared before overwrite`);
+            continue;
+          }
+
+          const fields = overwriteFieldsFromImportItem(item, existing, ts);
+          await deleteCachedLink(env, normalizeDomain(existing.domain) ?? domain, existing.slug);
+          await updateLink(env, existing.id, fields);
+          const overwritten = { ...existing, ...fields } as Link;
+          await ensureImportedTags(env, item, ts);
+          await syncImportCache(env, domain, overwritten);
+          const backupLinkId = backupLinkIdFromItem(item);
+          if (adapter.source === 'linkora-backup' && backupLinkId) {
+            linkIdByBackupId.set(backupLinkId, existing.id);
+            replaceRuleLinkIds.add(existing.id);
+          }
+          successCount++;
+          reportRows.push(`${item.slug},overwritten,slug already existed`);
+          continue;
+        }
+
+        const id = generateId();
+        const link = linkFromImportItem(item, id, slug, domain, ts);
+        await createLink(env, link);
+        await ensureImportedTags(env, item, link.updated_at);
+        await syncImportCache(env, domain, link);
+        const backupLinkId = backupLinkIdFromItem(item);
+        if (adapter.source === 'linkora-backup' && backupLinkId) {
+          linkIdByBackupId.set(backupLinkId, link.id);
+        }
+
+        successCount++;
+        existingSlugs.add(slug);
+        reportRows.push(slug === item.slug ? `${item.slug},success,` : `${item.slug},renamed,${slug}`);
+      } catch (err) {
+        failedCount++;
+        reportRows.push(`${item.slug},failed,"${String(err)}"`);
+      }
+    }
+
+    const redirectRulesRestored = await restoreBackupRedirectRules(
+      env,
+      backupRedirectRules,
+      linkIdByBackupId,
+      replaceRuleLinkIds,
+      ts
+    );
+
+    const completedAt = now();
+    await updateImportJob(env, jobId, {
+      success_count: successCount,
+      skipped_count: skippedCount,
+      conflict_count: conflictCount,
+      failed_count: failedCount,
+      status: 'completed',
+      report: reportRows.join('\n'),
+      completed_at: completedAt,
+    });
+    await emitWebhook(env, 'import.completed', {
+      jobId,
+      source: adapter.source,
+      total: items.length,
+      success: successCount,
+      skipped: skippedCount,
+      conflicts: conflictCount,
+      failed: failedCount,
+      conflictStrategy,
+      redirectRulesRestored,
+      completedAt,
+    });
+  } catch (err) {
+    await updateImportJob(env, jobId, {
+      success_count: successCount,
+      skipped_count: skippedCount,
+      conflict_count: conflictCount,
+      failed_count: failedCount,
+      status: 'failed',
+      report: reportRows.join('\n'),
+      completed_at: now(),
+    });
+    console.error('Import job failed', err);
+  }
+}
+
 // POST /api/import/confirm
 importRoutes.post('/confirm', async (c) => {
   let body: { content?: string; source?: string; filename?: string; conflictStrategy?: string; fieldMapping?: unknown };
@@ -454,146 +600,21 @@ importRoutes.post('/confirm', async (c) => {
     completed_at: null,
   });
 
-  if (adapter.source === 'linkora-backup') {
-    const backupTags = extractLinkoraBackupTags(parsedInput);
-    if (backupTags.length > 0) await createTagsIfMissing(c.env, backupTags);
-  }
+  recordAudit(c.env, c.req.raw, 'import.confirm', 'import', jobId, {
+    source: adapter.source,
+    total: items.length,
+    conflictStrategy,
+  }).catch(() => {});
 
-  const backupRedirectRules = adapter.source === 'linkora-backup'
-    ? extractLinkoraBackupRedirectRules(parsedInput)
-    : [];
-  const linkIdByBackupId = new Map<string, string>();
-  const replaceRuleLinkIds = new Set<string>();
-
-  let successCount = 0;
-  let skippedCount = 0;
-  let conflictCount = 0;
-  let failedCount = 0;
-  const reportRows: string[] = ['slug,status,reason'];
-  const validSlugs = items
-    .filter((item) => adapter.validate(item).valid)
-    .map((item) => item.slug);
-  const existingSlugs = await getExistingSlugs(c.env, validSlugs);
-
-  for (const item of items) {
-    const validation = adapter.validate(item);
-    if (!validation.valid) {
-      failedCount++;
-      reportRows.push(`${item.slug},failed,"${validation.errors.join('; ')}"`);
-      continue;
-    }
-
-    let slug = item.slug;
-    const hasConflict = existingSlugs.has(slug);
-
-    if (hasConflict && conflictStrategy === 'skip') {
-      conflictCount++;
-      skippedCount++;
-      reportRows.push(`${item.slug},skipped,slug already exists`);
-      continue;
-    }
-
-    if (hasConflict && conflictStrategy === 'rename') {
-      conflictCount++;
-      slug = makeUniqueSlug(slug, existingSlugs);
-    }
-
-    try {
-      if (hasConflict && conflictStrategy === 'overwrite') {
-        conflictCount++;
-        const existing = await getLinkBySlug(c.env, slug);
-        if (!existing) {
-          failedCount++;
-          reportRows.push(`${item.slug},failed,conflicting link disappeared before overwrite`);
-          continue;
-        }
-
-        const fields = overwriteFieldsFromImportItem(item, existing, ts);
-        await deleteCachedLink(c.env, normalizeDomain(existing.domain) ?? domain, existing.slug);
-        await updateLink(c.env, existing.id, fields);
-        const overwritten = { ...existing, ...fields } as Link;
-        await ensureImportedTags(c.env, item, ts);
-        await syncImportCache(c.env, domain, overwritten);
-        const backupLinkId = backupLinkIdFromItem(item);
-        if (adapter.source === 'linkora-backup' && backupLinkId) {
-          linkIdByBackupId.set(backupLinkId, existing.id);
-          replaceRuleLinkIds.add(existing.id);
-        }
-        successCount++;
-        reportRows.push(`${item.slug},overwritten,slug already existed`);
-        continue;
-      }
-
-      const id = generateId();
-      const link = linkFromImportItem(item, id, slug, domain, ts);
-      await createLink(c.env, link);
-      await ensureImportedTags(c.env, item, link.updated_at);
-      await syncImportCache(c.env, domain, link);
-      const backupLinkId = backupLinkIdFromItem(item);
-      if (adapter.source === 'linkora-backup' && backupLinkId) {
-        linkIdByBackupId.set(backupLinkId, link.id);
-      }
-
-      successCount++;
-      existingSlugs.add(slug);
-      reportRows.push(slug === item.slug ? `${item.slug},success,` : `${item.slug},renamed,${slug}`);
-    } catch (err) {
-      failedCount++;
-      reportRows.push(`${item.slug},failed,"${String(err)}"`);
-    }
-  }
-
-  const redirectRulesRestored = await restoreBackupRedirectRules(
-    c.env,
-    backupRedirectRules,
-    linkIdByBackupId,
-    replaceRuleLinkIds,
-    ts
+  c.executionCtx.waitUntil(
+    runImportJob(c.env, jobId, adapter, items, parsedInput, domain, conflictStrategy, filename ?? null, ts)
   );
-
-  const completedAt = now();
-  await updateImportJob(c.env, jobId, {
-    success_count: successCount,
-    skipped_count: skippedCount,
-    conflict_count: conflictCount,
-    failed_count: failedCount,
-    status: 'completed',
-    report: reportRows.join('\n'),
-    completed_at: completedAt,
-  });
-  await recordAudit(c.env, c.req.raw, 'import.confirm', 'import', jobId, {
-    source: adapter.source,
-    total: items.length,
-    success: successCount,
-    skipped: skippedCount,
-    conflicts: conflictCount,
-    failed: failedCount,
-    conflictStrategy,
-    redirectRulesRestored,
-  });
-  c.executionCtx.waitUntil(emitWebhook(c.env, 'import.completed', {
-    jobId,
-    source: adapter.source,
-    total: items.length,
-    success: successCount,
-    skipped: skippedCount,
-    conflicts: conflictCount,
-    failed: failedCount,
-    conflictStrategy,
-    redirectRulesRestored,
-    completedAt,
-  }));
 
   return jsonOk({
     jobId,
+    status: 'processing',
     total: items.length,
-    success: successCount,
-    skipped: skippedCount,
-    conflicts: conflictCount,
-    failed: failedCount,
     conflictStrategy,
-    redirectRulesRestored,
-    completedAt,
   });
 });
 

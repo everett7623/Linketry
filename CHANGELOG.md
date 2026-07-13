@@ -13,6 +13,14 @@ _(none)_
 
 ---
 
+## [0.9.11] - 2026-07-13
+
+### Fixed
+
+- Fixed large Shlink imports failing with `AbortError` by moving import processing to an asynchronous job. The `POST /api/import/confirm` endpoint now returns immediately with a `processing` job ID; the Admin UI polls `/api/import/jobs/:id` until completion.
+
+---
+
 ## [0.9.10] - 2026-07-13
 
 ### Changed

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Upload,
   Download,
@@ -12,6 +12,7 @@ import {
   previewImport,
   confirmImport,
   listImportJobs,
+  getImportJob,
   exportLinksCSV,
   exportLinksJSON,
   exportVisitsCSV,
@@ -42,6 +43,7 @@ export function ImportExport() {
   const [preview, setPreview] = useState<Awaited<ReturnType<typeof previewImport>> | null>(null);
   const [previewing, setPreviewing] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [importJobId, setImportJobId] = useState<string | null>(null);
   const [jobs, setJobs] = useState<ImportJob[]>([]);
   const [jobsLoading, setJobsLoading] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
@@ -126,6 +128,45 @@ export function ImportExport() {
     }
   };
 
+  const finishImport = useCallback((job: ImportJob) => {
+    setImportJobId(null);
+    setConfirming(false);
+    success(
+      t('importComplete', {
+        success: job.success_count,
+        skipped: job.skipped_count,
+        failed: job.failed_count,
+      })
+    );
+    setPreview(null);
+    setContent('');
+    setFilename('');
+    if (fileRef.current) fileRef.current.value = '';
+    loadJobs();
+  }, [t]);
+
+  useEffect(() => {
+    if (!importJobId) return;
+
+    const interval = globalThis.setInterval(() => {
+      getImportJob(importJobId)
+        .then((job) => {
+          if (job.status === 'completed' || job.status === 'failed') {
+            globalThis.clearInterval(interval);
+            finishImport(job);
+          }
+        })
+        .catch((e) => {
+          globalThis.clearInterval(interval);
+          setImportJobId(null);
+          setConfirming(false);
+          error(String(e));
+        });
+    }, 2000);
+
+    return () => globalThis.clearInterval(interval);
+  }, [importJobId, finishImport]);
+
   const handleConfirm = async () => {
     if (!preview) return;
     if (!hasImportableLinks) {
@@ -142,21 +183,25 @@ export function ImportExport() {
         conflictStrategy,
         parseFieldMapping()
       );
-      success(
-        t('importComplete', {
-          success: result.success,
-          skipped: result.skipped,
-          failed: result.failed,
-        })
-      );
-      setPreview(null);
-      setContent('');
-      setFilename('');
-      if (fileRef.current) fileRef.current.value = '';
-      loadJobs();
+      if (result.status === 'completed') {
+        setConfirming(false);
+        success(
+          t('importComplete', {
+            success: result.success ?? 0,
+            skipped: result.skipped ?? 0,
+            failed: result.failed ?? 0,
+          })
+        );
+        setPreview(null);
+        setContent('');
+        setFilename('');
+        if (fileRef.current) fileRef.current.value = '';
+        loadJobs();
+        return;
+      }
+      setImportJobId(result.jobId);
     } catch (e) {
       error(String(e));
-    } finally {
       setConfirming(false);
     }
   };
@@ -294,10 +339,12 @@ export function ImportExport() {
               {t('preview')}
             </Button>
             {preview && (
-              <Button onClick={handleConfirm} loading={confirming} disabled={!hasImportableLinks}>
-                {hasImportableLinks
-                  ? t('importLinksCount', { count: importableCount })
-                  : t('noLinksToImport')}
+              <Button onClick={handleConfirm} loading={confirming} disabled={!hasImportableLinks || importJobId !== null}>
+                {importJobId
+                  ? t('importProcessing')
+                  : hasImportableLinks
+                    ? t('importLinksCount', { count: importableCount })
+                    : t('noLinksToImport')}
               </Button>
             )}
           </div>
