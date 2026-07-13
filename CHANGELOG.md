@@ -13,6 +13,18 @@ _(none)_
 
 ---
 
+## [0.9.9] - 2026-07-13
+
+### Added
+
+- GitHub Actions deploy workflow now automatically generates an `ADMIN_TOKEN` if one is not provided as a repository secret. The token is printed in the Actions log for the first login.
+
+### Changed
+
+- Updated self-hosting documentation to describe the automatic `ADMIN_TOKEN` setup behavior.
+
+---
+
 ## [0.9.8] - 2026-07-13
 
 ### Changed
