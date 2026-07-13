@@ -9,6 +9,7 @@ One item in "In Progress" at a time whenever possible.
 
 - [x] V9: Add OpenGraph preview cards for destination pages
 - [ ] V9+: Integrate next high-value Shlink capabilities into Linkora (multi-segment slugs, extra-path forwarding, expired-link cleanup)
+- [ ] Fix large Shlink import confirm timeout: move parsing into background job and extend frontend confirm timeout
 
 ---
 
