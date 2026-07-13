@@ -7,6 +7,7 @@ export interface BackupsList {
   items: Backup[];
   total: number;
   r2Configured: boolean;
+  retentionDays: number;
 }
 
 export interface BackupRestorePreview {

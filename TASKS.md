@@ -7,16 +7,37 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🔴 In Progress
 
-_(none currently)_
+- [x] V9: Add OpenGraph preview cards for destination pages
 
 ---
 
 ## 🟡 Next — Operations And UX Planning
 
-- [ ] V7: Add configurable backup retention, starting with a 30-day default
-- [ ] V7: Add periodic target health monitoring and failure alerts
-- [ ] V8: Add Simple / Advanced Admin mode toggle
-- [ ] V8: Add language switcher and i18n foundation, starting with English and Simplified Chinese
+- [x] V7: Add configurable backup retention, starting with a 30-day default
+- [x] V7: Add periodic target health monitoring, failure alerts, recovery alerts, and bounded status history
+- [x] V7: Add opt-in Cron target monitoring with a configurable 1-50 link batch
+- [x] V7: Send signed `health_check.failed` Webhook summaries for scheduled anomalies
+- [x] V8: Add Simple / Advanced Admin mode toggle
+- [x] V8: Add default-English language switcher and first i18n foundation for global/core Admin UI
+- [x] V8: Add required first-run deployment wizard for API, one domain, and the first short link
+- [x] V8: Localize Overview, Links basic workflow, Create Link basic workflow, and shared link statuses
+- [x] V8: Complete first EN/ZH pass for Edit Link, Import/Export, and Tags
+- [x] V8: Localize Import details, Links advanced filters/bulk actions, suggestions, and UTM builder
+- [x] V8: Complete first EN/ZH operations pass for Domains, Groups, and Health Checks
+- [x] V8: Localize Groups operations details, Health result headings, and Redirect Rules first pass
+- [x] V8: Localize Redirect Rules editor, Health statuses, and API Tokens first pass
+- [x] V8: Localize API Token dialogs and Backups first pass
+- [x] V8: Localize complete restore-preview and overwrite safety workflow
+- [x] V8: Localize Audit Logs and prepare Analytics observability messages
+- [x] V8: Localize Analytics filters, metrics, charts, visits, exports, and per-link analysis
+- [x] V8: Localize Bulk Create, Webhook controls, and complete reset safety workflow
+- [x] V8: Audit Admin i18n coverage and add catalog parity/interpolation tests
+- [x] V8: Localize public redirect/status templates with redirect regression coverage
+- [x] V8: Localize Audit Logs action filters, pagination, Analytics UTM labels, and locale-aware chart formatting
+- [x] V8: Add browser smoke tests for English and Simplified Chinese core workflows
+- [x] V8: Normalize Admin dates, numbers, status labels, QR labels, placeholders, and API scope labels by selected locale
+- [x] V8: Localize redirect rule types, health-check details, group confirmations, and import conflict previews
+- [x] V8: Localize remaining long-tail page content, validation wording, and export/report details
 - [ ] V9: Add public read-only stats pages with privacy controls
 - [ ] V9: Improve bot classification and conversion attribution
 
@@ -181,6 +202,7 @@ Deployment experience:
 ## 🟢 Completed — V1
 
 ### Project Setup
+
 - [x] Monorepo structure (`apps/worker`, `apps/admin`, `packages/shared`)
 - [x] Root `package.json` with workspaces
 - [x] `tsconfig.json` for all packages
@@ -189,6 +211,7 @@ Deployment experience:
 - [x] Git repository initialized and pushed to GitHub
 
 ### Backend — Worker
+
 - [x] `src/types.ts` — Env interface
 - [x] `src/utils/id.ts` — ID + slug generation
 - [x] `src/utils/response.ts` — JSON/HTML response helpers
@@ -208,6 +231,7 @@ Deployment experience:
 - [x] `src/index.ts` — Hono app entry point + route registration
 
 ### Frontend — Admin
+
 - [x] `package.json`, `vite.config.ts`, `tsconfig.json`, `tailwind.config.cjs`
 - [x] `index.html`, `src/main.tsx`, `src/App.tsx`, `src/index.css`
 - [x] `src/api/client.ts` — Base fetch + downloadFile
@@ -234,6 +258,7 @@ Deployment experience:
 - [x] `src/pages/Tags.tsx`
 
 ### Documentation
+
 - [x] `README.md`
 - [x] `DEPLOYMENT.md`
 - [x] `CUTOVER.md`
@@ -253,6 +278,7 @@ Deployment experience:
 - [x] `.env.example`
 
 ### Local Verification
+
 - [x] Ran `npm install` at repo root
 - [x] Worker type-check passes (`npm run type-check --workspace=apps/worker`)
 - [x] Admin production build passes (`npm run build --workspace=apps/admin`)
@@ -345,27 +371,29 @@ Deployment experience:
 - [x] Restore dry-run preview with conflict summary
 - [x] Pre-restore backup and restore report
 - [x] Factory reset with preview, confirmation phrase, pre-reset backup, and KV cache clearing
-- [ ] Configurable R2 backup retention with a 30-day default
-- [ ] Retention cleanup for old backup records and R2 objects
-- [ ] Periodic target health monitoring through Cron
-- [ ] Target status history with last status code, last checked time, and failure count
-- [ ] Target failure alerts through Admin notices and optional webhooks
-- [ ] Alert controls for retry windows, suppression, and recovery notifications
-- [ ] First-class `fallback_url` editing in Create/Edit Link
-- [ ] Custom 404, expired, disabled, and warning page templates
-- [ ] Operations dashboard for backup freshness, monitoring status, failed targets, queue health, and deployment health
-- [ ] Better bot classification for analytics and monitoring noise reduction
+- [x] Configurable R2 backup retention with a 30-day default
+- [x] Retention cleanup for old backup records and R2 objects
+- [x] Periodic target health monitoring through Cron
+- [x] Target status history with last status code, last checked time, and failure count
+- [x] Target failure alerts through Admin Operations notices and optional signed Webhooks
+- [x] Alert controls for consecutive-failure thresholds, suppression, and recovery Webhook notifications
+- [x] First-class `fallback_url` editing in Create/Edit Link
+- [x] Custom 404, expired, disabled, and warning page templates with escaped plain-text variables
+- [x] Operations dashboard for backup freshness, monitoring status, current failed targets, queue configuration, and deployment health
+- [x] Better bot classification for analytics and monitoring noise reduction
 
 ## 🔵 Backlog — V8 Usability Modes And Internationalization
 
-- [ ] Simple / Advanced Admin mode toggle
-- [ ] Simple mode hides advanced navigation and dense operator controls
-- [ ] Advanced mode exposes Redirect Rules, Webhooks, API Tokens, advanced Analytics filters, backups internals, and bulk tooling
+- [x] Simple / Advanced Admin mode toggle
+- [x] Simple mode hides advanced navigation and Settings operator panels
+- [x] Hide advanced controls inside link forms and the Links table when Simple mode is active
+- [x] Advanced mode exposes Redirect Rules, Webhooks, API Tokens, advanced Analytics filters, backups internals, and bulk tooling
+- [x] Advanced Setup reports R2, Queue, and multi-domain runtime capabilities
 - [ ] Instance-level feature visibility settings for optional modules
 - [ ] Per-browser or per-admin preferences for sidebar density, table density, and advanced panels
-- [ ] First-run setup wizard for new self-hosters
-- [ ] Language switcher with English and Simplified Chinese first
-- [ ] i18n foundation for labels, navigation, validation messages, empty states, errors, and documentation links
+- [x] Required first-run setup wizard for new self-hosters
+- [x] Language switcher with English as default and Simplified Chinese as an option
+- [ ] Complete i18n coverage for remaining labels, validation messages, empty states, errors, and documentation links
 - [ ] Locale-aware date, time zone, number, and CSV/export formatting settings
 - [ ] Contextual help text for advanced fields only when advanced mode is enabled
 
@@ -373,12 +401,12 @@ Deployment experience:
 
 - [ ] Bulk replace destination URLs with preview and rollback guidance
 - [ ] Bulk append or normalize UTM parameters
-- [ ] Saved UTM templates and campaign presets
-- [ ] Link notes and affiliate/internal notes
-- [ ] OpenGraph preview cards for destination pages
-- [ ] Public read-only stats pages with privacy controls, share tokens, and per-link enablement
-- [ ] Scheduled analytics report exports
-- [ ] Saved Analytics filters and reusable report views
+- [x] Saved UTM templates and campaign presets
+- [x] Link notes and affiliate/internal notes
+- [x] OpenGraph preview cards for destination pages
+- [x] Public read-only stats pages with privacy controls, hashed share tokens, and per-link enablement
+- [x] Scheduled analytics report exports
+- [x] Saved Analytics filters and reusable report views
 - [ ] Privacy-safe session or visitor-level conversion attribution
 - [ ] Additional conversion attribution fields, such as external campaign IDs and client-provided visitor IDs
 - [ ] Long-idle auto-archive rules with review queue and dry-run mode

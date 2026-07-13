@@ -905,6 +905,19 @@ export async function getBackupById(env: Env, id: string): Promise<Backup | null
   return result ?? null;
 }
 
+export async function listBackupsBefore(env: Env, cutoff: string): Promise<Backup[]> {
+  const result = await env.DB.prepare(
+    'SELECT * FROM backups WHERE created_at < ? ORDER BY created_at ASC LIMIT 1000'
+  )
+    .bind(cutoff)
+    .all<Backup>();
+  return result.results ?? [];
+}
+
+export async function deleteBackupRecord(env: Env, id: string): Promise<void> {
+  await env.DB.prepare('DELETE FROM backups WHERE id = ?').bind(id).run();
+}
+
 export async function listApiTokens(env: Env): Promise<ApiToken[]> {
   const result = await env.DB.prepare(
     'SELECT id, name, scopes, last_used_at, created_at, revoked_at FROM api_tokens ORDER BY created_at DESC'

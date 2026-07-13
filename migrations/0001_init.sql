@@ -155,4 +155,9 @@ CREATE TABLE IF NOT EXISTS redirect_rules (
 INSERT OR IGNORE INTO settings (key, value, updated_at) VALUES
   ('default_redirect_type', '302', datetime('now')),
   ('default_domain', '', datetime('now')),
-  ('site_name', 'Linkora', datetime('now'));
+  ('site_name', 'Linkora', datetime('now')),
+  ('backup_retention_days', '30', datetime('now')),
+  ('health_monitoring_enabled', 'false', datetime('now')),
+  ('health_monitoring_limit', '20', datetime('now')),
+  ('health_failure_threshold', '2', datetime('now')),
+  ('health_alert_suppression_minutes', '1440', datetime('now'));

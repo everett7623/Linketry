@@ -9,10 +9,23 @@ import type {
 import { validateLongUrl } from '@linkora/shared';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
-import { getLinkById, getLinksByIds, listLinks } from '../db/index';
+import { getLinkById, getLinksByIds, getSettings, listLinks, setSetting } from '../db/index';
 import { recordAudit } from '../audit/index';
 import { now } from '../utils/id';
 import { jsonError, jsonOk } from '../utils/response';
+import { emitWebhook } from '../webhooks/index';
+import {
+  normalizeHealthMonitoringLimit,
+  parseHealthMonitoringEnabled,
+} from '../health/monitoringPolicy';
+import {
+  evaluateHealthAlerts,
+  normalizeFailureThreshold,
+  normalizeSuppressionMinutes,
+  parseHealthAlertState,
+} from '../health/alertPolicy';
+import { buildHealthAlertStatus } from '../health/alertStatus';
+import { appendHealthHistory, parseHealthHistory } from '../health/history';
 
 const healthChecks = new Hono<{ Bindings: Env }>();
 
@@ -24,6 +37,28 @@ healthChecks.use('*', async (c, next) => {
   const authError = await requireAuth(c);
   if (authError) return authError;
   await next();
+});
+
+healthChecks.get('/alerts', async (c) => {
+  const settings = await getSettings(c.env);
+  const state = parseHealthAlertState(settings.health_alert_state);
+  const ids = Object.keys(state.failures);
+  const links = ids.length > 0 ? await getLinksByIds(c.env, ids) : [];
+  return jsonOk(buildHealthAlertStatus(state, links));
+});
+
+healthChecks.get('/history', async (c) => {
+  const settings = await getSettings(c.env);
+  const history = parseHealthHistory(settings.health_check_history);
+  const ids = [...new Set(history.map((item) => item.link_id))];
+  const links = ids.length > 0 ? await getLinksByIds(c.env, ids) : [];
+  const linkById = new Map(links.map((link) => [link.id, link]));
+  return jsonOk({
+    items: history.map((item) => {
+      const link = linkById.get(item.link_id);
+      return { ...item, slug: link?.slug ?? null, domain: link?.domain ?? null };
+    }),
+  });
 });
 
 healthChecks.post('/url', async (c) => {
@@ -105,6 +140,70 @@ function parseLimit(value: unknown): number | null {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed < 1 || parsed > MAX_BATCH_SIZE) return null;
   return parsed;
+}
+
+export async function runScheduledHealthChecks(env: Env): Promise<LinkHealthBatchResult | null> {
+  const settings = await getSettings(env);
+  if (!parseHealthMonitoringEnabled(settings.health_monitoring_enabled)) return null;
+
+  const limit = normalizeHealthMonitoringLimit(settings.health_monitoring_limit);
+  const cursor = Math.max(0, Number.parseInt(settings.health_monitoring_cursor ?? '0', 10) || 0);
+  const links = await listLinks(env, {
+    status: 'active',
+    page: Math.floor(cursor / limit) + 1,
+    pageSize: limit,
+    sort: 'updated_at_asc',
+  });
+  const results: LinkHealthCheckResult[] = [];
+
+  for (let offset = 0; offset < links.items.length; offset += 5) {
+    results.push(...(await Promise.all(links.items.slice(offset, offset + 5).map(checkLink))));
+  }
+
+  const summary = summarizeResults(results);
+  const evaluatedAt = now();
+  const decision = evaluateHealthAlerts(
+    results.flatMap((item) => (item.link_id ? [item.link_id] : [])),
+    results.flatMap((item) =>
+      item.link_id && item.status !== 'healthy' ? [item.link_id] : []
+    ),
+    parseHealthAlertState(settings.health_alert_state),
+    normalizeFailureThreshold(settings.health_failure_threshold),
+    normalizeSuppressionMinutes(settings.health_alert_suppression_minutes),
+    evaluatedAt
+  );
+
+  if (decision.notifyFailure) {
+    await emitWebhook(env, 'health_check.failed', {
+      trigger: 'scheduled',
+      summary,
+      newlyFailed: decision.newlyFailed,
+    });
+  }
+  if (decision.recovered.length > 0) {
+    await emitWebhook(env, 'health_check.recovered', {
+      trigger: 'scheduled',
+      recovered: decision.recovered,
+    });
+  }
+  const nextCursor = links.total > 0 ? (cursor + links.items.length) % links.total : 0;
+  await Promise.all([
+    setSetting(env, 'health_alert_state', JSON.stringify(decision.nextState), evaluatedAt),
+    setSetting(
+      env,
+      'health_check_history',
+      JSON.stringify(
+        appendHealthHistory(
+          parseHealthHistory(settings.health_check_history),
+          results,
+          decision.nextState.failures
+        )
+      ),
+      evaluatedAt
+    ),
+    setSetting(env, 'health_monitoring_cursor', String(nextCursor), evaluatedAt),
+  ]);
+  return summary;
 }
 
 async function checkLink(link: Link): Promise<LinkHealthCheckResult> {

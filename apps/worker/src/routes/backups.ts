@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
-import { getBackupById, listBackups } from '../db/index';
+import { getBackupById, getSettings, listBackups } from '../db/index';
 import { backupDownloadName, createR2Backup } from '../backups/index';
 import {
   parseRestoreConflictStrategy,
@@ -11,6 +11,7 @@ import {
 import { recordAudit } from '../audit/index';
 import { emitWebhook } from '../webhooks/index';
 import { jsonError, jsonOk } from '../utils/response';
+import { normalizeBackupRetentionDays } from '../backups/retentionPolicy';
 
 const backupRoutes = new Hono<{ Bindings: Env }>();
 const MAX_ONE_CLICK_RESTORE_BYTES = 25 * 1024 * 1024;
@@ -22,11 +23,12 @@ backupRoutes.use('*', async (c, next) => {
 });
 
 backupRoutes.get('/', async (c) => {
-  const items = await listBackups(c.env);
+  const [items, settings] = await Promise.all([listBackups(c.env), getSettings(c.env)]);
   return jsonOk({
     items,
     total: items.length,
     r2Configured: Boolean(c.env.BACKUPS),
+    retentionDays: normalizeBackupRetentionDays(settings.backup_retention_days),
   });
 });
 

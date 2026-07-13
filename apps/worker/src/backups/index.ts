@@ -1,6 +1,12 @@
 import { LINKORA_VERSION, type Backup } from '@linkora/shared';
 import type { Env } from '../types';
-import { createBackupRecord, getAllLinks, getAllRedirectRules, getAllTags, getSettings } from '../db/index';
+import {
+  createBackupRecord,
+  getAllLinks,
+  getAllRedirectRules,
+  getAllTags,
+  getSettings,
+} from '../db/index';
 import { generateId, now } from '../utils/id';
 
 export interface LinkoraBackupPayload {
@@ -100,5 +106,10 @@ function redactBackupSettings(settings: Record<string, string>): Record<string, 
   if ('webhook_secret' in redacted) {
     redacted.webhook_secret = '';
   }
+  delete redacted.health_alert_state;
+  delete redacted.health_check_history;
+  delete redacted.public_stats_shares;
+  delete redacted.health_monitoring_cursor;
+  delete redacted.analytics_report_records;
   return redacted;
 }

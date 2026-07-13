@@ -6,15 +6,17 @@ import { Input } from '../components/ui/Input';
 import { ConfirmDialog, Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import type { ApiToken, ApiTokenScope } from '@linkora/shared';
-import dayjs from 'dayjs';
+import { useLocale } from '../contexts/LocaleContext';
+import type { MessageKey } from '../i18n/messages';
 
-const SCOPE_OPTIONS: Array<{ value: ApiTokenScope; label: string }> = [
-  { value: 'read', label: 'Read' },
-  { value: 'write', label: 'Write' },
-  { value: 'admin', label: 'Admin' },
+const SCOPE_OPTIONS: Array<{ value: ApiTokenScope; labelKey: MessageKey }> = [
+  { value: 'read', labelKey: 'readScope' },
+  { value: 'write', labelKey: 'writeScope' },
+  { value: 'admin', labelKey: 'adminScope' },
 ];
 
 function ScopePills({ scopes }: { scopes: ApiTokenScope[] }) {
+  const { t } = useLocale();
   return (
     <div className="flex flex-wrap gap-1.5">
       {scopes.map((scope) => (
@@ -22,7 +24,7 @@ function ScopePills({ scopes }: { scopes: ApiTokenScope[] }) {
           key={scope}
           className="rounded-full bg-brand-500/10 px-2 py-0.5 text-xs font-medium text-brand-300"
         >
-          {scope}
+          {t(`${scope}Scope` as MessageKey)}
         </span>
       ))}
     </div>
@@ -31,6 +33,7 @@ function ScopePills({ scopes }: { scopes: ApiTokenScope[] }) {
 
 export function ApiTokens() {
   const { success, error } = useToast();
+  const { locale, t } = useLocale();
   const [tokens, setTokens] = useState<ApiToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -40,19 +43,28 @@ export function ApiTokens() {
   const [newToken, setNewToken] = useState<string | null>(null);
   const [revokeTarget, setRevokeTarget] = useState<ApiToken | null>(null);
   const [revoking, setRevoking] = useState(false);
+  const dateFormatter = new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       setTokens(await listApiTokens());
     } catch {
-      error('Failed to load API tokens');
+      error(t('tokensLoadFailed'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [error, t]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const activeCount = tokens.filter((token) => !token.revoked_at).length;
 
@@ -69,7 +81,7 @@ export function ApiTokens() {
 
   const handleCreate = async () => {
     if (!name.trim()) {
-      error('Name is required');
+      error(t('nameRequired'));
       return;
     }
 
@@ -80,7 +92,7 @@ export function ApiTokens() {
       setName('');
       setScopes(['read']);
       setCreateOpen(false);
-      success('API token created');
+      success(t('tokenCreated'));
       await load();
     } catch (e) {
       error(String(e));
@@ -94,7 +106,7 @@ export function ApiTokens() {
     setRevoking(true);
     try {
       await revokeApiToken(revokeTarget.id);
-      success('API token revoked');
+      success(t('tokenRevoked'));
       setRevokeTarget(null);
       await load();
     } catch (e) {
@@ -107,45 +119,51 @@ export function ApiTokens() {
   const copyNewToken = async () => {
     if (!newToken) return;
     await navigator.clipboard.writeText(newToken);
-    success('Token copied');
+    success(t('tokenCopied'));
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">API Tokens</h1>
-          <p className="text-sm text-slate-400 mt-0.5">{activeCount.toLocaleString()} active tokens</p>
+          <h1 className="text-2xl font-bold text-slate-100">{t('apiTokens')}</h1>
+          <p className="text-sm text-slate-400 mt-0.5">
+            {t('activeTokens', { count: activeCount.toLocaleString(locale) })}
+          </p>
         </div>
         <Button icon={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
-          Create Token
+          {t('createToken')}
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Active</span>
+            <span className="text-sm text-slate-400">{t('activeStatus')}</span>
             <KeyRound size={17} className="text-brand-400" />
           </div>
-          <div className="mt-3 text-2xl font-bold text-slate-100">{activeCount.toLocaleString()}</div>
+          <div className="mt-3 text-2xl font-bold text-slate-100">
+            {activeCount.toLocaleString(locale)}
+          </div>
         </div>
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Admin Tokens</span>
+            <span className="text-sm text-slate-400">{t('adminTokens')}</span>
             <ShieldCheck size={17} className="text-emerald-400" />
           </div>
           <div className="mt-3 text-2xl font-bold text-slate-100">
-            {tokens.filter((token) => !token.revoked_at && token.scopes.includes('admin')).length.toLocaleString()}
+            {tokens
+              .filter((token) => !token.revoked_at && token.scopes.includes('admin'))
+              .length.toLocaleString(locale)}
           </div>
         </div>
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Revoked</span>
+            <span className="text-sm text-slate-400">{t('revoked')}</span>
             <Trash2 size={17} className="text-red-400" />
           </div>
           <div className="mt-3 text-2xl font-bold text-slate-100">
-            {tokens.filter((token) => token.revoked_at).length.toLocaleString()}
+            {tokens.filter((token) => token.revoked_at).length.toLocaleString(locale)}
           </div>
         </div>
       </div>
@@ -156,36 +174,46 @@ export function ApiTokens() {
             <div className="animate-spin w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full" />
           </div>
         ) : tokens.length === 0 ? (
-          <div className="flex items-center justify-center h-48 text-slate-400">No API tokens yet</div>
+          <div className="flex items-center justify-center h-48 text-slate-400">
+            {t('noTokens')}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-800 text-xs text-slate-500 uppercase tracking-wider">
-                  <th className="text-left px-4 py-3">Name</th>
-                  <th className="text-left px-4 py-3">Scopes</th>
-                  <th className="text-left px-4 py-3">Created</th>
-                  <th className="text-left px-4 py-3">Last Used</th>
-                  <th className="text-left px-4 py-3">Status</th>
-                  <th className="text-right px-4 py-3">Action</th>
+                  <th className="text-left px-4 py-3">{t('name')}</th>
+                  <th className="text-left px-4 py-3">{t('scopes')}</th>
+                  <th className="text-left px-4 py-3">{t('created')}</th>
+                  <th className="text-left px-4 py-3">{t('lastUsed')}</th>
+                  <th className="text-left px-4 py-3">{t('status')}</th>
+                  <th className="text-right px-4 py-3">{t('action')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800">
                 {tokens.map((token) => (
                   <tr key={token.id} className="hover:bg-slate-800/50 transition-colors">
                     <td className="px-4 py-3 font-medium text-slate-200">{token.name}</td>
-                    <td className="px-4 py-3"><ScopePills scopes={token.scopes} /></td>
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">
-                      {dayjs(token.created_at).format('YYYY-MM-DD HH:mm')}
+                    <td className="px-4 py-3">
+                      <ScopePills scopes={token.scopes} />
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">
-                      {token.last_used_at ? dayjs(token.last_used_at).format('YYYY-MM-DD HH:mm') : '-'}
+                      {dateFormatter.format(new Date(token.created_at))}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">
+                      {token.last_used_at
+                        ? dateFormatter.format(new Date(token.last_used_at))
+                        : '-'}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        token.revoked_at ? 'bg-red-500/15 text-red-400' : 'bg-emerald-500/15 text-emerald-400'
-                      }`}>
-                        {token.revoked_at ? 'revoked' : 'active'}
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          token.revoked_at
+                            ? 'bg-red-500/15 text-red-400'
+                            : 'bg-emerald-500/15 text-emerald-400'
+                        }`}
+                      >
+                        {token.revoked_at ? t('revoked') : t('activeStatus')}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -196,7 +224,7 @@ export function ApiTokens() {
                         disabled={!!token.revoked_at}
                         onClick={() => setRevokeTarget(token)}
                       >
-                        Revoke
+                        {t('revoke')}
                       </Button>
                     </td>
                   </tr>
@@ -207,17 +235,22 @@ export function ApiTokens() {
         )}
       </div>
 
-      <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="Create API Token" size="md">
+      <Modal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        title={t('createApiToken')}
+        size="md"
+      >
         <div className="space-y-5">
           <Input
-            label="Name"
+            label={t('name')}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Automation, backup script, reporting"
+            placeholder={t('automationPlaceholder')}
           />
 
           <div>
-            <label className="text-sm font-medium text-slate-300">Scopes</label>
+            <label className="text-sm font-medium text-slate-300">{t('scopes')}</label>
             <div className="mt-2 grid gap-2 sm:grid-cols-3">
               {SCOPE_OPTIONS.map((option) => {
                 const checked = scopes.includes(option.value);
@@ -230,9 +263,9 @@ export function ApiTokens() {
                       checked
                         ? 'border-brand-500 bg-brand-500/10 text-brand-200'
                         : 'border-slate-700 bg-slate-950 text-slate-400 hover:border-slate-600'
-                    }`}
+                      }`}
                   >
-                    {option.label}
+                    {t(option.labelKey)}
                     {checked && <Check size={14} />}
                   </button>
                 );
@@ -242,25 +275,25 @@ export function ApiTokens() {
 
           <div className="flex justify-end gap-3">
             <Button variant="secondary" onClick={() => setCreateOpen(false)} disabled={creating}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button onClick={handleCreate} loading={creating}>
-              Create
+              {t('create')}
             </Button>
           </div>
         </div>
       </Modal>
 
-      <Modal open={!!newToken} onClose={() => setNewToken(null)} title="New API Token" size="lg">
+      <Modal open={!!newToken} onClose={() => setNewToken(null)} title={t('newApiToken')} size="lg">
         <div className="space-y-4">
           <div className="rounded-lg border border-slate-700 bg-slate-950 p-3">
             <p className="break-all font-mono text-sm text-slate-200">{newToken}</p>
           </div>
           <div className="flex justify-end gap-3">
             <Button variant="secondary" icon={<Copy size={14} />} onClick={copyNewToken}>
-              Copy
+              {t('copyAction')}
             </Button>
-            <Button onClick={() => setNewToken(null)}>Done</Button>
+            <Button onClick={() => setNewToken(null)}>{t('done')}</Button>
           </div>
         </div>
       </Modal>
@@ -269,9 +302,9 @@ export function ApiTokens() {
         open={!!revokeTarget}
         onClose={() => setRevokeTarget(null)}
         onConfirm={handleRevoke}
-        title="Revoke API Token"
-        message={`Revoke "${revokeTarget?.name ?? ''}"? Existing requests using this token will stop working.`}
-        confirmLabel="Revoke"
+        title={t('revokeToken')}
+        message={t('revokeTokenConfirm', { name: revokeTarget?.name ?? '' })}
+        confirmLabel={t('revoke')}
         loading={revoking}
       />
     </div>

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Edit2, Plus, RefreshCw, Shuffle, Trash2 } from 'lucide-react';
-import dayjs from 'dayjs';
 import type {
   Link as LinkType,
   RedirectRule,
@@ -21,6 +20,7 @@ import { Button } from '../components/ui/Button';
 import { Input, Select, Textarea } from '../components/ui/Input';
 import { ConfirmDialog, Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
+import { useLocale } from '../contexts/LocaleContext';
 
 interface RuleForm {
   link_id: string;
@@ -42,14 +42,14 @@ const EMPTY_FORM: RuleForm = {
   targetsText: '',
 };
 
-const RULE_TYPES: Array<{ value: RedirectRuleType; label: string }> = [
-  { value: 'country', label: 'Country' },
-  { value: 'device', label: 'Device' },
-  { value: 'browser', label: 'Browser' },
-  { value: 'referer', label: 'Referer' },
-  { value: 'language', label: 'Language' },
-  { value: 'weighted', label: 'Weighted / A-B' },
-];
+const RULE_TYPES = [
+  { value: 'country', labelKey: 'countryRule' },
+  { value: 'device', labelKey: 'deviceRule' },
+  { value: 'browser', labelKey: 'browserRule' },
+  { value: 'referer', labelKey: 'refererRule' },
+  { value: 'language', labelKey: 'languageRule' },
+  { value: 'weighted', labelKey: 'weightedRule' },
+] as const satisfies ReadonlyArray<{ value: RedirectRuleType; labelKey: string }>;
 
 const TYPE_BADGES: Record<RedirectRuleType, 'blue' | 'green' | 'gray' | 'purple' | 'yellow'> = {
   country: 'blue',
@@ -63,7 +63,7 @@ const TYPE_BADGES: Record<RedirectRuleType, 'blue' | 'green' | 'gray' | 'purple'
 function parseConfig(rule: RedirectRule): RedirectRuleConfig {
   try {
     const parsed = JSON.parse(rule.rule_config) as unknown;
-    return typeof parsed === 'object' && parsed !== null ? parsed as RedirectRuleConfig : {};
+    return typeof parsed === 'object' && parsed !== null ? (parsed as RedirectRuleConfig) : {};
   } catch {
     return {};
   }
@@ -79,17 +79,22 @@ function isHttpUrl(value: string): boolean {
 }
 
 function splitValues(value: string): string[] {
-  return [...new Set(
-    value
-      .split(/[\n,]/)
-      .map((item) => item.trim().toLowerCase())
-      .filter(Boolean)
-  )];
+  return [
+    ...new Set(
+      value
+        .split(/[\n,]/)
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean)
+    ),
+  ];
 }
 
 function parseTargetsText(value: string): RedirectRuleTarget[] | null {
   const targets: RedirectRuleTarget[] = [];
-  const lines = value.split('\n').map((line) => line.trim()).filter(Boolean);
+  const lines = value
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   for (const line of lines) {
     const delimiter = line.includes('|') ? '|' : ',';
@@ -104,20 +109,14 @@ function parseTargetsText(value: string): RedirectRuleTarget[] | null {
   return targets.length > 0 ? targets : null;
 }
 
-function formatLink(link?: LinkType): string {
-  if (!link) return 'Unknown link';
+function formatLink(link: LinkType | undefined, fallback: string): string {
+  if (!link) return fallback;
   return `${link.domain ? `${link.domain}/` : '/'}${link.slug}`;
-}
-
-function formatRuleType(type: RedirectRuleType): string {
-  return RULE_TYPES.find((item) => item.value === type)?.label ?? type;
 }
 
 function formatTargets(targets: RedirectRuleTarget[] | undefined): string {
   if (!targets || targets.length === 0) return '-';
-  return targets
-    .map((target) => `${target.weight ?? 1} -> ${target.url}`)
-    .join(' | ');
+  return targets.map((target) => `${target.weight ?? 1} -> ${target.url}`).join(' | ');
 }
 
 function valuesText(config: RedirectRuleConfig): string {
@@ -126,6 +125,7 @@ function valuesText(config: RedirectRuleConfig): string {
 
 export function RedirectRules() {
   const { success, error } = useToast();
+  const { locale, t } = useLocale();
   const [rules, setRules] = useState<RedirectRule[]>([]);
   const [links, setLinks] = useState<LinkType[]>([]);
   const [selectedLinkId, setSelectedLinkId] = useState('');
@@ -135,8 +135,19 @@ export function RedirectRules() {
   const [editing, setEditing] = useState<RedirectRule | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<RedirectRule | null>(null);
   const [form, setForm] = useState<RuleForm>(EMPTY_FORM);
+  const dateFormatter = new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   const linkById = useMemo(() => new Map(links.map((link) => [link.id, link])), [links]);
+  const formatRuleType = (type: RedirectRuleType) => {
+    const ruleType = RULE_TYPES.find((item) => item.value === type);
+    return ruleType ? t(ruleType.labelKey) : type;
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -148,13 +159,15 @@ export function RedirectRules() {
       setLinks(linksResult.items);
       setRules(rulesResult.items);
     } catch {
-      error('Failed to load redirect rules');
+      error(t('rulesLoadFailed'));
     } finally {
       setLoading(false);
     }
-  }, [selectedLinkId]);
+  }, [error, selectedLinkId, t]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const enabledCount = rules.filter((rule) => parseConfig(rule).enabled !== false).length;
   const weightedCount = rules.filter((rule) => rule.rule_type === 'weighted').length;
@@ -195,20 +208,20 @@ export function RedirectRules() {
 
   const buildPayload = (): RedirectRulePayload | null => {
     if (!form.link_id) {
-      error('Link is required');
+      error(t('linkRequired'));
       return null;
     }
 
     const priority = Number(form.priority);
     if (!Number.isInteger(priority) || priority < 0) {
-      error('Priority must be a non-negative integer');
+      error(t('invalidPriority'));
       return null;
     }
 
     if (form.rule_type === 'weighted') {
       const targets = parseTargetsText(form.targetsText);
       if (!targets) {
-        error('Targets must use valid URLs and positive weights');
+        error(t('invalidTargets'));
         return null;
       }
       return {
@@ -222,11 +235,11 @@ export function RedirectRules() {
 
     const values = splitValues(form.values);
     if (values.length === 0) {
-      error('Match values are required');
+      error(t('matchRequired'));
       return null;
     }
     if (!isHttpUrl(form.targetUrl.trim())) {
-      error('Target URL must be http or https');
+      error(t('invalidTargetUrl'));
       return null;
     }
 
@@ -248,10 +261,10 @@ export function RedirectRules() {
     try {
       if (editing) {
         await updateRedirectRule(editing.id, payload);
-        success('Redirect rule updated');
+        success(t('ruleUpdated'));
       } else {
         await createRedirectRule(payload);
-        success('Redirect rule created');
+        success(t('ruleCreated'));
       }
       closeModal();
       await load();
@@ -267,7 +280,7 @@ export function RedirectRules() {
     setSaving(true);
     try {
       await deleteRedirectRule(deleteTarget.id);
-      success('Redirect rule deleted');
+      success(t('ruleDeleted'));
       setDeleteTarget(null);
       await load();
     } catch (e) {
@@ -281,17 +294,25 @@ export function RedirectRules() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Redirect Rules</h1>
+          <h1 className="text-2xl font-bold text-slate-100">{t('redirectRules')}</h1>
           <p className="mt-0.5 text-sm text-slate-400">
-            {rules.length.toLocaleString()} rules · {enabledCount.toLocaleString()} enabled
+            {t('rulesSummary', {
+              total: rules.length.toLocaleString(locale),
+              enabled: enabledCount.toLocaleString(locale),
+            })}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" icon={<RefreshCw size={15} />} onClick={load} disabled={loading || saving}>
-            Refresh
+          <Button
+            variant="secondary"
+            icon={<RefreshCw size={15} />}
+            onClick={load}
+            disabled={loading || saving}
+          >
+            {t('refresh')}
           </Button>
           <Button icon={<Plus size={15} />} onClick={openCreate} disabled={links.length === 0}>
-            Add Rule
+            {t('addRule')}
           </Button>
         </div>
       </div>
@@ -299,38 +320,44 @@ export function RedirectRules() {
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Enabled</span>
+            <span className="text-sm text-slate-400">{t('enabled')}</span>
             <Shuffle size={17} className="text-brand-400" />
           </div>
-          <div className="mt-3 text-2xl font-bold text-slate-100">{enabledCount.toLocaleString()}</div>
+          <div className="mt-3 text-2xl font-bold text-slate-100">
+            {enabledCount.toLocaleString(locale)}
+          </div>
         </div>
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Weighted</span>
+            <span className="text-sm text-slate-400">{t('weighted')}</span>
             <Shuffle size={17} className="text-emerald-400" />
           </div>
-          <div className="mt-3 text-2xl font-bold text-slate-100">{weightedCount.toLocaleString()}</div>
+          <div className="mt-3 text-2xl font-bold text-slate-100">
+            {weightedCount.toLocaleString(locale)}
+          </div>
         </div>
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Types</span>
+            <span className="text-sm text-slate-400">{t('types')}</span>
             <Shuffle size={17} className="text-yellow-400" />
           </div>
-          <div className="mt-3 text-2xl font-bold text-slate-100">{ruleTypesInUse.toLocaleString()}</div>
+          <div className="mt-3 text-2xl font-bold text-slate-100">
+            {ruleTypesInUse.toLocaleString(locale)}
+          </div>
         </div>
       </div>
 
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
         <div className="max-w-xl">
           <Select
-            label="Link"
+            label={t('links')}
             value={selectedLinkId}
             onChange={(e) => setSelectedLinkId(e.target.value)}
           >
-            <option value="">All links</option>
+            <option value="">{t('allLinks')}</option>
             {links.map((link) => (
               <option key={link.id} value={link.id}>
-                {formatLink(link)}
+                {formatLink(link, t('unknownLink'))}
               </option>
             ))}
           </Select>
@@ -344,9 +371,14 @@ export function RedirectRules() {
           </div>
         ) : rules.length === 0 ? (
           <div className="flex h-48 flex-col items-center justify-center gap-3">
-            <p className="text-slate-400">No redirect rules yet</p>
-            <Button size="sm" icon={<Plus size={14} />} onClick={openCreate} disabled={links.length === 0}>
-              Add Rule
+            <p className="text-slate-400">{t('noRules')}</p>
+            <Button
+              size="sm"
+              icon={<Plus size={14} />}
+              onClick={openCreate}
+              disabled={links.length === 0}
+            >
+              {t('addRule')}
             </Button>
           </div>
         ) : (
@@ -354,14 +386,14 @@ export function RedirectRules() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3 text-left">Link</th>
-                  <th className="px-4 py-3 text-left">Type</th>
-                  <th className="px-4 py-3 text-left">Match</th>
-                  <th className="px-4 py-3 text-left">Target</th>
-                  <th className="px-4 py-3 text-right">Priority</th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-left">Updated</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="px-4 py-3 text-left">{t('links')}</th>
+                  <th className="px-4 py-3 text-left">{t('type')}</th>
+                  <th className="px-4 py-3 text-left">{t('match')}</th>
+                  <th className="px-4 py-3 text-left">{t('target')}</th>
+                  <th className="px-4 py-3 text-right">{t('priority')}</th>
+                  <th className="px-4 py-3 text-left">{t('status')}</th>
+                  <th className="px-4 py-3 text-left">{t('updated')}</th>
+                  <th className="px-4 py-3 text-right">{t('actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800">
@@ -371,7 +403,9 @@ export function RedirectRules() {
                   return (
                     <tr key={rule.id} className="transition-colors hover:bg-slate-800/50">
                       <td className="whitespace-nowrap px-4 py-3">
-                        <span className="font-mono text-brand-400">{formatLink(linkById.get(rule.link_id))}</span>
+                        <span className="font-mono text-brand-400">
+                          {formatLink(linkById.get(rule.link_id), t('unknownLink'))}
+                        </span>
                       </td>
                       <td className="px-4 py-3">
                         <Badge variant={TYPE_BADGES[rule.rule_type]}>
@@ -379,30 +413,43 @@ export function RedirectRules() {
                         </Badge>
                       </td>
                       <td className="max-w-xs px-4 py-3">
-                        <p className="truncate text-slate-300" title={rule.rule_type === 'weighted' ? 'weighted' : valuesText(config)}>
-                          {rule.rule_type === 'weighted' ? 'weighted' : valuesText(config)}
+                        <p
+                          className="truncate text-slate-300"
+                          title={rule.rule_type === 'weighted' ? t('weighted') : valuesText(config)}
+                        >
+                          {rule.rule_type === 'weighted' ? t('weighted') : valuesText(config)}
                         </p>
                       </td>
                       <td className="max-w-md px-4 py-3">
                         <p
                           className="truncate text-slate-400"
-                          title={rule.rule_type === 'weighted' ? formatTargets(config.targets) : config.targetUrl ?? '-'}
+                          title={
+                            rule.rule_type === 'weighted'
+                              ? formatTargets(config.targets)
+                              : (config.targetUrl ?? '-')
+                          }
                         >
-                          {rule.rule_type === 'weighted' ? formatTargets(config.targets) : config.targetUrl ?? '-'}
+                          {rule.rule_type === 'weighted'
+                            ? formatTargets(config.targets)
+                            : (config.targetUrl ?? '-')}
                         </p>
                       </td>
-                      <td className="px-4 py-3 text-right font-medium text-slate-300">{rule.priority}</td>
+                      <td className="px-4 py-3 text-right font-medium text-slate-300">
+                        {rule.priority}
+                      </td>
                       <td className="px-4 py-3">
-                        <Badge variant={enabled ? 'green' : 'gray'}>{enabled ? 'enabled' : 'disabled'}</Badge>
+                        <Badge variant={enabled ? 'green' : 'gray'}>
+                          {enabled ? t('enabled') : t('disabledStatus')}
+                        </Badge>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">
-                        {dayjs(rule.updated_at).format('YYYY-MM-DD HH:mm')}
+                        {dateFormatter.format(new Date(rule.updated_at))}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
                           <button
                             type="button"
-                            title="Edit"
+                            title={t('edit')}
                             onClick={() => openEdit(rule)}
                             className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-300"
                           >
@@ -410,7 +457,7 @@ export function RedirectRules() {
                           </button>
                           <button
                             type="button"
-                            title="Delete"
+                            title={t('delete')}
                             onClick={() => setDeleteTarget(rule)}
                             className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-red-400"
                           >
@@ -427,34 +474,46 @@ export function RedirectRules() {
         )}
       </div>
 
-      <Modal open={modalOpen} onClose={closeModal} title={editing ? 'Edit Redirect Rule' : 'Add Redirect Rule'} size="xl">
+      <Modal
+        open={modalOpen}
+        onClose={closeModal}
+        title={t(editing ? 'editRule' : 'addRedirectRule')}
+        size="xl"
+      >
         <div className="max-h-[72vh] space-y-5 overflow-y-auto pr-1">
           <Select
-            label="Link"
+            label={t('links')}
             value={form.link_id}
             disabled={!!editing}
             onChange={(e) => setForm((current) => ({ ...current, link_id: e.target.value }))}
           >
-            <option value="">Select a link</option>
+            <option value="">{t('selectLink')}</option>
             {links.map((link) => (
               <option key={link.id} value={link.id}>
-                {formatLink(link)}
+                {formatLink(link, t('unknownLink'))}
               </option>
             ))}
           </Select>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Select
-              label="Rule Type"
+              label={t('ruleType')}
               value={form.rule_type}
-              onChange={(e) => setForm((current) => ({ ...current, rule_type: e.target.value as RedirectRuleType }))}
+              onChange={(e) =>
+                setForm((current) => ({
+                  ...current,
+                  rule_type: e.target.value as RedirectRuleType,
+                }))
+              }
             >
               {RULE_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>{type.label}</option>
+                <option key={type.value} value={type.value}>
+                  {t(type.labelKey)}
+                </option>
               ))}
             </Select>
             <Input
-              label="Priority"
+              label={t('priority')}
               type="number"
               min={0}
               step={1}
@@ -470,22 +529,22 @@ export function RedirectRules() {
               onChange={(e) => setForm((current) => ({ ...current, enabled: e.target.checked }))}
               className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
             />
-            Enabled
+            {t('enabled')}
           </label>
 
           {form.rule_type === 'weighted' ? (
             <Textarea
-              label="Targets"
+              label={t('targets')}
               rows={6}
               placeholder={'https://example.com/a | 70\nhttps://example.com/b | 30'}
               value={form.targetsText}
               onChange={(e) => setForm((current) => ({ ...current, targetsText: e.target.value }))}
-              hint="One URL per line, with an optional weight after |"
+              hint={t('targetsHint')}
             />
           ) : (
             <>
               <Textarea
-                label="Match Values"
+                label={t('matchValues')}
                 rows={3}
                 placeholder={
                   form.rule_type === 'country'
@@ -500,10 +559,10 @@ export function RedirectRules() {
                 }
                 value={form.values}
                 onChange={(e) => setForm((current) => ({ ...current, values: e.target.value }))}
-                hint="Comma or newline separated"
+                hint={t('commaNewline')}
               />
               <Input
-                label="Target URL"
+                label={t('targetUrl')}
                 placeholder="https://example.com/landing"
                 value={form.targetUrl}
                 onChange={(e) => setForm((current) => ({ ...current, targetUrl: e.target.value }))}
@@ -513,10 +572,10 @@ export function RedirectRules() {
 
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="secondary" onClick={closeModal} disabled={saving}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button onClick={handleSave} loading={saving}>
-              {editing ? 'Save' : 'Create'}
+              {editing ? t('save') : t('create')}
             </Button>
           </div>
         </div>
@@ -526,9 +585,11 @@ export function RedirectRules() {
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
-        title="Delete Redirect Rule"
-        message={`Delete this ${deleteTarget ? formatRuleType(deleteTarget.rule_type) : ''} rule?`}
-        confirmLabel="Delete"
+        title={t('deleteRule')}
+        message={t('deleteRuleConfirm', {
+          type: deleteTarget ? formatRuleType(deleteTarget.rule_type) : '',
+        })}
+        confirmLabel={t('delete')}
         loading={saving}
       />
     </div>

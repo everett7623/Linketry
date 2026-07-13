@@ -18,30 +18,53 @@ import tokenRoutes from './routes/tokens';
 import webhookRoutes from './routes/webhooks';
 import redirectRuleRoutes from './routes/redirectRules';
 import groupRoutes from './routes/groups';
-import healthCheckRoutes from './routes/healthChecks';
+import healthCheckRoutes, { runScheduledHealthChecks } from './routes/healthChecks';
 import maintenanceRoutes from './routes/maintenance';
+import systemRoutes from './routes/system';
+import publicStatsRoutes from './routes/publicStats';
+import analyticsViewRoutes from './routes/analyticsViews';
+import analyticsReportRoutes from './routes/analyticsReports';
+import { createScheduledAnalyticsReport } from './analytics/scheduledReports';
+import utmTemplateRoutes from './routes/utmTemplates';
+import linkNoteRoutes from './routes/linkNotes';
 import { processVisitQueueBatch } from './analytics/index';
 import { createR2Backup } from './backups/index';
+import { cleanupBackupRetention } from './backups/retention';
 import { emitWebhook } from './webhooks/index';
 import { cleanupAnalyticsRetention } from './db/analytics';
 import { LINKORA_VERSION, type VisitQueueMessage } from '@linkora/shared';
 import { getOverviewStats } from './db/index';
 import { requireAuth } from './auth/index';
-import { jsonOk } from './utils/response';
+import { jsonOk, notFound } from './utils/response';
+import { resolvePublicLocale } from './utils/publicPages';
+import { getPublicPageMessage } from './utils/pageTemplates';
 
 const RESERVED_PATHS = new Set([
-  'admin', 'api', 'health', 'login', 'settings',
-  'assets', 'static', 'favicon.ico', 'robots.txt', 'sitemap.xml',
+  'admin',
+  'api',
+  'health',
+  'login',
+  'settings',
+  'assets',
+  'static',
+  'favicon.ico',
+  'robots.txt',
+  'sitemap.xml',
 ]);
 
 const app = new Hono<{ Bindings: Env }>();
 
 // CORS for admin frontend
-app.use('/api/*', cors({
-  origin: '*',
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(
+  '/api/*',
+  cors({
+    origin: '*',
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
+app.route('/', publicStatsRoutes);
 
 // Health check
 app.get('/health', (c) => {
@@ -81,6 +104,10 @@ app.route('/api/audit', auditRoutes);
 
 // Analytics
 app.route('/api/analytics', analyticsRoutes);
+app.route('/api/analytics-views', analyticsViewRoutes);
+app.route('/api/analytics-reports', analyticsReportRoutes);
+app.route('/api/utm-templates', utmTemplateRoutes);
+app.route('/api/link-notes', linkNoteRoutes);
 
 // Conversion events
 app.route('/api/conversions', conversionRoutes);
@@ -106,6 +133,9 @@ app.route('/api/health-checks', healthCheckRoutes);
 // Maintenance
 app.route('/api/maintenance', maintenanceRoutes);
 
+// Deployment capabilities
+app.route('/api/system', systemRoutes);
+
 // Overview stats
 app.get('/api/overview', async (c) => {
   const authError = await requireAuth(c);
@@ -118,7 +148,7 @@ app.get('/api/overview', async (c) => {
 app.get('/:slug', async (c) => {
   const slug = c.req.param('slug');
   if (RESERVED_PATHS.has(slug.toLowerCase())) {
-    return new Response('Not Found', { status: 404 });
+    return notFound(await getPublicPageMessage(c.env, '404', { slug }), resolvePublicLocale(c.req.header('Accept-Language')));
   }
   return handleRedirect(c);
 });
@@ -126,14 +156,18 @@ app.get('/:slug', async (c) => {
 app.post('/:slug', async (c) => {
   const slug = c.req.param('slug');
   if (RESERVED_PATHS.has(slug.toLowerCase())) {
-    return new Response('Not Found', { status: 404 });
+    return notFound(await getPublicPageMessage(c.env, '404', { slug }), resolvePublicLocale(c.req.header('Accept-Language')));
   }
   return handleRedirect(c);
 });
 
 // Root
 app.get('/', (c) => {
-  return jsonOk({ name: 'Linkora', version: c.env.LINKORA_VERSION ?? LINKORA_VERSION, status: 'ok' });
+  return jsonOk({
+    name: 'Linkora',
+    version: c.env.LINKORA_VERSION ?? LINKORA_VERSION,
+    status: 'ok',
+  });
 });
 
 const handler: ExportedHandler<Env, VisitQueueMessage> = {
@@ -150,16 +184,29 @@ const handler: ExportedHandler<Env, VisitQueueMessage> = {
       })
     );
     ctx.waitUntil(
-      createR2Backup(env, 'scheduled')
-        .then((backup) => emitWebhook(env, 'backup.completed', { backup, trigger: 'scheduled' }))
-        .catch((error) => {
-          console.error('Scheduled Linkora backup failed', error);
-          return emitWebhook(env, 'backup.failed', {
-            trigger: 'scheduled',
-            error: error instanceof Error ? error.message : String(error),
-          });
-        })
+      cleanupBackupRetention(env).catch((error) => {
+        console.error('Scheduled Linkora backup retention cleanup failed', error);
+      })
     );
+    ctx.waitUntil(
+      runScheduledHealthChecks(env).catch((error) => {
+        console.error('Scheduled Linkora health monitoring failed', error);
+      })
+    );
+    ctx.waitUntil(createScheduledAnalyticsReport(env).catch((error) => console.error('Scheduled Analytics report failed', error)));
+    if (env.BACKUPS) {
+      ctx.waitUntil(
+        createR2Backup(env, 'scheduled')
+          .then((backup) => emitWebhook(env, 'backup.completed', { backup, trigger: 'scheduled' }))
+          .catch((error) => {
+            console.error('Scheduled Linkora backup failed', error);
+            return emitWebhook(env, 'backup.failed', {
+              trigger: 'scheduled',
+              error: error instanceof Error ? error.message : String(error),
+            });
+          })
+      );
+    }
   },
 };
 
