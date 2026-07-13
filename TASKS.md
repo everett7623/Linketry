@@ -169,6 +169,37 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed — Aff Target Monitoring Notifications (v0.9.18)
+
+- [x] Confirm scheduled monitoring checks active links' original `long_url` targets
+- [x] Split hourly health checks from daily backup/report/cleanup Cron work
+- [x] Notify only after configured consecutive failures and on recovery
+- [x] Add Telegram, Discord, Slack, Feishu, DingTalk, and WeCom delivery adapters
+- [x] Keep the existing signed generic Webhook available
+- [x] Add per-channel Advanced Settings configuration and test delivery
+- [x] Mask credentials from APIs and exclude them from backup exports
+- [x] Restrict Incoming Webhook URLs to official HTTPS endpoints
+- [x] Add Worker payload tests and Admin browser coverage
+- [x] Leave redirect logic unchanged
+- [x] Update release metadata to `0.9.18`
+
+---
+
+## ✅ Completed — Short-Link Domain Migration (v0.9.19)
+
+- [x] Keep destination/Aff URL replacement as a separate bulk tool
+- [x] Preview all links stored under one source short-link domain
+- [x] Migrate `domain` and generated `short_url` without changing slug or `long_url`
+- [x] Re-check the matching count before applying the preview
+- [x] Clear old and target KV entries in bounded batches after the D1 update
+- [x] Record the audit event and download a migration record CSV
+- [x] Add an Advanced Links migration interface with EN/ZH guidance
+- [x] Add Worker and Admin regression coverage
+- [x] Leave redirect logic unchanged
+- [x] Update release metadata to `0.9.19`
+
+---
+
 ## ✅ Completed — Shlink Feature Port (v0.9.12)
 
 - [x] Audit Shlink features and document gap in `docs/SHLINK_FEATURE_GAP.md`
@@ -482,7 +513,8 @@ Deployment experience:
 
 ## 🔵 Backlog — V9 Growth Tools, Reporting, And Link Intelligence
 
-- [ ] Bulk replace destination URLs with preview and rollback guidance
+- [x] Bulk replace destination URLs with preview and rollback guidance
+- [x] Bulk migrate stored short-link domains without changing slugs or destination URLs
 - [ ] Bulk append or normalize UTM parameters
 - [x] Saved UTM templates and campaign presets
 - [x] Link notes and affiliate/internal notes

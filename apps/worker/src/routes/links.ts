@@ -6,6 +6,10 @@ import {
   getLinkBySlug,
   getLinkById,
   getLinksByIds,
+  getLinkDomainMigrationPreview,
+  getLinkSlugsByDomain,
+  migrateLinkDomain,
+  getDomainByName,
   createLink,
   updateLink,
   deleteLink,
@@ -20,6 +24,7 @@ import { generateId, now, sha256 } from '../utils/id';
 import { validateSlug, validateLongUrl, validateDomain } from '@linkora/shared';
 import type { Link, KVCacheEntry } from '@linkora/shared';
 import { normalizeFallbackUrl } from '../links/fallbackUrl';
+import { domainMigrationSample, migratedShortUrl } from '../links/domainMigration';
 import { resolvePageTitle } from '../utils/pageTitle';
 
 const links = new Hono<{ Bindings: Env }>();
@@ -330,6 +335,21 @@ async function refreshLinkCache(env: Env, domain: string, link: Link): Promise<v
     await setCachedLink(env, domain, toCacheEntry(link));
   } else {
     await deleteCachedLink(env, domain, link.slug);
+  }
+}
+
+async function clearMigratedDomainCache(
+  env: Env,
+  sourceDomain: string,
+  targetDomain: string,
+  slugs: string[]
+): Promise<void> {
+  for (let index = 0; index < slugs.length; index += 25) {
+    const chunk = slugs.slice(index, index + 25);
+    await Promise.all(chunk.flatMap((slug) => [
+      deleteCachedLink(env, sourceDomain, slug),
+      deleteCachedLink(env, targetDomain, slug),
+    ]));
   }
 }
 
@@ -655,6 +675,85 @@ links.post('/bulk-replace-url/confirm', async (c) => {
   await recordAudit(c.env, c.req.raw, 'link.bulk_replace_url', 'link', undefined, { changed: changed.length, skipped, ids: changed.map((item) => item.id) });
   const csv = ['id,slug,old_url,new_url', ...changed.map((item) => [item.id,item.slug,item.old_url,item.new_url].map((value) => `"${value.replace(/"/g,'""')}"`).join(','))].join('\r\n');
   return jsonOk({ changed: changed.length, skipped, rollback_csv: csv });
+});
+
+links.post('/migrate-domain/preview', async (c) => {
+  let body: { source_domain?: unknown; target_domain?: unknown };
+  try { body = await c.req.json(); } catch { return jsonError('Invalid JSON body', 400); }
+
+  const sourceValidation = typeof body.source_domain === 'string'
+    ? validateDomain(body.source_domain)
+    : { valid: false, error: 'source_domain is required' };
+  const targetValidation = typeof body.target_domain === 'string'
+    ? validateDomain(body.target_domain)
+    : { valid: false, error: 'target_domain is required' };
+  if (!sourceValidation.valid) return jsonError(sourceValidation.error ?? 'Invalid source_domain', 400);
+  if (!targetValidation.valid) return jsonError(targetValidation.error ?? 'Invalid target_domain', 400);
+
+  const sourceDomain = sourceValidation.domain!;
+  const targetDomain = targetValidation.domain!;
+  if (sourceDomain === targetDomain) return jsonError('Source and target domains must be different', 400);
+
+  const preview = await getLinkDomainMigrationPreview(c.env, sourceDomain);
+  const registeredTarget = await getDomainByName(c.env, targetDomain);
+  return jsonOk({
+    source_domain: sourceDomain,
+    target_domain: targetDomain,
+    total: preview.total,
+    target_registered: registeredTarget?.status === 'active',
+    items: domainMigrationSample(preview.items, targetDomain),
+  });
+});
+
+links.post('/migrate-domain/confirm', async (c) => {
+  let body: { source_domain?: unknown; target_domain?: unknown; expected_count?: unknown };
+  try { body = await c.req.json(); } catch { return jsonError('Invalid JSON body', 400); }
+
+  const sourceValidation = typeof body.source_domain === 'string'
+    ? validateDomain(body.source_domain)
+    : { valid: false, error: 'source_domain is required' };
+  const targetValidation = typeof body.target_domain === 'string'
+    ? validateDomain(body.target_domain)
+    : { valid: false, error: 'target_domain is required' };
+  if (!sourceValidation.valid) return jsonError(sourceValidation.error ?? 'Invalid source_domain', 400);
+  if (!targetValidation.valid) return jsonError(targetValidation.error ?? 'Invalid target_domain', 400);
+
+  const sourceDomain = sourceValidation.domain!;
+  const targetDomain = targetValidation.domain!;
+  if (sourceDomain === targetDomain) return jsonError('Source and target domains must be different', 400);
+  if (!Number.isInteger(body.expected_count) || Number(body.expected_count) < 1) {
+    return jsonError('expected_count must be a positive integer from the preview', 400);
+  }
+
+  const current = await getLinkDomainMigrationPreview(c.env, sourceDomain, 0);
+  if (current.total !== Number(body.expected_count)) {
+    return jsonError('Matching links changed after preview. Preview the migration again.', 409);
+  }
+
+  const slugs = await getLinkSlugsByDomain(c.env, sourceDomain);
+  const ts = now();
+  const changed = await migrateLinkDomain(c.env, sourceDomain, targetDomain, ts);
+  if (changed !== slugs.length) {
+    return jsonError('Domain migration did not update the expected number of links', 409);
+  }
+  await clearMigratedDomainCache(c.env, sourceDomain, targetDomain, slugs);
+
+  await recordAudit(c.env, c.req.raw, 'link.migrate_domain', 'link', undefined, {
+    source_domain: sourceDomain,
+    target_domain: targetDomain,
+    changed,
+  });
+  const csv = [
+    'slug,old_domain,new_domain,old_short_url,new_short_url',
+    ...slugs.map((slug) => [
+      slug,
+      sourceDomain,
+      targetDomain,
+      migratedShortUrl(sourceDomain, slug),
+      migratedShortUrl(targetDomain, slug),
+    ].map((value) => `"${value.replace(/"/g, '""')}"`).join(',')),
+  ].join('\r\n');
+  return jsonOk({ changed, source_domain: sourceDomain, target_domain: targetDomain, rollback_csv: csv });
 });
 
 // GET /api/links/:id

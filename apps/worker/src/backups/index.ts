@@ -106,6 +106,7 @@ function redactBackupSettings(settings: Record<string, string>): Record<string, 
   if ('webhook_secret' in redacted) {
     redacted.webhook_secret = '';
   }
+  delete redacted.notification_channels;
   delete redacted.health_alert_state;
   delete redacted.health_check_history;
   delete redacted.public_stats_shares;

@@ -13,6 +13,41 @@ _(none)_
 
 ---
 
+## [0.9.19] - 2026-07-14
+
+### Added
+
+- Added an independent short-link domain migration workflow that previews and migrates every link stored under one source domain, without changing slugs or destination/Aff URLs.
+- Added migration-count concurrency protection, D1 `domain` and `short_url` synchronization, bounded old/new KV cache invalidation, audit logging, and a downloaded migration record CSV.
+- Added an Advanced Links action that pre-fills the current domain filter and configured default domain, shows matching counts and samples, and warns when the target is not active in Linkora's domain catalog.
+
+### Tests
+
+- Added short-URL migration policy coverage and Admin browser coverage for the preview workflow.
+
+---
+
+## [0.9.18] - 2026-07-14
+
+### Added
+
+- Added scheduled original destination/Aff link failure and recovery notifications for Telegram, Discord, Slack, Feishu, DingTalk, and WeCom, alongside the existing signed generic Webhook.
+- Split health checks into an hourly Cron while keeping backups, reports, and retention cleanup on the daily Cron; existing single-Cron deployments remain backward compatible.
+- Added an Advanced Settings notification panel with per-channel enablement, masked credentials, Telegram chat targeting, and test delivery actions.
+- Added authenticated notification configuration and test APIs without requiring a database migration.
+
+### Security
+
+- Notification credentials are never returned by the API and are excluded from general settings responses and backup exports.
+- Incoming Webhook providers accept only their official HTTPS endpoint hosts and paths; Discord messages suppress user mentions.
+
+### Tests
+
+- Added native payload coverage for all six providers and health-alert message coverage for original destination URLs and HTTP failures.
+- Extended the Admin browser smoke test to verify the notification panel loads in Advanced Settings.
+
+---
+
 ## [0.9.17] - 2026-07-14
 
 ### Fixed

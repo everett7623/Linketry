@@ -7,4 +7,6 @@ export interface Env {
   VISITS_QUEUE?: Queue<VisitQueueMessage>;
   ADMIN_TOKEN: string;
   LINKORA_VERSION?: string;
+  LINKORA_DAILY_CRON?: string;
+  LINKORA_HEALTH_CRON?: string;
 }

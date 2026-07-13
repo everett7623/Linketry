@@ -79,6 +79,46 @@ export async function getLinksByIds(env: Env, ids: string[]): Promise<Link[]> {
   return links;
 }
 
+export async function getLinkDomainMigrationPreview(
+  env: Env,
+  sourceDomain: string,
+  sampleSize = 20
+): Promise<{ total: number; items: Link[] }> {
+  const count = await env.DB.prepare('SELECT COUNT(*) AS count FROM links WHERE domain = ?')
+    .bind(sourceDomain)
+    .first<{ count: number }>();
+  const rows = await env.DB.prepare(
+    'SELECT * FROM links WHERE domain = ? ORDER BY created_at ASC LIMIT ?'
+  )
+    .bind(sourceDomain, sampleSize)
+    .all<Link>();
+
+  return { total: count?.count ?? 0, items: rows.results ?? [] };
+}
+
+export async function getLinkSlugsByDomain(env: Env, domain: string): Promise<string[]> {
+  const rows = await env.DB.prepare('SELECT slug FROM links WHERE domain = ? ORDER BY created_at ASC')
+    .bind(domain)
+    .all<{ slug: string }>();
+  return (rows.results ?? []).map((row) => row.slug);
+}
+
+export async function migrateLinkDomain(
+  env: Env,
+  sourceDomain: string,
+  targetDomain: string,
+  updatedAt: string
+): Promise<number> {
+  const result = await env.DB.prepare(
+    `UPDATE links
+     SET domain = ?, short_url = 'https://' || ? || '/' || slug, updated_at = ?
+     WHERE domain = ?`
+  )
+    .bind(targetDomain, targetDomain, updatedAt, sourceDomain)
+    .run();
+  return result.meta.changes ?? 0;
+}
+
 export interface ListLinksOptions {
   keyword?: string;
   tag?: string;

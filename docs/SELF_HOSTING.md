@@ -150,7 +150,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.9.17"}}
+{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.9.19"}}
 ```
 
 ## 7. Build and Deploy Admin
@@ -216,15 +216,28 @@ Leave these unset for the basic deployment; enable them later from the Admin Adv
 
 ```txt
 LINKORA_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKORA_VERSION=0.9.17
+LINKORA_VERSION=0.9.19
 LINKORA_COMPATIBILITY_DATE=2026-07-08
 LINKORA_WORKER_DOMAINS=go.example.com,s.example.com
 LINKORA_R2_BUCKET=linkora-backups
 LINKORA_R2_PREVIEW_BUCKET=linkora-backups-dev
 LINKORA_VISITS_QUEUE=linkora-visits
+LINKORA_DAILY_CRON=0 18 * * *
+LINKORA_HEALTH_CRON=0 * * * *
 ```
 
 `LINKORA_WORKER_DOMAINS` replaces the single-domain fallback when set. Configure both R2 variables together. Queue and R2 are independent advanced capabilities; leaving them unset no longer blocks the basic Worker deployment.
+
+### Move imported links to a new short domain
+
+Shlink imports preserve the domain stored in each original short URL. If the imported links use `s.y8o.de` but Linkora should publish them as `go.uukk.de`, open **Links**, switch to **Advanced** mode, and choose **Migrate short-link domain**.
+
+1. Enter `s.y8o.de` as the current short-link domain.
+2. Enter `go.uukk.de` as the new short-link domain.
+3. Preview the matching count and sample URLs.
+4. Confirm only after the new domain's DNS and Worker custom-domain route are active.
+
+This operation updates only the stored short-link `domain` and generated `short_url`. It keeps every slug and destination/Aff `long_url` unchanged, clears old/new KV cache entries, and downloads a migration record CSV. The separate **Replace URLs** tool continues to modify destination/Aff URLs instead.
 
 The workflow still type-checks and builds when Cloudflare secrets are missing, but Cloudflare migration and deployment are skipped. Worker deployment uses these variables to generate `apps/worker/wrangler.toml` during CI.
 
@@ -257,6 +270,20 @@ Log in with `ADMIN_TOKEN`, then open Settings and set:
 Then open **Setup** in the sidebar. It summarizes whether the Admin can reach the API, whether a default short domain is configured, whether the domain catalog has an active default, whether R2 backups are available, and whether the first link has been created.
 
 The Admin starts in **Simple mode**. Switch to **Advanced mode** from the sidebar or Settings to reveal Analytics, Domains, Redirect Rules, R2 Backups, API Tokens, Audit Logs, and other operator tools. This interface switch does not create Cloudflare resources.
+
+### Scheduled original destination/Aff monitoring
+
+Linkora uses a daily Cron for backups, reports, and cleanup, plus a separate hourly Cron for target health checks. In **Advanced Settings**:
+
+1. Enable **Scheduled target health monitoring**.
+2. Choose how many active links to check per run (1-50).
+3. Set the consecutive-failure threshold and repeat-suppression period.
+4. Configure one or more notification channels: Telegram, Discord, Slack, Feishu, DingTalk, or WeCom.
+5. Save each channel and send a test notification.
+
+The monitor checks each active link's stored `long_url`, follows redirects, retries selected HEAD failures with a one-byte GET request, and records HTTP status, final URL, response time, and error state. Notifications are sent only when the failure threshold is reached and when the target later recovers. The existing signed generic Webhook remains available separately.
+
+Notification tokens and Incoming Webhook URLs are stored as write-only instance settings: they are not returned by the API and are excluded from Linkora backup exports. Keep D1 access restricted to the deployment account.
 
 ## 10. Smoke Test
 

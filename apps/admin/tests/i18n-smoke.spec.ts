@@ -205,6 +205,33 @@ async function mockAdminApi(page: Page) {
       await route.fulfill(apiResponse({ title: 'Preview', description: 'Preview', image: null, final_url: 'https://example.com' }));
       return;
     }
+    if (path === '/api/links/migrate-domain/preview' && request.method() === 'POST') {
+      await route.fulfill(apiResponse({
+        source_domain: 's.y8o.de',
+        target_domain: 'go.example.com',
+        total: 195,
+        target_registered: true,
+        items: [{
+          id: link.id,
+          slug: link.slug,
+          current_short_url: `https://s.y8o.de/${link.slug}`,
+          next_short_url: `https://go.example.com/${link.slug}`,
+        }],
+      }));
+      return;
+    }
+    if (path === '/api/notifications/config' && request.method() === 'GET') {
+      await route.fulfill(apiResponse({
+        channels: ['telegram', 'discord', 'slack', 'feishu', 'dingtalk', 'wecom'].map((provider) => ({
+          provider,
+          enabled: false,
+          configured: false,
+          target: '',
+        })),
+        available_providers: ['telegram', 'discord', 'slack', 'feishu', 'dingtalk', 'wecom'],
+      }));
+      return;
+    }
     if (path === '/api/import/preview' && request.method() === 'POST') {
       await route.fulfill(apiResponse({
         source: 'generic-csv',
@@ -311,6 +338,11 @@ test('English core workflow renders overview, links, create link, and settings',
   await page.getByRole('navigation').getByRole('link', { name: messages.en.links, exact: true }).click();
   await expect(page.getByRole('heading', { name: messages.en.links })).toBeVisible();
   await expect(page.getByText('/docs', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: messages.en.migrateShortDomain }).click();
+  await page.getByLabel(messages.en.sourceShortDomain).fill('s.y8o.de');
+  await page.getByRole('button', { name: messages.en.previewMigration }).click();
+  await expect(page.getByText(messages.en.domainMigrationCount.replace('{count}', '195'))).toBeVisible();
+  await page.keyboard.press('Escape');
 
   await page.getByRole('main').getByRole('link', { name: messages.en.createLink }).click();
   await expect(page.getByRole('heading', { name: messages.en.createLink })).toBeVisible();
@@ -324,6 +356,7 @@ test('English core workflow renders overview, links, create link, and settings',
   await expect(page.getByRole('heading', { name: messages.en.settings })).toBeVisible();
   await page.getByRole('button', { name: messages.en.saveSettings }).click();
   await expect(page.getByText(messages.en.settingsSaved)).toBeVisible();
+  await expect(page.getByRole('heading', { name: messages.en.notificationChannels })).toBeVisible();
 
   await page
     .getByRole('navigation')

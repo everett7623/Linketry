@@ -170,6 +170,18 @@ backup.failed
 
 Delivery headers include `X-Linkora-Event`, `X-Linkora-Timestamp`, and, when a secret is configured, `X-Linkora-Signature: sha256=<hex-hmac>`.
 
+## Notification Channels
+
+Notification endpoints require admin access. They configure scheduled original destination/Aff link failure and recovery alerts. Credentials are write-only: API responses report only whether each channel is configured.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/notifications/config` | List Telegram, Discord, Slack, Feishu, DingTalk, and WeCom channel states |
+| `PUT` | `/api/notifications/config/:provider` | Enable or disable a provider and optionally replace its credential |
+| `POST` | `/api/notifications/test/:provider` | Send a test through the stored provider credential |
+
+Telegram accepts `credential` as the bot token and `target` as the chat ID or `@channel`. Other providers accept the official Incoming Webhook URL as `credential`. Sending an empty credential preserves the stored value.
+
 ## Links
 
 | Method | Path |
@@ -186,12 +198,37 @@ Delivery headers include `X-Linkora-Event`, `X-Linkora-Timestamp`, and, when a s
 | `POST` | `/api/links/bulk` |
 | `POST` | `/api/links/bulk-tag` |
 | `POST` | `/api/links/bulk-create` |
+| `POST` | `/api/links/bulk-replace-url/preview` |
+| `POST` | `/api/links/bulk-replace-url/confirm` |
+| `POST` | `/api/links/migrate-domain/preview` |
+| `POST` | `/api/links/migrate-domain/confirm` |
 
 `GET /api/links` supports search, pagination, status, tag, source, domain, created date range, password, warning, limits, and sort query parameters.
 
 `POST /api/links` and `PUT /api/links/:id` accept `domain` to set the short-link domain. If omitted, the Worker request host is used.
 
 `POST /api/links/bulk-create` accepts `{ "items": [...] }` with up to 100 create-link payloads. Existing slugs are not overwritten.
+
+Destination URL replacement and short-link domain migration are separate operations. Domain migration accepts a source and target hostname, updates every matching link's stored `domain` and generated `short_url`, and never changes `slug` or `long_url`.
+
+Preview a domain migration first:
+
+```json
+{
+  "source_domain": "s.y8o.de",
+  "target_domain": "go.uukk.de"
+}
+```
+
+Confirm with the exact `total` returned by preview. Linkora rejects the confirmation if the matching count changed in the meantime:
+
+```json
+{
+  "source_domain": "s.y8o.de",
+  "target_domain": "go.uukk.de",
+  "expected_count": 195
+}
+```
 
 ## Import
 

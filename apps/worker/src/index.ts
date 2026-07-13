@@ -27,6 +27,7 @@ import analyticsReportRoutes from './routes/analyticsReports';
 import { createScheduledAnalyticsReport } from './analytics/scheduledReports';
 import utmTemplateRoutes from './routes/utmTemplates';
 import linkNoteRoutes from './routes/linkNotes';
+import notificationRoutes from './routes/notifications';
 import { processVisitQueueBatch } from './analytics/index';
 import { createR2Backup } from './backups/index';
 import { cleanupBackupRetention } from './backups/retention';
@@ -38,6 +39,7 @@ import { requireAuth } from './auth/index';
 import { jsonOk, notFound } from './utils/response';
 import { resolvePublicLocale } from './utils/publicPages';
 import { getPublicPageMessage } from './utils/pageTemplates';
+import { DEFAULT_DAILY_CRON, scheduledWorkForCron } from './health/schedulePolicy';
 
 const RESERVED_PATHS = new Set([
   'admin',
@@ -120,6 +122,7 @@ app.route('/api/tokens', tokenRoutes);
 
 // Webhooks
 app.route('/api/webhooks', webhookRoutes);
+app.route('/api/notifications', notificationRoutes);
 
 // Smart redirect rules
 app.route('/api/redirect-rules', redirectRuleRoutes);
@@ -177,24 +180,32 @@ const handler: ExportedHandler<Env, VisitQueueMessage> = {
   queue(batch, env, ctx) {
     ctx.waitUntil(processVisitQueueBatch(env, batch));
   },
-  scheduled(_controller, env, ctx) {
-    ctx.waitUntil(
-      cleanupAnalyticsRetention(env).catch((error) => {
-        console.error('Scheduled Linkora analytics retention cleanup failed', error);
-      })
-    );
-    ctx.waitUntil(
-      cleanupBackupRetention(env).catch((error) => {
-        console.error('Scheduled Linkora backup retention cleanup failed', error);
-      })
-    );
-    ctx.waitUntil(
+  scheduled(controller, env, ctx) {
+    const dailyCron = env.LINKORA_DAILY_CRON ?? DEFAULT_DAILY_CRON;
+    const work = scheduledWorkForCron(controller.cron, dailyCron, env.LINKORA_HEALTH_CRON);
+
+    if (work.health) {
+      ctx.waitUntil(
       runScheduledHealthChecks(env).catch((error) => {
         console.error('Scheduled Linkora health monitoring failed', error);
       })
-    );
-    ctx.waitUntil(createScheduledAnalyticsReport(env).catch((error) => console.error('Scheduled Analytics report failed', error)));
-    if (env.BACKUPS) {
+      );
+    }
+
+    if (work.daily) {
+      ctx.waitUntil(
+        cleanupAnalyticsRetention(env).catch((error) => {
+          console.error('Scheduled Linkora analytics retention cleanup failed', error);
+        })
+      );
+      ctx.waitUntil(
+        cleanupBackupRetention(env).catch((error) => {
+          console.error('Scheduled Linkora backup retention cleanup failed', error);
+        })
+      );
+      ctx.waitUntil(createScheduledAnalyticsReport(env).catch((error) => console.error('Scheduled Analytics report failed', error)));
+    }
+    if (work.daily && env.BACKUPS) {
       ctx.waitUntil(
         createR2Backup(env, 'scheduled')
           .then((backup) => emitWebhook(env, 'backup.completed', { backup, trigger: 'scheduled' }))

@@ -153,9 +153,10 @@ Planned:
 - Done: restore dry-run preview, conflict summary, pre-restore backup, and restore report
 - Done: factory reset with preview, confirmation phrase, pre-reset backup, and KV cache clearing
 - Done: backup retention policy for R2 objects and D1 backup records, with a configurable 30-day default
-- Done: opt-in periodic target health monitoring through Cron, with manual checks kept available
+- Done: opt-in hourly target health monitoring through a dedicated Cron, with manual checks kept available and daily maintenance kept separate
 - Done: bounded scheduled target status history, including status code, checked time, response time, and failure count
 - Done: scheduled anomalies and recoveries emit optional signed webhooks and appear as persisted Admin notices
+- Done: scheduled original destination/Aff alerts support Telegram, Discord, Slack, Feishu, DingTalk, and WeCom with masked credentials and test delivery
 - Done: alert controls for consecutive-failure thresholds, repeat suppression, and recovery notifications
 - Done: first-class `fallback_url` editing in Create/Edit Link, without changing redirect behavior
 - Done: custom 404, expired, disabled, and warning page messages with escaped plain-text variables and safe defaults
@@ -190,7 +191,8 @@ Goal: support ongoing campaign, SEO, affiliate, and content operations without c
 
 Planned:
 
-- Bulk replace destination URLs with preview and rollback guidance
+- Done: bulk replace destination URLs with preview and rollback guidance
+- Done: migrate all matching stored short-link domains with preview, concurrency protection, KV invalidation, and migration records
 - Bulk append or normalize UTM parameters
 - Done: saved personal UTM templates and campaign presets in Create/Edit Link
 - Done: private internal link notes in Advanced Edit Link

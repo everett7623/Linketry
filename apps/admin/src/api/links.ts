@@ -114,6 +114,41 @@ export interface BulkUrlPreviewItem { id:string;slug:string;current_url:string;n
 export function previewBulkUrlReplace(ids:string[],find:string,replace:string):Promise<{items:BulkUrlPreviewItem[];ready:number;unchanged:number;invalid:number;notFound:number}>{return apiPost('/api/links/bulk-replace-url/preview',{ids,find,replace});}
 export function confirmBulkUrlReplace(items:BulkUrlPreviewItem[]):Promise<{changed:number;skipped:number;rollback_csv:string}>{return apiPost('/api/links/bulk-replace-url/confirm',{items:items.filter((item)=>item.status==='ready')});}
 
+export interface DomainMigrationPreviewItem {
+  id: string;
+  slug: string;
+  current_short_url: string;
+  next_short_url: string;
+}
+
+export interface DomainMigrationPreview {
+  source_domain: string;
+  target_domain: string;
+  total: number;
+  target_registered: boolean;
+  items: DomainMigrationPreviewItem[];
+}
+
+export function previewDomainMigration(sourceDomain: string, targetDomain: string): Promise<DomainMigrationPreview> {
+  return apiPost('/api/links/migrate-domain/preview', {
+    source_domain: sourceDomain,
+    target_domain: targetDomain,
+  });
+}
+
+export function confirmDomainMigration(preview: DomainMigrationPreview): Promise<{
+  changed: number;
+  source_domain: string;
+  target_domain: string;
+  rollback_csv: string;
+}> {
+  return apiPost('/api/links/migrate-domain/confirm', {
+    source_domain: preview.source_domain,
+    target_domain: preview.target_domain,
+    expected_count: preview.total,
+  });
+}
+
 export function getOverview(): Promise<{
   totalLinks: number;
   totalClicks: number;

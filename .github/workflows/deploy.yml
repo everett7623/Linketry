@@ -31,6 +31,8 @@ jobs:
       LINKORA_R2_BUCKET: ${{ vars.LINKORA_R2_BUCKET }}
       LINKORA_R2_PREVIEW_BUCKET: ${{ vars.LINKORA_R2_PREVIEW_BUCKET }}
       LINKORA_VISITS_QUEUE: ${{ vars.LINKORA_VISITS_QUEUE }}
+      LINKORA_DAILY_CRON: ${{ vars.LINKORA_DAILY_CRON }}
+      LINKORA_HEALTH_CRON: ${{ vars.LINKORA_HEALTH_CRON }}
 
     steps:
       - name: Checkout
@@ -109,7 +111,10 @@ jobs:
               ''
             );
           }
-          optionalConfig.push('[triggers]', 'crons = ["0 18 * * *"]', '');
+          const dailyCron = env.LINKORA_DAILY_CRON || '0 18 * * *';
+          const healthCron = env.LINKORA_HEALTH_CRON || '0 * * * *';
+          const cronList = [...new Set([dailyCron, healthCron])].map(JSON.stringify).join(', ');
+          optionalConfig.push('[triggers]', `crons = [${cronList}]`, '');
           const kvNamespaces = [
             '[[kv_namespaces]]',
             'binding = "KV"',
@@ -128,7 +133,9 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKORA_VERSION = "${env.RESOLVED_LINKORA_VERSION || '0.9.17'}"`,
+            `LINKORA_VERSION = "${env.RESOLVED_LINKORA_VERSION || '0.9.19'}"`,
+            `LINKORA_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
+            `LINKORA_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             '',
             '[[d1_databases]]',
             'binding = "DB"',

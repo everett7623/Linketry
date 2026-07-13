@@ -35,6 +35,7 @@ settings.get('/', async (c) => {
   delete allSettings.analytics_report_records;
   delete allSettings.utm_templates;
   delete allSettings.link_notes;
+  delete allSettings.notification_channels;
   if ('webhook_secret' in allSettings) {
     allSettings.webhook_secret = '';
   }
@@ -64,6 +65,9 @@ settings.put('/', async (c) => {
 });
 
 function normalizeSetting(key: string, value: string): { value: string; error?: string } {
+  if (key === 'notification_channels') {
+    return { value: '', error: 'notification_channels must be updated through the notifications API' };
+  }
   if (/^public_page_(404|disabled|expired|warning)_message$/.test(key)) {
     const error = validatePublicPageTemplate(value);
     return { value: value.trim(), ...(error ? { error } : {}) };

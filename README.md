@@ -32,9 +32,9 @@ For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING
 - 🌐 Multi-domain catalog with per-link short domain selection
 - Smart redirect rules for country, device, browser, referer, language, and weighted/A-B traffic
 - Campaign and project grouping through managed group tags
-- Manual health checks for target URLs and active links
+- Manual and scheduled health checks for active links' original destination/Aff URLs
 - Local smart suggestions for slug, title, description, and tags from page metadata
-- Webhook notifications for link, import, and backup events
+- Telegram, Discord, Slack, Feishu, DingTalk, WeCom, and signed Webhook notifications for scheduled target failures and recoveries
 - 📥 Import from Shlink, Sink, YOURLS, Dub, Linkora backup, and generic CSV / JSON with field mapping
 - 🧭 Import preview with skip, rename, or overwrite conflict handling
 - Password-protected links, safety warning pages, and UTM builder templates
@@ -253,6 +253,8 @@ Quick steps:
 5. Click **Import** to confirm
 
 Original `shortCode` values are preserved as slugs. Conflicts are skipped by default.
+
+Imported short-link domains are preserved too. To change every imported link from an old domain such as `s.y8o.de` to a new domain such as `go.uukk.de`, switch the Links page to **Advanced** mode and use **Migrate short-link domain**. This is separate from **Replace URLs**, which edits destination/Aff URLs.
 
 ## Migration from Shlink
 

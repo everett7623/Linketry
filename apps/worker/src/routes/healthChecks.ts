@@ -26,6 +26,7 @@ import {
 } from '../health/alertPolicy';
 import { buildHealthAlertStatus } from '../health/alertStatus';
 import { appendHealthHistory, parseHealthHistory } from '../health/history';
+import { emitHealthNotifications } from '../notifications/index';
 
 const healthChecks = new Hono<{ Bindings: Env }>();
 
@@ -174,17 +175,27 @@ export async function runScheduledHealthChecks(env: Env): Promise<LinkHealthBatc
   );
 
   if (decision.notifyFailure) {
-    await emitWebhook(env, 'health_check.failed', {
+    const data = {
       trigger: 'scheduled',
       summary,
       newlyFailed: decision.newlyFailed,
-    });
+    };
+    await Promise.all([
+      emitWebhook(env, 'health_check.failed', data),
+      emitHealthNotifications(env, 'health_check.failed', data),
+    ]);
   }
   if (decision.recovered.length > 0) {
-    await emitWebhook(env, 'health_check.recovered', {
+    const recoveredSet = new Set(decision.recovered);
+    const data = {
       trigger: 'scheduled',
       recovered: decision.recovered,
-    });
+      items: results.filter((item) => item.link_id && recoveredSet.has(item.link_id)),
+    };
+    await Promise.all([
+      emitWebhook(env, 'health_check.recovered', data),
+      emitHealthNotifications(env, 'health_check.recovered', data),
+    ]);
   }
   const nextCursor = links.total > 0 ? (cursor + links.items.length) % links.total : 0;
   await Promise.all([

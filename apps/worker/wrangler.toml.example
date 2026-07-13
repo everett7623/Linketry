@@ -13,7 +13,9 @@ routes = [
 ]
 
 [vars]
-LINKORA_VERSION = "0.9.17"
+LINKORA_VERSION = "0.9.19"
+LINKORA_DAILY_CRON = "0 18 * * *"
+LINKORA_HEALTH_CRON = "0 * * * *"
 
 [[d1_databases]]
 binding = "DB"
@@ -27,7 +29,7 @@ id = "<your-kv-namespace-id>"
 preview_id = "<your-kv-preview-id>"
 
 [triggers]
-crons = ["0 18 * * *"]
+crons = ["0 18 * * *", "0 * * * *"]
 
 # Advanced optional bindings are documented in docs/SELF_HOSTING.md:
 # - R2 enables scheduled backups and one-click restore.

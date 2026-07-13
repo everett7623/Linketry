@@ -4,6 +4,7 @@ import { LINKORA_VERSION } from '@linkora/shared';
 import { getSettings, updateSettings } from '../api/settings';
 import { ResetSettingsPanel } from '../components/settings/ResetSettingsPanel';
 import { WebhookSettingsPanel } from '../components/settings/WebhookSettingsPanel';
+import { NotificationSettingsPanel } from '../components/settings/NotificationSettingsPanel';
 import { AdminModePanel } from '../components/settings/AdminModePanel';
 import { Button } from '../components/ui/Button';
 import { Input, Select, Textarea } from '../components/ui/Input';
@@ -220,6 +221,8 @@ export function Settings() {
       </section>
 
       {isAdvanced && <WebhookSettingsPanel />}
+
+      {isAdvanced && <NotificationSettingsPanel />}
 
       {isAdvanced && <ResetSettingsPanel />}
 

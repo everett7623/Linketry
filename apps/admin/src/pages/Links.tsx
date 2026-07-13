@@ -21,6 +21,7 @@ import {
   SlidersHorizontal,
   BarChart3,
   Replace,
+  Globe2,
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import {
@@ -37,6 +38,9 @@ import {
   previewBulkUrlReplace,
   confirmBulkUrlReplace,
   type BulkUrlPreviewItem,
+  previewDomainMigration,
+  confirmDomainMigration,
+  type DomainMigrationPreview,
 } from '../api/links';
 import { getSettings } from '../api/settings';
 import { StatusBadge } from '../components/ui/Badge';
@@ -86,6 +90,10 @@ export function Links() {
   const [findText, setFindText] = useState('');
   const [replaceText, setReplaceText] = useState('');
   const [replacePreview, setReplacePreview] = useState<BulkUrlPreviewItem[]>([]);
+  const [domainMigrationOpen, setDomainMigrationOpen] = useState(false);
+  const [sourceDomain, setSourceDomain] = useState('');
+  const [targetDomain, setTargetDomain] = useState('');
+  const [domainMigrationPreview, setDomainMigrationPreview] = useState<DomainMigrationPreview | null>(null);
   const { success, error } = useToast();
   const { isAdvanced } = useAdminMode();
   const { locale, t } = useLocale();
@@ -358,6 +366,47 @@ export function Links() {
   const runUrlPreview = async () => { setActionLoading(true); try { const result=await previewBulkUrlReplace([...selectedIds],findText,replaceText);setReplacePreview(result.items); } catch(e){error(String(e));} finally{setActionLoading(false);} };
   const confirmUrlReplace = async () => { setActionLoading(true); try { const result=await confirmBulkUrlReplace(replacePreview); const blob=new Blob([result.rollback_csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`linkora-url-rollback-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(url);success(t('bulkUrlsUpdated',{count:result.changed}));setReplaceOpen(false);setReplacePreview([]);setSelectedIds(new Set());await load(); } catch(e){error(String(e));} finally{setActionLoading(false);} };
 
+  const openDomainMigration = () => {
+    setSourceDomain(domain);
+    setTargetDomain(defaultDomain);
+    setDomainMigrationPreview(null);
+    setDomainMigrationOpen(true);
+  };
+
+  const runDomainMigrationPreview = async () => {
+    setActionLoading(true);
+    try {
+      setDomainMigrationPreview(await previewDomainMigration(sourceDomain, targetDomain));
+    } catch (e) {
+      error(String(e));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const runDomainMigration = async () => {
+    if (!domainMigrationPreview) return;
+    setActionLoading(true);
+    try {
+      const result = await confirmDomainMigration(domainMigrationPreview);
+      const blob = new Blob([result.rollback_csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `linkora-domain-migration-${new Date().toISOString().slice(0, 10)}.csv`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      success(t('domainMigrationComplete', { count: result.changed }));
+      setDomainMigrationOpen(false);
+      setDomainMigrationPreview(null);
+      await load();
+    } catch (e) {
+      error(String(e));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -418,13 +467,23 @@ export function Links() {
               <SlidersHorizontal size={15} className="text-brand-400" />
               {t('advancedFilters')}
             </div>
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="text-xs text-slate-500 hover:text-slate-300"
-            >
-              {t('clear')}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={openDomainMigration}
+                className="flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300"
+              >
+                <Globe2 size={13} />
+                {t('migrateShortDomain')}
+              </button>
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="text-xs text-slate-500 hover:text-slate-300"
+              >
+                {t('clear')}
+              </button>
+            </div>
           </div>
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
             <input
@@ -924,6 +983,74 @@ export function Links() {
         </Modal>
       )}
       {isAdvanced && <Modal open={replaceOpen} onClose={()=>setReplaceOpen(false)} title={t('replaceUrls')} size="xl"><div className="space-y-4"><div className="grid gap-3 sm:grid-cols-2"><Input label={t('findText')} value={findText} onChange={(e)=>{setFindText(e.target.value);setReplacePreview([])}}/><Input label={t('replaceWith')} value={replaceText} onChange={(e)=>{setReplaceText(e.target.value);setReplacePreview([])}}/></div><p className="text-xs text-yellow-300">{t('replaceUrlGuidance')}</p>{replacePreview.length>0&&<div className="max-h-72 overflow-auto border border-slate-800"><table className="w-full text-xs"><tbody className="divide-y divide-slate-800">{replacePreview.map((item)=><tr key={item.id}><td className="px-3 py-2 font-mono text-slate-400">/{item.slug}</td><td className="max-w-xs truncate px-3 py-2 text-slate-500">{item.next_url}</td><td className="px-3 py-2 text-right">{t(item.status==='ready'?'readyStatus':item.status==='invalid'?'invalidStatus':'unchangedStatus')}</td></tr>)}</tbody></table></div>}<div className="flex justify-end gap-2"><Button variant="secondary" onClick={runUrlPreview} disabled={!findText} loading={actionLoading}>{t('previewChanges')}</Button><Button onClick={confirmUrlReplace} disabled={!replacePreview.some((item)=>item.status==='ready')} loading={actionLoading}>{t('confirmReplace')}</Button></div></div></Modal>}
+
+      {isAdvanced && (
+        <Modal
+          open={domainMigrationOpen}
+          onClose={() => setDomainMigrationOpen(false)}
+          title={t('migrateShortDomain')}
+          size="xl"
+        >
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Input
+                label={t('sourceShortDomain')}
+                value={sourceDomain}
+                placeholder="s.y8o.de"
+                onChange={(event) => { setSourceDomain(event.target.value); setDomainMigrationPreview(null); }}
+              />
+              <Input
+                label={t('targetShortDomain')}
+                value={targetDomain}
+                placeholder="go.uukk.de"
+                onChange={(event) => { setTargetDomain(event.target.value); setDomainMigrationPreview(null); }}
+              />
+            </div>
+            <p className="text-xs text-yellow-300">{t('domainMigrationGuidance')}</p>
+            {domainMigrationPreview && (
+              <div className="space-y-3">
+                <div className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300">
+                  {t('domainMigrationCount', { count: domainMigrationPreview.total })}
+                </div>
+                {!domainMigrationPreview.target_registered && (
+                  <p className="text-xs text-orange-300">{t('targetDomainNotRegistered')}</p>
+                )}
+                {domainMigrationPreview.items.length > 0 && (
+                  <div className="max-h-72 overflow-auto rounded-lg border border-slate-800">
+                    <table className="w-full text-xs">
+                      <tbody className="divide-y divide-slate-800">
+                        {domainMigrationPreview.items.map((item) => (
+                          <tr key={item.id}>
+                            <td className="px-3 py-2 font-mono text-slate-400">/{item.slug}</td>
+                            <td className="max-w-sm truncate px-3 py-2 text-slate-500">{item.next_short_url}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="secondary"
+                onClick={runDomainMigrationPreview}
+                disabled={!sourceDomain.trim() || !targetDomain.trim()}
+                loading={actionLoading}
+              >
+                {t('previewMigration')}
+              </Button>
+              <Button
+                onClick={runDomainMigration}
+                disabled={!domainMigrationPreview || domainMigrationPreview.total < 1}
+                loading={actionLoading}
+              >
+                {t('confirmDomainMigration')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       <Modal
         open={!!qr}
