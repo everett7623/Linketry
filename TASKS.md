@@ -157,6 +157,18 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed — Import Completion UX (v0.9.17)
+
+- [x] Poll the new import job immediately after confirmation
+- [x] Avoid overlapping job-status requests
+- [x] Stop polling on completed or failed jobs
+- [x] Clear the finished file, preview, and importing state after success
+- [x] Disable caching for import job status reads
+- [x] Add browser regression coverage for pending-to-completed import flow
+- [x] Update release metadata to `0.9.17`
+
+---
+
 ## ✅ Completed — Shlink Feature Port (v0.9.12)
 
 - [x] Audit Shlink features and document gap in `docs/SHLINK_FEATURE_GAP.md`

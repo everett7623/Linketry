@@ -746,14 +746,18 @@ importRoutes.post('/confirm', async (c) => {
 // GET /api/import/jobs
 importRoutes.get('/jobs', async (c) => {
   const jobs = await getImportJobs(c.env);
-  return jsonOk(jobs);
+  const response = jsonOk(jobs);
+  response.headers.set('Cache-Control', 'no-store');
+  return response;
 });
 
 // GET /api/import/jobs/:id
 importRoutes.get('/jobs/:id', async (c) => {
   const job = await getImportJobById(c.env, c.req.param('id'));
   if (!job) return jsonError('Import job not found', 404);
-  return jsonOk(job);
+  const response = jsonOk(job);
+  response.headers.set('Cache-Control', 'no-store');
+  return response;
 });
 
 // GET /api/import/jobs/:id/report.csv

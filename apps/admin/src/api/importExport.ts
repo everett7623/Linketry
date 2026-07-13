@@ -64,11 +64,11 @@ export function fetchShlinkApi(baseUrl: string, apiKey: string): Promise<{
 }
 
 export function listImportJobs(): Promise<ImportJob[]> {
-  return apiGet('/api/import/jobs');
+  return apiGet('/api/import/jobs', { cache: 'no-store' });
 }
 
 export function getImportJob(id: string): Promise<ImportJob> {
-  return apiGet(`/api/import/jobs/${id}`);
+  return apiGet(`/api/import/jobs/${id}`, { cache: 'no-store' });
 }
 
 export function downloadImportReport(id: string, date: string): Promise<void> {

@@ -205,6 +205,56 @@ async function mockAdminApi(page: Page) {
       await route.fulfill(apiResponse({ title: 'Preview', description: 'Preview', image: null, final_url: 'https://example.com' }));
       return;
     }
+    if (path === '/api/import/preview' && request.method() === 'POST') {
+      await route.fulfill(apiResponse({
+        source: 'generic-csv',
+        total: 1,
+        valid: 1,
+        invalid: 0,
+        conflicts: 0,
+        preview: [{
+          slug: 'imported',
+          longUrl: 'https://example.com/imported',
+          _valid: true,
+          _errors: [],
+          _conflict: false,
+        }],
+      }));
+      return;
+    }
+    if (path === '/api/import/confirm' && request.method() === 'POST') {
+      await route.fulfill(apiResponse({ jobId: 'import_job_1', status: 'pending', total: 0 }));
+      return;
+    }
+    if (path === '/api/import/jobs/import_job_1' && request.method() === 'GET') {
+      await route.fulfill(apiResponse({
+        id: 'import_job_1',
+        source: 'generic-csv',
+        filename: 'links.csv',
+        total_count: 1,
+        success_count: 1,
+        skipped_count: 0,
+        conflict_count: 0,
+        failed_count: 0,
+        status: 'completed',
+        report: null,
+        created_at: '2026-07-14T08:00:00.000Z',
+        completed_at: '2026-07-14T08:00:01.000Z',
+      }));
+      return;
+    }
+    if (path === '/api/import/jobs' && request.method() === 'GET') {
+      await route.fulfill(apiResponse([]));
+      return;
+    }
+    if (path === '/api/export/backup.json' && request.method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '{"version":1,"links":[]}',
+      });
+      return;
+    }
 
     await route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"mock missing"}' });
   });
@@ -308,6 +358,29 @@ test('Simplified Chinese core workflow renders localized navigation and forms', 
   await page.getByRole('navigation').getByRole('link', { name: messages['zh-CN'].settings }).click();
   await expect(page.getByRole('heading', { name: messages['zh-CN'].settings })).toBeVisible();
   await expect(page.getByRole('main').getByLabel(messages['zh-CN'].language)).toHaveValue('zh-CN');
+  await page.evaluate(() => window.__assertNoBrowserErrors());
+});
+
+test('completed import exits the importing state and clears the finished input', async ({ page }) => {
+  await authenticate(page, 'en', 'advanced');
+  await page.goto('/import-export');
+
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'links.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from('slug,long_url\nimported,https://example.com/imported\n'),
+  });
+  await page.getByRole('button', { name: messages.en.preview, exact: true }).click();
+  await page.getByRole('button', { name: messages.en.importLinksCount.replace('{count}', '1') }).click();
+
+  await expect(page.getByText(
+    messages.en.importComplete
+      .replace('{success}', '1')
+      .replace('{skipped}', '0')
+      .replace('{failed}', '0')
+  )).toBeVisible();
+  await expect(page.getByText(messages.en.importProcessing)).toHaveCount(0);
+  await expect(page.getByText('links.csv')).toHaveCount(0);
   await page.evaluate(() => window.__assertNoBrowserErrors());
 });
 

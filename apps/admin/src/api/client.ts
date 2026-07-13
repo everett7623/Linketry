@@ -93,8 +93,8 @@ export async function apiFetch<T>(
   return res.json() as Promise<T>;
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
-  const result = await apiFetch<{ success: boolean; data: T }>(path);
+export async function apiGet<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const result = await apiFetch<{ success: boolean; data: T }>(path, options);
   return result.data;
 }
 

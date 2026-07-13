@@ -13,6 +13,20 @@ _(none)_
 
 ---
 
+## [0.9.17] - 2026-07-14
+
+### Fixed
+
+- Fixed the Admin remaining in the importing state after a background import job had already completed.
+- Import job polling now starts immediately, waits for each request before scheduling the next poll, stops as soon as the job reaches `completed` or `failed`, and clears the finished import input and preview.
+- Import job status requests and responses now explicitly disable caching so the Admin cannot keep reading a stale `pending` or `processing` result.
+
+### Tests
+
+- Added a browser regression test covering `pending` confirmation followed by a completed job and verifying that the importing state and finished file input disappear.
+
+---
+
 ## [0.9.16] - 2026-07-14
 
 ### Fixed

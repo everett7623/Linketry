@@ -17,7 +17,7 @@ Last updated: 2026-07-14
 | Deployment                 | ✅ Deployed            | Worker and Admin deployed; GitHub Actions deploy workflow added                                                                        |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                       |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md` |
-| Current version            | ✅ 0.9.16              | Large imports use bounded D1 batches; the supplied 195-row CSV completes successfully                                                                    |
+| Current version            | ✅ 0.9.17              | Completed background imports now exit the Admin importing state immediately                                                                               |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`, so a reset followed by `s.y8o.de` migration can keep legacy short URLs |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
@@ -112,6 +112,7 @@ Last updated: 2026-07-14
 | API Origin override cleared after transient failure | ✅ Fixed        | Admin only persists fallback to the build-time API after that origin authenticates successfully |
 | Large Shlink import confirm timeout                 | ✅ Fixed        | v0.9.13 returns a pending job before background parsing and reports failed jobs correctly         |
 | Large import stops after about 73 links             | ✅ Fixed        | v0.9.16 batches D1 writes; actual 195-row CSV passed first-import and duplicate-import checks     |
+| Admin remains in importing state after completion   | ✅ Fixed        | v0.9.17 uses immediate non-cached polling and clears completed import state                       |
 
 ## Migration Status
 

@@ -68,16 +68,16 @@ export function ImportExport() {
     }
   };
 
-  const loadJobs = () => {
+  const loadJobs = useCallback(() => {
     listImportJobs()
       .then(setJobs)
       .catch(() => {})
       .finally(() => setJobsLoading(false));
-  };
+  }, []);
 
   useEffect(() => {
     loadJobs();
-  }, []);
+  }, [loadJobs]);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -144,33 +144,42 @@ export function ImportExport() {
       })
     );
     setPreview(null);
+    setShowPreview(false);
     setContent('');
     setFilename('');
     if (fileRef.current) fileRef.current.value = '';
     loadJobs();
-  }, [error, success, t]);
+  }, [error, loadJobs, success, t]);
 
   useEffect(() => {
     if (!importJobId) return;
 
-    const interval = globalThis.setInterval(() => {
-      getImportJob(importJobId)
-        .then((job) => {
-          if (job.status === 'completed' || job.status === 'failed') {
-            globalThis.clearInterval(interval);
-            finishImport(job);
-          }
-        })
-        .catch((e) => {
-          globalThis.clearInterval(interval);
-          setImportJobId(null);
-          setConfirming(false);
-          error(String(e));
-        });
-    }, 2000);
+    let cancelled = false;
+    let nextPoll: ReturnType<typeof globalThis.setTimeout> | undefined;
 
-    return () => globalThis.clearInterval(interval);
-  }, [importJobId, finishImport]);
+    const poll = async () => {
+      try {
+        const job = await getImportJob(importJobId);
+        if (cancelled) return;
+        if (job.status === 'completed' || job.status === 'failed') {
+          finishImport(job);
+          return;
+        }
+        nextPoll = globalThis.setTimeout(poll, 1000);
+      } catch (e) {
+        if (cancelled) return;
+        setImportJobId(null);
+        setConfirming(false);
+        error(String(e));
+      }
+    };
+
+    void poll();
+    return () => {
+      cancelled = true;
+      if (nextPoll !== undefined) globalThis.clearTimeout(nextPoll);
+    };
+  }, [error, importJobId, finishImport]);
 
   const handleConfirm = async () => {
     if (!preview) return;
@@ -198,6 +207,7 @@ export function ImportExport() {
           })
         );
         setPreview(null);
+        setShowPreview(false);
         setContent('');
         setFilename('');
         if (fileRef.current) fileRef.current.value = '';
