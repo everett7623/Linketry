@@ -13,6 +13,15 @@ _(none)_
 
 ---
 
+## [0.9.8] - 2026-07-13
+
+### Changed
+
+- Made `LINKORA_KV_PREVIEW_ID` optional in the GitHub Actions deploy workflow. New users only need one KV namespace for production deployment.
+- Updated self-hosting documentation to list `LINKORA_KV_PREVIEW_ID` under optional advanced variables.
+
+---
+
 ## [0.9.7] - 2026-07-13
 
 ### Added
