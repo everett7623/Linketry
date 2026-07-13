@@ -65,6 +65,19 @@ function shouldCacheRedirect(link: Link): boolean {
   return !link.password_hash;
 }
 
+function buildRedirectUrl(targetUrl: string, requestUrl: URL): string {
+  try {
+    const target = new URL(targetUrl);
+    for (const [key, value] of requestUrl.searchParams) {
+      if (key.toLowerCase().startsWith('linkora_')) continue;
+      target.searchParams.set(key, value);
+    }
+    return target.toString();
+  } catch {
+    return targetUrl;
+  }
+}
+
 async function getRedirectLink(env: Env, domain: string, slug: string): Promise<Link | null> {
   return (await getLinkByDomainAndSlug(env, domain, slug)) ?? getDomainlessLinkBySlug(env, slug);
 }
@@ -176,7 +189,7 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
       })
     );
 
-    return redirectResponse(decision.targetUrl, link.redirect_type);
+    return redirectResponse(buildRedirectUrl(decision.targetUrl, new URL(c.req.url)), link.redirect_type);
   }
 
   // Re-check D1 on cache hits. This keeps admin changes authoritative even if
@@ -205,7 +218,7 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
       })
     );
 
-    return redirectResponse(decision.targetUrl, link.redirect_type);
+    return redirectResponse(buildRedirectUrl(decision.targetUrl, new URL(c.req.url)), link.redirect_type);
   } catch {
     // If D1 is temporarily unavailable but KV has an active entry, preserve the redirect.
     if (

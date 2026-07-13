@@ -8,7 +8,7 @@ One item in "In Progress" at a time whenever possible.
 ## 🔴 In Progress
 
 - [x] V9: Add OpenGraph preview cards for destination pages
-- [ ] V9+: Audit Shlink features and integrate high-value missing capabilities into Linkora
+- [ ] V9+: Integrate next high-value Shlink capabilities into Linkora (multi-segment slugs, extra-path forwarding, expired-link cleanup)
 
 ---
 
@@ -107,6 +107,18 @@ One item in "In Progress" at a time whenever possible.
 - [x] Add `importProcessing` EN/ZH i18n messages and disabled button state
 - [x] Prevent duplicate confirm clicks while a job is running
 - [x] Update `CHANGELOG.md`, package versions, env examples, and docs to `0.9.11`
+
+---
+
+## ✅ Completed — Shlink Feature Port (v0.9.12)
+
+- [x] Audit Shlink features and document gap in `docs/SHLINK_FEATURE_GAP.md`
+- [x] Port query parameter forwarding: merge short-URL query params into destination URL on redirect
+- [x] Exclude internal `linkora_*` query params from forwarding
+- [x] Port automatic title resolution: fetch destination page `<title>` when creating a link without a title
+- [x] Apply title resolution to single and bulk link creation via `ctx.waitUntil()`
+- [x] Add `resolvePageTitle` utility with timeout and HTML entity decoding
+- [x] Update `CHANGELOG.md`, package versions, env examples, and docs to `0.9.12`
 
 ---
 

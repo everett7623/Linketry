@@ -20,6 +20,7 @@ import { generateId, now, sha256 } from '../utils/id';
 import { validateSlug, validateLongUrl, validateDomain } from '@linkora/shared';
 import type { Link, KVCacheEntry } from '@linkora/shared';
 import { normalizeFallbackUrl } from '../links/fallbackUrl';
+import { resolvePageTitle } from '../utils/pageTitle';
 
 const links = new Hono<{ Bindings: Env }>();
 
@@ -251,6 +252,13 @@ async function prepareNewLink(
   return { link, tags: parsedTags.tags };
 }
 
+async function resolveAndSetTitle(env: Env, link: Link): Promise<void> {
+  if (link.title) return;
+  const title = await resolvePageTitle(link.long_url);
+  if (!title) return;
+  await updateLink(env, link.id, { title, updated_at: now() });
+}
+
 function parseStoredTags(value?: string | null): string[] {
   if (!value) return [];
   try {
@@ -393,6 +401,9 @@ links.post('/', async (c) => {
   await refreshLinkCache(c.env, cacheDomainForLink(link, fallbackDomain), link);
   await recordAudit(c.env, c.req.raw, 'link.create', 'link', link.id, { slug: link.slug });
   c.executionCtx.waitUntil(emitWebhook(c.env, 'link.created', { link: sanitizeLink(link) }));
+  if (!link.title) {
+    c.executionCtx.waitUntil(resolveAndSetTitle(c.env, link));
+  }
 
   return jsonCreated(sanitizeLink(link));
 });
@@ -456,6 +467,11 @@ links.post('/bulk-create', async (c) => {
     failed: failedCount,
     links: sanitizeLinks(createdLinks),
   }));
+  for (const createdLink of createdLinks) {
+    if (!createdLink.title) {
+      c.executionCtx.waitUntil(resolveAndSetTitle(c.env, createdLink));
+    }
+  }
 
   return jsonOk({
     total: items.length,

@@ -13,6 +13,20 @@ _(none)_
 
 ---
 
+## [0.9.12] - 2026-07-13
+
+### Added
+
+- Ported two high-value Shlink features into Linkora:
+  - **Query parameter forwarding**: query params on the short URL are now merged into the destination URL when redirecting. Internal `linkora_*` params are excluded.
+  - **Automatic title resolution**: when a link is created without a title, the Worker fetches the destination page in the background and extracts the `<title>` tag, then updates the link record.
+
+### Changed
+
+- Updated `docs/SHLINK_FEATURE_GAP.md` with the full Shlink vs Linkora capability comparison and priority roadmap.
+
+---
+
 ## [0.9.11] - 2026-07-13
 
 ### Fixed
