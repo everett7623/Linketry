@@ -1,11 +1,11 @@
 # Shlink Import
 
-Linkora supports Shlink JSON, JSONL, CSV, and authenticated Shlink API pull imports through the Admin Import / Export page.
+Linketry supports Shlink JSON, JSONL, CSV, and authenticated Shlink API pull imports through the Admin Import / Export page.
 
 ## Flow
 
 1. Export links from Shlink, or prepare a temporary Shlink API key.
-2. Open Linkora Admin.
+2. Open Linketry Admin.
 3. Go to Import / Export.
 4. Upload the Shlink file, or enter the Shlink URL and API key and click `Fetch Shlink`.
 5. Select `Shlink` or leave source as auto-detect when uploading a file.
@@ -14,11 +14,11 @@ Linkora supports Shlink JSON, JSONL, CSV, and authenticated Shlink API pull impo
 8. Click Import.
 
 Before the import mutates data, Admin downloads a pre-import `backup.json` snapshot.
-Shlink API keys are used only for the fetch request and are not stored by Linkora.
+Shlink API keys are used only for the fetch request and are not stored by Linketry.
 
 ## Field Mapping
 
-| Shlink field | Linkora field |
+| Shlink field | Linketry field |
 |--------------|---------------|
 | `shortCode` | `slug` |
 | `shortUrl` | `short_url` |
@@ -41,7 +41,7 @@ V1 conflict handling is intentionally conservative:
 
 ## Domain Cutover Note
 
-For a full Shlink-to-Linkora cutover, import from the Shlink API or export file before moving DNS. After import, the stored Linkora domain should match the legacy short domain, such as `s.y8o.de`. Only switch Cloudflare DNS or Worker custom domain after spot-checking imported links in Linkora.
+For a full Shlink-to-Linketry cutover, import from the Shlink API or export file before moving DNS. After import, the stored Linketry domain should match the legacy short domain, such as `s.y8o.de`. Only switch Cloudflare DNS or Worker custom domain after spot-checking imported links in Linketry.
 
 ## Validation
 

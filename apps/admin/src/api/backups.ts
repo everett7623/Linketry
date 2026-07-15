@@ -1,5 +1,5 @@
 import { apiGet, apiPost, downloadFile } from './client';
-import type { Backup } from '@linkora/shared';
+import type { Backup } from '@linketry/shared';
 
 export type RestoreConflictStrategy = 'skip' | 'rename' | 'overwrite';
 
@@ -55,29 +55,29 @@ export interface BackupRestoreResult extends BackupRestorePreview {
 }
 
 export function listBackups(): Promise<BackupsList> {
-  return apiGet('/api/backups');
+  return apiGet('/api/v1/backups');
 }
 
 export function createBackup(): Promise<Backup> {
-  return apiPost('/api/backups/create');
+  return apiPost('/api/v1/backups/create');
 }
 
 export function downloadBackup(backup: Backup): Promise<void> {
-  return downloadFile(`/api/backups/${backup.id}/download`, backupFilename(backup.filename));
+  return downloadFile(`/api/v1/backups/${backup.id}/download`, backupFilename(backup.filename));
 }
 
 export function previewBackupRestore(
   backup: Backup,
   conflictStrategy: RestoreConflictStrategy
 ): Promise<BackupRestorePreview> {
-  return apiPost(`/api/backups/${backup.id}/restore-preview`, { conflictStrategy });
+  return apiPost(`/api/v1/backups/${backup.id}/restore-preview`, { conflictStrategy });
 }
 
 export function restoreBackup(
   backup: Backup,
   conflictStrategy: RestoreConflictStrategy
 ): Promise<BackupRestoreResult> {
-  return apiPost(`/api/backups/${backup.id}/restore`, { conflictStrategy, confirm: true });
+  return apiPost(`/api/v1/backups/${backup.id}/restore`, { conflictStrategy, confirm: true });
 }
 
 function backupFilename(filename: string): string {

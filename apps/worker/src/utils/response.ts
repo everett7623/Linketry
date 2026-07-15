@@ -1,4 +1,4 @@
-import type { ApiResponse } from '@linkora/shared';
+import type { ApiResponse } from '@linketry/shared';
 import {
   renderDisabledPage,
   renderExpiredPage,

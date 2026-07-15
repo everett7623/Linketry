@@ -2,11 +2,11 @@
 
 ## Status
 
-Complete and verified locally for Linkora 0.9.15.
+Complete and verified locally for Linketry 0.9.15.
 
 ## Completed
 
-- [x] Default Admin access to the automatic `linkora-admin.pages.dev` URL.
+- [x] Default Admin access to the automatic `linketry-admin.pages.dev` URL.
 - [x] Require only `go.example.com` as the beginner custom domain.
 - [x] Keep `admin.example.com` as an optional later enhancement.
 - [x] Keep automatic stable ADMIN_TOKEN generation and retrieval guidance.

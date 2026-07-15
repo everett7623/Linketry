@@ -11,7 +11,7 @@ import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import { ConfirmDialog, Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
-import type { Domain } from '@linkora/shared';
+import type { Domain } from '@linketry/shared';
 import { useLocale } from '../contexts/LocaleContext';
 
 interface DomainForm {

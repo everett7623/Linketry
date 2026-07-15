@@ -41,7 +41,7 @@ export const settingsPageMessages = {
     removeCredential: 'Remove Credential',
     dangerZone: 'Danger Zone',
     resetHelp:
-      'Reset this Linkora instance to a clean initial state. Backups and the environment admin token are preserved.',
+      'Reset this Linketry instance to a clean initial state. Backups and the environment admin token are preserved.',
     resetInstance: 'Reset Instance',
     resetWarning:
       'This deletes links, analytics, domains, tags, imports, API tokens, audit logs, redirect rules, and settings.',
@@ -97,7 +97,7 @@ export const settingsPageMessages = {
     leaveBlankToKeep: '留空则保留已保存的凭据',
     removeCredential: '移除凭据',
     dangerZone: '危险区域',
-    resetHelp: '将 Linkora 实例重置为干净的初始状态。备份和环境管理员令牌会保留。',
+    resetHelp: '将 Linketry 实例重置为干净的初始状态。备份和环境管理员令牌会保留。',
     resetInstance: '重置实例',
     resetWarning:
       '此操作会删除短链、分析数据、域名、标签、导入记录、API 令牌、审计日志、跳转规则和设置。',

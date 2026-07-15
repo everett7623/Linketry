@@ -1,5 +1,5 @@
 import { apiGet, apiPost } from './client';
-import type { ApiToken, ApiTokenScope } from '@linkora/shared';
+import type { ApiToken, ApiTokenScope } from '@linketry/shared';
 
 export interface CreateApiTokenPayload {
   name: string;
@@ -12,13 +12,13 @@ export interface CreateApiTokenResult {
 }
 
 export function listApiTokens(): Promise<ApiToken[]> {
-  return apiGet('/api/tokens');
+  return apiGet('/api/v1/tokens');
 }
 
 export function createApiToken(payload: CreateApiTokenPayload): Promise<CreateApiTokenResult> {
-  return apiPost('/api/tokens', payload);
+  return apiPost('/api/v1/tokens', payload);
 }
 
 export function revokeApiToken(id: string): Promise<{ message: string; revokedAt: string }> {
-  return apiPost(`/api/tokens/${id}/revoke`);
+  return apiPost(`/api/v1/tokens/${id}/revoke`);
 }

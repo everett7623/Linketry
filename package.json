@@ -1,6 +1,13 @@
 {
-  "name": "linkora",
-  "version": "0.9.22",
+  "name": "linketry",
+  "version": "0.10.3",
+  "description": "Linketry is a self-hosted link management, analytics and monitoring platform.",
+  "author": "everettlabs",
+  "homepage": "https://linketry.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/everettlabs/linketry.git"
+  },
   "license": "GPL-3.0-only",
   "private": true,
   "workspaces": [

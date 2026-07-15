@@ -1,5 +1,5 @@
-import type { ImportAdapter, NormalizedImportItem, ImportValidationResult } from '@linkora/shared';
-import { validateSlug, validateLongUrl } from '@linkora/shared';
+import type { ImportAdapter, NormalizedImportItem, ImportValidationResult } from '@linketry/shared';
+import { validateSlug, validateLongUrl } from '@linketry/shared';
 import { domainFromUrl } from './domain';
 
 interface ShlinkJsonItem {

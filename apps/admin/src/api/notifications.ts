@@ -15,16 +15,16 @@ export interface NotificationConfig {
 }
 
 export function getNotificationConfig(): Promise<NotificationConfig> {
-  return apiGet('/api/notifications/config', { cache: 'no-store' });
+  return apiGet('/api/v1/notifications/config', { cache: 'no-store' });
 }
 
 export function updateNotificationChannel(
   provider: NotificationProvider,
   payload: { enabled: boolean; credential?: string; target?: string; clearCredential?: boolean }
 ): Promise<NotificationChannelConfig> {
-  return apiPut(`/api/notifications/config/${provider}`, payload);
+  return apiPut(`/api/v1/notifications/config/${provider}`, payload);
 }
 
 export function testNotificationChannel(provider: NotificationProvider): Promise<{ ok: boolean; status?: number }> {
-  return apiPost(`/api/notifications/test/${provider}`);
+  return apiPost(`/api/v1/notifications/test/${provider}`);
 }

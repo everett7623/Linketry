@@ -24,7 +24,7 @@ import {
 import { Button } from '../components/ui/Button';
 import { Textarea } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
-import type { ImportFieldMapping, ImportJob } from '@linkora/shared';
+import type { ImportFieldMapping, ImportJob } from '@linketry/shared';
 import type { ImportConflictStrategy } from '../api/importExport';
 import { useLocale } from '../contexts/LocaleContext';
 
@@ -249,7 +249,7 @@ export function ImportExport() {
               <option value="sink">Sink (JSON / JSONL)</option>
               <option value="yourls">YOURLS (JSON / JSONL)</option>
               <option value="dub">Dub (JSON / JSONL)</option>
-              <option value="linkora-backup">{t('linkoraBackupFormat')}</option>
+              <option value="linketry-backup">{t('linketryBackupFormat')}</option>
               <option value="generic-csv">{t('genericCsvFormat')}</option>
               <option value="generic-json">{t('genericJsonFormat')}</option>
             </select>

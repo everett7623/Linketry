@@ -124,7 +124,7 @@ export function WebhookSettingsPanel() {
 
       <Input
         label={t('webhookUrl')}
-        placeholder="https://example.com/linkora/webhook"
+        placeholder="https://example.com/linketry/webhook"
         value={webhook.url}
         onChange={(e) => setField('url', e.target.value)}
       />

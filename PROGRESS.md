@@ -17,9 +17,23 @@ Last updated: 2026-07-15
 | Deployment                 | ✅ Deployed            | Worker and Admin deployed; GitHub Actions deploy workflow added                                                                        |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                       |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md` |
-| Current version            | ✅ 0.9.22              | Next development is scoped for bulk UTM normalization followed by Admin display preferences                                                               |
+| Current version            | ✅ 0.10.3              | Linketry rebrand, authenticated OpenAPI, duplicate destination detection, and primary Logo integration complete; next: deployment bootstrap and official site/Demo |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.10 Rebrand And Upgrade Safety
+
+| Area | Status | Notes |
+|---|---|---|
+| Product identity | ✅ Complete | Linketry; author `everettlabs`; website `linketry.dev`; repository `everettlabs/linketry`; image `everett7623/linketry` |
+| API namespace | ✅ Complete | `/api/v1` is canonical; old `/api/*` aliases remain deprecated for `0.10.x` |
+| Existing data | ✅ Preserved | No new D1 migration; existing binding IDs, rows, links, visits, settings, domains, backups, and slugs remain unchanged |
+| Configuration | ✅ Compatible | New `LINKETRY_*` names take priority; existing Linkora repository variables and Worker secret remain accepted during upgrade |
+| Admin session | ✅ Compatible | Legacy token, API origin, locale, and mode keys migrate in-browser without forced logout |
+| Cache and backup | ✅ Compatible | D1 remains the source of truth; legacy KV keys and `Linkora Backup` payloads remain readable |
+| Deployment tracks | ✅ Documented | Fresh beginner install, non-destructive existing upgrade, and isolated Demo remain separate |
 
 ---
 
@@ -41,31 +55,31 @@ Last updated: 2026-07-15
 
 | Endpoint                         | Code | Tested |
 | -------------------------------- | ---- | ------ |
-| `POST /api/auth/login`           | ✅   | ✅     |
-| `GET  /api/auth/me`              | ✅   | ✅     |
-| `GET    /api/links`              | ✅   | ✅     |
-| `POST   /api/links`              | ✅   | ✅     |
-| `GET    /api/links/:id`          | ✅   | ✅     |
-| `PUT    /api/links/:id`          | ✅   | ✅     |
-| `DELETE /api/links/:id`          | ✅   | ✅     |
-| `POST   /api/links/:id/disable`  | ✅   | ✅     |
-| `POST   /api/links/:id/enable`   | ✅   | ✅     |
-| `POST   /api/links/:id/archive`  | ✅   | ✅     |
-| `POST   /api/links/:id/restore`  | ✅   | ✅     |
-| `GET    /api/tags`               | ✅   | ✅     |
-| `POST   /api/tags`               | ✅   | ✅     |
-| `PUT    /api/tags/:id`           | ✅   | ✅     |
-| `DELETE /api/tags/:id`           | ✅   | ✅     |
-| `GET    /api/settings`           | ✅   | ✅     |
-| `PUT    /api/settings`           | ✅   | ✅     |
-| `GET    /api/export/links.csv`   | ✅   | ✅     |
-| `GET    /api/export/links.json`  | ✅   | ✅     |
-| `GET    /api/export/backup.json` | ✅   | ✅     |
-| `GET    /api/export/visits.csv`  | ✅   | ✅     |
+| `POST /api/v1/auth/login`           | ✅   | ✅     |
+| `GET  /api/v1/auth/me`              | ✅   | ✅     |
+| `GET    /api/v1/links`              | ✅   | ✅     |
+| `POST   /api/v1/links`              | ✅   | ✅     |
+| `GET    /api/v1/links/:id`          | ✅   | ✅     |
+| `PUT    /api/v1/links/:id`          | ✅   | ✅     |
+| `DELETE /api/v1/links/:id`          | ✅   | ✅     |
+| `POST   /api/v1/links/:id/disable`  | ✅   | ✅     |
+| `POST   /api/v1/links/:id/enable`   | ✅   | ✅     |
+| `POST   /api/v1/links/:id/archive`  | ✅   | ✅     |
+| `POST   /api/v1/links/:id/restore`  | ✅   | ✅     |
+| `GET    /api/v1/tags`               | ✅   | ✅     |
+| `POST   /api/v1/tags`               | ✅   | ✅     |
+| `PUT    /api/v1/tags/:id`           | ✅   | ✅     |
+| `DELETE /api/v1/tags/:id`           | ✅   | ✅     |
+| `GET    /api/v1/settings`           | ✅   | ✅     |
+| `PUT    /api/v1/settings`           | ✅   | ✅     |
+| `GET    /api/v1/export/links.csv`   | ✅   | ✅     |
+| `GET    /api/v1/export/links.json`  | ✅   | ✅     |
+| `GET    /api/v1/export/backup.json` | ✅   | ✅     |
+| `GET    /api/v1/export/visits.csv`  | ✅   | ✅     |
 | Pre-import backup download       | ✅   | ⏳     |
-| `POST   /api/import/preview`     | ✅   | ✅     |
-| `POST   /api/import/confirm`     | ✅   | ✅     |
-| `GET    /api/import/jobs`        | ✅   | ✅     |
+| `POST   /api/v1/import/preview`     | ✅   | ✅     |
+| `POST   /api/v1/import/confirm`     | ✅   | ✅     |
+| `GET    /api/v1/import/jobs`        | ✅   | ✅     |
 
 ### Import Adapters
 
@@ -94,10 +108,11 @@ Last updated: 2026-07-15
 
 ## Next Steps
 
-1. Build the V9 bulk UTM append/normalization workflow with selection/filter scope, preview, bounded D1 writes, affected-link KV invalidation, and a downloadable change record
-2. Add V8 per-browser sidebar/table density preferences and instance-level visibility for optional Advanced modules
-3. Preserve Simple/Advanced mode, EN/ZH coverage, redirect stability, and recovery-route visibility throughout both tasks
-4. Keep Shlink API-key rotation and legacy-domain cutover deferred while Shlink remains in use
+1. Separate non-destructive owner production upgrades, fresh beginner installs in each user's own Cloudflare account, and the official Demo; add required-resource provisioning, backup/migration gates, preflight checks, and fresh-account/upgrade rehearsals
+2. Launch an official Linketry-domain project site and an isolated, read-only or resettable Demo after the owner selects the domain
+3. Add optional Cloudflare Access and asynchronous signed click webhooks, then complete Admin display preferences
+4. Keep themes, card views, social preview customization, broader locales, real-time visuals, optional AI, and external clients behind the foundational work
+5. Keep the separate supporter/coffee domain and Shlink retirement operations deferred until their external prerequisites are ready
 
 ---
 
@@ -118,7 +133,7 @@ Last updated: 2026-07-15
 
 | Source                           | Status      | Notes                                                             |
 | -------------------------------- | ----------- | ----------------------------------------------------------------- |
-| Shlink API                       | ✅ Imported | 195 links imported into production Linkora, 0 failed, 0 skipped   |
+| Shlink API                       | ✅ Imported | 195 links imported into production Linketry, 0 failed, 0 skipped   |
 | Duplicate import safety          | ✅ Verified | Re-preview after import reports 195 conflicts and 0 valid imports |
 | Imported redirect spot-check     | ✅ Verified | Sample slugs return 302 from production Worker                    |
 | Legacy short-domain cutover plan | ✅ Prepared | See `CUTOVER.md`; cutover not executed yet                        |
@@ -150,7 +165,7 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Bulk tag assignment                | ✅ Done | Links table supports multi-select add, replace, remove, and clear tag modes                                    |
 | Expiry / max clicks                | ✅ Done | Create/Edit forms support `expires_at` and `max_clicks`; redirects return expired page when limits are reached |
 | Auto-fetch page title              | ✅ Done | Create/Edit forms can fetch the target page title through an authenticated Worker metadata endpoint            |
-| Visits CSV export                  | ✅ Done | `/api/export/visits.csv` and Admin download button added; local API smoke test passed                          |
+| Visits CSV export                  | ✅ Done | `/api/v1/export/visits.csv` and Admin download button added; local API smoke test passed                          |
 | Tags management page               | ✅ Done | Admin page supports tag create, edit, search, color, description, and delete                                   |
 | Link tag catalog sync              | ✅ Done | Link tags auto-create catalog entries; local rename/delete sync smoke test passed                              |
 | Link form tag picker               | ✅ Done | Create/Edit forms load Tags catalog and offer clickable tag chips                                              |
@@ -163,8 +178,8 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | YOURLS importer adapter            | ✅ Done | JSON / JSONL-style payloads supported; local smoke test passed                                                 |
 | Dub importer adapter               | ✅ Done | JSON / JSONL-style payloads supported; local smoke test passed                                                 |
 | Import conflict strategies         | ✅ Done | `skip`, `rename`, and `overwrite` implemented; local smoke test passed                                         |
-| Linkora backup.json restore import | ✅ Done | Restores backup links and tag catalog entries; local smoke test passed                                         |
-| Bulk create links                  | ✅ Done | Admin page and `POST /api/links/bulk-create` create up to 100 links at a time                                  |
+| Linketry backup.json restore import | ✅ Done | Restores backup links and tag catalog entries; local smoke test passed                                         |
+| Bulk create links                  | ✅ Done | Admin page and `POST /api/v1/links/bulk-create` create up to 100 links at a time                                  |
 | Links advanced filters             | ✅ Done | Links list filters by source, domain, password, warning, limits, and created date range                        |
 | Generic CSV field mapping          | ✅ Done | Generic CSV import accepts explicit field mapping for non-standard headers                                     |
 | Generic JSON / JSONL field mapping | ✅ Done | Generic JSON import accepts mapped fields and common wrapped arrays                                            |
@@ -188,12 +203,12 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Feature                      | Status  | Notes                                                                                                                                                                                                                                                                               |
 | ---------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Smart redirect evaluator     | ✅ Done | Redirects can resolve country, device, browser, referer, language, and weighted/A-B rules with default long URL fallback on any rule failure                                                                                                                                        |
-| Redirect Rules API           | ✅ Done | `/api/redirect-rules` supports list, create, update, and delete with auth and audit logs                                                                                                                                                                                            |
+| Redirect Rules API           | ✅ Done | `/api/v1/redirect-rules` supports list, create, update, and delete with auth and audit logs                                                                                                                                                                                            |
 | Admin Redirect Rules page    | ✅ Done | Admin can create, edit, filter, and delete rules by link                                                                                                                                                                                                                            |
-| Backup / restore for rules   | ✅ Done | `backup.json` includes `redirectRules`; Linkora backup restore reattaches rules to restored or overwritten links                                                                                                                                                                    |
+| Backup / restore for rules   | ✅ Done | `backup.json` includes `redirectRules`; Linketry backup restore reattaches rules to restored or overwritten links                                                                                                                                                                    |
 | V4 production validation     | ✅ Done | 21-check production smoke plus backup restore smoke passed; temporary `lk-v4-*` links cleaned up                                                                                                                                                                                    |
-| Campaign / project grouping  | ✅ Done | Admin Groups page and `/api/groups` manage `campaign:*` / `project:*` tags; 15-check production smoke passed and temporary groups cleaned up                                                                                                                                        |
-| Local smart link suggestions | ✅ Done | Authenticated `/api/metadata/suggestions` suggests slugs, title, description, and tags from URL/page metadata; Create/Edit forms can apply suggestions; 8-check production smoke plus 10-check core regression passed and temporary `lk-v4-ai-*` / `lk-v4-final-*` links cleaned up |
+| Campaign / project grouping  | ✅ Done | Admin Groups page and `/api/v1/groups` manage `campaign:*` / `project:*` tags; 15-check production smoke passed and temporary groups cleaned up                                                                                                                                        |
+| Local smart link suggestions | ✅ Done | Authenticated `/api/v1/metadata/suggestions` suggests slugs, title, description, and tags from URL/page metadata; Create/Edit forms can apply suggestions; 8-check production smoke plus 10-check core regression passed and temporary `lk-v4-ai-*` / `lk-v4-final-*` links cleaned up |
 | Link health checker          | ✅ Done | Manual URL, single-link, and capped active-link batch checks; 15-check production smoke passed and temporary `lk-v4-health-*` links cleaned up                                                                                                                                      |
 
 ### V6 Progress
@@ -204,8 +219,8 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Analytics filters          | ✅ Done              | API/Admin filters cover link, slug, domain, tag, campaign, project, country, device, browser, referer, and UTM values                                                                                 |
 | UTM breakdown              | ✅ Done              | Summary includes top UTM sources, mediums, campaigns, terms, and contents                                                                                                                             |
 | A/B target statistics      | ✅ Done              | Redirect target decisions are stored in `visit_targets` without changing redirect behavior                                                                                                            |
-| Conversion events          | ✅ Done              | `POST /api/conversions` records authenticated goal events                                                                                                                                             |
-| Analytics report export    | ✅ Done              | `/api/export/analytics.csv` exports summary report sections                                                                                                                                           |
+| Conversion events          | ✅ Done              | `POST /api/v1/conversions` records authenticated goal events                                                                                                                                             |
+| Analytics report export    | ✅ Done              | `/api/v1/export/analytics.csv` exports summary report sections                                                                                                                                           |
 | Raw analytics retention    | ✅ Done              | `analytics_retention_days` setting is enforced by scheduled Worker cleanup                                                                                                                            |
 | V6 validation              | ✅ Production passed | GitHub Actions migration/deploy passed; production smoke covered health, auth rejection, redirects, filters, single-link analytics, conversions, Analytics CSV export, retention setting, and cleanup |
 
@@ -213,11 +228,11 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 
 | Feature                      | Status  | Notes                                                                                                                                                                                 |
 | ---------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| R2 restore preview           | ✅ Done | `POST /api/backups/:id/restore-preview` returns create, overwrite, rename, skip, invalid, and redirect-rule counts                                                                    |
+| R2 restore preview           | ✅ Done | `POST /api/v1/backups/:id/restore-preview` returns create, overwrite, rename, skip, invalid, and redirect-rule counts                                                                    |
 | R2 one-click restore         | ✅ Done | Admin Backups page can restore completed R2 snapshots with `skip`, `rename`, or `overwrite`                                                                                           |
 | Pre-restore backup           | ✅ Done | Restore creates a fresh `pre-restore` R2 snapshot before mutating D1                                                                                                                  |
 | Restore report               | ✅ Done | Restore result includes created, overwritten, renamed, skipped, failed, redirect-rule counts, and a CSV-style report                                                                  |
-| Factory reset                | ✅ Done | Admin Settings danger zone previews affected rows, requires `RESET LINKORA`, creates optional `pre-reset` R2 backup, clears KV cache, and preserves backup records plus `ADMIN_TOKEN` |
+| Factory reset                | ✅ Done | Admin Settings danger zone previews affected rows, requires `RESET LINKETRY`, creates optional `pre-reset` R2 backup, clears KV cache, and preserves backup records plus `LINKETRY_ADMIN_TOKEN` |
 | Backup retention             | ✅ Done | Advanced Settings configures 1-3650 days (default 30); Cron deletes expired R2 objects before their D1 records and preserves records when R2 is unavailable                           |
 | Target monitoring and alerts | ✅ Done | Cron rotates through active links with thresholds, suppression, complete failure/recovery notifications, signed Webhooks, persisted notices, and a bounded 200-record target history |
 | Fallback URL editing         | ✅ Done | Create/Edit Link can set or clear a validated HTTP(S) fallback URL for monitoring and future workflows; public redirect behavior remains unchanged                                      |

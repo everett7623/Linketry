@@ -3,8 +3,8 @@
 ## Secrets
 
 - Do not commit `.dev.vars`.
-- Do not commit real `ADMIN_TOKEN` values.
-- Use `wrangler secret put ADMIN_TOKEN` for production.
+- Do not commit real `LINKETRY_ADMIN_TOKEN` values.
+- Use `wrangler secret put LINKETRY_ADMIN_TOKEN` for production.
 - Keep migration tokens and Shlink API keys out of source control.
 
 ## Admin API
@@ -12,12 +12,12 @@
 Admin login uses bearer-token auth:
 
 ```http
-Authorization: Bearer <ADMIN_TOKEN>
+Authorization: Bearer <LINKETRY_ADMIN_TOKEN>
 ```
 
 API tokens are stored as SHA-256 hashes in D1 and can be scoped as `read`, `write`, or `admin`. New token plaintext is returned only once when it is created.
 
-All `/api/*` routes must pass through `src/auth/index.ts`.
+All `/api/v1/*` routes must pass through `src/auth/index.ts`.
 
 ## URL Safety
 

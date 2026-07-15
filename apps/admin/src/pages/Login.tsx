@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { LINKORA_VERSION } from '@linkora/shared';
+import { LINKETRY_VERSION } from '@linketry/shared';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
@@ -55,10 +55,14 @@ export function Login() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-600 shadow-lg shadow-brand-600/30 mb-4">
-            <Zap size={28} className="text-white" />
+          <div className="relative mb-4 h-24 w-full max-w-[360px] overflow-hidden rounded-2xl bg-white shadow-lg shadow-brand-600/20">
+            <img
+              src="/linketry-logo.png"
+              alt="Linketry"
+              className="absolute left-0 top-1/2 w-full -translate-y-1/2"
+            />
           </div>
-          <h1 className="text-2xl font-bold text-slate-100">Linkora Admin</h1>
+          <h1 className="text-2xl font-bold text-slate-100">Linketry Admin</h1>
           <p className="text-sm text-slate-400 mt-1">{t('adminSubtitle')}</p>
         </div>
 
@@ -125,7 +129,7 @@ export function Login() {
         </div>
 
         <p className="text-center text-xs text-slate-600 mt-6">
-          Linkora v{LINKORA_VERSION} — {t('selfHosted')}
+          Linketry v{LINKETRY_VERSION} — {t('selfHosted')}
         </p>
         <div className="mx-auto mt-4 w-44">
           <LanguageSwitcher />

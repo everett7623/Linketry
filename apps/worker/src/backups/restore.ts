@@ -1,4 +1,11 @@
-import type { Backup, ImportAdapter, Link, NormalizedImportItem, RedirectRule, Tag } from '@linkora/shared';
+import type {
+  Backup,
+  ImportAdapter,
+  Link,
+  NormalizedImportItem,
+  RedirectRule,
+  Tag,
+} from '@linketry/shared';
 import type { Env } from '../types';
 import {
   createLink,
@@ -8,9 +15,9 @@ import {
   updateLink,
 } from '../db/index';
 import {
-  extractLinkoraBackupRedirectRules,
-  extractLinkoraBackupTags,
-  LinkoraBackupAdapter,
+  extractLinketryBackupRedirectRules,
+  extractLinketryBackupTags,
+  LinketryBackupAdapter,
 } from '../importers/platforms';
 import { generateId, now } from '../utils/id';
 import {
@@ -88,8 +95,15 @@ export async function previewBackupRestore(
   conflictStrategy: RestoreConflictStrategy
 ): Promise<BackupRestorePreview> {
   const { items, tags, redirectRules } = await parseBackupPayload(payload);
-  const actions = await planRestoreActions(env, items, LinkoraBackupAdapter, conflictStrategy);
-  return buildPreview(payload, items.length, tags.length, redirectRules.length, conflictStrategy, actions);
+  const actions = await planRestoreActions(env, items, LinketryBackupAdapter, conflictStrategy);
+  return buildPreview(
+    payload,
+    items.length,
+    tags.length,
+    redirectRules.length,
+    conflictStrategy,
+    actions
+  );
 }
 
 export async function restoreBackupPayload(
@@ -100,7 +114,7 @@ export async function restoreBackupPayload(
   preRestoreBackup?: Backup
 ): Promise<BackupRestoreResult> {
   const { items, tags, redirectRules } = await parseBackupPayload(payload);
-  const actions = await planRestoreActions(env, items, LinkoraBackupAdapter, conflictStrategy);
+  const actions = await planRestoreActions(env, items, LinketryBackupAdapter, conflictStrategy);
   const ts = now();
   const reportRows = ['slug,action,status,reason'];
   const linkIdByBackupId = new Map<string, string>();
@@ -123,7 +137,14 @@ export async function restoreBackupPayload(
 
     if (planned.action === 'skip') {
       skipped++;
-      reportRows.push(csvRow(item.slug, 'skip', 'skipped', planned.conflict ? 'slug already exists' : 'not selected'));
+      reportRows.push(
+        csvRow(
+          item.slug,
+          'skip',
+          'skipped',
+          planned.conflict ? 'slug already exists' : 'not selected'
+        )
+      );
       continue;
     }
 
@@ -132,7 +153,9 @@ export async function restoreBackupPayload(
         const existing = await getLinkBySlug(env, item.slug);
         if (!existing) {
           failed++;
-          reportRows.push(csvRow(item.slug, 'overwrite', 'failed', 'conflicting link disappeared before restore'));
+          reportRows.push(
+            csvRow(item.slug, 'overwrite', 'failed', 'conflicting link disappeared before restore')
+          );
           continue;
         }
         const fields = overwriteFieldsFromBackupItem(item, existing, ts);
@@ -157,15 +180,37 @@ export async function restoreBackupPayload(
       if (backupLinkId) linkIdByBackupId.set(backupLinkId, link.id);
       if (planned.action === 'rename') renamed++;
       else created++;
-      reportRows.push(csvRow(item.slug, planned.action, 'success', planned.action === 'rename' ? slug : ''));
+      reportRows.push(
+        csvRow(item.slug, planned.action, 'success', planned.action === 'rename' ? slug : '')
+      );
     } catch (error) {
       failed++;
-      reportRows.push(csvRow(item.slug, planned.action, 'failed', error instanceof Error ? error.message : String(error)));
+      reportRows.push(
+        csvRow(
+          item.slug,
+          planned.action,
+          'failed',
+          error instanceof Error ? error.message : String(error)
+        )
+      );
     }
   }
 
-  const redirectRulesRestored = await restoreBackupRedirectRules(env, redirectRules, linkIdByBackupId, replaceRuleLinkIds, ts);
-  const preview = buildPreview(payload, items.length, tags.length, redirectRules.length, conflictStrategy, actions);
+  const redirectRulesRestored = await restoreBackupRedirectRules(
+    env,
+    redirectRules,
+    linkIdByBackupId,
+    replaceRuleLinkIds,
+    ts
+  );
+  const preview = buildPreview(
+    payload,
+    items.length,
+    tags.length,
+    redirectRules.length,
+    conflictStrategy,
+    actions
+  );
   return {
     ...preview,
     mode: 'restore',
@@ -186,11 +231,13 @@ async function parseBackupPayload(payload: unknown): Promise<{
   tags: Tag[];
   redirectRules: RedirectRule[];
 }> {
-  if (!LinkoraBackupAdapter.detect(payload)) throw new Error('Invalid Linkora backup payload');
+  if (!LinketryBackupAdapter.detect(payload)) {
+    throw new Error('Invalid Linketry or legacy Linkora backup payload');
+  }
   return {
-    items: await LinkoraBackupAdapter.parse(payload),
-    tags: extractLinkoraBackupTags(payload),
-    redirectRules: extractLinkoraBackupRedirectRules(payload),
+    items: await LinketryBackupAdapter.parse(payload),
+    tags: extractLinketryBackupTags(payload),
+    redirectRules: extractLinketryBackupRedirectRules(payload),
   };
 }
 
@@ -206,11 +253,14 @@ async function planRestoreActions(
 
   return items.map((item) => {
     const validation = adapter.validate(item);
-    if (!validation.valid) return { item, valid: false, errors: validation.errors, conflict: false, action: 'invalid' };
+    if (!validation.valid)
+      return { item, valid: false, errors: validation.errors, conflict: false, action: 'invalid' };
 
     const conflict = existingSlugs.has(item.slug);
-    if (conflict && conflictStrategy === 'skip') return { item, valid: true, errors: [], conflict, action: 'skip' };
-    if (conflict && conflictStrategy === 'overwrite') return { item, valid: true, errors: [], conflict, action: 'overwrite' };
+    if (conflict && conflictStrategy === 'skip')
+      return { item, valid: true, errors: [], conflict, action: 'skip' };
+    if (conflict && conflictStrategy === 'overwrite')
+      return { item, valid: true, errors: [], conflict, action: 'overwrite' };
     if (conflict && conflictStrategy === 'rename') {
       const nextSlug = makeUniqueSlug(item.slug, reservedSlugs);
       reservedSlugs.add(nextSlug);
@@ -255,8 +305,14 @@ function buildPreview(
   };
 }
 
-function backupSummary(payload: unknown, links: number, tags: number, redirectRules: number): BackupRestorePreview['backup'] {
-  const obj = typeof payload === 'object' && payload !== null ? payload as Record<string, unknown> : {};
+function backupSummary(
+  payload: unknown,
+  links: number,
+  tags: number,
+  redirectRules: number
+): BackupRestorePreview['backup'] {
+  const obj =
+    typeof payload === 'object' && payload !== null ? (payload as Record<string, unknown>) : {};
   return {
     exportedAt: typeof obj.exportedAt === 'string' ? obj.exportedAt : undefined,
     version: typeof obj.version === 'string' ? obj.version : undefined,

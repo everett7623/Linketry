@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Save } from 'lucide-react';
-import { LINKORA_VERSION } from '@linkora/shared';
+import { LINKETRY_VERSION } from '@linketry/shared';
 import { getSettings, updateSettings } from '../api/settings';
 import { ResetSettingsPanel } from '../components/settings/ResetSettingsPanel';
 import { WebhookSettingsPanel } from '../components/settings/WebhookSettingsPanel';
@@ -20,7 +20,7 @@ export function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    site_name: 'Linkora',
+    site_name: 'Linketry',
     default_redirect_type: '302',
     default_domain: '',
     analytics_retention_days: '0',
@@ -35,7 +35,7 @@ export function Settings() {
     getSettings()
       .then((s) => {
         setForm({
-          site_name: s.site_name ?? 'Linkora',
+          site_name: s.site_name ?? 'Linketry',
           default_redirect_type: s.default_redirect_type ?? '302',
           default_domain: s.default_domain ?? '',
           analytics_retention_days: s.analytics_retention_days ?? '0',
@@ -206,7 +206,7 @@ export function Settings() {
         </h2>
         <div className="space-y-1 text-sm text-slate-400">
           <p>
-            {t('version')}: <span className="font-mono text-slate-200">{LINKORA_VERSION}</span>
+            {t('version')}: <span className="font-mono text-slate-200">{LINKETRY_VERSION}</span>
           </p>
           <p>
             {t('platform')}: <span className="text-slate-200">Cloudflare Workers + D1 + KV</span>
@@ -214,7 +214,7 @@ export function Settings() {
           <p>
             {t('documentation')}:{' '}
             <a
-              href="https://github.com/everett7623/Linkora"
+              href="https://github.com/everettlabs/linketry"
               target="_blank"
               rel="noopener noreferrer"
               className="text-brand-400 hover:text-brand-300"

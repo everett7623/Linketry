@@ -5,8 +5,8 @@ import type {
   LinkHealthCheckResult,
   LinkHealthMethod,
   LinkHealthStatus,
-} from '@linkora/shared';
-import { validateLongUrl } from '@linkora/shared';
+} from '@linketry/shared';
+import { validateLongUrl } from '@linketry/shared';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { getLinkById, getLinksByIds, getSettings, listLinks, setSetting } from '../db/index';
@@ -272,7 +272,7 @@ async function fetchForHealth(url: string, method: LinkHealthMethod): Promise<Re
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     headers: {
       Accept: method === 'HEAD' ? '*/*' : 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1',
-      'User-Agent': 'Linkora/0.1 health-check (+https://github.com/EvenFrank/Linkora)',
+      'User-Agent': 'Linketry/0.1 health-check (+https://github.com/everettlabs/linketry)',
       ...(method === 'GET' ? { Range: 'bytes=0-0' } : {}),
     },
   });

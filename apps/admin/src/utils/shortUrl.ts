@@ -1,4 +1,4 @@
-import type { Link } from '@linkora/shared';
+import type { Link } from '@linketry/shared';
 
 export function normalizeShortDomain(domain?: string | null): string {
   return (domain ?? '').trim().replace(/^https?:\/\//i, '').replace(/\/+$/g, '');

@@ -1,5 +1,5 @@
 import { apiGet } from './client';
-import type { AuditLog, PaginatedResult } from '@linkora/shared';
+import type { AuditLog, PaginatedResult } from '@linketry/shared';
 
 export interface ListAuditParams {
   keyword?: string;
@@ -16,5 +16,5 @@ export function listAuditLogs(params: ListAuditParams = {}): Promise<PaginatedRe
   if (params.targetType) q.set('targetType', params.targetType);
   if (params.page) q.set('page', String(params.page));
   if (params.pageSize) q.set('pageSize', String(params.pageSize));
-  return apiGet(`/api/audit?${q.toString()}`);
+  return apiGet(`/api/v1/audit?${q.toString()}`);
 }

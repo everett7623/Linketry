@@ -66,7 +66,7 @@ test('English and Chinese message catalogs have identical keys', () => {
 test('Message interpolation replaces repeated variables without changing unknown placeholders', () => {
   assert.equal(formatMessage('{count} of {count}', { count: 3 }), '3 of 3');
   assert.equal(
-    formatMessage('Hello {name} {missing}', { name: 'Linkora' }),
-    'Hello Linkora {missing}'
+    formatMessage('Hello {name} {missing}', { name: 'Linketry' }),
+    'Hello Linketry {missing}'
   );
 });

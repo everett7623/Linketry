@@ -2,7 +2,7 @@
 
 ## Status
 
-Complete and verified locally for Linkora 0.8.2.
+Complete and verified locally for Linketry 0.8.2.
 
 ## Completed
 

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Activity, AlertTriangle, Archive, Database, RefreshCw, Server, Waypoints } from 'lucide-react';
-import type { DeploymentCapabilities, LinkHealthBatchResult } from '@linkora/shared';
+import type { DeploymentCapabilities, LinkHealthBatchResult } from '@linketry/shared';
 import { listBackups, type BackupsList } from '../api/backups';
 import {
   getHealthAlertStatus,

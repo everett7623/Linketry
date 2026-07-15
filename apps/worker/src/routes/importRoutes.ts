@@ -23,16 +23,16 @@ import { ShlinkAdapter } from '../importers/shlink';
 import { GenericCsvAdapter, GenericJsonAdapter } from '../importers/generic';
 import {
   DubAdapter,
-  extractLinkoraBackupRedirectRules,
-  extractLinkoraBackupTags,
-  LinkoraBackupAdapter,
+  extractLinketryBackupRedirectRules,
+  extractLinketryBackupTags,
+  LinketryBackupAdapter,
   SinkAdapter,
   YourlsAdapter,
 } from '../importers/platforms';
 import { normalizeDomain } from '../importers/domain';
 import { runAfterImportQueueBoundary } from '../importers/queue';
 import { chunkImportItems } from '../importers/batching';
-import type { ImportFieldMapping, Link, NormalizedImportItem, ImportAdapter, KVCacheEntry, RedirectRule } from '@linkora/shared';
+import type { ImportFieldMapping, Link, NormalizedImportItem, ImportAdapter, KVCacheEntry, RedirectRule } from '@linketry/shared';
 
 const importRoutes = new Hono<{ Bindings: Env }>();
 
@@ -47,7 +47,7 @@ const ADAPTERS: ImportAdapter[] = [
   SinkAdapter,
   YourlsAdapter,
   DubAdapter,
-  LinkoraBackupAdapter,
+  LinketryBackupAdapter,
   GenericCsvAdapter,
   GenericJsonAdapter,
 ];
@@ -63,7 +63,8 @@ type ShlinkApiPagination = {
 
 function detectAdapter(input: unknown, hint?: string): ImportAdapter | null {
   if (hint) {
-    const found = ADAPTERS.find((a) => a.source === hint);
+    const normalizedHint = hint === 'linkora-backup' ? 'linketry-backup' : hint;
+    const found = ADAPTERS.find((a) => a.source === normalizedHint);
     if (found) return found;
   }
   return ADAPTERS.find((a) => a.detect(input)) ?? null;
@@ -350,7 +351,7 @@ function shlinkPagesTotal(pagination?: ShlinkApiPagination): number | undefined 
   return Number.isFinite(value) && Number(value) > 0 ? Number(value) : undefined;
 }
 
-// POST /api/import/shlink-api/fetch
+// POST /api/v1/import/shlink-api/fetch
 importRoutes.post('/shlink-api/fetch', async (c) => {
   let body: { baseUrl?: string; apiKey?: string };
   try {
@@ -382,7 +383,7 @@ importRoutes.post('/shlink-api/fetch', async (c) => {
   }
 });
 
-// POST /api/import/preview
+// POST /api/v1/import/preview
 importRoutes.post('/preview', async (c) => {
   let body: { content?: string; source?: string; fieldMapping?: unknown };
   try {
@@ -428,13 +429,13 @@ async function runImportJob(
   const reportRows: string[] = ['slug,status,reason'];
 
   try {
-    if (adapter.source === 'linkora-backup') {
-      const backupTags = extractLinkoraBackupTags(parsedInput);
+    if (adapter.source === 'linketry-backup') {
+      const backupTags = extractLinketryBackupTags(parsedInput);
       if (backupTags.length > 0) await createTagsIfMissing(env, backupTags);
     }
 
-    const backupRedirectRules = adapter.source === 'linkora-backup'
-      ? extractLinkoraBackupRedirectRules(parsedInput)
+    const backupRedirectRules = adapter.source === 'linketry-backup'
+      ? extractLinketryBackupRedirectRules(parsedInput)
       : [];
     const linkIdByBackupId = new Map<string, string>();
     const replaceRuleLinkIds = new Set<string>();
@@ -510,7 +511,7 @@ async function runImportJob(
         await createLinksBatch(env, batch.map(({ link }) => link));
         for (const { item, link } of batch) {
           const backupLinkId = backupLinkIdFromItem(item);
-          if (adapter.source === 'linkora-backup' && backupLinkId) {
+          if (adapter.source === 'linketry-backup' && backupLinkId) {
             linkIdByBackupId.set(backupLinkId, link.id);
           }
           successCount++;
@@ -526,7 +527,7 @@ async function runImportJob(
           try {
             await createLinksBatch(env, [link]);
             const backupLinkId = backupLinkIdFromItem(item);
-            if (adapter.source === 'linkora-backup' && backupLinkId) {
+            if (adapter.source === 'linketry-backup' && backupLinkId) {
               linkIdByBackupId.set(backupLinkId, link.id);
             }
             successCount++;
@@ -561,7 +562,7 @@ async function runImportJob(
         const overwritten = { ...existing, ...fields } as Link;
         await syncImportCache(env, domain, overwritten);
         const backupLinkId = backupLinkIdFromItem(item);
-        if (adapter.source === 'linkora-backup' && backupLinkId) {
+        if (adapter.source === 'linketry-backup' && backupLinkId) {
           linkIdByBackupId.set(backupLinkId, existing.id);
           replaceRuleLinkIds.add(existing.id);
         }
@@ -688,7 +689,7 @@ async function runQueuedImportJob(
   }
 }
 
-// POST /api/import/confirm
+// POST /api/v1/import/confirm
 importRoutes.post('/confirm', async (c) => {
   let body: { content?: string; source?: string; filename?: string; conflictStrategy?: string; fieldMapping?: unknown };
   try {
@@ -743,7 +744,7 @@ importRoutes.post('/confirm', async (c) => {
   });
 });
 
-// GET /api/import/jobs
+// GET /api/v1/import/jobs
 importRoutes.get('/jobs', async (c) => {
   const jobs = await getImportJobs(c.env);
   const response = jsonOk(jobs);
@@ -751,7 +752,7 @@ importRoutes.get('/jobs', async (c) => {
   return response;
 });
 
-// GET /api/import/jobs/:id
+// GET /api/v1/import/jobs/:id
 importRoutes.get('/jobs/:id', async (c) => {
   const job = await getImportJobById(c.env, c.req.param('id'));
   if (!job) return jsonError('Import job not found', 404);
@@ -760,7 +761,7 @@ importRoutes.get('/jobs/:id', async (c) => {
   return response;
 });
 
-// GET /api/import/jobs/:id/report.csv
+// GET /api/v1/import/jobs/:id/report.csv
 importRoutes.get('/jobs/:id/report.csv', async (c) => {
   const job = await getImportJobById(c.env, c.req.param('id'));
   if (!job) return jsonError('Import job not found', 404);

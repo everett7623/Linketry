@@ -1,4 +1,14 @@
-# Linkora Roadmap
+# Linketry Roadmap
+
+## 0.10: Linketry Identity And Versioned API
+
+Status: complete.
+
+- Rename the project identity from Linkora to Linketry
+- Standardize author, repository, website, image, package scope, configuration prefix, and fresh-install database name
+- Make `/api/v1` canonical while retaining a time-bounded legacy API alias
+- Preserve existing D1 data, Cloudflare bindings, Admin sessions, KV cache fallback, backups, secrets, and repository variables during upgrade
+- Keep fresh self-hosting, existing production upgrades, and the official Demo as separate deployment tracks
 
 ## V1: Stable Shlink Replacement
 
@@ -83,7 +93,7 @@ Status: complete.
 
 Product direction:
 
-- Keep Linkora free and open source first
+- Keep Linketry free and open source first
 - Prioritize self-hosted deployment on the user's own Cloudflare account
 - Do not add paid SaaS, subscription billing, or multi-tenant hosting complexity yet
 - Preserve a complete, practical free self-hosted version even if paid services are considered later
@@ -132,7 +142,7 @@ Future optional enhancements:
 
 ## Long-Term Product Principles
 
-Linkora is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.
+Linketry is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.
 
 - Redirect stability stays higher priority than dashboards, automation, and integrations
 - The free self-hosted version should remain complete enough for personal sites, small teams, SEO projects, affiliate operations, and campaign tracking
@@ -145,7 +155,7 @@ Linkora is intended to remain useful for long-term self-hosted operation, not ju
 
 Status: in progress. R2 backup restore preview, one-click restore, pre-restore backup, restore reporting, and factory reset are implemented.
 
-Goal: make Linkora safer to operate for years, with stronger recovery paths and proactive monitoring.
+Goal: make Linketry safer to operate for years, with stronger recovery paths and proactive monitoring.
 
 Planned:
 
@@ -193,7 +203,7 @@ Planned:
 
 - Done: bulk replace destination URLs with preview and rollback guidance
 - Done: migrate all matching stored short-link domains with preview, concurrency protection, KV invalidation, and migration records
-- Next priority: bulk append or normalize UTM parameters with filter/selection scope, preview, bounded writes, KV invalidation, and a downloadable change record
+- Done: bulk append or normalize UTM parameters with filter/selection scope, exact-count preview, a bounded 100-link D1 batch, selective KV invalidation, and a downloadable change record
 - Done: saved personal UTM templates and campaign presets in Create/Edit Link
 - Done: private internal link notes in Advanced Edit Link
 - Done: authenticated OpenGraph preview cards in Advanced Create/Edit Link
@@ -204,6 +214,35 @@ Planned:
 - More conversion attribution fields, such as external campaign IDs and client-provided visitor IDs
 - Long-idle auto-archive rules with review queue and dry-run mode
 - Additional import adapters when demand is clear, such as Bitly
+
+## Pre-1.0: Integration And Public Launch
+
+Status: in progress. Bulk UTM, the authenticated OpenAPI contract, and duplicate destination detection are complete; implementation continues with deployment bootstrap.
+
+Goal: close the highest-value Sink and public-launch gaps without putting optional presentation or integration work on the redirect hot path.
+
+Ordered delivery:
+
+1. Done: publish an authenticated OpenAPI contract and Swagger documentation, with route drift checks.
+2. Done: warn about duplicate normalized destination URLs during create/edit while allowing intentional duplicates.
+3. Split deployment into three explicit tracks: non-destructive upgrades for the owner's existing instance, fresh beginner self-hosting that provisions resources in the new user's own Cloudflare account, and the isolated official Demo. Add required D1/KV bootstrap, explicit optional-resource boundaries, permission preflight, backup and migration gates for upgrades, and a fresh-account rehearsal.
+4. Launch an official Linketry-domain introduction site and an isolated Demo using synthetic data, unique Worker/Pages/D1/KV/R2/Queue/Token/domain identifiers, read-only or scheduled-reset behavior, rate limits, and a separate Demo short-link host. Fail before migrations or deployment if any protected production identifier matches.
+5. Add optional Cloudflare Access authentication and asynchronous signed `link.clicked` webhooks without weakening bearer-token recovery or redirect stability.
+6. Complete Admin density and optional-module visibility preferences.
+7. Follow with light/dark/system themes, an optional card view, per-link social preview controls, broader community-driven locales, and later ecosystem clients built against OpenAPI.
+
+External prerequisites:
+
+- The owner will select and purchase the Linketry project domain before DNS and production site configuration.
+- The future supporter/coffee page will use a separate owner-managed domain and is not a release blocker.
+- The existing deployed Linketry instance and its data remain protected production resources; Demo workflows may not alter their DNS, bindings, migrations, backups, or stored data.
+
+Deferred presentation and ecosystem work:
+
+- Real-time event logs and a live globe remain optional after the API and deployment foundations are stable.
+- Workers AI remains optional; local suggestions continue to work without an AI binding.
+- Browser, Raycast, Shortcuts, MCP, and mobile clients wait for a stable OpenAPI contract.
+- Iframe cloaking is not a planned core feature, and D1 remains the source of truth.
 
 ## V10: Collaboration And Governance
 

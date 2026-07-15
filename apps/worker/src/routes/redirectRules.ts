@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { RedirectRule, RedirectRuleConfig, RedirectRuleTarget, RedirectRuleType } from '@linkora/shared';
+import type { RedirectRule, RedirectRuleConfig, RedirectRuleTarget, RedirectRuleType } from '@linketry/shared';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import {

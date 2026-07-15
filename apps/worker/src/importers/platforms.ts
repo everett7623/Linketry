@@ -6,15 +6,23 @@ import type {
   RedirectRule,
   RedirectRuleType,
   Tag,
-} from '@linkora/shared';
-import { validateLongUrl, validateSlug } from '@linkora/shared';
+} from '@linketry/shared';
+import { validateLongUrl, validateSlug } from '@linketry/shared';
 import { domainFromUrl, normalizeDomain } from './domain';
+import { isSupportedBackupPayload } from './backupFormat';
 
 interface SourceRow {
   [key: string]: unknown;
 }
 
-const REDIRECT_RULE_TYPES: RedirectRuleType[] = ['country', 'device', 'browser', 'referer', 'language', 'weighted'];
+const REDIRECT_RULE_TYPES: RedirectRuleType[] = [
+  'country',
+  'device',
+  'browser',
+  'referer',
+  'language',
+  'weighted',
+];
 
 function asString(value: unknown): string | undefined {
   if (value === undefined || value === null) return undefined;
@@ -30,7 +38,7 @@ function asNumber(value: unknown): number | undefined {
 
 function asRedirectRuleType(value: unknown): RedirectRuleType | undefined {
   return typeof value === 'string' && REDIRECT_RULE_TYPES.includes(value as RedirectRuleType)
-    ? value as RedirectRuleType
+    ? (value as RedirectRuleType)
     : undefined;
 }
 
@@ -39,12 +47,18 @@ function asTags(value: unknown): string[] {
     return value.map((tag) => String(tag).trim()).filter(Boolean);
   }
   if (typeof value === 'string') {
-    return value.split(/[,|;]/).map((tag) => tag.trim()).filter(Boolean);
+    return value
+      .split(/[,|;]/)
+      .map((tag) => tag.trim())
+      .filter(Boolean);
   }
   return [];
 }
 
-function rowsFromJson(input: unknown, keys: string[] = ['data', 'links', 'shortUrls']): SourceRow[] {
+function rowsFromJson(
+  input: unknown,
+  keys: string[] = ['data', 'links', 'shortUrls']
+): SourceRow[] {
   if (Array.isArray(input)) return input as SourceRow[];
   if (typeof input !== 'object' || input === null) return [];
 
@@ -61,11 +75,16 @@ function parseJsonish(input: unknown): unknown {
   if (!trimmed) return [];
 
   if (trimmed.includes('\n') && trimmed.startsWith('{')) {
-    const rows = trimmed.split('\n')
+    const rows = trimmed
+      .split('\n')
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => {
-        try { return JSON.parse(line) as SourceRow; } catch { return null; }
+        try {
+          return JSON.parse(line) as SourceRow;
+        } catch {
+          return null;
+        }
       })
       .filter((row): row is SourceRow => row !== null);
     if (rows.length > 0) return rows;
@@ -131,40 +150,32 @@ export const SinkAdapter = makeAdapter(
   })
 );
 
-export const YourlsAdapter = makeAdapter(
-  'yourls',
-  ['keyword', 'url', 'timestamp'],
-  (row) => ({
-    slug: asString(row.keyword) ?? '',
-    longUrl: asString(row.url) ?? '',
-    title: asString(row.title),
-    tags: asTags(row.tags),
-    clicks: asNumber(row.clicks),
-    createdAt: asString(row.timestamp),
-    source: 'yourls',
-    sourceId: asString(row.keyword),
-    raw: row,
-  })
-);
+export const YourlsAdapter = makeAdapter('yourls', ['keyword', 'url', 'timestamp'], (row) => ({
+  slug: asString(row.keyword) ?? '',
+  longUrl: asString(row.url) ?? '',
+  title: asString(row.title),
+  tags: asTags(row.tags),
+  clicks: asNumber(row.clicks),
+  createdAt: asString(row.timestamp),
+  source: 'yourls',
+  sourceId: asString(row.keyword),
+  raw: row,
+}));
 
-export const DubAdapter = makeAdapter(
-  'dub',
-  ['key', 'url', 'shortLink'],
-  (row) => ({
-    slug: asString(row.key) ?? '',
-    longUrl: asString(row.url) ?? '',
-    domain: normalizeDomain(row.domain) ?? domainFromUrl(row.shortLink),
-    shortUrl: asString(row.shortLink),
-    title: asString(row.title),
-    tags: asTags(row.tags),
-    clicks: asNumber(row.clicks),
-    createdAt: asString(row.createdAt ?? row.created_at),
-    updatedAt: asString(row.updatedAt ?? row.updated_at),
-    source: 'dub',
-    sourceId: asString(row.id ?? row.key),
-    raw: row,
-  })
-);
+export const DubAdapter = makeAdapter('dub', ['key', 'url', 'shortLink'], (row) => ({
+  slug: asString(row.key) ?? '',
+  longUrl: asString(row.url) ?? '',
+  domain: normalizeDomain(row.domain) ?? domainFromUrl(row.shortLink),
+  shortUrl: asString(row.shortLink),
+  title: asString(row.title),
+  tags: asTags(row.tags),
+  clicks: asNumber(row.clicks),
+  createdAt: asString(row.createdAt ?? row.created_at),
+  updatedAt: asString(row.updatedAt ?? row.updated_at),
+  source: 'dub',
+  sourceId: asString(row.id ?? row.key),
+  raw: row,
+}));
 
 function normalizeBackupLink(row: SourceRow): NormalizedImportItem {
   const link = row as Partial<Link>;
@@ -175,12 +186,12 @@ function normalizeBackupLink(row: SourceRow): NormalizedImportItem {
     shortUrl: asString(link.short_url),
     title: asString(link.title),
     description: asString(link.description),
-    tags: asTags(link.tags ? safeJsonParse(link.tags) ?? link.tags : undefined),
+    tags: asTags(link.tags ? (safeJsonParse(link.tags) ?? link.tags) : undefined),
     clicks: asNumber(link.clicks),
     createdAt: asString(link.created_at),
     updatedAt: asString(link.updated_at),
     lastClickedAt: asString(link.last_clicked_at),
-    source: asString(link.source) ?? 'linkora-backup',
+    source: asString(link.source) ?? 'linketry-backup',
     sourceId: asString(link.source_id ?? link.id),
     status: link.status,
     redirectType: link.redirect_type,
@@ -212,14 +223,11 @@ function normalizeRedirectRuleConfig(value: unknown): string | undefined {
     : undefined;
 }
 
-export const LinkoraBackupAdapter: ImportAdapter = {
-  source: 'linkora-backup',
+export const LinketryBackupAdapter: ImportAdapter = {
+  source: 'linketry-backup',
 
   detect(input: unknown): boolean {
-    const parsed = parseJsonish(input);
-    if (typeof parsed !== 'object' || parsed === null) return false;
-    const obj = parsed as Record<string, unknown>;
-    return obj.name === 'Linkora Backup' && Array.isArray(obj.links);
+    return isSupportedBackupPayload(parseJsonish(input));
   },
 
   async parse(input: unknown): Promise<NormalizedImportItem[]> {
@@ -232,7 +240,7 @@ export const LinkoraBackupAdapter: ImportAdapter = {
   validate: validateImportItem,
 };
 
-export function extractLinkoraBackupTags(input: unknown): Tag[] {
+export function extractLinketryBackupTags(input: unknown): Tag[] {
   const parsed = parseJsonish(input);
   if (typeof parsed !== 'object' || parsed === null) return [];
   const tags = (parsed as { tags?: unknown }).tags;
@@ -250,7 +258,7 @@ export function extractLinkoraBackupTags(input: unknown): Tag[] {
     }));
 }
 
-export function extractLinkoraBackupRedirectRules(input: unknown): RedirectRule[] {
+export function extractLinketryBackupRedirectRules(input: unknown): RedirectRule[] {
   const parsed = parseJsonish(input);
   if (typeof parsed !== 'object' || parsed === null) return [];
 

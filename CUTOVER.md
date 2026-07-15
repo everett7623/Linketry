@@ -1,6 +1,6 @@
 # Legacy Domain Cutover Template
 
-Use this checklist when moving an existing Shlink, Sink, YOURLS, Dub, or other short-link domain to Linkora.
+Use this checklist when moving an existing Shlink, Sink, YOURLS, Dub, or other short-link domain to Linketry.
 
 Do not run a cutover casually. The old short domain may already be embedded in public posts, QR codes, email campaigns, and customer workflows.
 
@@ -13,14 +13,14 @@ Fill this table before starting:
 | Item | Value |
 |------|-------|
 | Admin domain | `admin.example.com` |
-| Temporary Linkora short/API domain | `go.example.com` |
+| Temporary Linketry short/API domain | `go.example.com` |
 | Legacy short domain to migrate | `s.example.com` |
-| Linkora Worker | `linkora-worker` |
-| Linkora D1 | `linkora-db` |
+| Linketry Worker | `linketry-worker` |
+| Linketry D1 | `linketry` |
 | Imported links | `<count>` |
 | Current Admin default domain | `go.example.com` |
 
-Keep the temporary Linkora short/API domain available after cutover as a test and fallback domain.
+Keep the temporary Linketry short/API domain available after cutover as a test and fallback domain.
 
 ---
 
@@ -31,7 +31,7 @@ Keep the temporary Linkora short/API domain available after cutover as a test an
 - [ ] Important slugs work on `https://go.example.com/<slug>`
 - [ ] Admin can log in at `https://admin.example.com`
 - [ ] Admin Settings has `default_domain=go.example.com` before cutover
-- [ ] A fresh Linkora `backup.json` has been exported
+- [ ] A fresh Linketry `backup.json` has been exported
 - [ ] The old short-link system is still running for rollback
 - [ ] High-traffic slugs are listed for quick spot checks
 
@@ -81,7 +81,7 @@ npm run deploy --workspace=apps/worker
 In Cloudflare Dashboard:
 
 1. Open **Workers & Pages**
-2. Select the Linkora Worker
+2. Select the Linketry Worker
 3. Confirm both custom domains are active:
    - `go.example.com`
    - `s.example.com`
@@ -101,9 +101,9 @@ curl -I https://s.example.com/<important-slug-3>
 
 Expected:
 
-- `/health` returns Linkora JSON
+- `/health` returns Linketry JSON
 - Existing slugs return `301` or `302` to the same destinations as the old system
-- Missing slugs return the Linkora 404 page
+- Missing slugs return the Linketry 404 page
 
 ### 4. Update Admin default domain
 
@@ -130,7 +130,7 @@ In `https://admin.example.com`:
 
 ## Rollback Plan
 
-If Linkora has a production issue:
+If Linketry has a production issue:
 
 1. Remove or disable the `s.example.com` Worker route/custom domain
 2. Restore the old DNS or Cloudflare route
@@ -140,7 +140,7 @@ If Linkora has a production issue:
 Default Domain: go.example.com
 ```
 
-4. Keep Linkora data intact
+4. Keep Linketry data intact
 5. Investigate with `go.example.com` while the old system serves production traffic
 
 Do not delete the old system immediately after cutover. Keep it for at least 1-2 weeks.
@@ -151,6 +151,6 @@ Do not delete the old system immediately after cutover. Keep it for at least 1-2
 
 - [ ] Monitor high-traffic slugs
 - [ ] Export a fresh backup after the first successful day
-- [ ] Check total clicks growth in Linkora
+- [ ] Check total clicks growth in Linketry
 - [ ] Keep the old system available for rollback
 - [ ] Update `PROGRESS.md` after the cutover is stable

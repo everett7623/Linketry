@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle2, CircleDashed, ExternalLink } from 'lucide-react';
-import type { DeploymentCapabilities } from '@linkora/shared';
+import type { DeploymentCapabilities } from '@linketry/shared';
 import { enabledAdvancedCapabilityCount } from '../../utils/capabilities';
 import { useLocale } from '../../contexts/LocaleContext';
 
@@ -70,7 +70,7 @@ export function AdvancedCapabilitiesPanel({
         ))}
       </div>
       <a
-        href="https://github.com/everett7623/Linkora/blob/main/docs/SELF_HOSTING.md"
+        href="https://github.com/everettlabs/linketry/blob/main/docs/SELF_HOSTING.md"
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex items-center gap-2 text-xs text-brand-400 hover:text-brand-300"

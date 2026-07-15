@@ -2,11 +2,11 @@
 
 ## Status
 
-Complete and verified locally for Linkora 0.9.16.
+Complete and verified locally for Linketry 0.9.16.
 
 ## Completed
 
-- [x] Reproduce the cutoff with the supplied 195-row Linkora CSV.
+- [x] Reproduce the cutoff with the supplied 195-row Linketry CSV.
 - [x] Identify the shared sequential D1/KV write loop used by Shlink API and file imports.
 - [x] Batch new D1 link inserts in bounded groups of 25.
 - [x] Persist import counters after every completed batch.

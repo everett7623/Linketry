@@ -7,12 +7,13 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🔴 In Progress
 
-- [x] V9: Add OpenGraph preview cards for destination pages
-- [ ] V9+: Integrate next high-value Shlink capabilities into Linkora (multi-segment slugs, extra-path forwarding, expired-link cleanup)
+- [x] V9+: Publish a versioned OpenAPI contract for `/api/v1`
 
 ---
 
 ## 🟡 Next — Operations And UX Planning
+
+- [ ] V9+: Integrate next high-value Shlink capabilities into Linketry (multi-segment slugs, extra-path forwarding, expired-link cleanup)
 
 - [x] V7: Add configurable backup retention, starting with a 30-day default
 - [x] V7: Add periodic target health monitoring, failure alerts, recovery alerts, and bounded status history
@@ -44,6 +45,20 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed — Linketry 0.10 Rebrand And Upgrade Safety
+
+- [x] Rename product, package scope, repository metadata, runtime copy, exports, notifications, and fresh-install resource defaults to Linketry
+- [x] Set author `everettlabs`, website `linketry.dev`, repository `everettlabs/linketry`, and canonical image name `everett7623/linketry`
+- [x] Move the canonical Admin API to `/api/v1` while keeping deprecated `/api/*` aliases for the `0.10.x` compatibility window
+- [x] Prefer `LINKETRY_*` Worker/Admin configuration while accepting existing Linkora repository variables and Worker secrets
+- [x] Migrate browser-local auth/API/locale/mode keys without logging users out
+- [x] Read old KV cache keys, clear both generations on mutations, and keep D1 as the source of truth
+- [x] Export `Linketry Backup` while retaining Linkora backup import/restore support
+- [x] Add a separate non-destructive Linkora upgrade guide; do not recreate or overwrite existing D1/KV/R2/Queue resources
+- [x] Add the Linketry primary Logo to Admin login, navigation, README, and favicon branding
+
+---
+
 ## ✅ Completed — V7 R2 Backup Restore
 
 - [x] Add one-click restore from completed R2 backup records in the Backups page
@@ -63,16 +78,16 @@ One item in "In Progress" at a time whenever possible.
 - [x] Add pre-reset R2 backup, enabled by default
 - [x] Clear short-link KV cache during reset
 - [x] Reset links, analytics, tags, domains, imports, API tokens, audit logs, redirect rules, and settings
-- [x] Preserve R2 backup records, R2 objects, and environment `ADMIN_TOKEN`
+- [x] Preserve R2 backup records, R2 objects, and environment `LINKETRY_ADMIN_TOKEN`
 - [x] Add Admin Settings danger-zone reset panel
 
 ---
 
 ## ✅ Completed — Project Consistency Cleanup
 
-- [x] Bump Linkora package/runtime version to `0.7.4`
+- [x] Bump Linketry package/runtime version to `0.7.4`
 - [x] Add shared version constant for Worker and Admin displays
-- [x] Update GitHub Actions version resolution and repository `LINKORA_VERSION` variable
+- [x] Update GitHub Actions version resolution and repository `LINKETRY_VERSION` variable
 - [x] Update docs, env examples, wrangler example, changelog, and package lock
 - [x] Update GitHub Actions Node runtime to Node 24
 - [x] Add release hygiene rule requiring version, changelog, and progress/task updates for every intentional change
@@ -82,8 +97,8 @@ One item in "In Progress" at a time whenever possible.
 ## ✅ Completed — Domain Split Deployment Safety
 
 - [x] Keep Admin UI, Worker API, and public short-link domains as separate operational roles
-- [x] Add `LINKORA_WORKER_DOMAINS` for comma-separated Worker custom domains
-- [x] Preserve legacy `LINKORA_SHORT_DOMAIN` as a single-domain fallback
+- [x] Add `LINKETRY_WORKER_DOMAINS` for comma-separated Worker custom domains
+- [x] Preserve legacy `LINKETRY_SHORT_DOMAIN` as a single-domain fallback
 - [x] Add Admin login API Origin override for recovery when a build points at the wrong API URL
 - [x] Fall back from a stale browser API Origin override to the build-time API URL during Admin auth startup
 - [x] Document `admin.example.com`, `go.example.com`, and `s.example.com` deployment roles
@@ -102,8 +117,8 @@ One item in "In Progress" at a time whenever possible.
 ## ✅ Completed — Import Async Job Fix (v0.9.11)
 
 - [x] Move heavy import processing out of request handler into background job
-- [x] Return `processing` jobId immediately from `POST /api/import/confirm`
-- [x] Poll `/api/import/jobs/:id` in Admin UI every 2 s until completion/failure
+- [x] Return `processing` jobId immediately from `POST /api/v1/import/confirm`
+- [x] Poll `/api/v1/import/jobs/:id` in Admin UI every 2 s until completion/failure
 - [x] Add `importProcessing` EN/ZH i18n messages and disabled button state
 - [x] Prevent duplicate confirm clicks while a job is running
 - [x] Update `CHANGELOG.md`, package versions, env examples, and docs to `0.9.11`
@@ -126,19 +141,19 @@ One item in "In Progress" at a time whenever possible.
 
 - [x] Recommend `admin.example.com` for Admin and `go.example.com` for Worker API and basic short links
 - [x] Show Admin/API roles and automatic token retrieval steps before login and in the first-run wizard
-- [x] Generate `ADMIN_TOKEN` only on the first deployment and preserve the existing Worker secret later
+- [x] Generate `LINKETRY_ADMIN_TOKEN` only on the first deployment and preserve the existing Worker secret later
 - [x] Add an explicit repository-secret recovery override for a lost token
 - [x] Add Admin/API/token guidance to the GitHub Actions deployment summary
-- [x] Document `LINKORA_ADMIN_URL` and the recommended two-domain setup
+- [x] Document `LINKETRY_ADMIN_URL` and the recommended two-domain setup
 - [x] Update release metadata to `0.9.14`
 
 ---
 
 ## ✅ Completed — Beginner Single-Domain Deployment (v0.9.15)
 
-- [x] Use the automatic `linkora-admin.pages.dev` URL for the beginner Admin flow
+- [x] Use the automatic `linketry-admin.pages.dev` URL for the beginner Admin flow
 - [x] Require only `go.example.com` as the basic custom Worker domain
-- [x] Make `admin.example.com` and `LINKORA_ADMIN_URL` optional advanced configuration
+- [x] Make `admin.example.com` and `LINKETRY_ADMIN_URL` optional advanced configuration
 - [x] Update onboarding, deployment summary, smoke checks, README, and self-hosting docs
 - [x] Update release metadata to `0.9.15`
 
@@ -146,7 +161,7 @@ One item in "In Progress" at a time whenever possible.
 
 ## ✅ Completed — Large Import Write Cutoff (v0.9.16)
 
-- [x] Reproduce the fixed-count cutoff with the supplied 195-row Linkora CSV
+- [x] Reproduce the fixed-count cutoff with the supplied 195-row Linketry CSV
 - [x] Confirm Shlink API and CSV imports share the same sequential write bottleneck
 - [x] Insert new links in bounded D1 batches while keeping D1 as the source of truth
 - [x] Persist import progress after each batch and retry failed batches item by item
@@ -222,20 +237,82 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 Planned — Next Development
+## ✅ Completed — Public Launch And Sink Follow-Up Planning (v0.9.23)
 
-### Priority 1 — Bulk UTM Append And Normalization
+- [x] Keep the bulk UTM workflow as the first implementation priority
+- [x] Record an official Linketry project domain for the introduction site and isolated Demo, with domain purchase and DNS deferred until the owner selects the domain
+- [x] Keep the future supporter/coffee site on a separate owner-managed domain and do not block Linketry development on it
+- [x] Re-audit Sink through v0.2.11 and record the remaining high-value API, deployment, integration, and presentation gaps
+- [x] Order the remaining work by dependency so API contracts and deployment safety precede ecosystem clients and visual analytics
+- [x] Update release metadata and planning records to `0.9.23`
 
-- [ ] Add an Advanced Links bulk UTM tool without changing redirect-path behavior
-- [ ] Support selection/filter scope and show the exact matching-link count before preview
-- [ ] Support add-missing, replace-selected, and remove-selected UTM parameter modes
-- [ ] Preserve unrelated query parameters, URL fragments, credentials safety, and URL encoding
-- [ ] Preview before/after destination URLs and conflicts before writing
-- [ ] Update D1 in bounded batches and clear affected KV entries only after successful writes
-- [ ] Download a change-record CSV and provide backup/rollback guidance
-- [ ] Add Worker policy tests, Admin browser coverage, and large-batch regression coverage
+---
 
-### Priority 2 — Admin Display Preferences
+## 🟡 Planned — Ordered Development
+
+### ✅ Priority 1 — Bulk UTM Append And Normalization (v0.9.24)
+
+- [x] Add an Advanced Links bulk UTM tool without changing redirect-path behavior
+- [x] Support selection/filter scope and show the exact matching-link count before preview
+- [x] Support add-missing, replace-selected, and remove-selected UTM parameter modes
+- [x] Preserve unrelated query parameters, URL fragments, credentials safety, and URL encoding
+- [x] Preview before/after destination URLs and conflicts before writing
+- [x] Update D1 in one bounded 100-link batch and clear affected KV entries only after successful writes
+- [x] Download a change-record CSV and provide backup/rollback guidance
+- [x] Add Worker policy tests, Admin browser coverage, and maximum-batch regression coverage
+
+### Priority 2 — OpenAPI And Integration Contract
+
+- [x] Inventory authenticated Linketry endpoints, request/response envelopes, pagination, errors, and bearer-token requirements
+- [x] Publish a machine-readable OpenAPI document without changing existing API response contracts
+- [x] Add an authenticated Swagger documentation view with secrets excluded from examples and logs
+- [x] Cover the contract with schema validation and route-declaration drift checks in the Worker test suite
+- [x] Document the stable foundation for browser extensions, Raycast, Shortcuts, MCP bridges, and other clients
+
+### Priority 3 — Duplicate Destination Detection (Completed In 0.10.2)
+
+- [x] Detect existing links with the same normalized destination while creating or editing a link
+- [x] Show matching short links as a non-blocking warning and preserve the operator's ability to create intentional duplicates
+- [x] Reuse current authorization, bounded results, and URL-normalization rules without adding redirect-path work
+- [x] Add Worker policy tests and Admin create/edit regression coverage
+
+### Priority 4 — Beginner Deployment Bootstrap
+
+- [ ] Define three explicit deployment tracks: existing production upgrade, fresh beginner self-hosting, and isolated official Demo
+- [ ] Keep the existing owner deployment upgradeable with its current bindings, but require a verified backup, migration-status review, and non-destructive incremental migrations before deploy
+- [ ] Prohibit production upgrades from running initialization SQL, factory reset, Demo seeding, resource recreation, or automatic binding/domain replacement
+- [ ] Provide an idempotent guided workflow or script for required D1 and KV provisioning and binding output
+- [ ] Make the beginner path create brand-new resources in the new user's own Cloudflare account without depending on Linketry maintainer domains, IDs, tokens, databases, or prior deployment state
+- [ ] Generate or collect unique beginner resource names and confirm the selected account and target resources before the first write
+- [ ] Keep R2, Queues, extra domains, and advanced Cron resources explicitly optional
+- [ ] Add permission and configuration preflight checks without printing tokens or secrets
+- [ ] Reconcile manual and GitHub Actions `LINKETRY_ADMIN_TOKEN` guidance into two clearly separated deployment paths
+- [ ] Validate the complete basic deployment on a fresh Cloudflare account and record the smoke-test result
+- [ ] Add separate upgrade and fresh-install smoke checklists, including existing-link redirect verification for production upgrades and first-link creation for beginners
+
+### Priority 5 — Official Project Site And Safe Demo
+
+- [ ] Prepare an official Linketry-domain site with product introduction, feature overview, screenshots, architecture, deployment entry, documentation, roadmap, license, and GitHub links
+- [ ] Keep the final domain name and DNS configuration as an owner-supplied external prerequisite
+- [ ] Deploy the Demo with isolated D1/KV/optional R2 resources and synthetic data only
+- [ ] Give the Demo unique Worker, Pages, D1, KV, R2, Queue, Token, and domain identifiers; never reuse the existing production bindings or project names
+- [ ] Fail the Demo deployment before migrations or deploy commands when any protected production resource identifier or domain matches
+- [ ] Keep Demo workflows separate from the production `main` deployment workflow and prohibit Demo automation from changing production DNS, bindings, migrations, backups, or data
+- [ ] Make the Demo read-only or automatically reset it on a documented schedule, and rate-limit abuse-prone operations
+- [ ] Use a separate Demo short-link host and never expose production credentials or shared writable secrets in the frontend
+- [ ] Take and verify an independent production backup before any future production deployment change associated with the public launch
+- [ ] Add deployment and smoke coverage for the project site, Admin Demo, and sample redirect
+- [ ] Add the supporter link only after the owner provides the separate coffee-site URL
+
+### Priority 6 — Optional Access And Click Integrations
+
+- [ ] Add optional Cloudflare Access authentication without weakening the existing bearer-token path
+- [ ] Define logout, CSRF, JWT verification, and recovery behavior before enabling Access sessions
+- [ ] Add an opt-in `link.clicked` webhook using the existing signed webhook conventions
+- [ ] Deliver click events asynchronously so webhook or analytics failures can never delay or break redirects
+- [ ] Add retry, signature, masking, and failure-observability coverage
+
+### Priority 7 — Admin Display Preferences
 
 - [ ] Add compact/comfortable sidebar density as a per-browser preference
 - [ ] Add compact/comfortable table density as a per-browser preference
@@ -243,6 +320,21 @@ One item in "In Progress" at a time whenever possible.
 - [ ] Keep required recovery, settings, and core link-management routes always reachable
 - [ ] Preserve Simple/Advanced mode behavior and EN/ZH coverage
 - [ ] Add unit and browser regression coverage for preference persistence and hidden modules
+
+### Priority 8 — Product Presentation And Ecosystem
+
+- [ ] Add light, dark, and system theme preferences with accessible contrast
+- [ ] Evaluate an optional link card/grid view with favicon, visits, visitors, referers, and compact actions after density preferences are stable
+- [ ] Add per-link social preview title, description, and image controls with optional R2 storage outside the redirect hot path
+- [ ] Expand translations through a community-ready locale workflow instead of blocking the basic deployment on many built-in languages
+- [ ] Consider real-time visit logs, a live globe, and optional Workers AI only after the API and deployment foundations are stable
+- [ ] Build browser, Raycast, Shortcuts, MCP, or mobile clients only against the published OpenAPI contract
+
+### Deliberate Non-Goals
+
+- Do not add iframe cloaking as a core Linketry feature
+- Do not move primary link storage from D1 to KV
+- Do not let real-time visuals, AI, sponsor setup, or external clients block the self-hosted 1.0 path
 
 ### Deferred Operations
 
@@ -255,7 +347,7 @@ One item in "In Progress" at a time whenever possible.
 
 - [x] Audit Shlink features and document gap in `docs/SHLINK_FEATURE_GAP.md`
 - [x] Port query parameter forwarding: merge short-URL query params into destination URL on redirect
-- [x] Exclude internal `linkora_*` query params from forwarding
+- [x] Exclude internal `linketry_*` query params from forwarding
 - [x] Port automatic title resolution: fetch destination page `<title>` when creating a link without a title
 - [x] Apply title resolution to single and bulk link creation via `ctx.waitUntil()`
 - [x] Add `resolvePageTitle` utility with timeout and HTML entity decoding
@@ -268,8 +360,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Apply `migrations/0002_analytics_depth.sql` to production D1
 - [x] Deploy Worker and Admin with V6 analytics changes
 - [x] Production smoke test Analytics filters and single-link analytics
-- [x] Production smoke test `POST /api/conversions`
-- [x] Production smoke test `/api/export/analytics.csv`
+- [x] Production smoke test `POST /api/v1/conversions`
+- [x] Production smoke test `/api/v1/export/analytics.csv`
 - [x] Confirm scheduled retention setting is saved
 - [x] Clean up temporary `lk-v6-*` smoke links
 
@@ -301,7 +393,7 @@ One item in "In Progress" at a time whenever possible.
 
 Product direction:
 
-- [x] Keep Linkora free and open source first; do not add paid SaaS or subscription billing yet
+- [x] Keep Linketry free and open source first; do not add paid SaaS or subscription billing yet
 - [x] Preserve a complete, practical self-hosted version for personal users and small teams
 - [x] Treat paid deployment, migration help, hosted service, or support as future optional business models only
 
@@ -325,10 +417,10 @@ Deployment experience:
 
 ### Backend
 
-- [x] Create and configure Cloudflare D1 database (`wrangler d1 create linkora-db`)
+- [x] Create and configure Cloudflare D1 database (`wrangler d1 create linketry`)
 - [x] Create and configure Cloudflare KV namespace
 - [x] Apply production DB migration after Cloudflare D1 is configured
-- [x] Set `ADMIN_TOKEN` secret for production (`wrangler secret put ADMIN_TOKEN`)
+- [x] Set `LINKETRY_ADMIN_TOKEN` secret for production (`wrangler secret put LINKETRY_ADMIN_TOKEN`)
 
 ### Frontend
 
@@ -354,13 +446,13 @@ Deployment experience:
 ### Migration
 
 - [x] Pull Shlink short URLs through Shlink REST API
-- [x] Preview Shlink import in production Linkora
-- [x] Import 195 Shlink links into production Linkora
+- [x] Preview Shlink import in production Linketry
+- [x] Import 195 Shlink links into production Linketry
 - [x] Verify duplicate import preview reports conflicts instead of overwriting
 - [x] Spot-check imported redirects on production Worker
 - [x] Prepare legacy short-domain cutover and rollback checklist
 - [ ] Revoke or rotate the Shlink API key used for migration (deferred while Shlink remains active)
-- [ ] Cut over the legacy short domain from Shlink to Linkora (deferred until no legacy links depend on Shlink)
+- [ ] Cut over the legacy short domain from Shlink to Linketry (deferred until no legacy links depend on Shlink)
 
 ---
 
@@ -448,7 +540,7 @@ Deployment experience:
 - [x] Worker type-check passes (`npm run type-check --workspace=apps/worker`)
 - [x] Admin production build passes (`npm run build --workspace=apps/admin`)
 - [x] Applied local D1 migration (`npm run db:migrate:local --workspace=apps/worker`)
-- [x] Local smoke test: `/health` returns 200, unauthenticated `/api/overview` returns 401, missing slug returns 404
+- [x] Local smoke test: `/health` returns 200, unauthenticated `/api/v1/overview` returns 401, missing slug returns 404
 - [x] Local E2E: create link, redirect, async click increment, disable page, delete then 404
 - [x] Local KV direct test: create writes KV, disable clears KV, enable rewrites KV, delete clears KV
 - [x] Local export test: `links.csv`, `links.json`, and `backup.json`
@@ -485,14 +577,14 @@ Deployment experience:
 - [x] Tags management page
 - [x] Link tags and Tags catalog synchronization
 - [x] Create/Edit Link forms can select existing Tags catalog entries
-- [x] Local import smoke test: Sink, YOURLS, Dub, Linkora backup restore
+- [x] Local import smoke test: Sink, YOURLS, Dub, Linketry backup restore
 - [x] Local import conflict smoke test: rename and overwrite
 - [x] Sink importer adapter
 - [x] YOURLS importer adapter
 - [x] Dub importer adapter
 - [x] Import conflict strategies: rename / overwrite
 - [x] Audit logs page
-- [x] Linkora backup.json restore import
+- [x] Linketry backup.json restore import
 - [x] Shlink API pull import
 - [x] Local V2 security smoke test: password page, warning page, normal redirect, audit log write
 - [x] Bulk create links
@@ -566,7 +658,7 @@ Deployment experience:
 
 - [x] Bulk replace destination URLs with preview and rollback guidance
 - [x] Bulk migrate stored short-link domains without changing slugs or destination URLs
-- [ ] Bulk append or normalize UTM parameters
+- [x] Bulk append or normalize UTM parameters
 - [x] Saved UTM templates and campaign presets
 - [x] Link notes and affiliate/internal notes
 - [x] OpenGraph preview cards for destination pages

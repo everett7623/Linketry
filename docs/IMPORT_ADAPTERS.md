@@ -19,7 +19,7 @@ export interface ImportAdapter {
 | Sink | `apps/worker/src/importers/platforms.ts` | JSON, JSONL |
 | YOURLS | `apps/worker/src/importers/platforms.ts` | JSON, JSONL |
 | Dub | `apps/worker/src/importers/platforms.ts` | JSON, JSONL |
-| Linkora backup | `apps/worker/src/importers/platforms.ts` | `backup.json` |
+| Linketry backup | `apps/worker/src/importers/platforms.ts` | `backup.json` |
 | Generic CSV | `apps/worker/src/importers/generic.ts` | CSV |
 | Generic JSON | `apps/worker/src/importers/generic.ts` | JSON, JSONL-style newline objects, wrapped arrays |
 

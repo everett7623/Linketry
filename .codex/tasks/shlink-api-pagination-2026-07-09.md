@@ -2,7 +2,7 @@
 
 ## Finding
 
-Historical Linkora export `linkora-links-2026-07-07.csv` contains 194 links with 194 unique slugs, all under `s.y8o.de`.
+Historical Linketry export `linketry-links-2026-07-07.csv` contains 194 links with 194 unique slugs, all under `s.y8o.de`.
 
 The Admin Shlink API fetch preview only showed 100 links, which indicates the fetch stopped after the first page.
 
@@ -11,7 +11,7 @@ The Admin Shlink API fetch preview only showed 100 links, which indicates the fe
 - [x] Shlink API pagination now accepts `pagesTotal`, `pagesCount`, and `totalPages`.
 - [x] If page count is missing, fetching continues while pages are full and stops on an empty or short page.
 - [x] Fetch still caps at 5000 items for safety.
-- [x] Bumped Linkora patch version to `0.7.1` for this migration-critical fix.
+- [x] Bumped Linketry patch version to `0.7.1` for this migration-critical fix.
 
 ## Verification
 

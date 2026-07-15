@@ -6,7 +6,7 @@ export async function resolvePageTitle(url: string, timeoutMs = 5000): Promise<s
       method: 'GET',
       headers: {
         Accept: 'text/html',
-        'User-Agent': 'Linkora/1.0 title resolver',
+        'User-Agent': 'Linketry/1.0 title resolver',
       },
       signal: controller.signal,
     });

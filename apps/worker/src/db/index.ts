@@ -1,4 +1,4 @@
-import type { ApiToken, ApiTokenScope, AuditLog, Backup, Domain, Link, RedirectRule, Tag, ImportJob, Setting, Visit } from '@linkora/shared';
+import type { ApiToken, ApiTokenScope, AuditLog, Backup, Domain, Link, RedirectRule, Tag, ImportJob, Setting, Visit } from '@linketry/shared';
 import type { Env } from '../types';
 
 export interface ApiTokenRecord {
@@ -77,6 +77,39 @@ export async function getLinksByIds(env: Env, ids: string[]): Promise<Link[]> {
   }
 
   return links;
+}
+
+export async function getDuplicateDestinationCandidates(
+  env: Env,
+  originPrefix: string,
+  exactUrl: string,
+  excludeId?: string,
+  limit = 501
+): Promise<Link[]> {
+  const excludeClause = excludeId ? 'AND id != ?' : '';
+  const params: unknown[] = [
+    `${originPrefix}/%`,
+    `${originPrefix}?%`,
+    `${originPrefix}#%`,
+    originPrefix,
+    exactUrl,
+  ];
+  if (excludeId) params.push(excludeId);
+  params.push(limit);
+  const rows = await env.DB.prepare(
+    `SELECT * FROM links
+     WHERE (
+       TRIM(long_url) LIKE ? COLLATE NOCASE OR
+       TRIM(long_url) LIKE ? COLLATE NOCASE OR
+       TRIM(long_url) LIKE ? COLLATE NOCASE OR
+       TRIM(long_url) = ? COLLATE NOCASE
+     ) ${excludeClause}
+     ORDER BY CASE WHEN LOWER(TRIM(long_url)) = LOWER(?) THEN 0 ELSE 1 END, created_at DESC
+     LIMIT ?`
+  )
+    .bind(...params)
+    .all<Link>();
+  return rows.results ?? [];
 }
 
 export async function getLinkDomainMigrationPreview(

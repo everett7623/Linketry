@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertTriangle, Check, Sparkles } from 'lucide-react';
-import type { LinkSuggestionResult } from '@linkora/shared';
+import type { LinkSuggestionResult } from '@linketry/shared';
 import { Button } from './ui/Button';
 import { useLocale } from '../contexts/LocaleContext';
 

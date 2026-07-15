@@ -6,7 +6,7 @@ import type {
   RedirectRuleConfig,
   RedirectRuleTarget,
   RedirectRuleType,
-} from '@linkora/shared';
+} from '@linketry/shared';
 import { listLinks } from '../api/links';
 import {
   createRedirectRule,

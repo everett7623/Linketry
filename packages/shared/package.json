@@ -1,6 +1,7 @@
 {
-  "name": "@linkora/shared",
-  "version": "0.9.22",
+  "name": "@linketry/shared",
+  "version": "0.10.3",
+  "author": "everettlabs",
   "license": "GPL-3.0-only",
   "private": true,
   "main": "./src/index.ts",

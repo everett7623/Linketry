@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementation complete and verified locally for Linkora 0.9.1.
+Implementation complete and verified locally for Linketry 0.9.1.
 
 ## Completed
 

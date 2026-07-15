@@ -10,7 +10,7 @@ interface DeploymentAccessGuideProps {
 export function DeploymentAccessGuide({ apiOrigin, compact = false }: DeploymentAccessGuideProps) {
   const { t } = useLocale();
   const adminOrigin =
-    typeof window === 'undefined' ? 'https://linkora-admin.pages.dev' : window.location.origin;
+    typeof window === 'undefined' ? 'https://linketry-admin.pages.dev' : window.location.origin;
   const resolvedApiOrigin = apiOrigin || 'https://go.example.com';
 
   return (
@@ -52,7 +52,7 @@ export function DeploymentAccessGuide({ apiOrigin, compact = false }: Deployment
           <li>{t('tokenSaveHint')}</li>
         </ol>
         <a
-          href="https://github.com/everett7623/Linkora/blob/main/docs/SELF_HOSTING.md#9-first-login"
+          href="https://github.com/everettlabs/linketry/blob/main/docs/SELF_HOSTING.md#9-first-login"
           target="_blank"
           rel="noopener noreferrer"
           className="mt-2 inline-flex items-center gap-1 text-brand-400 hover:text-brand-300"

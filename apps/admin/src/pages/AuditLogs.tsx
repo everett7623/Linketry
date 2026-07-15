@@ -4,7 +4,7 @@ import { listAuditLogs } from '../api/audit';
 import { Button } from '../components/ui/Button';
 import { Select } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
-import type { AuditLog, PaginatedResult } from '@linkora/shared';
+import type { AuditLog, PaginatedResult } from '@linketry/shared';
 import { useLocale } from '../contexts/LocaleContext';
 import type { MessageKey } from '../i18n/messages';
 

@@ -1,0 +1,68 @@
+import { Hono } from 'hono';
+import type { Env } from '../types';
+import { requireAuth } from '../auth/index';
+import { getOverviewStats } from '../db/index';
+import { jsonOk } from '../utils/response';
+import analyticsReportRoutes from './analyticsReports';
+import analyticsRoutes from './analytics';
+import analyticsViewRoutes from './analyticsViews';
+import auditRoutes from './audit';
+import authRoutes from './auth';
+import backupRoutes from './backups';
+import bulkUtmRoutes from './bulkUtm';
+import conversionRoutes from './conversions';
+import domainRoutes from './domains';
+import exportRoutes from './export';
+import groupRoutes from './groups';
+import healthCheckRoutes from './healthChecks';
+import importRoutes from './importRoutes';
+import linkNoteRoutes from './linkNotes';
+import linksRoutes from './links';
+import maintenanceRoutes from './maintenance';
+import metadataRoutes from './metadata';
+import notificationRoutes from './notifications';
+import openApiRoutes from './openapi';
+import redirectRuleRoutes from './redirectRules';
+import settingsRoutes from './settings';
+import systemRoutes from './system';
+import tagsRoutes from './tags';
+import tokenRoutes from './tokens';
+import utmTemplateRoutes from './utmTemplates';
+import webhookRoutes from './webhooks';
+import { API_ROUTE_PREFIXES } from './apiVersion';
+
+export function registerAdminApiRoutes(app: Hono<{ Bindings: Env }>): void {
+  app.route('/api/v1', openApiRoutes);
+  for (const prefix of API_ROUTE_PREFIXES) {
+    app.route(`${prefix}/auth`, authRoutes);
+    app.route(`${prefix}/links/bulk-utm`, bulkUtmRoutes);
+    app.route(`${prefix}/links`, linksRoutes);
+    app.route(`${prefix}/tags`, tagsRoutes);
+    app.route(`${prefix}/settings`, settingsRoutes);
+    app.route(`${prefix}/domains`, domainRoutes);
+    app.route(`${prefix}/export`, exportRoutes);
+    app.route(`${prefix}/import`, importRoutes);
+    app.route(`${prefix}/metadata`, metadataRoutes);
+    app.route(`${prefix}/audit`, auditRoutes);
+    app.route(`${prefix}/analytics`, analyticsRoutes);
+    app.route(`${prefix}/analytics-views`, analyticsViewRoutes);
+    app.route(`${prefix}/analytics-reports`, analyticsReportRoutes);
+    app.route(`${prefix}/utm-templates`, utmTemplateRoutes);
+    app.route(`${prefix}/link-notes`, linkNoteRoutes);
+    app.route(`${prefix}/conversions`, conversionRoutes);
+    app.route(`${prefix}/backups`, backupRoutes);
+    app.route(`${prefix}/tokens`, tokenRoutes);
+    app.route(`${prefix}/webhooks`, webhookRoutes);
+    app.route(`${prefix}/notifications`, notificationRoutes);
+    app.route(`${prefix}/redirect-rules`, redirectRuleRoutes);
+    app.route(`${prefix}/groups`, groupRoutes);
+    app.route(`${prefix}/health-checks`, healthCheckRoutes);
+    app.route(`${prefix}/maintenance`, maintenanceRoutes);
+    app.route(`${prefix}/system`, systemRoutes);
+    app.get(`${prefix}/overview`, async (c) => {
+      const authError = await requireAuth(c);
+      if (authError) return authError;
+      return jsonOk(await getOverviewStats(c.env));
+    });
+  }
+}

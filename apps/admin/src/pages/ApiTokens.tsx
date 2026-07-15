@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { ConfirmDialog, Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
-import type { ApiToken, ApiTokenScope } from '@linkora/shared';
+import type { ApiToken, ApiTokenScope } from '@linketry/shared';
 import { useLocale } from '../contexts/LocaleContext';
 import type { MessageKey } from '../i18n/messages';
 

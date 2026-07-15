@@ -39,20 +39,20 @@ async function mockAdminApi(page: Page) {
     const request = route.request();
     const url = new URL(request.url());
     const path = url.pathname;
-    if (!path.startsWith('/api/')) {
+    if (!path.startsWith('/api/v1/')) {
       await route.fallback();
       return;
     }
 
-    if (path === '/api/auth/login') {
+    if (path === '/api/v1/auth/login') {
       await route.fulfill(apiResponse({ authenticated: true }));
       return;
     }
-    if (path === '/api/auth/me') {
+    if (path === '/api/v1/auth/me') {
       await route.fulfill({ status: 200, contentType: 'application/json', body: '{"success":true}' });
       return;
     }
-    if (path === '/api/overview') {
+    if (path === '/api/v1/overview') {
       await route.fulfill(
         apiResponse({
           totalLinks: 1,
@@ -64,10 +64,10 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
-    if (path === '/api/settings' && request.method() === 'GET') {
+    if (path === '/api/v1/settings' && request.method() === 'GET') {
       await route.fulfill(
         apiResponse({
-          site_name: 'Linkora',
+          site_name: 'Linketry',
           default_domain: 'go.example.com',
           default_redirect_type: '302',
           analytics_retention_days: '0',
@@ -80,11 +80,11 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
-    if (path === '/api/settings' && request.method() === 'PUT') {
+    if (path === '/api/v1/settings' && request.method() === 'PUT') {
       await route.fulfill(apiResponse({ message: 'Settings saved' }));
       return;
     }
-    if (path === '/api/webhooks/config' && request.method() === 'GET') {
+    if (path === '/api/v1/webhooks/config' && request.method() === 'GET') {
       await route.fulfill(
         apiResponse({
           enabled: false,
@@ -96,7 +96,7 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
-    if (path === '/api/links' && request.method() === 'GET') {
+    if (path === '/api/v1/links' && request.method() === 'GET') {
       await route.fulfill(
         apiResponse({
           items: [link],
@@ -108,7 +108,7 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
-    if (path === '/api/links' && request.method() === 'POST') {
+    if (path === '/api/v1/links' && request.method() === 'POST') {
       const body = request.postDataJSON() as { slug?: string; long_url?: string; title?: string };
       await route.fulfill(
         apiResponse({
@@ -122,11 +122,11 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
-    if (path === '/api/tags') {
+    if (path === '/api/v1/tags') {
       await route.fulfill(apiResponse([]));
       return;
     }
-    if (path === '/api/domains') {
+    if (path === '/api/v1/domains') {
       await route.fulfill(
         apiResponse([
           {
@@ -141,7 +141,7 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
-    if (path === '/api/backups') {
+    if (path === '/api/v1/backups') {
       await route.fulfill(
         apiResponse({
           items: [],
@@ -152,7 +152,7 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
-    if (path === '/api/system/capabilities') {
+    if (path === '/api/v1/system/capabilities') {
       await route.fulfill(
         apiResponse({
           profile: 'advanced',
@@ -167,45 +167,65 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
-    if (path === '/api/health-checks/batch' && request.method() === 'POST') {
+    if (path === '/api/v1/health-checks/batch' && request.method() === 'POST') {
       await route.fulfill(
         apiResponse({ items: [], total: 0, healthy: 0, warning: 0, broken: 0 })
       );
       return;
     }
-    if (path === '/api/health-checks/alerts' && request.method() === 'GET') {
+    if (path === '/api/v1/health-checks/alerts' && request.method() === 'GET') {
       await route.fulfill(apiResponse({ items: [], last_alert_at: null }));
       return;
     }
-    if (path === '/api/health-checks/history' && request.method() === 'GET') {
+    if (path === '/api/v1/health-checks/history' && request.method() === 'GET') {
       await route.fulfill(apiResponse({ items: [] }));
       return;
     }
-    if (path.startsWith('/api/public-stats/links/') && request.method() === 'GET') {
+    if (path.startsWith('/api/v1/public-stats/links/') && request.method() === 'GET') {
       await route.fulfill(apiResponse({ enabled: false }));
       return;
     }
-    if (path === '/api/analytics-views' && request.method() === 'GET') {
+    if (path === '/api/v1/analytics-views' && request.method() === 'GET') {
       await route.fulfill(apiResponse({ items: [] }));
       return;
     }
-    if (path === '/api/analytics-reports' && request.method() === 'GET') {
+    if (path === '/api/v1/analytics-reports' && request.method() === 'GET') {
       await route.fulfill(apiResponse({ config: { enabled: false, days: 30, saved_view_id: null }, records: [], r2Configured: true }));
       return;
     }
-    if (path === '/api/utm-templates' && request.method() === 'GET') {
+    if (path === '/api/v1/utm-templates' && request.method() === 'GET') {
       await route.fulfill(apiResponse({ items: [] }));
       return;
     }
-    if (path.startsWith('/api/link-notes/') && request.method() === 'GET') {
+    if (path.startsWith('/api/v1/link-notes/') && request.method() === 'GET') {
       await route.fulfill(apiResponse({ note: '' }));
       return;
     }
-    if (path === '/api/metadata/preview' && request.method() === 'POST') {
+    if (path === '/api/v1/metadata/preview' && request.method() === 'POST') {
       await route.fulfill(apiResponse({ title: 'Preview', description: 'Preview', image: null, final_url: 'https://example.com' }));
       return;
     }
-    if (path === '/api/links/migrate-domain/preview' && request.method() === 'POST') {
+    if (path === '/api/v1/links/duplicates' && request.method() === 'GET') {
+      const excluded = url.searchParams.get('excludeId');
+      await route.fulfill(
+        apiResponse({
+          normalized_url: url.searchParams.get('url'),
+          items: excluded === link.id ? [] : [link],
+          total: excluded === link.id ? 0 : 1,
+          has_more: false,
+        })
+      );
+      return;
+    }
+    if (path === `/api/v1/links/${link.id}` && request.method() === 'GET') {
+      await route.fulfill(apiResponse(link));
+      return;
+    }
+    if (path === `/api/v1/links/${link.id}` && request.method() === 'PUT') {
+      await route.fulfill(apiResponse(link));
+      return;
+    }
+    if (path === '/api/v1/links/migrate-domain/preview' && request.method() === 'POST') {
       await route.fulfill(apiResponse({
         source_domain: 's.y8o.de',
         target_domain: 'go.example.com',
@@ -220,7 +240,7 @@ async function mockAdminApi(page: Page) {
       }));
       return;
     }
-    if (path === '/api/notifications/config' && request.method() === 'GET') {
+    if (path === '/api/v1/notifications/config' && request.method() === 'GET') {
       await route.fulfill(apiResponse({
         channels: ['telegram', 'discord', 'slack', 'feishu', 'dingtalk', 'wecom'].map((provider) => ({
           provider,
@@ -232,7 +252,7 @@ async function mockAdminApi(page: Page) {
       }));
       return;
     }
-    if (path === '/api/import/preview' && request.method() === 'POST') {
+    if (path === '/api/v1/import/preview' && request.method() === 'POST') {
       await route.fulfill(apiResponse({
         source: 'generic-csv',
         total: 1,
@@ -249,11 +269,11 @@ async function mockAdminApi(page: Page) {
       }));
       return;
     }
-    if (path === '/api/import/confirm' && request.method() === 'POST') {
+    if (path === '/api/v1/import/confirm' && request.method() === 'POST') {
       await route.fulfill(apiResponse({ jobId: 'import_job_1', status: 'pending', total: 0 }));
       return;
     }
-    if (path === '/api/import/jobs/import_job_1' && request.method() === 'GET') {
+    if (path === '/api/v1/import/jobs/import_job_1' && request.method() === 'GET') {
       await route.fulfill(apiResponse({
         id: 'import_job_1',
         source: 'generic-csv',
@@ -270,11 +290,11 @@ async function mockAdminApi(page: Page) {
       }));
       return;
     }
-    if (path === '/api/import/jobs' && request.method() === 'GET') {
+    if (path === '/api/v1/import/jobs' && request.method() === 'GET') {
       await route.fulfill(apiResponse([]));
       return;
     }
-    if (path === '/api/export/backup.json' && request.method() === 'GET') {
+    if (path === '/api/v1/export/backup.json' && request.method() === 'GET') {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -290,9 +310,9 @@ async function mockAdminApi(page: Page) {
 async function authenticate(page: Page, locale: Locale, mode: 'simple' | 'advanced' = 'simple') {
   await page.addInitScript(
     ({ nextLocale, nextMode }) => {
-      window.localStorage.setItem('linkora_token', 'smoke-token');
-      window.localStorage.setItem('linkora.locale', nextLocale);
-      window.localStorage.setItem('linkora_admin_mode', nextMode);
+      window.localStorage.setItem('linketry_token', 'smoke-token');
+      window.localStorage.setItem('linketry.locale', nextLocale);
+      window.localStorage.setItem('linketry_admin_mode', nextMode);
     },
     { nextLocale: locale, nextMode: mode }
   );
@@ -402,6 +422,25 @@ test('Simplified Chinese core workflow renders localized navigation and forms', 
   await page.getByRole('navigation').getByRole('link', { name: messages['zh-CN'].settings }).click();
   await expect(page.getByRole('heading', { name: messages['zh-CN'].settings })).toBeVisible();
   await expect(page.getByRole('main').getByLabel(messages['zh-CN'].language)).toHaveValue('zh-CN');
+  await page.evaluate(() => window.__assertNoBrowserErrors());
+});
+
+test('duplicate destinations warn without blocking create and edit excludes the current link', async ({ page }) => {
+  await authenticate(page, 'en', 'advanced');
+  await page.goto('/links/create');
+  await page.getByLabel(messages.en.destinationUrl).fill(link.long_url);
+  await expect(
+    page.getByText(messages.en.duplicateDestinationWarning.replace('{count}', '1'))
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: /\/docs/ })).toBeVisible();
+  await page.getByLabel(messages.en.customSlug).fill('intentional-duplicate');
+  await page.getByRole('button', { name: messages.en.createLink }).click();
+  await expect(page).toHaveURL(/\/links$/);
+
+  await page.goto(`/links/${link.id}/edit`);
+  await expect(page.getByLabel(messages.en.destinationUrl)).toHaveValue(link.long_url);
+  await page.waitForTimeout(500);
+  await expect(page.getByText(/already used by/)).toHaveCount(0);
   await page.evaluate(() => window.__assertNoBrowserErrors());
 });
 

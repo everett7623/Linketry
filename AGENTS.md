@@ -1,4 +1,4 @@
-# AGENTS.md — AI Agent Instructions for Linkora
+# AGENTS.md — AI Agent Instructions for Linketry
 
 This file tells AI coding agents (Cascade, Codex, Copilot, etc.) how to work on this codebase safely and correctly.
 
@@ -6,7 +6,7 @@ This file tells AI coding agents (Cascade, Codex, Copilot, etc.) how to work on 
 
 ## Project Overview
 
-Linkora is a **self-hosted short link system** built as a TypeScript monorepo:
+Linketry is a **self-hosted link management, analytics and monitoring platform** built as a TypeScript monorepo:
 
 - `apps/worker` — Cloudflare Workers backend (redirects + admin API)
 - `apps/admin` — React + Vite + Tailwind CSS admin panel
@@ -23,7 +23,7 @@ Public progress and planning live in `PROGRESS.md`, `TASKS.md`, and `docs/ROADMA
 3. **Only implement the requested version.** Do not write V2/V3/V4 features unless explicitly asked.
 4. **KV is cache only.** D1 is the source of truth. Never make KV the primary data source.
 5. **Never silently overwrite existing slugs** during import. Default conflict strategy is `skip`.
-6. **Never commit secrets.** `ADMIN_TOKEN` and other secrets go in `.dev.vars` or Wrangler secrets — never in code.
+6. **Never commit secrets.** `LINKETRY_ADMIN_TOKEN` and other secrets go in `.dev.vars` or Wrangler secrets — never in code.
 
 ---
 
@@ -31,7 +31,7 @@ Public progress and planning live in `PROGRESS.md`, `TASKS.md`, and `docs/ROADMA
 
 Every intentional project change must keep release metadata synchronized in the same change set:
 
-- Bump the Linkora version using semantic versioning.
+- Bump the Linketry version using semantic versioning.
 - Update root and workspace package versions, `package-lock.json`, and `packages/shared/src/version.ts`.
 - Update version examples in `.env.example`, `apps/worker/wrangler.toml.example`, deployment docs, and CI fallback values when they contain a literal version.
 - Update `CHANGELOG.md` with the user-visible change, fix, or maintenance note.
@@ -65,15 +65,15 @@ User visits /:slug
 ### Admin API Auth (V1)
 
 ```
-Authorization: Bearer <ADMIN_TOKEN>
+Authorization: Bearer <LINKETRY_ADMIN_TOKEN>
 ```
 
-All `/api/*` routes require this header. The token is compared in `apps/worker/src/auth/index.ts`.
+All `/api/v1/*` routes require this header. The token is compared in `apps/worker/src/auth/index.ts`.
 
 ### KV Cache Keys
 
 ```
-linkora:slug:<domain>:<slug>
+linketry:slug:<domain>:<slug>
 ```
 
 ### KV Cache Rules
@@ -112,7 +112,7 @@ linkora:slug:<domain>:<slug>
 
 - Types in `src/types/index.ts`
 - Validators in `src/validators/index.ts`
-- Import in other packages as `@linkora/shared`
+- Import in other packages as `@linketry/shared`
 
 ---
 

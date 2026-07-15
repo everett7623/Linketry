@@ -15,7 +15,7 @@ import {
 } from '../db/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
 import { generateId, now } from '../utils/id';
-import type { Tag } from '@linkora/shared';
+import type { Tag } from '@linketry/shared';
 
 const tags = new Hono<{ Bindings: Env }>();
 

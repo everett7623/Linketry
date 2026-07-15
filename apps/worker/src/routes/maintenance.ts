@@ -2,7 +2,12 @@ import { Hono } from 'hono';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { recordAudit } from '../audit/index';
-import { RESET_CONFIRMATION, previewInstanceReset, resetInstance } from '../maintenance/reset';
+import {
+  RESET_CONFIRMATION,
+  isResetConfirmation,
+  previewInstanceReset,
+  resetInstance,
+} from '../maintenance/reset';
 import { jsonError, jsonOk } from '../utils/response';
 
 const maintenanceRoutes = new Hono<{ Bindings: Env }>();
@@ -26,13 +31,16 @@ maintenanceRoutes.post('/reset', async (c) => {
     return jsonError('Invalid JSON body', 400);
   }
 
-  if (body.confirmation !== RESET_CONFIRMATION) {
+  if (!isResetConfirmation(body.confirmation)) {
     return jsonError(`Type "${RESET_CONFIRMATION}" to confirm reset`, 400);
   }
 
   const createBackup = body.createBackup !== false;
   if (createBackup && !c.env.BACKUPS) {
-    return jsonError('R2 backup bucket is not configured. Disable pre-reset backup to continue.', 503);
+    return jsonError(
+      'R2 backup bucket is not configured. Disable pre-reset backup to continue.',
+      503
+    );
   }
 
   try {

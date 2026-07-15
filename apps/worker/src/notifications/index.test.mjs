@@ -89,7 +89,7 @@ test('health notifications identify the original destination and status', () => 
     },
   });
 
-  assert.match(message, /⚠️ Linkora Link Alert/);
+  assert.match(message, /⚠️ Linketry Link Alert/);
   assert.match(message, /Affected Links: 2/);
   assert.match(message, /Checked: 2 \| Warning: 1 \| Broken: 1/);
   assert.match(message, /Short Link: https:\/\/go\.example\.com\/aff-one/);
@@ -121,7 +121,7 @@ test('health recovery notifications use the complete default format', () => {
     ],
   });
 
-  assert.match(message, /✅ Linkora Link Recovered/);
+  assert.match(message, /✅ Linketry Link Recovered/);
   assert.match(message, /Recovered Links: 1/);
   assert.match(message, /Short Link: https:\/\/go\.example\.com\/demo/);
   assert.match(message, /Target URL: https:\/\/example\.com\/page/);

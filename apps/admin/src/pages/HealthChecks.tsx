@@ -13,7 +13,7 @@ import type {
   LinkHealthBatchResult,
   LinkHealthCheckResult,
   LinkHealthStatus,
-} from '@linkora/shared';
+} from '@linketry/shared';
 import { checkUrl, runHealthCheckBatch } from '../api/healthChecks';
 import { HealthMonitoringSettingsPanel } from '../components/health/HealthMonitoringSettingsPanel';
 import { Badge } from '../components/ui/Badge';

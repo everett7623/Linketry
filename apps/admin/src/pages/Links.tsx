@@ -50,11 +50,12 @@ import { ConfirmDialog, Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { buildShortUrl } from '../utils/shortUrl';
 import { downloadDataUrl } from '../utils/download';
-import type { Link as LinkType, PaginatedResult } from '@linkora/shared';
+import type { Link as LinkType, PaginatedResult } from '@linketry/shared';
 import dayjs from 'dayjs';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import { stripAdvancedLinkFilters } from '../utils/linkFilters';
 import { useLocale } from '../contexts/LocaleContext';
+import { BulkUtmTool } from '../components/links/BulkUtmTool';
 
 const PAGE_SIZE = 20;
 
@@ -235,7 +236,7 @@ export function Links() {
 
   const downloadQr = () => {
     if (!qr) return;
-    downloadDataUrl(qr.dataUrl, `linkora-qr-${qr.link.slug}.png`);
+    downloadDataUrl(qr.dataUrl, `linketry-qr-${qr.link.slug}.png`);
     success(t('qrDownloaded'));
   };
 
@@ -364,7 +365,7 @@ export function Links() {
     }
   };
   const runUrlPreview = async () => { setActionLoading(true); try { const result=await previewBulkUrlReplace([...selectedIds],findText,replaceText);setReplacePreview(result.items); } catch(e){error(String(e));} finally{setActionLoading(false);} };
-  const confirmUrlReplace = async () => { setActionLoading(true); try { const result=await confirmBulkUrlReplace(replacePreview); const blob=new Blob([result.rollback_csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`linkora-url-rollback-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(url);success(t('bulkUrlsUpdated',{count:result.changed}));setReplaceOpen(false);setReplacePreview([]);setSelectedIds(new Set());await load(); } catch(e){error(String(e));} finally{setActionLoading(false);} };
+  const confirmUrlReplace = async () => { setActionLoading(true); try { const result=await confirmBulkUrlReplace(replacePreview); const blob=new Blob([result.rollback_csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`linketry-url-rollback-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(url);success(t('bulkUrlsUpdated',{count:result.changed}));setReplaceOpen(false);setReplacePreview([]);setSelectedIds(new Set());await load(); } catch(e){error(String(e));} finally{setActionLoading(false);} };
 
   const openDomainMigration = () => {
     setSourceDomain(domain);
@@ -393,7 +394,7 @@ export function Links() {
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = `linkora-domain-migration-${new Date().toISOString().slice(0, 10)}.csv`;
+      anchor.download = `linketry-domain-migration-${new Date().toISOString().slice(0, 10)}.csv`;
       anchor.click();
       URL.revokeObjectURL(url);
       success(t('domainMigrationComplete', { count: result.changed }));
@@ -468,6 +469,12 @@ export function Links() {
               {t('advancedFilters')}
             </div>
             <div className="flex items-center gap-3">
+              <BulkUtmTool
+                selectedIds={[...selectedIds]}
+                filteredCount={result?.total ?? 0}
+                searchParams={searchParams}
+                onCompleted={async () => { setSelectedIds(new Set()); await load(); }}
+              />
               <button
                 type="button"
                 onClick={openDomainMigration}

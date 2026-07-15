@@ -1,4 +1,4 @@
-import type { Link, NormalizedImportItem, RedirectRule } from '@linkora/shared';
+import type { Link, NormalizedImportItem, RedirectRule } from '@linketry/shared';
 import type { Env } from '../types';
 import { deleteCachedLink, setCachedLink } from '../cache/index';
 import { createRedirectRule, deleteRedirectRulesForLink } from '../db/index';
@@ -28,7 +28,7 @@ export function linkFromBackupItem(item: NormalizedImportItem, id: string, slug:
     status: item.status ?? 'active',
     redirect_type: item.redirectType ?? 302,
     clicks: item.clicks ?? 0,
-    source: item.source ?? 'linkora-backup',
+    source: item.source ?? 'linketry-backup',
     source_id: item.sourceId ?? null,
     created_at: createdAt,
     updated_at: updatedAt,

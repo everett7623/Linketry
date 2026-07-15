@@ -1,6 +1,6 @@
 # Analytics And Tracking
 
-Linkora records redirect analytics asynchronously so a statistics failure never blocks a redirect.
+Linketry records redirect analytics asynchronously so a statistics failure never blocks a redirect.
 
 ## Dashboard Coverage
 
@@ -32,7 +32,7 @@ V6 also records the resolved redirect target in `visit_targets` when smart redir
 
 ## Analytics Filters
 
-`GET /api/analytics` and the Admin Analytics page support:
+`GET /api/v1/analytics` and the Admin Analytics page support:
 
 - `days`
 - `link_id`
@@ -74,14 +74,14 @@ The Analytics page currently shows:
 - Conversion event breakdown
 - Recent visits
 
-Analytics summary reports can be exported from `GET /api/export/analytics.csv`. Raw visits can still be exported from `GET /api/export/visits.csv`.
+Analytics summary reports can be exported from `GET /api/v1/export/analytics.csv`. Raw visits can still be exported from `GET /api/v1/export/visits.csv`.
 
 ## Conversion Events
 
 Authenticated API clients can record conversion or goal events:
 
 ```http
-POST /api/conversions
+POST /api/v1/conversions
 Authorization: Bearer <token-with-write-scope>
 Content-Type: application/json
 ```
@@ -109,7 +109,7 @@ Retention cleanup runs separately from scheduled backups. Cleanup failures are l
 
 ## Privacy Notes
 
-Linkora stores a hash of the visitor IP rather than the raw IP address. The unique visitor count is approximate because it is based on distinct hashed IPs in the selected date range.
+Linketry stores a hash of the visitor IP rather than the raw IP address. The unique visitor count is approximate because it is based on distinct hashed IPs in the selected date range.
 
 ## Future Analytics Ideas
 

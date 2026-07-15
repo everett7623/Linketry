@@ -12,7 +12,7 @@ import { notFound, disabledPage, expiredPage, passwordPage, warningPage } from '
 import { resolvePublicLocale, type PublicLocale } from '../utils/publicPages';
 import { redirectResponse } from '../utils/redirectResponse';
 import { sha256 } from '../utils/id';
-import type { KVCacheEntry, Link } from '@linkora/shared';
+import type { KVCacheEntry, Link } from '@linketry/shared';
 import { getPublicPageMessage } from '../utils/pageTemplates';
 
 function toCacheEntry(link: Link): KVCacheEntry {
@@ -69,7 +69,8 @@ function buildRedirectUrl(targetUrl: string, requestUrl: URL): string {
   try {
     const target = new URL(targetUrl);
     for (const [key, value] of requestUrl.searchParams) {
-      if (key.toLowerCase().startsWith('linkora_')) continue;
+      const normalizedKey = key.toLowerCase();
+      if (normalizedKey.startsWith('linketry_') || normalizedKey.startsWith('linkora_')) continue;
       target.searchParams.set(key, value);
     }
     return target.toString();
@@ -105,7 +106,7 @@ async function getSmartRedirectDecision(
 }
 
 function warningConfirmed(c: Context<{ Bindings: Env }>): boolean {
-  return c.req.query('linkora_confirm') === '1';
+  return c.req.query('linketry_confirm') === '1' || c.req.query('linkora_confirm') === '1';
 }
 
 async function readSubmittedPassword(c: Context<{ Bindings: Env }>): Promise<string | undefined> {

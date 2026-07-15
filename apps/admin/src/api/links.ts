@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut, apiDelete } from './client';
-import type { Link, PaginatedResult } from '@linkora/shared';
+import type { Link, PaginatedResult } from '@linketry/shared';
 
 export interface ListLinksParams {
   keyword?: string;
@@ -32,11 +32,27 @@ export function listLinks(params: ListLinksParams = {}): Promise<PaginatedResult
   if (params.sort) q.set('sort', params.sort);
   if (params.page) q.set('page', String(params.page));
   if (params.pageSize) q.set('pageSize', String(params.pageSize));
-  return apiGet(`/api/links?${q.toString()}`);
+  return apiGet(`/api/v1/links?${q.toString()}`);
 }
 
 export function getLink(id: string): Promise<Link> {
-  return apiGet(`/api/links/${id}`);
+  return apiGet(`/api/v1/links/${id}`);
+}
+
+export interface DuplicateDestinationResult {
+  normalized_url: string;
+  items: Link[];
+  total: number;
+  has_more: boolean;
+}
+
+export function findDuplicateDestinations(
+  url: string,
+  excludeId?: string
+): Promise<DuplicateDestinationResult> {
+  const query = new URLSearchParams({ url, limit: '5' });
+  if (excludeId) query.set('excludeId', excludeId);
+  return apiGet(`/api/v1/links/duplicates?${query.toString()}`);
 }
 
 export interface CreateLinkPayload {
@@ -56,7 +72,7 @@ export interface CreateLinkPayload {
 }
 
 export function createLink(payload: CreateLinkPayload): Promise<Link> {
-  return apiPost('/api/links', payload);
+  return apiPost('/api/v1/links', payload);
 }
 
 export function bulkCreateLinks(payload: CreateLinkPayload[]): Promise<{
@@ -66,31 +82,31 @@ export function bulkCreateLinks(payload: CreateLinkPayload[]): Promise<{
   items: Link[];
   results: Array<{ index: number; status: 'created' | 'failed'; slug?: string; id?: string; error?: string }>;
 }> {
-  return apiPost('/api/links/bulk-create', { items: payload });
+  return apiPost('/api/v1/links/bulk-create', { items: payload });
 }
 
 export function updateLink(id: string, payload: Partial<CreateLinkPayload>): Promise<Link> {
-  return apiPut(`/api/links/${id}`, payload);
+  return apiPut(`/api/v1/links/${id}`, payload);
 }
 
 export function deleteLink(id: string): Promise<{ message: string }> {
-  return apiDelete(`/api/links/${id}`);
+  return apiDelete(`/api/v1/links/${id}`);
 }
 
 export function disableLink(id: string): Promise<{ message: string }> {
-  return apiPost(`/api/links/${id}/disable`);
+  return apiPost(`/api/v1/links/${id}/disable`);
 }
 
 export function enableLink(id: string): Promise<{ message: string }> {
-  return apiPost(`/api/links/${id}/enable`);
+  return apiPost(`/api/v1/links/${id}/enable`);
 }
 
 export function archiveLink(id: string): Promise<{ message: string }> {
-  return apiPost(`/api/links/${id}/archive`);
+  return apiPost(`/api/v1/links/${id}/archive`);
 }
 
 export function restoreLink(id: string): Promise<{ message: string }> {
-  return apiPost(`/api/links/${id}/restore`);
+  return apiPost(`/api/v1/links/${id}/restore`);
 }
 
 export type BulkLinkAction = 'disable' | 'enable' | 'archive' | 'restore' | 'delete';
@@ -100,7 +116,7 @@ export function bulkLinkAction(
   ids: string[],
   action: BulkLinkAction
 ): Promise<{ action: BulkLinkAction; total: number; success: number; notFound: number }> {
-  return apiPost('/api/links/bulk', { ids, action });
+  return apiPost('/api/v1/links/bulk', { ids, action });
 }
 
 export function bulkTagLinks(
@@ -108,11 +124,11 @@ export function bulkTagLinks(
   tags: string[],
   mode: BulkTagMode
 ): Promise<{ mode: BulkTagMode; tags: string[]; total: number; success: number; notFound: number }> {
-  return apiPost('/api/links/bulk-tag', { ids, tags, mode });
+  return apiPost('/api/v1/links/bulk-tag', { ids, tags, mode });
 }
 export interface BulkUrlPreviewItem { id:string;slug:string;current_url:string;next_url:string;status:'ready'|'unchanged'|'invalid';error:string|null; }
-export function previewBulkUrlReplace(ids:string[],find:string,replace:string):Promise<{items:BulkUrlPreviewItem[];ready:number;unchanged:number;invalid:number;notFound:number}>{return apiPost('/api/links/bulk-replace-url/preview',{ids,find,replace});}
-export function confirmBulkUrlReplace(items:BulkUrlPreviewItem[]):Promise<{changed:number;skipped:number;rollback_csv:string}>{return apiPost('/api/links/bulk-replace-url/confirm',{items:items.filter((item)=>item.status==='ready')});}
+export function previewBulkUrlReplace(ids:string[],find:string,replace:string):Promise<{items:BulkUrlPreviewItem[];ready:number;unchanged:number;invalid:number;notFound:number}>{return apiPost('/api/v1/links/bulk-replace-url/preview',{ids,find,replace});}
+export function confirmBulkUrlReplace(items:BulkUrlPreviewItem[]):Promise<{changed:number;skipped:number;rollback_csv:string}>{return apiPost('/api/v1/links/bulk-replace-url/confirm',{items:items.filter((item)=>item.status==='ready')});}
 
 export interface DomainMigrationPreviewItem {
   id: string;
@@ -130,7 +146,7 @@ export interface DomainMigrationPreview {
 }
 
 export function previewDomainMigration(sourceDomain: string, targetDomain: string): Promise<DomainMigrationPreview> {
-  return apiPost('/api/links/migrate-domain/preview', {
+  return apiPost('/api/v1/links/migrate-domain/preview', {
     source_domain: sourceDomain,
     target_domain: targetDomain,
   });
@@ -142,7 +158,7 @@ export function confirmDomainMigration(preview: DomainMigrationPreview): Promise
   target_domain: string;
   rollback_csv: string;
 }> {
-  return apiPost('/api/links/migrate-domain/confirm', {
+  return apiPost('/api/v1/links/migrate-domain/confirm', {
     source_domain: preview.source_domain,
     target_domain: preview.target_domain,
     expected_count: preview.total,
@@ -156,5 +172,5 @@ export function getOverview(): Promise<{
   recentLinks: Link[];
   topLinks: Link[];
 }> {
-  return apiGet('/api/overview');
+  return apiGet('/api/v1/overview');
 }

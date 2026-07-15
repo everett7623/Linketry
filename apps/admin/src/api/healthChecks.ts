@@ -1,4 +1,4 @@
-import type { LinkHealthBatchResult, LinkHealthCheckResult } from '@linkora/shared';
+import type { LinkHealthBatchResult, LinkHealthCheckResult } from '@linketry/shared';
 import { apiGet, apiPost } from './client';
 
 export interface HealthAlertStatus {
@@ -14,7 +14,7 @@ export interface HealthAlertStatus {
 }
 
 export function getHealthAlertStatus(): Promise<HealthAlertStatus> {
-  return apiGet('/api/health-checks/alerts');
+  return apiGet('/api/v1/health-checks/alerts');
 }
 
 export interface HealthCheckHistory {
@@ -31,17 +31,17 @@ export interface HealthCheckHistory {
 }
 
 export function getHealthCheckHistory(): Promise<HealthCheckHistory> {
-  return apiGet('/api/health-checks/history');
+  return apiGet('/api/v1/health-checks/history');
 }
 
 export function checkUrl(url: string): Promise<LinkHealthCheckResult> {
-  return apiPost('/api/health-checks/url', { url });
+  return apiPost('/api/v1/health-checks/url', { url });
 }
 
 export function checkLink(id: string): Promise<LinkHealthCheckResult> {
-  return apiPost(`/api/health-checks/links/${id}`);
+  return apiPost(`/api/v1/health-checks/links/${id}`);
 }
 
 export function runHealthCheckBatch(payload: { ids?: string[]; limit?: number } = {}): Promise<LinkHealthBatchResult> {
-  return apiPost('/api/health-checks/batch', payload);
+  return apiPost('/api/v1/health-checks/batch', payload);
 }

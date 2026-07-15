@@ -12,7 +12,7 @@ Core and safety flows complete and verified.
 
 ## Safety Boundary
 
-- The required confirmation value remains exactly `RESET LINKORA` in every locale.
+- The required confirmation value remains exactly `RESET LINKETRY` in every locale.
 - Server and event identifiers remain unchanged.
 
 ## Verification

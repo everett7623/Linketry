@@ -1,4 +1,4 @@
-import type { DeploymentCapabilities } from '@linkora/shared';
+import type { DeploymentCapabilities } from '@linketry/shared';
 
 export function enabledAdvancedCapabilityCount(capabilities: DeploymentCapabilities): number {
   return [

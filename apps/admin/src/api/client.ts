@@ -1,9 +1,15 @@
 import { normalizeApiBase } from '../utils/apiBase';
+import {
+  readBrowserSetting,
+  removeBrowserSetting,
+  writeBrowserSetting,
+} from '../utils/browserStorage';
 
 export { normalizeApiBase } from '../utils/apiBase';
 
-const API_BASE_STORAGE_KEY = 'linkora_api_base';
-const BUILD_API_BASE = normalizeApiBase(import.meta.env.VITE_API_URL ?? '');
+const BUILD_API_BASE = normalizeApiBase(
+  import.meta.env.VITE_LINKETRY_API_URL ?? import.meta.env.VITE_API_URL ?? ''
+);
 const API_TIMEOUT_MS = 15_000;
 
 export class ApiError extends Error {
@@ -18,7 +24,7 @@ export class ApiError extends Error {
 
 export function getApiBaseOverride(): string {
   try {
-    return normalizeApiBase(localStorage.getItem(API_BASE_STORAGE_KEY) ?? '');
+    return normalizeApiBase(readBrowserSetting('apiBase') ?? '');
   } catch {
     return '';
   }
@@ -36,9 +42,9 @@ export function setApiBaseOverride(value: string): string {
   const normalized = normalizeApiBase(value);
   try {
     if (normalized) {
-      localStorage.setItem(API_BASE_STORAGE_KEY, normalized);
+      writeBrowserSetting('apiBase', normalized);
     } else {
-      localStorage.removeItem(API_BASE_STORAGE_KEY);
+      removeBrowserSetting('apiBase');
     }
   } catch {
     // Ignore storage failures so login can still attempt the build-time API URL.
@@ -66,7 +72,7 @@ export async function apiFetch<T>(
   apiBase = getApiBase(),
   timeoutMs = API_TIMEOUT_MS
 ): Promise<T> {
-  const token = localStorage.getItem('linkora_token');
+  const token = readBrowserSetting('token');
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
@@ -98,11 +104,20 @@ export async function apiGet<T>(path: string, options: RequestInit = {}): Promis
   return result.data;
 }
 
-export async function apiPost<T>(path: string, body?: unknown, timeoutMs = API_TIMEOUT_MS): Promise<T> {
-  const result = await apiFetch<{ success: boolean; data: T }>(path, {
-    method: 'POST',
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  }, getApiBase(), timeoutMs);
+export async function apiPost<T>(
+  path: string,
+  body?: unknown,
+  timeoutMs = API_TIMEOUT_MS
+): Promise<T> {
+  const result = await apiFetch<{ success: boolean; data: T }>(
+    path,
+    {
+      method: 'POST',
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    },
+    getApiBase(),
+    timeoutMs
+  );
   return result.data;
 }
 
@@ -122,7 +137,7 @@ export async function apiDelete<T>(path: string): Promise<T> {
 }
 
 export async function downloadFile(path: string, filename: string): Promise<void> {
-  const token = localStorage.getItem('linkora_token');
+  const token = readBrowserSetting('token');
   const headers: Record<string, string> = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
 

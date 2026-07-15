@@ -6,7 +6,7 @@ Done.
 
 ## Goal
 
-Make Linkora simple to deploy and use by default while preserving the existing advanced operations features.
+Make Linketry simple to deploy and use by default while preserving the existing advanced operations features.
 
 ## Scope
 

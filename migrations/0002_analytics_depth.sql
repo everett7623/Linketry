@@ -1,4 +1,4 @@
--- Linkora V6 Analytics Depth
+-- Linketry V6 Analytics Depth
 
 CREATE TABLE IF NOT EXISTS visit_targets (
   visit_id TEXT PRIMARY KEY,

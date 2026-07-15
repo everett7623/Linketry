@@ -85,7 +85,7 @@ export async function sendTestNotification(
   const stored = await getStoredConfig(env);
   const channel = stored[provider];
   if (!channel?.credential) return { provider, ok: false, error: `${provider} is not configured` };
-  return deliver(provider, channel, '✅ Linkora notification test succeeded.');
+  return deliver(provider, channel, '✅ Linketry notification test succeeded.');
 }
 
 export async function emitHealthNotifications(
@@ -104,7 +104,7 @@ export async function emitHealthNotifications(
     for (const result of results) {
       if (!result.ok) {
         console.warn(JSON.stringify({
-          message: 'Linkora notification delivery failed',
+          message: 'Linketry notification delivery failed',
           provider: result.provider,
           status: result.status,
           error: result.error,
@@ -113,7 +113,7 @@ export async function emitHealthNotifications(
     }
   } catch (error) {
     console.warn(JSON.stringify({
-      message: 'Linkora notification delivery failed',
+      message: 'Linketry notification delivery failed',
       error: error instanceof Error ? error.message : String(error),
     }));
   }
@@ -128,7 +128,7 @@ async function deliver(
   try {
     const response = await fetch(request.url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'User-Agent': 'Linkora-Notifications/1.0' },
+      headers: { 'Content-Type': 'application/json', 'User-Agent': 'Linketry-Notifications/1.0' },
       body: JSON.stringify(request.body),
       signal: AbortSignal.timeout(DELIVERY_TIMEOUT_MS),
     });

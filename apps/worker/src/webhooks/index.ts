@@ -1,5 +1,5 @@
-import { LINKORA_VERSION } from '@linkora/shared';
 import type { Env } from '../types';
+import { getRuntimeVersion } from '../config/runtime';
 import { getSettings, setSetting } from '../db/index';
 import { generateId, now } from '../utils/id';
 
@@ -19,12 +19,12 @@ export const WEBHOOK_EVENTS = [
   'health_check.recovered',
 ] as const;
 
-export type WebhookEvent = typeof WEBHOOK_EVENTS[number] | 'webhook.test';
+export type WebhookEvent = (typeof WEBHOOK_EVENTS)[number] | 'webhook.test';
 
 export interface WebhookConfig {
   enabled: boolean;
   url: string;
-  events: Array<typeof WEBHOOK_EVENTS[number]>;
+  events: Array<(typeof WEBHOOK_EVENTS)[number]>;
   has_secret: boolean;
 }
 
@@ -81,10 +81,10 @@ export async function emitWebhook(env: Env, event: WebhookEvent, data: unknown):
 
     const result = await deliverWebhook(env, config, event, data);
     if (!result.ok) {
-      console.warn('Linkora webhook delivery failed', event, result.status ?? result.error);
+      console.warn('Linketry webhook delivery failed', event, result.status ?? result.error);
     }
   } catch (error) {
-    console.warn('Linkora webhook delivery failed', event, error);
+    console.warn('Linketry webhook delivery failed', event, error);
   }
 }
 
@@ -93,7 +93,7 @@ export async function sendTestWebhook(env: Env): Promise<WebhookDeliveryResult> 
   if (!config.url) return { ok: false, error: 'Webhook URL is not configured' };
 
   return deliverWebhook(env, { ...config, enabled: true }, 'webhook.test', {
-    message: 'Linkora webhook test',
+    message: 'Linketry webhook test',
   });
 }
 
@@ -146,16 +146,16 @@ function normalizeSecret(value: unknown): string {
   return value.trim();
 }
 
-function parseEvents(value: unknown): Array<typeof WEBHOOK_EVENTS[number]> {
+function parseEvents(value: unknown): Array<(typeof WEBHOOK_EVENTS)[number]> {
   if (!Array.isArray(value)) throw new Error('Webhook events must be an array');
   const invalid = value.filter((event) => typeof event !== 'string' || !EVENT_SET.has(event));
   if (invalid.length > 0) throw new Error('Webhook events contain unsupported values');
 
-  const events = value as Array<typeof WEBHOOK_EVENTS[number]>;
+  const events = value as Array<(typeof WEBHOOK_EVENTS)[number]>;
   return events.length > 0 ? [...new Set(events)] : [...WEBHOOK_EVENTS];
 }
 
-function parseStoredEvents(value?: string | null): Array<typeof WEBHOOK_EVENTS[number]> {
+function parseStoredEvents(value?: string | null): Array<(typeof WEBHOOK_EVENTS)[number]> {
   if (!value) return [...WEBHOOK_EVENTS];
   try {
     return parseEvents(JSON.parse(value));
@@ -175,19 +175,23 @@ async function deliverWebhook(
     id: generateId(),
     event,
     created_at: createdAt,
-    version: env.LINKORA_VERSION ?? LINKORA_VERSION,
+    version: getRuntimeVersion(env),
     data,
   });
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'User-Agent': 'Linkora-Webhook/1.0',
+    'User-Agent': 'Linketry-Webhook/1.0',
+    'X-Linketry-Event': event,
+    'X-Linketry-Timestamp': createdAt,
     'X-Linkora-Event': event,
     'X-Linkora-Timestamp': createdAt,
   };
 
   if (config.secret) {
-    headers['X-Linkora-Signature'] = `sha256=${await signWebhook(config.secret, `${createdAt}.${body}`)}`;
+    const signature = `sha256=${await signWebhook(config.secret, `${createdAt}.${body}`)}`;
+    headers['X-Linketry-Signature'] = signature;
+    headers['X-Linkora-Signature'] = signature;
   }
 
   const controller = new AbortController();

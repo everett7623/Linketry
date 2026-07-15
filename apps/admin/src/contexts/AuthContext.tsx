@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { login as apiLogin, checkMe, type AuthResult } from '../api/auth';
 import { getApiBaseOverride, getBuildApiBase, setApiBaseOverride } from '../api/client';
+import {
+  readBrowserSetting,
+  removeBrowserSetting,
+  writeBrowserSetting,
+} from '../utils/browserStorage';
 
 interface AuthState {
   authenticated: boolean;
@@ -18,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({ authenticated: false, loading: true });
 
   useEffect(() => {
-    const stored = localStorage.getItem('linkora_token');
+    const stored = readBrowserSetting('token');
     if (!stored) {
       setState({ authenticated: false, loading: false });
       return;
@@ -39,24 +44,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
       setState({ authenticated: result === 'authenticated', loading: false });
-      if (result === 'unauthorized') localStorage.removeItem('linkora_token');
+      if (result === 'unauthorized') removeBrowserSetting('token');
     });
   }, []);
 
   const login = useCallback(async (token: string): Promise<AuthResult> => {
-    localStorage.setItem('linkora_token', token);
+    writeBrowserSetting('token', token);
     const result = await apiLogin(token);
     if (result === 'authenticated') {
       setState({ authenticated: true, loading: false });
     } else {
-      localStorage.removeItem('linkora_token');
+      removeBrowserSetting('token');
       setState({ authenticated: false, loading: false });
     }
     return result;
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('linkora_token');
+    removeBrowserSetting('token');
     setState({ authenticated: false, loading: false });
   }, []);
 

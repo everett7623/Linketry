@@ -10,7 +10,7 @@ const KNOWN_BOT_PATTERNS = [
   /perplexitybot|cohere-ai|diffbot|imagesiftbot/i,
   /headlesschrome|chrome-lighthouse|pagespeed insights|lighthouse/i,
   /uptimerobot|better uptime|statuscake|pingdom|site24x7|newrelicpinger/i,
-  /linkora\/\S+ health-check/i,
+  /linketry\/\S+ health-check/i,
 ];
 
 const AUTOMATION_CLIENT_PATTERNS = [

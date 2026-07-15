@@ -6,7 +6,7 @@ import { getSettings } from '../api/settings';
 import { StatusBadge } from '../components/ui/Badge';
 import { useToast } from '../components/ui/Toast';
 import { buildShortUrl } from '../utils/shortUrl';
-import type { Link as LinkType } from '@linkora/shared';
+import type { Link as LinkType } from '@linketry/shared';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/zh-cn';

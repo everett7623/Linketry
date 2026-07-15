@@ -1,6 +1,6 @@
-# Linkora Development Guide
+# Linketry Development Guide
 
-This guide covers local setup, architecture decisions, and conventions for contributing to Linkora.
+This guide covers local setup, architecture decisions, and conventions for contributing to Linketry.
 
 ---
 
@@ -25,7 +25,7 @@ wrangler login
 ## Monorepo Structure
 
 ```
-linkora/
+linketry/
 ├── apps/
 │   ├── worker/          # Cloudflare Worker (backend)
 │   │   ├── src/
@@ -80,7 +80,7 @@ npm install
 # 2. Create local dev vars for the Worker
 cp apps/worker/wrangler.toml.example apps/worker/wrangler.toml
 cp apps/worker/.dev.vars.example apps/worker/.dev.vars
-#    Edit .dev.vars and set:  ADMIN_TOKEN=any-secret-value
+#    Edit .dev.vars and set:  LINKETRY_ADMIN_TOKEN=any-secret-value
 
 # 3. Run DB migrations locally
 npm run db:migrate:local --workspace=apps/worker
@@ -90,7 +90,7 @@ npm run dev --workspace=apps/worker    # http://localhost:8787
 
 # 5. Start Admin (in a separate terminal)
 npm run dev --workspace=apps/admin     # http://localhost:5173
-#    Admin proxies /api/* to :8787 via vite.config.ts
+#    Admin proxies /api/v1/* to :8787 via vite.config.ts
 ```
 
 ---
@@ -101,7 +101,7 @@ npm run dev --workspace=apps/admin     # http://localhost:5173
 
 ```
 GET /:slug
-  → check KV  linkora:slug:<domain>:<slug>
+  → check KV  linketry:slug:<domain>:<slug>
     → HIT  → 301/302 redirect
     → MISS → query D1 links table
         → found active → write KV → redirect
@@ -115,16 +115,18 @@ GET /:slug
 ### KV Key Format
 
 ```
-linkora:slug:<domain>:<slug>
+linketry:slug:<domain>:<slug>
 ```
 
 `<domain>` is the hostname from the request, for example `go.example.com`. For local dev it will be `localhost`.
 
+During the `0.10.x` upgrade window, reads fall back to the legacy `linkora:slug:*` key and mutations clear both generations. D1 remains the source of truth.
+
 ### API Auth
 
-V1 uses a single `ADMIN_TOKEN` compared against `Authorization: Bearer <token>`.
+V1 uses a single `LINKETRY_ADMIN_TOKEN` compared against `Authorization: Bearer <token>`.
 
-All `/api/*` routes pass through `src/auth/index.ts`. The token is never stored — only compared at request time.
+All `/api/v1/*` routes pass through `src/auth/index.ts`. The token is never stored — only compared at request time.
 
 ---
 
@@ -190,7 +192,7 @@ Use `useAuth()` from `src/contexts/AuthContext.tsx`:
 const { authenticated, login, logout } = useAuth();
 ```
 
-Token is stored in `localStorage` under key `linkora_token`.
+Token is stored in `localStorage` under key `linketry_token`.
 
 ---
 
@@ -257,7 +259,7 @@ npm run db:migrate:remote --workspace=apps/worker
 
 ## Security Notes
 
-- `ADMIN_TOKEN` must be set in `.dev.vars` locally and via `wrangler secret` in production
+- `LINKETRY_ADMIN_TOKEN` must be set in `.dev.vars` locally and via `wrangler secret` in production
 - Never commit `.dev.vars` — it is in `.gitignore`
 - The `.env.example` and `.dev.vars.example` files show required variables (no real values)
 - `long_url` validation rejects `javascript:` and `data:` schemes

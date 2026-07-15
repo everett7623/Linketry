@@ -1,4 +1,4 @@
-import type { LinkHealthCheckResult, LinkHealthStatus } from '@linkora/shared';
+import type { LinkHealthCheckResult, LinkHealthStatus } from '@linketry/shared';
 
 export const MAX_HEALTH_HISTORY_ITEMS = 200;
 

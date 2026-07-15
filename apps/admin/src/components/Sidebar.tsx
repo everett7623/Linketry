@@ -9,7 +9,6 @@ import {
   Tags,
   Settings,
   LogOut,
-  Zap,
   ClipboardList,
   Archive,
   KeyRound,
@@ -108,10 +107,14 @@ export function Sidebar() {
     <aside className="flex flex-col w-60 shrink-0 bg-slate-900 border-r border-slate-800 h-full">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-slate-800">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-600">
-          <Zap size={16} className="text-white" />
+        <div className="relative h-7 w-11 shrink-0 overflow-hidden rounded-md bg-white" aria-hidden="true">
+          <img
+            src="/linketry-logo.png"
+            alt=""
+            className="absolute -left-3 -top-[53px] w-[132px] max-w-none"
+          />
         </div>
-        <span className="font-bold text-lg text-slate-100 tracking-tight">Linkora</span>
+        <span className="font-bold text-lg text-slate-100 tracking-tight">Linketry</span>
       </div>
 
       {/* Nav */}

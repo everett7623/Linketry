@@ -1,4 +1,4 @@
-import type { DeploymentCapabilities } from '@linkora/shared';
+import type { DeploymentCapabilities } from '@linketry/shared';
 import { apiGet, getApiBase } from './client';
 
 export function getAdminApiOrigin(): string {
@@ -6,5 +6,5 @@ export function getAdminApiOrigin(): string {
 }
 
 export function getDeploymentCapabilities(): Promise<DeploymentCapabilities> {
-  return apiGet('/api/system/capabilities');
+  return apiGet('/api/v1/system/capabilities');
 }

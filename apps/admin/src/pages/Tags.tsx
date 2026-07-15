@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Pencil, Plus, Search, Tags as TagsIcon, Trash2 } from 'lucide-react';
-import type { Tag as TagType } from '@linkora/shared';
+import type { Tag as TagType } from '@linketry/shared';
 import { createTag, deleteTag, listTags, updateTag, type TagPayload } from '../api/tags';
 import { Button } from '../components/ui/Button';
 import { Input, Textarea } from '../components/ui/Input';

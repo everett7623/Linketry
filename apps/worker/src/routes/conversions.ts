@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { ConversionEvent, Link } from '@linkora/shared';
+import type { ConversionEvent, Link } from '@linketry/shared';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { createConversionEvent } from '../db/analytics';

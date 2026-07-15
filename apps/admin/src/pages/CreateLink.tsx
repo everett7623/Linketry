@@ -12,9 +12,10 @@ import { UtmBuilder } from '../components/UtmBuilder';
 import { Button } from '../components/ui/Button';
 import { Input, Select, Textarea } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
-import type { Domain, LinkSuggestionResult, Tag } from '@linkora/shared';
+import type { Domain, LinkSuggestionResult, Tag } from '@linketry/shared';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import { useLocale } from '../contexts/LocaleContext';
+import { DuplicateDestinationWarning } from '../components/links/DuplicateDestinationWarning';
 
 export function CreateLink() {
   const navigate = useNavigate();
@@ -224,6 +225,7 @@ export function CreateLink() {
           hint={t('destinationHint')}
           autoFocus
         />
+        <DuplicateDestinationWarning url={form.long_url} />
 
         {isAdvanced && (
           <div className="flex justify-end">

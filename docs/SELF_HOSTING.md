@@ -1,13 +1,27 @@
-# Self-Hosting Linkora
+# Self-Hosting Linketry
 
-This guide is for people who fork or clone Linkora and want to deploy it to their own Cloudflare account.
+This guide is for people who fork or clone Linketry and want to deploy it to their own Cloudflare account.
 
-Linkora is free and open source first. The recommended basic setup requires only one custom hostname:
+## Deployment Track
+
+This document is the **fresh beginner self-hosting** track. It creates new resources in your own Cloudflare account and never uses the Linketry maintainer's production or Demo resource IDs, domains, tokens, or data. If you already deployed Linkora, stop here and follow [Upgrading from Linkora](UPGRADING_FROM_LINKORA.md) instead.
+
+Linketry keeps three deployment tracks separate:
+
+| Track | Purpose | Resource rule |
+|-------|---------|---------------|
+| Fresh self-hosting | A new user installs Linketry | Create new resources in the user's own Cloudflare account |
+| Existing production upgrade | Upgrade an already deployed Linkora or Linketry instance | Reuse that instance's bindings only after a verified backup; apply incremental migrations without reset or Demo data |
+| Official Demo | Public Linketry demonstration | Use isolated Demo resources and synthetic data; never share production bindings |
+
+Do not use the official Demo workflow to upgrade an existing deployment. Do not use an existing production database as the target for this fresh-install guide.
+
+Linketry is free and open source first. The recommended basic setup requires only one custom hostname:
 
 | Hostname | Purpose | Example |
 |----------|---------|---------|
-| Admin URL | React Admin dashboard, created automatically by Pages | `linkora-admin.pages.dev` |
-| Worker domain | Short-link redirects and `/api/*` | `go.example.com` |
+| Admin URL | React Admin dashboard, created automatically by Pages | `linketry-admin.pages.dev` |
+| Worker domain | Short-link redirects and `/api/v1/*` | `go.example.com` |
 
 Advanced deployments can optionally add `admin.example.com` as a branded Admin domain or `s.example.com` as a separate public short-link domain.
 
@@ -31,15 +45,15 @@ npm install
 Pick values before creating resources:
 
 ```txt
-Worker name:       linkora-worker
-D1 database:       linkora-db
+Worker name:       linketry-worker
+D1 database:       linketry
 KV namespace:      KV
-Pages project:     linkora-admin
+Pages project:     linketry-admin
 Worker domain:     go.example.com
-Admin URL:         linkora-admin.pages.dev (automatic)
+Admin URL:         linketry-admin.pages.dev (automatic)
 ```
 
-Advanced optional names include a branded Admin domain, the `linkora-backups` R2 buckets, `linkora-visits` Queue, and a separate public short-link domain.
+Advanced optional names include a branded Admin domain, the `linketry-backups` R2 buckets, `linketry-visits` Queue, and a separate public short-link domain.
 
 For the easiest first deployment, keep the resource names above. You can rename them, but then you must update `apps/worker/wrangler.toml`, GitHub repository variables, and any direct Wrangler commands that include the resource name.
 
@@ -57,7 +71,7 @@ VISITS_QUEUE
 Create D1:
 
 ```bash
-npx wrangler d1 create linkora-db
+npx wrangler d1 create linketry
 ```
 
 Create KV:
@@ -70,14 +84,14 @@ npx wrangler kv namespace create KV --preview
 Advanced optional: create R2 buckets for scheduled backups and one-click restore:
 
 ```bash
-npx wrangler r2 bucket create linkora-backups
-npx wrangler r2 bucket create linkora-backups-dev
+npx wrangler r2 bucket create linketry-backups
+npx wrangler r2 bucket create linketry-backups-dev
 ```
 
 Advanced optional: create the visit queue for asynchronous analytics:
 
 ```bash
-npx wrangler queues create linkora-visits --message-retention-period-secs 60
+npx wrangler queues create linketry-visits --message-retention-period-secs 60
 ```
 
 ## 4. Configure the Worker
@@ -107,7 +121,7 @@ Set the production admin token:
 
 ```bash
 cd apps/worker
-npx wrangler secret put ADMIN_TOKEN
+npx wrangler secret put LINKETRY_ADMIN_TOKEN
 cd ../..
 ```
 
@@ -150,7 +164,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.9.22"}}
+{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.10.3"}}
 ```
 
 ## 7. Build and Deploy Admin
@@ -158,24 +172,24 @@ Expected shape:
 Build Admin with your stable API domain:
 
 ```bash
-VITE_API_URL=https://go.example.com npm run build --workspace=apps/admin
+VITE_LINKETRY_API_URL=https://go.example.com npm run build --workspace=apps/admin
 ```
 
 On Windows PowerShell:
 
 ```powershell
-$env:VITE_API_URL="https://go.example.com"
+$env:VITE_LINKETRY_API_URL="https://go.example.com"
 npm run build --workspace=apps/admin
 ```
 
 Create and deploy a Cloudflare Pages project:
 
 ```bash
-npx wrangler pages project create linkora-admin --production-branch main
-npx wrangler pages deploy apps/admin/dist --project-name linkora-admin --branch main
+npx wrangler pages project create linketry-admin --production-branch main
+npx wrangler pages deploy apps/admin/dist --project-name linketry-admin --branch main
 ```
 
-Open the automatically created `https://linkora-admin.pages.dev` URL. Adding `admin.example.com` under the Pages project's **Custom domains** is optional and can be done later.
+Open the automatically created `https://linketry-admin.pages.dev` URL. Adding `admin.example.com` under the Pages project's **Custom domains** is optional and can be done later.
 
 ## 8. GitHub Actions Auto Deploy
 
@@ -190,47 +204,47 @@ CLOUDFLARE_API_TOKEN
 CLOUDFLARE_ACCOUNT_ID
 ```
 
-`ADMIN_TOKEN` does not need to be created manually. On the first deployment, the workflow generates it as a Worker secret and prints it once in the deployment log. A repository secret with the same name is only an optional recovery override if the generated value is lost.
+`LINKETRY_ADMIN_TOKEN` does not need to be created manually. On the first deployment, the workflow generates it as a Worker secret and prints it once in the deployment log. A repository secret with the same name is only an optional recovery override if the generated value is lost.
 
 Add repository variables:
 
 ```txt
-LINKORA_API_URL=https://go.example.com
-LINKORA_PAGES_PROJECT=linkora-admin
-LINKORA_WORKER_NAME=linkora-worker
-LINKORA_SHORT_DOMAIN=go.example.com
-LINKORA_D1_DATABASE_NAME=linkora-db
-LINKORA_D1_DATABASE_ID=<your-d1-database-id>
-LINKORA_KV_NAMESPACE_ID=<your-kv-namespace-id>
+LINKETRY_API_URL=https://go.example.com
+LINKETRY_PAGES_PROJECT=linketry-admin
+LINKETRY_WORKER_NAME=linketry-worker
+LINKETRY_SHORT_DOMAIN=go.example.com
+LINKETRY_D1_DATABASE_NAME=linketry
+LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
+LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 ```
 
-Push to `main` and the workflow will type-check, build, migrate D1, set the `ADMIN_TOKEN` secret, deploy the Worker, and deploy the Admin.
+Push to `main` and the workflow will type-check, build, migrate D1, set the `LINKETRY_ADMIN_TOKEN` secret, deploy the Worker, and deploy the Admin.
 
-The completed workflow includes a **Linkora access** summary with the Admin and API URLs.
+The completed workflow includes a **Linketry access** summary with the Admin and API URLs.
 
-> On the first deployment, the workflow automatically generates `ADMIN_TOKEN`. Open GitHub **Actions** → the first successful **Deploy Linkora** run → **Ensure ADMIN_TOKEN secret**, copy the one-time token from that step log, and save it to your password manager. Later deployments detect and preserve the existing Worker secret instead of rotating it. If the value is lost, create a new repository secret named `ADMIN_TOKEN` and rerun deployment once to replace the Worker token.
+> On the first deployment, the workflow automatically generates `LINKETRY_ADMIN_TOKEN`. Open GitHub **Actions** → the first successful **Deploy Linketry** run → **Ensure LINKETRY_ADMIN_TOKEN secret**, copy the one-time token from that step log, and save it to your password manager. Later deployments detect and preserve the existing Worker secret instead of rotating it. If the value is lost, create a new repository secret named `LINKETRY_ADMIN_TOKEN` and rerun deployment once to replace the Worker token.
 
 ### Optional advanced variables
 
 Leave these unset for the basic deployment; enable them later from the Admin Advanced mode.
 
 ```txt
-LINKORA_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKORA_VERSION=0.9.22
-LINKORA_COMPATIBILITY_DATE=2026-07-08
-LINKORA_WORKER_DOMAINS=go.example.com,s.example.com
-LINKORA_R2_BUCKET=linkora-backups
-LINKORA_R2_PREVIEW_BUCKET=linkora-backups-dev
-LINKORA_VISITS_QUEUE=linkora-visits
-LINKORA_DAILY_CRON=0 18 * * *
-LINKORA_HEALTH_CRON=0 * * * *
+LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
+LINKETRY_VERSION=0.10.3
+LINKETRY_COMPATIBILITY_DATE=2026-07-08
+LINKETRY_WORKER_DOMAINS=go.example.com,s.example.com
+LINKETRY_R2_BUCKET=linketry-backups
+LINKETRY_R2_PREVIEW_BUCKET=linketry-backups-dev
+LINKETRY_VISITS_QUEUE=linketry-visits
+LINKETRY_DAILY_CRON=0 18 * * *
+LINKETRY_HEALTH_CRON=0 * * * *
 ```
 
-`LINKORA_WORKER_DOMAINS` replaces the single-domain fallback when set. Configure both R2 variables together. Queue and R2 are independent advanced capabilities; leaving them unset no longer blocks the basic Worker deployment.
+`LINKETRY_WORKER_DOMAINS` replaces the single-domain fallback when set. Configure both R2 variables together. Queue and R2 are independent advanced capabilities; leaving them unset no longer blocks the basic Worker deployment.
 
 ### Move imported links to a new short domain
 
-Shlink imports preserve the domain stored in each original short URL. If the imported links use `s.y8o.de` but Linkora should publish them as `go.uukk.de`, open **Links**, switch to **Advanced** mode, and choose **Migrate short-link domain**.
+Shlink imports preserve the domain stored in each original short URL. If the imported links use `s.y8o.de` but Linketry should publish them as `go.uukk.de`, open **Links**, switch to **Advanced** mode, and choose **Migrate short-link domain**.
 
 1. Enter `s.y8o.de` as the current short-link domain.
 2. Enter `go.uukk.de` as the new short-link domain.
@@ -246,20 +260,20 @@ The workflow still type-checks and builds when Cloudflare secrets are missing, b
 Open the automatic Pages Admin URL shown in the deployment summary:
 
 ```txt
-https://linkora-admin.pages.dev
+https://linketry-admin.pages.dev
 ```
 
 To find the token after an automatic deployment:
 
 1. Open the forked repository on GitHub.
-2. Select **Actions**, then the latest successful **Deploy Linkora** run.
-3. Open the **Ensure ADMIN_TOKEN secret** step.
-4. Copy the generated `linkora_...` value from the one-time log.
+2. Select **Actions**, then the latest successful **Deploy Linketry** run.
+3. Open the **Ensure LINKETRY_ADMIN_TOKEN secret** step.
+4. Copy the generated `linketry_...` value from the one-time log.
 5. Save it in a password manager. Later deployments preserve it automatically.
 
-If the generated value is lost, add a new value under **Settings → Secrets and variables → Actions → Secrets → ADMIN_TOKEN** and rerun deployment once. This recovery override replaces the Worker secret.
+If the generated value is lost, add a new value under **Settings → Secrets and variables → Actions → Secrets → LINKETRY_ADMIN_TOKEN** and rerun deployment once. This recovery override replaces the Worker secret.
 
-Log in with `ADMIN_TOKEN`, then open Settings and set:
+Log in with `LINKETRY_ADMIN_TOKEN`, then open Settings and set:
 
 | Setting | Value |
 |---------|-------|
@@ -273,7 +287,7 @@ The Admin starts in **Simple mode**. Switch to **Advanced mode** from the sideba
 
 ### Scheduled original destination/Aff monitoring
 
-Linkora uses a daily Cron for backups, reports, and cleanup, plus a separate hourly Cron for target health checks. In **Advanced Settings**:
+Linketry uses a daily Cron for backups, reports, and cleanup, plus a separate hourly Cron for target health checks. In **Advanced Settings**:
 
 1. Enable **Scheduled target health monitoring**.
 2. Choose how many active links to check per run (1-50).
@@ -283,9 +297,9 @@ Linkora uses a daily Cron for backups, reports, and cleanup, plus a separate hou
 
 The monitor checks each active link's stored `long_url`, follows redirects, retries selected HEAD failures with a one-byte GET request, and records HTTP status, final URL, response time, and error state. Notifications are sent only when the failure threshold is reached and when the target later recovers. The existing signed generic Webhook remains available separately.
 
-Notification channels use Linkora's built-in plain-text failure and recovery formats. They include the short link, target URL, status, HTTP status, response time, and UTC detection time; operators configure channel credentials and targets, not message templates.
+Notification channels use Linketry's built-in plain-text failure and recovery formats. They include the short link, target URL, status, HTTP status, response time, and UTC detection time; operators configure channel credentials and targets, not message templates.
 
-Notification tokens and Incoming Webhook URLs are stored as write-only instance settings: they are not returned by the API and are excluded from Linkora backup exports. Keep D1 access restricted to the deployment account.
+Notification tokens and Incoming Webhook URLs are stored as write-only instance settings: they are not returned by the API and are excluded from Linketry backup exports. Keep D1 access restricted to the deployment account.
 
 ## 10. Smoke Test
 
@@ -293,13 +307,13 @@ Run these after every first deployment:
 
 ```bash
 curl https://go.example.com/health
-curl -i https://go.example.com/api/auth/me
+curl -i https://go.example.com/api/v1/auth/me
 ```
 
 Expected:
 
 - `/health` returns `success: true` and `status: ok`
-- `/api/auth/me` returns `401` without an Authorization header
+- `/api/v1/auth/me` returns `401` without an Authorization header
 
 Then use Admin to verify:
 
@@ -341,12 +355,12 @@ npm run dev --workspace=apps/worker
 
 ## 12. Migration Notes
 
-Linkora can import from Shlink, Sink, YOURLS, Dub, Linkora backup JSON, and generic CSV/JSON.
+Linketry can import from Shlink, Sink, YOURLS, Dub, Linketry backup JSON, and generic CSV/JSON.
 
 For a Shlink migration:
 
 1. Keep Shlink running.
-2. Deploy Linkora with a stable API domain like `go.example.com`.
+2. Deploy Linketry with a stable API domain like `go.example.com`.
 3. Import Shlink data and verify important slugs.
 4. Cut over the old short domain only after testing.
 5. Keep Shlink available for rollback for 1-2 weeks.
@@ -355,10 +369,10 @@ For a Shlink migration:
 
 | Issue | Check |
 |-------|-------|
-| Admin cannot call API | Confirm `VITE_API_URL` was set before building Admin |
+| Admin cannot call API | Confirm `VITE_LINKETRY_API_URL` was set before building Admin |
 | Worker cannot read D1/KV/R2 | Confirm binding names and resource IDs in `apps/worker/wrangler.toml` |
-| Login fails | Confirm `ADMIN_TOKEN` was set with `wrangler secret put` |
+| Login fails | Confirm `LINKETRY_ADMIN_TOKEN` was set with `wrangler secret put` |
 | GitHub Actions builds but does not deploy | Confirm Cloudflare secrets are set |
-| Pages deploys to the wrong project | Confirm `LINKORA_PAGES_PROJECT` repository variable |
+| Pages deploys to the wrong project | Confirm `LINKETRY_PAGES_PROJECT` repository variable |
 | Short links use the wrong copied domain | Update Admin Settings -> Default Domain |
 | Local Worker starts without bindings | Confirm `apps/worker/wrangler.toml` was copied from the example |

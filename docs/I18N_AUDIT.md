@@ -17,7 +17,7 @@ Automated checks verify that:
 The remaining scanner matches are not general UI prose:
 
 - Protocol and analytics fields: `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, HTTP, JSON, CSV, URL.
-- Product and platform names: Linkora, Shlink, Sink, YOURLS, Dub, Cloudflare Workers, D1, KV, R2.
+- Product and platform names: Linketry, Shlink, Sink, YOURLS, Dub, Cloudflare Workers, D1, KV, R2.
 - Stable audit action names such as `link.create`, shown with English-friendly labels so operators can correlate UI filters with logs and API values.
 - Example values and URLs such as `https://example.com`, `go.example.com`, slugs, tags, and campaign examples.
 - Server-provided validation/import errors, which remain verbatim for accurate diagnosis.

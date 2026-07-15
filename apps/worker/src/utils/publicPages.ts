@@ -75,7 +75,7 @@ function escapeHtml(value: string): string {
 const baseStyle = `*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center}.container{width:min(34rem,calc(100vw - 2rem));padding:2rem}.panel{border:1px solid #334155;background:#111827;border-radius:12px;padding:1.5rem}h1{font-size:1.35rem;color:#f8fafc;margin-bottom:.5rem}p{color:#94a3b8;line-height:1.5}.slug{color:#818cf8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}label{display:block;color:#cbd5e1;font-size:.875rem;margin:1rem 0 .375rem}input{width:100%;border:1px solid #475569;border-radius:8px;padding:.75rem;color:#f8fafc;background:#020617;font-size:1rem}.button,button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:8px;padding:.75rem 1rem;color:#fff;background:#4f46e5;font-weight:600;text-decoration:none;cursor:pointer}button{width:100%;margin-top:1rem}.error{color:#f87171;margin-top:.75rem;font-size:.875rem}.url{margin:1rem 0;padding:.75rem;border:1px solid #334155;border-radius:8px;color:#cbd5e1;background:#020617;overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.875rem}.label{color:#f59e0b;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:.75rem}`;
 
 function document(locale: PublicLocale, title: string, body: string): string {
-  return `<!DOCTYPE html><html lang="${locale}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)} | Linkora</title><style>${baseStyle}</style></head><body>${body}</body></html>`;
+  return `<!DOCTYPE html><html lang="${locale}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)} | Linketry</title><style>${baseStyle}</style></head><body>${body}</body></html>`;
 }
 
 export function renderNotFoundPage(locale: PublicLocale, message?: string): string {
@@ -126,7 +126,7 @@ export function renderWarningPage(
 ): string {
   const text = copy[locale];
   const safeSlug = escapeHtml(slug);
-  const action = escapeHtml(`/${encodeURIComponent(slug)}?linkora_confirm=1`);
+  const action = escapeHtml(`/${encodeURIComponent(slug)}?linketry_confirm=1`);
   const control = requiresPassword
     ? `<form method="post" action="${action}"><label for="password">${text.password}</label><input id="password" name="password" type="password" autocomplete="current-password" required><button type="submit">${text.continue}</button></form>`
     : `<a class="button" href="${action}">${text.continue}</a>`;

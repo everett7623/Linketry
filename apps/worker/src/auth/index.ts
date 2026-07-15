@@ -1,8 +1,9 @@
 import type { Context } from 'hono';
 import type { Env } from '../types';
-import type { ApiTokenScope } from '@linkora/shared';
+import type { ApiTokenScope } from '@linketry/shared';
 import { getActiveApiTokenByHash, parseApiTokenScopes, touchApiTokenLastUsed } from '../db/index';
 import { now, sha256 } from '../utils/id';
+import { getAdminToken } from '../config/runtime';
 
 export async function requireAuth(
   c: Context<{ Bindings: Env }>,
@@ -14,7 +15,7 @@ export async function requireAuth(
   }
 
   const token = authHeader.slice(7);
-  const adminToken = c.env.ADMIN_TOKEN;
+  const adminToken = getAdminToken(c.env);
 
   if (adminToken && token === adminToken) {
     return null;
@@ -59,5 +60,6 @@ export function isAdminToken(c: Context<{ Bindings: Env }>): boolean {
   const authHeader = c.req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
   const token = authHeader.slice(7);
-  return !!c.env.ADMIN_TOKEN && token === c.env.ADMIN_TOKEN;
+  const adminToken = getAdminToken(c.env);
+  return !!adminToken && token === adminToken;
 }

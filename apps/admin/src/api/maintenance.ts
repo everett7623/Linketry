@@ -1,8 +1,8 @@
 import { apiGet, apiPost } from './client';
-import type { Backup } from '@linkora/shared';
+import type { Backup } from '@linketry/shared';
 
 export interface InstanceResetPreview {
-  confirmationPhrase: 'RESET LINKORA';
+  confirmationPhrase: 'RESET LINKETRY';
   tables: Record<string, number>;
   totalRows: number;
   kvPrefix: string;
@@ -18,12 +18,12 @@ export interface InstanceResetResult extends InstanceResetPreview {
 }
 
 export function getResetPreview(): Promise<InstanceResetPreview> {
-  return apiGet('/api/maintenance/reset-preview');
+  return apiGet('/api/v1/maintenance/reset-preview');
 }
 
 export function resetInstance(payload: {
   confirmation: string;
   createBackup: boolean;
 }): Promise<InstanceResetResult> {
-  return apiPost('/api/maintenance/reset', payload);
+  return apiPost('/api/v1/maintenance/reset', payload);
 }

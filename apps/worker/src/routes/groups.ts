@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { Link, LinkGroup, LinkGroupType, Tag } from '@linkora/shared';
+import type { Link, LinkGroup, LinkGroupType, Tag } from '@linketry/shared';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import {

@@ -2,7 +2,7 @@
 
 ## Status
 
-Complete and verified locally for Linkora 0.9.14.
+Complete and verified locally for Linketry 0.9.14.
 
 ## Completed
 
@@ -11,7 +11,7 @@ Complete and verified locally for Linkora 0.9.14.
 - [x] Made the deployment workflow generate ADMIN_TOKEN only when the Worker has none.
 - [x] Preserved the existing Worker token on later deploys.
 - [x] Added a repository-secret recovery override for lost tokens.
-- [x] Added a GitHub Actions deployment summary and `LINKORA_ADMIN_URL`.
+- [x] Added a GitHub Actions deployment summary and `LINKETRY_ADMIN_URL`.
 - [x] Updated deployment and self-hosting documentation.
 
 ## Safety

@@ -1,13 +1,19 @@
-# Linkora Cloudflare Deployment Guide
+# Linketry Cloudflare Deployment Guide
 
-This guide deploys Linkora as a self-hosted short link system on Cloudflare.
+This guide deploys Linketry, a self-hosted link management, analytics and monitoring platform, on Cloudflare.
+
+This is the **fresh self-hosting** path: every new user deploys into their own Cloudflare account with newly created D1/KV resources, Worker/Pages projects, token, and domain. It must not reuse Linketry maintainer production or Demo identifiers.
+
+An existing Linkora or Linketry instance follows the separate [non-destructive upgrade guide](docs/UPGRADING_FROM_LINKORA.md): keep its current bindings, take and verify a backup, review pending migrations, apply only non-destructive incremental migrations, and then deploy. Never initialize, reset, seed Demo data, recreate resources, or replace domains automatically during an upgrade.
+
+The official Linketry Demo is a third isolated environment with synthetic data and separate resources. It is never an upgrade target or a template binding source.
 
 The recommended beginner deployment requires one custom Worker hostname; Cloudflare Pages provides the Admin URL automatically:
 
 | Domain type | Purpose | Example |
 |-------------|---------|---------|
-| Admin URL | React admin panel | `linkora-admin.pages.dev` |
-| Worker domain | Short links and `/api/*` | `go.example.com` |
+| Admin URL | React admin panel | `linketry-admin.pages.dev` |
+| Worker domain | Short links and `/api/v1/*` | `go.example.com` |
 
 Advanced deployments may add `admin.example.com` as a branded Admin domain or split the Worker into `go.example.com` for API access and `s.example.com` for public short links.
 
@@ -41,7 +47,7 @@ For the basic profile, pick one hostname and keep the automatic Pages URL:
 
 ```txt
 Worker domain: go.example.com
-Admin URL:     linkora-admin.pages.dev (automatic)
+Admin URL:     linketry-admin.pages.dev (automatic)
 ```
 
 The Worker domain is the domain users will share, for example:
@@ -53,7 +59,7 @@ https://go.example.com/my-link
 The Admin frontend calls the Worker API through the stable API domain:
 
 ```txt
-https://go.example.com/api/*
+https://go.example.com/api/v1/*
 ```
 
 For a Shlink migration, optionally use the advanced split-domain profile so the API stays stable while the old short domain is cut over:
@@ -71,7 +77,7 @@ Old Shlink domain: s.example.com
 Create the database:
 
 ```bash
-npx wrangler d1 create linkora-db
+npx wrangler d1 create linketry
 ```
 
 Copy the returned `database_id` into `apps/worker/wrangler.toml`:
@@ -79,7 +85,7 @@ Copy the returned `database_id` into `apps/worker/wrangler.toml`:
 ```toml
 [[d1_databases]]
 binding = "DB"
-database_name = "linkora-db"
+database_name = "linketry"
 database_id = "<your-d1-database-id>"
 migrations_dir = "../../migrations"
 ```
@@ -126,8 +132,8 @@ KV is cache only. D1 remains the source of truth.
 Create the production and preview buckets used by the `BACKUPS` binding:
 
 ```bash
-npx wrangler r2 bucket create linkora-backups
-npx wrangler r2 bucket create linkora-backups-dev
+npx wrangler r2 bucket create linketry-backups
+npx wrangler r2 bucket create linketry-backups-dev
 ```
 
 R2 stores scheduled and manually created `backup.json` snapshots. D1 remains the source of truth.
@@ -139,7 +145,7 @@ R2 stores scheduled and manually created `backup.json` snapshots. D1 remains the
 Create the queue used for asynchronous visit statistics:
 
 ```bash
-npx wrangler queues create linkora-visits --message-retention-period-secs 60
+npx wrangler queues create linketry-visits --message-retention-period-secs 60
 ```
 
 If the queue binding is unavailable, the Worker falls back to the current `ctx.waitUntil()` D1 write path so redirects remain stable.
@@ -151,7 +157,7 @@ If the queue binding is unavailable, the Worker falls back to the current `ctx.w
 Edit `apps/worker/wrangler.toml`:
 
 ```toml
-name = "linkora-worker"
+name = "linketry-worker"
 main = "src/index.ts"
 compatibility_date = "2024-07-01"
 compatibility_flags = ["nodejs_compat"]
@@ -161,11 +167,11 @@ routes = [
 ]
 
 [vars]
-LINKORA_VERSION = "0.9.22"
+LINKETRY_VERSION = "0.10.3"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "linkora-db"
+database_name = "linketry"
 database_id = "<your-d1-database-id>"
 migrations_dir = "../../migrations"
 
@@ -182,7 +188,7 @@ Replace `go.example.com` with the hostname selected for short links and the Work
 Set the production admin token:
 
 ```bash
-npx wrangler secret put ADMIN_TOKEN --cwd apps/worker
+npx wrangler secret put LINKETRY_ADMIN_TOKEN --cwd apps/worker
 ```
 
 Use a long random value. Never commit real secrets.
@@ -202,7 +208,7 @@ curl https://go.example.com/health
 Expected response:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linkora","version":"0.9.22"}}
+{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.10.3"}}
 ```
 
 ---
@@ -214,7 +220,7 @@ If you use a Worker custom domain route, Cloudflare will attach the Worker to th
 In Cloudflare Dashboard:
 
 1. Open **Workers & Pages**
-2. Select `linkora-worker`
+2. Select `linketry-worker`
 3. Add the custom domain, for example `go.example.com`
 4. Confirm the domain is active
 
@@ -222,7 +228,7 @@ The Worker should answer both redirects and API routes:
 
 ```txt
 https://go.example.com/health
-https://go.example.com/api/auth/login
+https://go.example.com/api/v1/auth/login
 https://go.example.com/<slug>
 ```
 
@@ -233,17 +239,17 @@ https://go.example.com/<slug>
 The Admin frontend needs the stable API domain at build time:
 
 ```bash
-$env:VITE_API_URL="https://go.example.com"
+$env:VITE_LINKETRY_API_URL="https://go.example.com"
 npm run build --workspace=apps/admin
 ```
 
 On macOS/Linux:
 
 ```bash
-VITE_API_URL=https://go.example.com npm run build --workspace=apps/admin
+VITE_LINKETRY_API_URL=https://go.example.com npm run build --workspace=apps/admin
 ```
 
-Set `VITE_API_URL` to the Worker domain when Admin is hosted on Pages. It can be empty only when Admin and Worker intentionally share the same origin.
+Set `VITE_LINKETRY_API_URL` to the Worker domain when Admin is hosted on Pages. It can be empty only when Admin and Worker intentionally share the same origin.
 
 ---
 
@@ -252,20 +258,20 @@ Set `VITE_API_URL` to the Worker domain when Admin is hosted on Pages. It can be
 Create a Pages project and deploy `apps/admin/dist`:
 
 ```bash
-npx wrangler pages project create linkora-admin --production-branch main
-npx wrangler pages deploy apps/admin/dist --project-name linkora-admin
+npx wrangler pages project create linketry-admin --production-branch main
+npx wrangler pages deploy apps/admin/dist --project-name linketry-admin
 ```
 
 Open the automatic Pages URL first:
 
 ```txt
-https://linkora-admin.pages.dev
+https://linketry-admin.pages.dev
 ```
 
 Optional: add a branded Admin domain later in Cloudflare Dashboard:
 
 1. Open **Workers & Pages**
-2. Select the `linkora-admin` Pages project
+2. Select the `linketry-admin` Pages project
 3. Open **Custom domains**
 4. Add `admin.example.com`
 5. Add the required DNS record if Cloudflare asks for it
@@ -277,11 +283,11 @@ The optional branded URL is then:
 https://admin.example.com
 ```
 
-Log in with `ADMIN_TOKEN`.
+Log in with `LINKETRY_ADMIN_TOKEN`.
 
 ---
 
-## 11. Configure Linkora Settings
+## 11. Configure Linketry Settings
 
 In the Admin panel, open **Settings**.
 
@@ -289,7 +295,7 @@ Set:
 
 | Setting | Value |
 |---------|-------|
-| Site Name | `Linkora` or your own name |
+| Site Name | `Linketry` or your own name |
 | Default Domain | `s.example.com` |
 | Default Redirect Type | `302` |
 
@@ -308,7 +314,7 @@ For a Shlink migration:
 
 | Name | Where | Example |
 |------|-------|---------|
-| `ADMIN_TOKEN` | `wrangler secret put ADMIN_TOKEN --cwd apps/worker` | long random string |
+| `LINKETRY_ADMIN_TOKEN` | `wrangler secret put LINKETRY_ADMIN_TOKEN --cwd apps/worker` | long random string |
 
 ### Worker Variables
 
@@ -316,9 +322,9 @@ Defined in `apps/worker/wrangler.toml`:
 
 | Name | Example |
 |------|---------|
-| `LINKORA_VERSION` | `0.9.22` |
-| `LINKORA_DAILY_CRON` | `0 18 * * *` |
-| `LINKORA_HEALTH_CRON` | `0 * * * *` |
+| `LINKETRY_VERSION` | `0.10.3` |
+| `LINKETRY_DAILY_CRON` | `0 18 * * *` |
+| `LINKETRY_HEALTH_CRON` | `0 * * * *` |
 
 ### Worker Bindings
 
@@ -335,7 +341,7 @@ Defined in `apps/worker/wrangler.toml`:
 
 | Name | Where | Example |
 |------|-------|---------|
-| `VITE_API_URL` | Build env / Pages env | `https://go.example.com` |
+| `VITE_LINKETRY_API_URL` | Build env / Pages env | `https://go.example.com` |
 
 ### GitHub Actions Secrets And Variables
 
@@ -352,25 +358,25 @@ It deploys Admin only when the Cloudflare secrets and these repository variables
 
 | Name | Example | Purpose |
 |------|---------|---------|
-| `LINKORA_ADMIN_URL` | `https://admin.example.com` | Optional: overrides the automatic Pages URL in the deployment summary after adding a branded Admin domain |
-| `LINKORA_API_URL` | `https://go.example.com` | Builds Admin with the stable Worker API origin |
-| `LINKORA_PAGES_PROJECT` | `linkora-admin` | Selects the Cloudflare Pages project |
-| `LINKORA_WORKER_NAME` | `linkora-worker` | Generates the Worker config name |
-| `LINKORA_WORKER_DOMAINS` | `go.example.com,s.example.com` | Generates one or more Worker custom domain routes |
-| `LINKORA_SHORT_DOMAIN` | `go.example.com` | Legacy single-domain fallback when `LINKORA_WORKER_DOMAINS` is not set |
-| `LINKORA_D1_DATABASE_NAME` | `linkora-db` | Generates the D1 binding database name |
-| `LINKORA_D1_DATABASE_ID` | `<id>` | Generates the D1 binding database ID |
-| `LINKORA_KV_NAMESPACE_ID` | `<id>` | Generates the production KV binding ID |
-| `LINKORA_KV_PREVIEW_ID` | `<id>` | Generates the preview KV binding ID |
-| `LINKORA_R2_BUCKET` | `linkora-backups` | Optional: generates the R2 backup bucket binding |
-| `LINKORA_R2_PREVIEW_BUCKET` | `linkora-backups-dev` | Optional: generates the preview R2 bucket binding |
-| `LINKORA_VISITS_QUEUE` | `linkora-visits` | Optional: generates queue producer and consumer bindings |
+| `LINKETRY_ADMIN_URL` | `https://admin.example.com` | Optional: overrides the automatic Pages URL in the deployment summary after adding a branded Admin domain |
+| `LINKETRY_API_URL` | `https://go.example.com` | Builds Admin with the stable Worker API origin |
+| `LINKETRY_PAGES_PROJECT` | `linketry-admin` | Selects the Cloudflare Pages project |
+| `LINKETRY_WORKER_NAME` | `linketry-worker` | Generates the Worker config name |
+| `LINKETRY_WORKER_DOMAINS` | `go.example.com,s.example.com` | Generates one or more Worker custom domain routes |
+| `LINKETRY_SHORT_DOMAIN` | `go.example.com` | Legacy single-domain fallback when `LINKETRY_WORKER_DOMAINS` is not set |
+| `LINKETRY_D1_DATABASE_NAME` | `linketry` | Generates the D1 binding database name |
+| `LINKETRY_D1_DATABASE_ID` | `<id>` | Generates the D1 binding database ID |
+| `LINKETRY_KV_NAMESPACE_ID` | `<id>` | Generates the production KV binding ID |
+| `LINKETRY_KV_PREVIEW_ID` | `<id>` | Generates the preview KV binding ID |
+| `LINKETRY_R2_BUCKET` | `linketry-backups` | Optional: generates the R2 backup bucket binding |
+| `LINKETRY_R2_PREVIEW_BUCKET` | `linketry-backups-dev` | Optional: generates the preview R2 bucket binding |
+| `LINKETRY_VISITS_QUEUE` | `linketry-visits` | Optional: generates queue producer and consumer bindings |
 
 If either Cloudflare secret is missing, the workflow skips all Cloudflare migration/deploy steps and leaves manual Wrangler deployment as the source of production updates.
 If either Admin variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.
 If any core Worker variable is missing, the workflow skips Worker deploy instead of relying on a committed production `wrangler.toml`. Missing R2 and Queue variables only disable those advanced bindings.
 
-On the first successful deployment, the workflow automatically creates `ADMIN_TOKEN` as a Worker secret and prints it once in the **Ensure ADMIN_TOKEN secret** step. Later deployments preserve the existing Worker secret. If the token is lost, set a replacement GitHub repository secret named `ADMIN_TOKEN` and rerun deployment once.
+On the first successful deployment, the workflow automatically creates `LINKETRY_ADMIN_TOKEN` as a Worker secret and prints it once in the **Ensure LINKETRY_ADMIN_TOKEN secret** step. Later deployments preserve the existing Worker secret. If the token is lost, set a replacement GitHub repository secret named `LINKETRY_ADMIN_TOKEN` and rerun deployment once.
 
 ---
 
@@ -404,7 +410,7 @@ Expected:
 Check auth rejection:
 
 ```bash
-curl https://go.example.com/api/auth/me
+curl https://go.example.com/api/v1/auth/me
 ```
 
 Expected:
@@ -416,10 +422,10 @@ Expected:
 Check Admin:
 
 ```txt
-https://linkora-admin.pages.dev
+https://linketry-admin.pages.dev
 ```
 
-Login with `ADMIN_TOKEN`, then verify:
+Login with `LINKETRY_ADMIN_TOKEN`, then verify:
 
 - Links list loads
 - Create/Edit link works
@@ -432,11 +438,11 @@ Login with `ADMIN_TOKEN`, then verify:
 
 ## 14. Shlink Cutover Checklist
 
-Use this when moving an existing Shlink domain to Linkora.
+Use this when moving an existing Shlink domain to Linketry.
 
 Before cutover:
 
-- Deploy Linkora to a stable API domain, for example `go.example.com`
+- Deploy Linketry to a stable API domain, for example `go.example.com`
 - Import Shlink links
 - Verify important slugs on the temporary domain
 - Keep Shlink running
@@ -452,6 +458,6 @@ Cutover:
 Rollback:
 
 - Point the old domain back to Shlink
-- Keep Linkora data intact
+- Keep Linketry data intact
 
 Do not delete Shlink immediately. Keep it available for rollback during the first days after cutover.

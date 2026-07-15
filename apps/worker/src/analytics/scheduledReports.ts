@@ -25,7 +25,7 @@ export async function createScheduledAnalyticsReport(env: Env, force = false): P
   const state = await getAnalyticsReportState(env);
   if (!force && !state.config.enabled) return null;
   const createdAt = now();
-  const key = `reports/linkora-analytics-${createdAt.slice(0, 19).replace(/[-:T]/g, '')}.csv`;
+  const key = `reports/linketry-analytics-${createdAt.slice(0, 19).replace(/[-:T]/g, '')}.csv`;
   let record: AnalyticsReportRecord;
   try {
     if (!env.BACKUPS) throw new Error('R2 backup bucket is not configured');

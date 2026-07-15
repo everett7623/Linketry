@@ -2,14 +2,14 @@
 
 ## Goal
 
-Prepare Linkora for a clean reset followed by a full Shlink short-link migration.
+Prepare Linketry for a clean reset followed by a full Shlink short-link migration.
 
 ## Completed
 
 - [x] Added `domain` to normalized import items.
 - [x] Shlink JSON, JSONL, CSV, and API pull imports preserve the hostname from `shortUrl`.
 - [x] Generic imports can map a domain field or infer it from `shortUrl`.
-- [x] Dub, Sink, and Linkora backup imports preserve domain where available.
+- [x] Dub, Sink, and Linketry backup imports preserve domain where available.
 - [x] Import confirm writes the imported domain into `links.domain`.
 - [x] Import cache sync uses the stored link domain instead of the API request host.
 - [x] Overwrite import clears the old domain cache before writing new cache.

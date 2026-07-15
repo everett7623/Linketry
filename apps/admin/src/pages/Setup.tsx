@@ -7,7 +7,7 @@ import { getSettings } from '../api/settings';
 import { getAdminApiOrigin, getDeploymentCapabilities } from '../api/system';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
-import type { DeploymentCapabilities, Domain, Link as LinkType } from '@linkora/shared';
+import type { DeploymentCapabilities, Domain, Link as LinkType } from '@linketry/shared';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import { SetupQuickLinks } from '../components/setup/SetupQuickLinks';
 import { SetupCheckList, SetupSummary, type SetupCheck } from '../components/setup/SetupStatus';
@@ -170,7 +170,7 @@ export function Setup() {
             {t('refresh')}
           </Button>
           <a
-            href="https://github.com/everett7623/Linkora/blob/main/docs/SELF_HOSTING.md"
+            href="https://github.com/everettlabs/linketry/blob/main/docs/SELF_HOSTING.md"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-slate-100 shadow-sm transition-colors hover:bg-slate-600"

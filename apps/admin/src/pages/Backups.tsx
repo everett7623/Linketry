@@ -13,7 +13,7 @@ import { createBackup, downloadBackup, listBackups, type BackupsList } from '../
 import { Button } from '../components/ui/Button';
 import { RestoreBackupModal } from '../components/backups/RestoreBackupModal';
 import { useToast } from '../components/ui/Toast';
-import type { Backup } from '@linkora/shared';
+import type { Backup } from '@linketry/shared';
 import { useLocale } from '../contexts/LocaleContext';
 
 function formatBytes(size: number | null | undefined, locale: string, bytesUnit: string): string {

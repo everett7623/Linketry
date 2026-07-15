@@ -138,7 +138,7 @@ export const operationsMessages = {
     restorePreviewHelp: 'Preview the restore plan before applying changes.',
     conflictStrategy: 'Conflict Strategy',
     overwriteWarning:
-      'Overwrite will mutate existing links. Linkora creates a pre-restore R2 backup before applying changes.',
+      'Overwrite will mutate existing links. Linketry creates a pre-restore R2 backup before applying changes.',
     createAction: 'Create',
     overwriteAction: 'Overwrite',
     renameAction: 'Rename',
@@ -324,7 +324,7 @@ export const operationsMessages = {
     restoreBackup: '恢复备份',
     restorePreviewHelp: '应用更改前请先检查恢复计划。',
     conflictStrategy: '冲突策略',
-    overwriteWarning: '覆盖会修改已有短链。Linkora 会在应用更改前创建一份恢复前 R2 备份。',
+    overwriteWarning: '覆盖会修改已有短链。Linketry 会在应用更改前创建一份恢复前 R2 备份。',
     createAction: '创建',
     overwriteAction: '覆盖',
     renameAction: '重命名',

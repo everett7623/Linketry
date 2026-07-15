@@ -16,13 +16,13 @@ export interface UpdateWebhookConfigPayload {
 }
 
 export function getWebhookConfig(): Promise<WebhookConfig> {
-  return apiGet('/api/webhooks/config');
+  return apiGet('/api/v1/webhooks/config');
 }
 
 export function updateWebhookConfig(payload: UpdateWebhookConfigPayload): Promise<WebhookConfig> {
-  return apiPut('/api/webhooks/config', payload);
+  return apiPut('/api/v1/webhooks/config', payload);
 }
 
 export function testWebhook(): Promise<{ message: string; status?: number }> {
-  return apiPost('/api/webhooks/test');
+  return apiPost('/api/v1/webhooks/test');
 }

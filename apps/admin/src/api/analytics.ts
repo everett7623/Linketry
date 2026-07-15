@@ -1,5 +1,5 @@
 import { apiDelete, apiGet, apiPost, apiPut, downloadFile } from './client';
-import type { ConversionEvent, Link, Visit } from '@linkora/shared';
+import type { ConversionEvent, Link, Visit } from '@linketry/shared';
 
 export interface AnalyticsFilters {
   days?: number;
@@ -60,27 +60,27 @@ export interface PublicStatsConfig {
 }
 
 export interface SavedAnalyticsView { id: string; name: string; filters: AnalyticsFilters; created_at: string; }
-export function getSavedAnalyticsViews(): Promise<{ items: SavedAnalyticsView[] }> { return apiGet('/api/analytics-views'); }
-export function saveAnalyticsView(name: string, filters: AnalyticsFilters): Promise<SavedAnalyticsView> { return apiPost('/api/analytics-views', { name, filters }); }
-export function deleteAnalyticsView(id: string): Promise<{ deleted: boolean }> { return apiDelete(`/api/analytics-views/${id}`); }
+export function getSavedAnalyticsViews(): Promise<{ items: SavedAnalyticsView[] }> { return apiGet('/api/v1/analytics-views'); }
+export function saveAnalyticsView(name: string, filters: AnalyticsFilters): Promise<SavedAnalyticsView> { return apiPost('/api/v1/analytics-views', { name, filters }); }
+export function deleteAnalyticsView(id: string): Promise<{ deleted: boolean }> { return apiDelete(`/api/v1/analytics-views/${id}`); }
 
 export interface AnalyticsReportRecord { key: string; created_at: string; status: 'completed' | 'failed'; size: number | null; error?: string; }
 export interface AnalyticsReportState { config: { enabled: boolean; days: number; saved_view_id: string | null }; records: AnalyticsReportRecord[]; r2Configured: boolean; }
-export function getAnalyticsReportState(): Promise<AnalyticsReportState> { return apiGet('/api/analytics-reports'); }
-export function saveAnalyticsReportConfig(payload: AnalyticsReportState['config']): Promise<AnalyticsReportState['config']> { return apiPut('/api/analytics-reports/config', payload); }
-export function runAnalyticsReport(): Promise<AnalyticsReportRecord> { return apiPost('/api/analytics-reports/run'); }
-export function downloadScheduledAnalyticsReport(record: AnalyticsReportRecord): Promise<void> { return downloadFile(`/api/analytics-reports/download?key=${encodeURIComponent(record.key)}`, record.key.split('/').pop() ?? 'linkora-analytics.csv'); }
+export function getAnalyticsReportState(): Promise<AnalyticsReportState> { return apiGet('/api/v1/analytics-reports'); }
+export function saveAnalyticsReportConfig(payload: AnalyticsReportState['config']): Promise<AnalyticsReportState['config']> { return apiPut('/api/v1/analytics-reports/config', payload); }
+export function runAnalyticsReport(): Promise<AnalyticsReportRecord> { return apiPost('/api/v1/analytics-reports/run'); }
+export function downloadScheduledAnalyticsReport(record: AnalyticsReportRecord): Promise<void> { return downloadFile(`/api/v1/analytics-reports/download?key=${encodeURIComponent(record.key)}`, record.key.split('/').pop() ?? 'linketry-analytics.csv'); }
 
 export function getPublicStatsConfig(id: string): Promise<PublicStatsConfig> {
-  return apiGet(`/api/public-stats/links/${id}`);
+  return apiGet(`/api/v1/public-stats/links/${id}`);
 }
 
 export function createPublicStatsShare(id: string, payload: { days: number; show_countries: boolean; show_referrers: boolean }): Promise<PublicStatsConfig> {
-  return apiPost(`/api/public-stats/links/${id}`, payload);
+  return apiPost(`/api/v1/public-stats/links/${id}`, payload);
 }
 
 export function disablePublicStatsShare(id: string): Promise<PublicStatsConfig> {
-  return apiDelete(`/api/public-stats/links/${id}`);
+  return apiDelete(`/api/v1/public-stats/links/${id}`);
 }
 
 export interface ConversionPayload {
@@ -95,22 +95,22 @@ export interface ConversionPayload {
 
 export function getAnalytics(filters: AnalyticsFilters = {}): Promise<AnalyticsSummary> {
   const q = analyticsQuery(filters);
-  return apiGet(`/api/analytics?${q.toString()}`);
+  return apiGet(`/api/v1/analytics?${q.toString()}`);
 }
 
 export function getLinkAnalytics(id: string, filters: AnalyticsFilters = {}): Promise<LinkAnalyticsResponse> {
   const q = analyticsQuery(filters);
-  return apiGet(`/api/analytics/links/${id}?${q.toString()}`);
+  return apiGet(`/api/v1/analytics/links/${id}?${q.toString()}`);
 }
 
 export function createConversion(payload: ConversionPayload): Promise<ConversionEvent> {
-  return apiPost('/api/conversions', payload);
+  return apiPost('/api/v1/conversions', payload);
 }
 
 export function downloadAnalyticsReport(filters: AnalyticsFilters = {}): Promise<void> {
   const q = analyticsQuery(filters);
   const suffix = new Date().toISOString().slice(0, 10);
-  return downloadFile(`/api/export/analytics.csv?${q.toString()}`, `linkora-analytics-${suffix}.csv`);
+  return downloadFile(`/api/v1/export/analytics.csv?${q.toString()}`, `linketry-analytics-${suffix}.csv`);
 }
 
 function analyticsQuery(filters: AnalyticsFilters): URLSearchParams {

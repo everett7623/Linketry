@@ -1,4 +1,4 @@
-import type { Link } from '@linkora/shared';
+import type { Link } from '@linketry/shared';
 
 export function migratedShortUrl(targetDomain: string, slug: string): string {
   return `https://${targetDomain}/${slug}`;

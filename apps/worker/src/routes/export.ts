@@ -4,7 +4,7 @@ import { requireAuth } from '../auth/index';
 import { getAllLinks, getAllVisits } from '../db/index';
 import { getAnalyticsSummary, parseAnalyticsFilters, type AnalyticsSummary } from '../db/analytics';
 import { buildBackupPayload } from '../backups/index';
-import type { Link, Visit } from '@linkora/shared';
+import type { Link, Visit } from '@linketry/shared';
 
 const exportRoutes = new Hono<{ Bindings: Env }>();
 
@@ -39,7 +39,7 @@ exportRoutes.get('/links.csv', async (c) => {
   return new Response(header + rows.join('\r\n'), {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="linkora-links-${today}.csv"`,
+      'Content-Disposition': `attachment; filename="linketry-links-${today}.csv"`,
     },
   });
 });
@@ -50,7 +50,7 @@ exportRoutes.get('/links.json', async (c) => {
   return new Response(JSON.stringify(links, null, 2), {
     headers: {
       'Content-Type': 'application/json',
-      'Content-Disposition': `attachment; filename="linkora-links-${today}.json"`,
+      'Content-Disposition': `attachment; filename="linketry-links-${today}.json"`,
     },
   });
 });
@@ -78,7 +78,7 @@ exportRoutes.get('/visits.csv', async (c) => {
   return new Response(header + rows.join('\r\n'), {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="linkora-visits-${today}.csv"`,
+      'Content-Disposition': `attachment; filename="linketry-visits-${today}.csv"`,
     },
   });
 });
@@ -89,7 +89,7 @@ exportRoutes.get('/analytics.csv', async (c) => {
   return new Response(analyticsCsv(summary), {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="linkora-analytics-${today}.csv"`,
+      'Content-Disposition': `attachment; filename="linketry-analytics-${today}.csv"`,
     },
   });
 });
@@ -100,7 +100,7 @@ exportRoutes.get('/backup.json', async (c) => {
   return new Response(JSON.stringify(backup, null, 2), {
     headers: {
       'Content-Type': 'application/json',
-      'Content-Disposition': `attachment; filename="linkora-backup-${today}.json"`,
+      'Content-Disposition': `attachment; filename="linketry-backup-${today}.json"`,
     },
   });
 });

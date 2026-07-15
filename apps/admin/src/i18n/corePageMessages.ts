@@ -1,6 +1,6 @@
 export const corePageMessages = {
   en: {
-    dashboardSubtitle: 'Your Linkora dashboard',
+    dashboardSubtitle: 'Your Linketry dashboard',
     totalLinks: 'Total Links',
     totalClicks: 'Total Clicks',
     todayClicks: "Today's Clicks",
@@ -16,6 +16,8 @@ export const corePageMessages = {
     addShortLink: 'Add a new short link',
     destinationUrl: 'Destination URL *',
     destinationHint: 'The URL this short link will redirect to',
+    duplicateDestinationWarning: 'This destination is already used by {count} link(s). You can still save an intentional duplicate.',
+    duplicateDestinationMore: 'More matching links exist; only the first five are shown.',
     destinationRequired: 'Destination URL is required',
     invalidHttpUrl: 'URL must start with http:// or https://',
     customSlug: 'Custom Slug (optional)',
@@ -95,7 +97,7 @@ export const corePageMessages = {
     qrCodeTitle: 'QR Code /{slug}',
   },
   'zh-CN': {
-    dashboardSubtitle: 'Linkora 管理概览',
+    dashboardSubtitle: 'Linketry 管理概览',
     totalLinks: '短链总数',
     totalClicks: '总访问量',
     todayClicks: '今日访问',
@@ -111,6 +113,8 @@ export const corePageMessages = {
     addShortLink: '添加一条新短链',
     destinationUrl: '目标网址 *',
     destinationHint: '短链最终跳转到的网址',
+    duplicateDestinationWarning: '已有 {count} 个短链使用这个目标网址。若确有需要，仍可保存重复链接。',
+    duplicateDestinationMore: '还有更多匹配短链，此处仅显示前五个。',
     destinationRequired: '请填写目标网址',
     invalidHttpUrl: '网址必须以 http:// 或 https:// 开头',
     customSlug: '自定义别名（可选）',

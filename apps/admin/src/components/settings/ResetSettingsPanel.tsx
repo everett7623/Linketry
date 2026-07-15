@@ -7,7 +7,7 @@ import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
 import { useLocale } from '../../contexts/LocaleContext';
 
-const RESET_PHRASE = 'RESET LINKORA';
+const RESET_PHRASE = 'RESET LINKETRY';
 
 function formatCount(value: number, locale: string): string {
   return value.toLocaleString(locale);

@@ -1,6 +1,7 @@
 {
-  "name": "@linkora/admin",
-  "version": "0.9.22",
+  "name": "@linketry/admin",
+  "version": "0.10.3",
+  "author": "everettlabs",
   "license": "GPL-3.0-only",
   "private": true,
   "type": "module",
@@ -8,12 +9,12 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "npm run test:unit && npm run test:smoke",
-    "test:unit": "node --experimental-strip-types --test src/utils/adminMode.test.ts",
+    "test:unit": "node --experimental-strip-types --test src/utils/adminMode.test.ts src/utils/browserStorage.test.ts",
     "test:smoke": "playwright test",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@linkora/shared": "*",
+    "@linketry/shared": "*",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.12",
     "lucide-react": "^0.418.0",

@@ -1,4 +1,4 @@
-import type { LinkGroup, LinkGroupType } from '@linkora/shared';
+import type { LinkGroup, LinkGroupType } from '@linketry/shared';
 import { apiDelete, apiGet, apiPost, apiPut } from './client';
 
 export interface GroupsList {
@@ -15,17 +15,17 @@ export interface GroupPayload {
 
 export function listGroups(type?: LinkGroupType | ''): Promise<GroupsList> {
   const query = type ? `?type=${encodeURIComponent(type)}` : '';
-  return apiGet(`/api/groups${query}`);
+  return apiGet(`/api/v1/groups${query}`);
 }
 
 export function createGroup(payload: GroupPayload): Promise<LinkGroup> {
-  return apiPost('/api/groups', payload);
+  return apiPost('/api/v1/groups', payload);
 }
 
 export function updateGroup(id: string, payload: GroupPayload): Promise<LinkGroup> {
-  return apiPut(`/api/groups/${id}`, payload);
+  return apiPut(`/api/v1/groups/${id}`, payload);
 }
 
 export function deleteGroup(id: string): Promise<{ message: string }> {
-  return apiDelete(`/api/groups/${id}`);
+  return apiDelete(`/api/v1/groups/${id}`);
 }

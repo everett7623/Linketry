@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { DeploymentCapabilities } from '@linkora/shared';
+import type { DeploymentCapabilities } from '@linketry/shared';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { listDomains } from '../db/index';

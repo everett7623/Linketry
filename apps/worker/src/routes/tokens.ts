@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { Context } from 'hono';
-import type { ApiTokenScope } from '@linkora/shared';
+import type { ApiTokenScope } from '@linketry/shared';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { createApiTokenRecord, listApiTokens, revokeApiToken } from '../db/index';

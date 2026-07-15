@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Edit2, Flag, Folder, Plus, RefreshCw, Tags, Trash2 } from 'lucide-react';
-import type { LinkGroup, LinkGroupType } from '@linkora/shared';
+import type { LinkGroup, LinkGroupType } from '@linketry/shared';
 import {
   createGroup,
   deleteGroup,

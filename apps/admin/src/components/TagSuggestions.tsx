@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Tag } from '@linkora/shared';
+import type { Tag } from '@linketry/shared';
 
 function parseTags(value: string): string[] {
   return value.split(',').map((tag) => tag.trim()).filter(Boolean);

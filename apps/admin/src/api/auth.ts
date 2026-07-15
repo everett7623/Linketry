@@ -5,7 +5,7 @@ export type AuthResult = 'authenticated' | 'unauthorized' | 'unreachable';
 export async function login(token: string): Promise<AuthResult> {
   try {
     const res = await apiFetch<{ success: boolean; data: { authenticated: boolean } }>(
-      '/api/auth/login',
+      '/api/v1/auth/login',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -22,7 +22,7 @@ export async function login(token: string): Promise<AuthResult> {
 
 export async function checkMe(apiBase?: string): Promise<AuthResult> {
   try {
-    const res = await apiFetch<{ success: boolean }>('/api/auth/me', {}, apiBase);
+    const res = await apiFetch<{ success: boolean }>('/api/v1/auth/me', {}, apiBase);
     return res.success ? 'authenticated' : 'unauthorized';
   } catch (error) {
     return error instanceof ApiError && (error.status === 401 || error.status === 403)

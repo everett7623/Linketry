@@ -1,9 +1,17 @@
-# Linkora API
+# Linketry API
 
-All `/api/*` endpoints require either the admin token or a scoped API token:
+The canonical API namespace is `/api/v1`. During the `0.10.x` upgrade window, the Worker also accepts legacy unversioned `/api/*` routes and adds a `Deprecation: true` response header. New Admin builds and integrations must use `/api/v1`; the compatibility alias is not the long-term contract.
+
+The authenticated machine-readable contract is available at `GET /api/v1/openapi.json`. An authenticated Swagger UI is available at `GET /api/v1/docs`. Supply an Admin token or scoped API token as `Authorization: Bearer <token>` when loading either resource; the generated contract contains no real token or secret examples. The OpenAPI inventory is checked against mounted Hono route declarations in the Worker test suite so new or removed endpoints require an intentional contract update.
+
+Browser extensions, Raycast commands, Shortcuts, MCP bridges, and other clients should generate or validate integrations against this `/api/v1` contract. They must store bearer tokens in their platform's secret storage, request the narrowest useful scope, tolerate the standard `{ success, data }` / `{ success, error }` envelopes, and must not target the deprecated `/api` alias.
+
+`GET /api/v1/links/duplicates?url=<destination>&excludeId=<link-id>&limit=5` returns existing links with the same normalized destination. The comparison normalizes URL parsing, host casing, default ports, and query-parameter order while preserving meaningful protocols, paths, query values, and fragments. `excludeId` should be supplied while editing. Results are advisory and bounded; link creation and editing continue to allow intentional duplicates.
+
+All `/api/v1/*` endpoints require either the admin token or a scoped API token:
 
 ```http
-Authorization: Bearer <ADMIN_TOKEN>
+Authorization: Bearer <LINKETRY_ADMIN_TOKEN>
 ```
 
 API token scopes:
@@ -40,17 +48,17 @@ Redirect analytics are recorded asynchronously. Stats failures must not block re
 
 | Method | Path |
 |--------|------|
-| `POST` | `/api/auth/login` |
-| `GET` | `/api/auth/me` |
-| `POST` | `/api/auth/logout` |
+| `POST` | `/api/v1/auth/login` |
+| `GET` | `/api/v1/auth/me` |
+| `POST` | `/api/v1/auth/logout` |
 
-Admin login still uses `ADMIN_TOKEN`. API tokens are for API requests and are managed from the Admin panel.
+Admin login still uses `LINKETRY_ADMIN_TOKEN`. API tokens are for API requests and are managed from the Admin panel.
 
 ## System Capabilities
 
 | Method | Path | Scope | Description |
 |--------|------|-------|-------------|
-| `GET` | `/api/system/capabilities` | `read` | Report core and optional deployment capabilities |
+| `GET` | `/api/v1/system/capabilities` | `read` | Report core and optional deployment capabilities |
 
 Response data has a stable shape:
 
@@ -73,10 +81,10 @@ The endpoint reports runtime bindings and the domain catalog. It does not expose
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/tokens` | List API tokens without hashes |
-| `POST` | `/api/tokens` | Create a token and return the plaintext value once |
-| `POST` | `/api/tokens/:id/revoke` | Revoke a token |
-| `DELETE` | `/api/tokens/:id` | Revoke a token |
+| `GET` | `/api/v1/tokens` | List API tokens without hashes |
+| `POST` | `/api/v1/tokens` | Create a token and return the plaintext value once |
+| `POST` | `/api/v1/tokens/:id/revoke` | Revoke a token |
+| `DELETE` | `/api/v1/tokens/:id` | Revoke a token |
 
 ## Domains
 
@@ -84,11 +92,11 @@ Domain endpoints require admin access. Link creation and update payloads can inc
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/domains` | List registered short domains |
-| `POST` | `/api/domains` | Create a domain |
-| `PUT` | `/api/domains/:id` | Update domain, default flag, or status |
-| `DELETE` | `/api/domains/:id` | Delete a domain catalog entry |
-| `POST` | `/api/domains/:id/set-default` | Mark a domain as the default |
+| `GET` | `/api/v1/domains` | List registered short domains |
+| `POST` | `/api/v1/domains` | Create a domain |
+| `PUT` | `/api/v1/domains/:id` | Update domain, default flag, or status |
+| `DELETE` | `/api/v1/domains/:id` | Delete a domain catalog entry |
+| `POST` | `/api/v1/domains/:id/set-default` | Mark a domain as the default |
 
 ## Redirect Rules
 
@@ -107,12 +115,12 @@ weighted
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/redirect-rules` | List all redirect rules |
-| `GET` | `/api/redirect-rules?linkId=:id` | List rules for one link |
-| `GET` | `/api/redirect-rules/:id` | Read one rule |
-| `POST` | `/api/redirect-rules` | Create a rule |
-| `PUT` | `/api/redirect-rules/:id` | Update a rule |
-| `DELETE` | `/api/redirect-rules/:id` | Delete a rule |
+| `GET` | `/api/v1/redirect-rules` | List all redirect rules |
+| `GET` | `/api/v1/redirect-rules?linkId=:id` | List rules for one link |
+| `GET` | `/api/v1/redirect-rules/:id` | Read one rule |
+| `POST` | `/api/v1/redirect-rules` | Create a rule |
+| `PUT` | `/api/v1/redirect-rules/:id` | Update a rule |
+| `DELETE` | `/api/v1/redirect-rules/:id` | Delete a rule |
 
 Non-weighted rule payload:
 
@@ -148,9 +156,9 @@ Webhook endpoints require admin access. Deliveries are sent asynchronously and d
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/webhooks/config` | Read webhook config without returning the signing secret |
-| `PUT` | `/api/webhooks/config` | Update enabled state, URL, events, and optional signing secret |
-| `POST` | `/api/webhooks/test` | Send a test delivery to the configured URL |
+| `GET` | `/api/v1/webhooks/config` | Read webhook config without returning the signing secret |
+| `PUT` | `/api/v1/webhooks/config` | Update enabled state, URL, events, and optional signing secret |
+| `POST` | `/api/v1/webhooks/test` | Send a test delivery to the configured URL |
 
 Supported event names:
 
@@ -168,7 +176,7 @@ backup.completed
 backup.failed
 ```
 
-Delivery headers include `X-Linkora-Event`, `X-Linkora-Timestamp`, and, when a secret is configured, `X-Linkora-Signature: sha256=<hex-hmac>`.
+Delivery headers include `X-Linketry-Event`, `X-Linketry-Timestamp`, and, when a secret is configured, `X-Linketry-Signature: sha256=<hex-hmac>`. Matching `X-Linkora-*` headers are also sent during the `0.10.x` compatibility window for existing consumers.
 
 ## Notification Channels
 
@@ -176,40 +184,40 @@ Notification endpoints require admin access. They configure scheduled original d
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/notifications/config` | List Telegram, Discord, Slack, Feishu, DingTalk, and WeCom channel states |
-| `PUT` | `/api/notifications/config/:provider` | Enable or disable a provider and optionally replace its credential |
-| `POST` | `/api/notifications/test/:provider` | Send a test through the stored provider credential |
+| `GET` | `/api/v1/notifications/config` | List Telegram, Discord, Slack, Feishu, DingTalk, and WeCom channel states |
+| `PUT` | `/api/v1/notifications/config/:provider` | Enable or disable a provider and optionally replace its credential |
+| `POST` | `/api/v1/notifications/test/:provider` | Send a test through the stored provider credential |
 
 Telegram accepts `credential` as the bot token and `target` as the chat ID or `@channel`. Other providers accept the official Incoming Webhook URL as `credential`. Sending an empty credential preserves the stored value.
 
-Scheduled failure and recovery deliveries use Linkora's built-in plain-text format. Messages include the short link when its domain is available, target URL, target status, HTTP status, response time, and an explicit UTC detection time. Notification templates are not stored per instance.
+Scheduled failure and recovery deliveries use Linketry's built-in plain-text format. Messages include the short link when its domain is available, target URL, target status, HTTP status, response time, and an explicit UTC detection time. Notification templates are not stored per instance.
 
 ## Links
 
 | Method | Path |
 |--------|------|
-| `GET` | `/api/links` |
-| `POST` | `/api/links` |
-| `GET` | `/api/links/:id` |
-| `PUT` | `/api/links/:id` |
-| `DELETE` | `/api/links/:id` |
-| `POST` | `/api/links/:id/disable` |
-| `POST` | `/api/links/:id/enable` |
-| `POST` | `/api/links/:id/archive` |
-| `POST` | `/api/links/:id/restore` |
-| `POST` | `/api/links/bulk` |
-| `POST` | `/api/links/bulk-tag` |
-| `POST` | `/api/links/bulk-create` |
-| `POST` | `/api/links/bulk-replace-url/preview` |
-| `POST` | `/api/links/bulk-replace-url/confirm` |
-| `POST` | `/api/links/migrate-domain/preview` |
-| `POST` | `/api/links/migrate-domain/confirm` |
+| `GET` | `/api/v1/links` |
+| `POST` | `/api/v1/links` |
+| `GET` | `/api/v1/links/:id` |
+| `PUT` | `/api/v1/links/:id` |
+| `DELETE` | `/api/v1/links/:id` |
+| `POST` | `/api/v1/links/:id/disable` |
+| `POST` | `/api/v1/links/:id/enable` |
+| `POST` | `/api/v1/links/:id/archive` |
+| `POST` | `/api/v1/links/:id/restore` |
+| `POST` | `/api/v1/links/bulk` |
+| `POST` | `/api/v1/links/bulk-tag` |
+| `POST` | `/api/v1/links/bulk-create` |
+| `POST` | `/api/v1/links/bulk-replace-url/preview` |
+| `POST` | `/api/v1/links/bulk-replace-url/confirm` |
+| `POST` | `/api/v1/links/migrate-domain/preview` |
+| `POST` | `/api/v1/links/migrate-domain/confirm` |
 
-`GET /api/links` supports search, pagination, status, tag, source, domain, created date range, password, warning, limits, and sort query parameters.
+`GET /api/v1/links` supports search, pagination, status, tag, source, domain, created date range, password, warning, limits, and sort query parameters.
 
-`POST /api/links` and `PUT /api/links/:id` accept `domain` to set the short-link domain. If omitted, the Worker request host is used.
+`POST /api/v1/links` and `PUT /api/v1/links/:id` accept `domain` to set the short-link domain. If omitted, the Worker request host is used.
 
-`POST /api/links/bulk-create` accepts `{ "items": [...] }` with up to 100 create-link payloads. Existing slugs are not overwritten.
+`POST /api/v1/links/bulk-create` accepts `{ "items": [...] }` with up to 100 create-link payloads. Existing slugs are not overwritten.
 
 Destination URL replacement and short-link domain migration are separate operations. Domain migration accepts a source and target hostname, updates every matching link's stored `domain` and generated `short_url`, and never changes `slug` or `long_url`.
 
@@ -222,7 +230,7 @@ Preview a domain migration first:
 }
 ```
 
-Confirm with the exact `total` returned by preview. Linkora rejects the confirmation if the matching count changed in the meantime:
+Confirm with the exact `total` returned by preview. Linketry rejects the confirmation if the matching count changed in the meantime:
 
 ```json
 {
@@ -236,12 +244,12 @@ Confirm with the exact `total` returned by preview. Linkora rejects the confirma
 
 | Method | Path |
 |--------|------|
-| `POST` | `/api/import/shlink-api/fetch` |
-| `POST` | `/api/import/preview` |
-| `POST` | `/api/import/confirm` |
-| `GET` | `/api/import/jobs` |
-| `GET` | `/api/import/jobs/:id` |
-| `GET` | `/api/import/jobs/:id/report.csv` |
+| `POST` | `/api/v1/import/shlink-api/fetch` |
+| `POST` | `/api/v1/import/preview` |
+| `POST` | `/api/v1/import/confirm` |
+| `GET` | `/api/v1/import/jobs` |
+| `GET` | `/api/v1/import/jobs/:id` |
+| `GET` | `/api/v1/import/jobs/:id/report.csv` |
 
 Generic CSV / JSON import preview and confirm requests can include `fieldMapping`, for example:
 
@@ -260,21 +268,21 @@ Generic CSV / JSON import preview and confirm requests can include `fieldMapping
 
 | Method | Path |
 |--------|------|
-| `GET` | `/api/export/links.csv` |
-| `GET` | `/api/export/links.json` |
-| `GET` | `/api/export/visits.csv` |
-| `GET` | `/api/export/analytics.csv` |
-| `GET` | `/api/export/backup.json` |
+| `GET` | `/api/v1/export/links.csv` |
+| `GET` | `/api/v1/export/links.json` |
+| `GET` | `/api/v1/export/visits.csv` |
+| `GET` | `/api/v1/export/analytics.csv` |
+| `GET` | `/api/v1/export/backup.json` |
 
 ## Backups
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/backups` | List recent R2 backup records |
-| `POST` | `/api/backups/create` | Create a full backup in R2 |
-| `GET` | `/api/backups/:id/download` | Download a completed R2 backup |
-| `POST` | `/api/backups/:id/restore-preview` | Preview a restore plan without mutating data |
-| `POST` | `/api/backups/:id/restore` | Restore a completed R2 backup after confirmation |
+| `GET` | `/api/v1/backups` | List recent R2 backup records |
+| `POST` | `/api/v1/backups/create` | Create a full backup in R2 |
+| `GET` | `/api/v1/backups/:id/download` | Download a completed R2 backup |
+| `POST` | `/api/v1/backups/:id/restore-preview` | Preview a restore plan without mutating data |
+| `POST` | `/api/v1/backups/:id/restore` | Restore a completed R2 backup after confirmation |
 
 Scheduled R2 backups are created by the Worker cron trigger configured in `apps/worker/wrangler.toml`.
 
@@ -301,19 +309,19 @@ Maintenance endpoints require admin access. Reset is destructive and should be p
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/maintenance/reset-preview` | Count rows and cache prefix affected by a factory reset |
-| `POST` | `/api/maintenance/reset` | Reset the instance after exact confirmation |
+| `GET` | `/api/v1/maintenance/reset-preview` | Count rows and cache prefix affected by a factory reset |
+| `POST` | `/api/v1/maintenance/reset` | Reset the instance after exact confirmation |
 
 Reset payload:
 
 ```json
 {
-  "confirmation": "RESET LINKORA",
+  "confirmation": "RESET LINKETRY",
   "createBackup": true
 }
 ```
 
-Reset deletes links, analytics, tags, domains, imports, API tokens, audit logs, redirect rules, settings, and short-link KV cache. It preserves R2 backup records, R2 backup objects, and the environment `ADMIN_TOKEN`. When `createBackup` is true, Linkora creates a `pre-reset` R2 backup before deleting data.
+Reset deletes links, analytics, tags, domains, imports, API tokens, audit logs, redirect rules, settings, and short-link KV cache. It preserves R2 backup records, R2 backup objects, and the environment `LINKETRY_ADMIN_TOKEN`. When `createBackup` is true, Linketry creates a `pre-reset` R2 backup before deleting data.
 
 ## Groups
 
@@ -321,12 +329,12 @@ Campaign and project groups require admin access. They are stored as normal tags
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/groups` | List campaign and project groups with link and click totals |
-| `GET` | `/api/groups?type=campaign` | List only campaign groups |
-| `GET` | `/api/groups?type=project` | List only project groups |
-| `POST` | `/api/groups` | Create a campaign or project group |
-| `PUT` | `/api/groups/:id` | Rename or update a group tag |
-| `DELETE` | `/api/groups/:id` | Delete a group and remove its tag from links |
+| `GET` | `/api/v1/groups` | List campaign and project groups with link and click totals |
+| `GET` | `/api/v1/groups?type=campaign` | List only campaign groups |
+| `GET` | `/api/v1/groups?type=project` | List only project groups |
+| `POST` | `/api/v1/groups` | Create a campaign or project group |
+| `PUT` | `/api/v1/groups/:id` | Rename or update a group tag |
+| `DELETE` | `/api/v1/groups/:id` | Delete a group and remove its tag from links |
 
 Payload:
 
@@ -343,19 +351,19 @@ Payload:
 
 | Method | Path |
 |--------|------|
-| `GET` | `/api/tags` |
-| `POST` | `/api/tags` |
-| `PUT` | `/api/tags/:id` |
-| `DELETE` | `/api/tags/:id` |
-| `GET` | `/api/settings` |
-| `PUT` | `/api/settings` |
+| `GET` | `/api/v1/tags` |
+| `POST` | `/api/v1/tags` |
+| `PUT` | `/api/v1/tags/:id` |
+| `DELETE` | `/api/v1/tags/:id` |
+| `GET` | `/api/v1/settings` |
+| `PUT` | `/api/v1/settings` |
 
 ## Metadata
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/api/metadata/title` | Fetch a page title for Create/Edit forms |
-| `POST` | `/api/metadata/suggestions` | Suggest slug, title, description, and tags from URL/page metadata |
+| `POST` | `/api/v1/metadata/title` | Fetch a page title for Create/Edit forms |
+| `POST` | `/api/v1/metadata/suggestions` | Suggest slug, title, description, and tags from URL/page metadata |
 
 Suggestions payload:
 
@@ -386,9 +394,9 @@ Health check endpoints require admin access. Checks are manual and do not run in
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/api/health-checks/url` | Check an arbitrary target URL |
-| `POST` | `/api/health-checks/links/:id` | Check one stored link target |
-| `POST` | `/api/health-checks/batch` | Check up to 50 active or selected links |
+| `POST` | `/api/v1/health-checks/url` | Check an arbitrary target URL |
+| `POST` | `/api/v1/health-checks/links/:id` | Check one stored link target |
+| `POST` | `/api/v1/health-checks/batch` | Check up to 50 active or selected links |
 
 Batch payload:
 
@@ -410,17 +418,17 @@ Or:
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/audit` | List admin action and import audit events |
+| `GET` | `/api/v1/audit` | List admin action and import audit events |
 
 ## Analytics
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/analytics` | Click totals, daily trend, top dimensions, UTM breakdowns, target breakdowns, conversions, and recent visits |
-| `GET` | `/api/analytics/links/:id` | Single-link analytics detail with the same summary shape |
-| `POST` | `/api/conversions` | Record a conversion or goal event for a link |
+| `GET` | `/api/v1/analytics` | Click totals, daily trend, top dimensions, UTM breakdowns, target breakdowns, conversions, and recent visits |
+| `GET` | `/api/v1/analytics/links/:id` | Single-link analytics detail with the same summary shape |
+| `POST` | `/api/v1/conversions` | Record a conversion or goal event for a link |
 
-`GET /api/analytics?days=30` limits the summary window. Supported ranges are clamped to 1-365 days.
+`GET /api/v1/analytics?days=30` limits the summary window. Supported ranges are clamped to 1-365 days.
 
 Supported analytics filters:
 
@@ -481,6 +489,6 @@ Conversion payload:
 }
 ```
 
-`POST /api/conversions` requires write access. The link can be identified by `link_id`, or by `slug` with optional `domain`.
+`POST /api/v1/conversions` requires write access. The link can be identified by `link_id`, or by `slug` with optional `domain`.
 
 Visit writes keep using `ctx.waitUntil()` or the optional queue path so analytics failures do not block redirects.

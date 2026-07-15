@@ -1,8 +1,8 @@
-# Linkora Deployment
+# Linketry Deployment
 
 This document is the short deployment checklist.
 
-For a fresh self-hosted install, use [SELF_HOSTING.md](SELF_HOSTING.md). It is the recommended public guide for people deploying Linkora to their own Cloudflare account.
+For a fresh self-hosted install, use [SELF_HOSTING.md](SELF_HOSTING.md). Existing Linkora deployments must use [UPGRADING_FROM_LINKORA.md](UPGRADING_FROM_LINKORA.md) and retain their current binding IDs.
 
 The longer maintainer production runbook is in [../DEPLOYMENT.md](../DEPLOYMENT.md).
 
@@ -11,7 +11,7 @@ The longer maintainer production runbook is in [../DEPLOYMENT.md](../DEPLOYMENT.
 Basic profile:
 
 - Short links and Worker API: `go.example.com`
-- Admin frontend: `linkora-admin.pages.dev`
+- Admin frontend: `linketry-admin.pages.dev`
 
 Advanced optional hostnames:
 
@@ -19,13 +19,13 @@ Advanced optional hostnames:
 - Separate public short links: `s.example.com`
 - Migration cutover target: your old Shlink/Sink/YOURLS/Dub short domain
 
-Do not cut over an existing production short domain until imported links have been tested while the stable Linkora API domain remains reachable.
+Do not cut over an existing production short domain until imported links have been tested while the stable Linketry API domain remains reachable.
 
 ## Worker
 
 ```bash
 npm install
-npx wrangler d1 create linkora-db
+npx wrangler d1 create linketry
 npx wrangler kv namespace create KV
 npx wrangler kv namespace create KV --preview
 cp -f apps/worker/wrangler.toml.example apps/worker/wrangler.toml
@@ -38,7 +38,7 @@ npm run deploy --workspace=apps/worker
 Production secrets must be set with Wrangler:
 
 ```bash
-wrangler secret put ADMIN_TOKEN
+wrangler secret put LINKETRY_ADMIN_TOKEN
 ```
 
 Never commit `.dev.vars` or real tokens.
@@ -48,7 +48,7 @@ Never commit `.dev.vars` or real tokens.
 Build the Admin with the Worker domain as API base:
 
 ```bash
-VITE_API_URL=https://go.example.com npm run build --workspace=apps/admin
+VITE_LINKETRY_API_URL=https://go.example.com npm run build --workspace=apps/admin
 ```
 
 Deploy `apps/admin/dist` to Cloudflare Pages or another static host.
@@ -59,9 +59,9 @@ The repository includes `.github/workflows/deploy.yml`. On every push to `main`,
 
 1. install dependencies
 2. type-check the Worker
-3. build Admin with `VITE_API_URL` from the `LINKORA_API_URL` repository variable
+3. build Admin with `VITE_LINKETRY_API_URL` from the `LINKETRY_API_URL` repository variable
 4. deploy the Worker, only when Cloudflare repository secrets are configured
-5. deploy Admin to the Pages project named by `LINKORA_PAGES_PROJECT`, only when Cloudflare repository secrets and variables are configured
+5. deploy Admin to the Pages project named by `LINKETRY_PAGES_PROJECT`, only when Cloudflare repository secrets and variables are configured
 
 Add these GitHub repository secrets before relying on automatic deployment:
 
@@ -73,23 +73,23 @@ CLOUDFLARE_ACCOUNT_ID
 Add these GitHub repository variables:
 
 ```txt
-LINKORA_API_URL=https://go.example.com
-LINKORA_PAGES_PROJECT=linkora-admin
-LINKORA_WORKER_NAME=linkora-worker
-LINKORA_SHORT_DOMAIN=go.example.com
-LINKORA_D1_DATABASE_NAME=linkora-db
-LINKORA_D1_DATABASE_ID=<your-d1-database-id>
-LINKORA_KV_NAMESPACE_ID=<your-kv-namespace-id>
-LINKORA_KV_PREVIEW_ID=<your-kv-preview-id>
+LINKETRY_API_URL=https://go.example.com
+LINKETRY_PAGES_PROJECT=linketry-admin
+LINKETRY_WORKER_NAME=linketry-worker
+LINKETRY_SHORT_DOMAIN=go.example.com
+LINKETRY_D1_DATABASE_NAME=linketry
+LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
+LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
+LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
 ```
 
-Optional advanced variables: `LINKORA_WORKER_DOMAINS`, `LINKORA_R2_BUCKET`, `LINKORA_R2_PREVIEW_BUCKET`, and `LINKORA_VISITS_QUEUE`.
+Optional advanced variables: `LINKETRY_WORKER_DOMAINS`, `LINKETRY_R2_BUCKET`, `LINKETRY_R2_PREVIEW_BUCKET`, and `LINKETRY_VISITS_QUEUE`.
 
 The basic Cloudflare API token needs Workers, D1, KV, and Pages deployment permissions. Add R2 and Queues permissions only when those advanced resources are configured.
 
 If either secret is missing, the workflow intentionally skips Cloudflare deployment after the type-check and Admin build pass. Use manual Wrangler deploys until the secrets are configured.
 If an Admin variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.
-If a Worker variable is missing, the workflow skips Worker deploy rather than relying on a committed production `wrangler.toml`. `LINKORA_SHORT_DOMAIN` remains supported as a legacy single-domain fallback when `LINKORA_WORKER_DOMAINS` is not set.
+If a Worker variable is missing, the workflow skips Worker deploy rather than relying on a committed production `wrangler.toml`. `LINKETRY_SHORT_DOMAIN` remains supported as a legacy single-domain fallback when `LINKETRY_WORKER_DOMAINS` is not set.
 
 ## Smoke Checks
 

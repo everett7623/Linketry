@@ -1,4 +1,4 @@
-import type { Link, RedirectRule, RedirectRuleConfig, RedirectRuleTarget, RedirectRuleType } from '@linkora/shared';
+import type { Link, RedirectRule, RedirectRuleConfig, RedirectRuleTarget, RedirectRuleType } from '@linketry/shared';
 
 interface RedirectContext {
   country?: string;

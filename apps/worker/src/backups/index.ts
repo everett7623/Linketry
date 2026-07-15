@@ -1,4 +1,4 @@
-import { LINKORA_VERSION, type Backup } from '@linkora/shared';
+import type { Backup } from '@linketry/shared';
 import type { Env } from '../types';
 import {
   createBackupRecord,
@@ -8,9 +8,11 @@ import {
   getSettings,
 } from '../db/index';
 import { generateId, now } from '../utils/id';
+import { getRuntimeVersion } from '../config/runtime';
+import { LINKETRY_BACKUP_NAME } from '../importers/backupFormat';
 
-export interface LinkoraBackupPayload {
-  name: 'Linkora Backup';
+export interface LinketryBackupPayload {
+  name: typeof LINKETRY_BACKUP_NAME;
   version: string;
   exportedAt: string;
   links: Awaited<ReturnType<typeof getAllLinks>>;
@@ -21,7 +23,7 @@ export interface LinkoraBackupPayload {
 
 export type BackupTrigger = 'manual' | 'scheduled' | 'pre-restore' | 'pre-reset';
 
-export async function buildBackupPayload(env: Env): Promise<LinkoraBackupPayload> {
+export async function buildBackupPayload(env: Env): Promise<LinketryBackupPayload> {
   const [links, tags, redirectRules, settings] = await Promise.all([
     getAllLinks(env),
     getAllTags(env),
@@ -30,8 +32,8 @@ export async function buildBackupPayload(env: Env): Promise<LinkoraBackupPayload
   ]);
 
   return {
-    name: 'Linkora Backup',
-    version: env.LINKORA_VERSION ?? LINKORA_VERSION,
+    name: LINKETRY_BACKUP_NAME,
+    version: getRuntimeVersion(env),
     exportedAt: now(),
     links,
     tags,
@@ -40,10 +42,7 @@ export async function buildBackupPayload(env: Env): Promise<LinkoraBackupPayload
   };
 }
 
-export async function createR2Backup(
-  env: Env,
-  trigger: BackupTrigger = 'manual'
-): Promise<Backup> {
+export async function createR2Backup(env: Env, trigger: BackupTrigger = 'manual'): Promise<Backup> {
   const createdAt = now();
   const objectKey = createBackupObjectKey(createdAt);
   const baseBackup: Backup = {
@@ -98,7 +97,7 @@ export function backupDownloadName(filename: string): string {
 
 function createBackupObjectKey(createdAt: string): string {
   const stamp = createdAt.slice(0, 19).replace(/[-:T]/g, '');
-  return `backups/linkora-backup-${stamp}.json`;
+  return `backups/linketry-backup-${stamp}.json`;
 }
 
 function redactBackupSettings(settings: Record<string, string>): Record<string, string> {

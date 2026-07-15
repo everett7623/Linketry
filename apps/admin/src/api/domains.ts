@@ -1,5 +1,5 @@
 import { apiDelete, apiGet, apiPost, apiPut } from './client';
-import type { Domain } from '@linkora/shared';
+import type { Domain } from '@linketry/shared';
 
 export interface DomainPayload {
   domain: string;
@@ -8,21 +8,21 @@ export interface DomainPayload {
 }
 
 export function listDomains(): Promise<Domain[]> {
-  return apiGet('/api/domains');
+  return apiGet('/api/v1/domains');
 }
 
 export function createDomain(payload: DomainPayload): Promise<Domain> {
-  return apiPost('/api/domains', payload);
+  return apiPost('/api/v1/domains', payload);
 }
 
 export function updateDomain(id: string, payload: DomainPayload): Promise<Domain> {
-  return apiPut(`/api/domains/${id}`, payload);
+  return apiPut(`/api/v1/domains/${id}`, payload);
 }
 
 export function deleteDomain(id: string): Promise<{ message: string }> {
-  return apiDelete(`/api/domains/${id}`);
+  return apiDelete(`/api/v1/domains/${id}`);
 }
 
 export function setDefaultDomain(id: string): Promise<{ message: string; domain: string }> {
-  return apiPost(`/api/domains/${id}/set-default`);
+  return apiPost(`/api/v1/domains/${id}/set-default`);
 }

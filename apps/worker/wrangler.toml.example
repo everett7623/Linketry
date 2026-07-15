@@ -1,25 +1,25 @@
 # Copy this file to apps/worker/wrangler.toml, then replace every
 # <placeholder> with values from your own Cloudflare account.
 
-name = "linkora-worker"
+name = "linketry-worker"
 main = "src/index.ts"
 compatibility_date = "2026-07-08"
 compatibility_flags = ["nodejs_compat"]
 
-# Basic deployment: use one domain for both short links and /api/*.
+# Basic deployment: use one domain for both short links and /api/v1/*.
 # Advanced deployment: add a second domain when API isolation or migration requires it.
 routes = [
   { pattern = "<your-short-domain>", custom_domain = true }
 ]
 
 [vars]
-LINKORA_VERSION = "0.9.22"
-LINKORA_DAILY_CRON = "0 18 * * *"
-LINKORA_HEALTH_CRON = "0 * * * *"
+LINKETRY_VERSION = "0.10.3"
+LINKETRY_DAILY_CRON = "0 18 * * *"
+LINKETRY_HEALTH_CRON = "0 * * * *"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "linkora-db"
+database_name = "linketry"
 database_id = "<your-d1-database-id>"
 migrations_dir = "../../migrations"
 
@@ -38,4 +38,4 @@ crons = ["0 18 * * *", "0 * * * *"]
 
 # Secrets are set outside this file:
 #   cd apps/worker
-#   npx wrangler secret put ADMIN_TOKEN
+#   npx wrangler secret put LINKETRY_ADMIN_TOKEN

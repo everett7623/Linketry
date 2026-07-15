@@ -1,5 +1,5 @@
 import { RotateCcw, ShieldAlert } from 'lucide-react';
-import type { Backup } from '@linkora/shared';
+import type { Backup } from '@linketry/shared';
 import {
   previewBackupRestore,
   restoreBackup,

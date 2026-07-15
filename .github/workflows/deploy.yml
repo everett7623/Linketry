@@ -1,4 +1,4 @@
-name: Deploy Linkora
+name: Deploy Linketry
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-linkora
+  group: deploy-linketry
   cancel-in-progress: true
 
 jobs:
@@ -16,23 +16,23 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
-      LINKORA_ADMIN_URL: ${{ vars.LINKORA_ADMIN_URL }}
-      LINKORA_API_URL: ${{ vars.LINKORA_API_URL }}
-      LINKORA_PAGES_PROJECT: ${{ vars.LINKORA_PAGES_PROJECT }}
-      LINKORA_WORKER_NAME: ${{ vars.LINKORA_WORKER_NAME }}
-      LINKORA_WORKER_DOMAINS: ${{ vars.LINKORA_WORKER_DOMAINS }}
-      LINKORA_SHORT_DOMAIN: ${{ vars.LINKORA_SHORT_DOMAIN }}
-      LINKORA_COMPATIBILITY_DATE: ${{ vars.LINKORA_COMPATIBILITY_DATE }}
-      LINKORA_D1_DATABASE_NAME: ${{ vars.LINKORA_D1_DATABASE_NAME }}
-      LINKORA_D1_DATABASE_ID: ${{ vars.LINKORA_D1_DATABASE_ID }}
-      LINKORA_KV_NAMESPACE_ID: ${{ vars.LINKORA_KV_NAMESPACE_ID }}
-      LINKORA_KV_PREVIEW_ID: ${{ vars.LINKORA_KV_PREVIEW_ID }}
-      LINKORA_R2_BUCKET: ${{ vars.LINKORA_R2_BUCKET }}
-      LINKORA_R2_PREVIEW_BUCKET: ${{ vars.LINKORA_R2_PREVIEW_BUCKET }}
-      LINKORA_VISITS_QUEUE: ${{ vars.LINKORA_VISITS_QUEUE }}
-      LINKORA_DAILY_CRON: ${{ vars.LINKORA_DAILY_CRON }}
-      LINKORA_HEALTH_CRON: ${{ vars.LINKORA_HEALTH_CRON }}
+      LINKETRY_ADMIN_TOKEN_OVERRIDE: ${{ secrets.LINKETRY_ADMIN_TOKEN || secrets.ADMIN_TOKEN }}
+      LINKETRY_ADMIN_URL: ${{ vars.LINKETRY_ADMIN_URL || vars.LINKORA_ADMIN_URL }}
+      LINKETRY_API_URL: ${{ vars.LINKETRY_API_URL || vars.LINKORA_API_URL }}
+      LINKETRY_PAGES_PROJECT: ${{ vars.LINKETRY_PAGES_PROJECT || vars.LINKORA_PAGES_PROJECT }}
+      LINKETRY_WORKER_NAME: ${{ vars.LINKETRY_WORKER_NAME || vars.LINKORA_WORKER_NAME }}
+      LINKETRY_WORKER_DOMAINS: ${{ vars.LINKETRY_WORKER_DOMAINS || vars.LINKORA_WORKER_DOMAINS }}
+      LINKETRY_SHORT_DOMAIN: ${{ vars.LINKETRY_SHORT_DOMAIN || vars.LINKORA_SHORT_DOMAIN }}
+      LINKETRY_COMPATIBILITY_DATE: ${{ vars.LINKETRY_COMPATIBILITY_DATE || vars.LINKORA_COMPATIBILITY_DATE }}
+      LINKETRY_D1_DATABASE_NAME: ${{ vars.LINKETRY_D1_DATABASE_NAME || vars.LINKORA_D1_DATABASE_NAME }}
+      LINKETRY_D1_DATABASE_ID: ${{ vars.LINKETRY_D1_DATABASE_ID || vars.LINKORA_D1_DATABASE_ID }}
+      LINKETRY_KV_NAMESPACE_ID: ${{ vars.LINKETRY_KV_NAMESPACE_ID || vars.LINKORA_KV_NAMESPACE_ID }}
+      LINKETRY_KV_PREVIEW_ID: ${{ vars.LINKETRY_KV_PREVIEW_ID || vars.LINKORA_KV_PREVIEW_ID }}
+      LINKETRY_R2_BUCKET: ${{ vars.LINKETRY_R2_BUCKET || vars.LINKORA_R2_BUCKET }}
+      LINKETRY_R2_PREVIEW_BUCKET: ${{ vars.LINKETRY_R2_PREVIEW_BUCKET || vars.LINKORA_R2_PREVIEW_BUCKET }}
+      LINKETRY_VISITS_QUEUE: ${{ vars.LINKETRY_VISITS_QUEUE || vars.LINKORA_VISITS_QUEUE }}
+      LINKETRY_DAILY_CRON: ${{ vars.LINKETRY_DAILY_CRON || vars.LINKORA_DAILY_CRON }}
+      LINKETRY_HEALTH_CRON: ${{ vars.LINKETRY_HEALTH_CRON || vars.LINKORA_HEALTH_CRON }}
 
     steps:
       - name: Checkout
@@ -47,16 +47,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Resolve Linkora version
+      - name: Resolve Linketry version
         run: |
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
-          echo "RESOLVED_LINKORA_VERSION=$PACKAGE_VERSION" >> "$GITHUB_ENV"
-          echo "Linkora version: $PACKAGE_VERSION"
+          echo "RESOLVED_LINKETRY_VERSION=$PACKAGE_VERSION" >> "$GITHUB_ENV"
+          echo "Linketry version: $PACKAGE_VERSION"
 
       - name: Resolve Worker domains
         run: |
           RESOLVED_WORKER_DOMAINS="$(node <<'NODE'
-          const source = process.env.LINKORA_WORKER_DOMAINS || process.env.LINKORA_SHORT_DOMAIN || '';
+          const source = process.env.LINKETRY_WORKER_DOMAINS || process.env.LINKETRY_SHORT_DOMAIN || '';
           const domains = [...new Set(source.split(',').map((value) => value.trim().toLowerCase()).filter(Boolean))];
           process.stdout.write(domains.join(','));
           NODE
@@ -75,10 +75,10 @@ jobs:
       - name: Build Admin
         run: npm run build --workspace=apps/admin
         env:
-          VITE_API_URL: ${{ env.LINKORA_API_URL }}
+          VITE_LINKETRY_API_URL: ${{ env.LINKETRY_API_URL }}
 
       - name: Generate Worker config
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != ''
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKETRY_D1_DATABASE_NAME != '' && env.LINKETRY_D1_DATABASE_ID != '' && env.LINKETRY_KV_NAMESPACE_ID != ''
         run: |
           node <<'NODE'
           const fs = require('node:fs');
@@ -89,58 +89,58 @@ jobs:
             .map((domain) => `  { pattern = "${domain}", custom_domain = true }`)
             .join(',\n');
           const optionalConfig = [];
-          if (env.LINKORA_R2_BUCKET && env.LINKORA_R2_PREVIEW_BUCKET) {
+          if (env.LINKETRY_R2_BUCKET && env.LINKETRY_R2_PREVIEW_BUCKET) {
             optionalConfig.push(
               '[[r2_buckets]]',
               'binding = "BACKUPS"',
-              `bucket_name = "${env.LINKORA_R2_BUCKET}"`,
-              `preview_bucket_name = "${env.LINKORA_R2_PREVIEW_BUCKET}"`,
+              `bucket_name = "${env.LINKETRY_R2_BUCKET}"`,
+              `preview_bucket_name = "${env.LINKETRY_R2_PREVIEW_BUCKET}"`,
               ''
             );
           }
-          if (env.LINKORA_VISITS_QUEUE) {
+          if (env.LINKETRY_VISITS_QUEUE) {
             optionalConfig.push(
               '[[queues.producers]]',
               'binding = "VISITS_QUEUE"',
-              `queue = "${env.LINKORA_VISITS_QUEUE}"`,
+              `queue = "${env.LINKETRY_VISITS_QUEUE}"`,
               '',
               '[[queues.consumers]]',
-              `queue = "${env.LINKORA_VISITS_QUEUE}"`,
+              `queue = "${env.LINKETRY_VISITS_QUEUE}"`,
               'max_batch_size = 10',
               'max_batch_timeout = 5',
               ''
             );
           }
-          const dailyCron = env.LINKORA_DAILY_CRON || '0 18 * * *';
-          const healthCron = env.LINKORA_HEALTH_CRON || '0 * * * *';
+          const dailyCron = env.LINKETRY_DAILY_CRON || '0 18 * * *';
+          const healthCron = env.LINKETRY_HEALTH_CRON || '0 * * * *';
           const cronList = [...new Set([dailyCron, healthCron])].map(JSON.stringify).join(', ');
           optionalConfig.push('[triggers]', `crons = [${cronList}]`, '');
           const kvNamespaces = [
             '[[kv_namespaces]]',
             'binding = "KV"',
-            `id = "${env.LINKORA_KV_NAMESPACE_ID}"`,
+            `id = "${env.LINKETRY_KV_NAMESPACE_ID}"`,
           ];
-          if (env.LINKORA_KV_PREVIEW_ID) {
-            kvNamespaces.push(`preview_id = "${env.LINKORA_KV_PREVIEW_ID}"`);
+          if (env.LINKETRY_KV_PREVIEW_ID) {
+            kvNamespaces.push(`preview_id = "${env.LINKETRY_KV_PREVIEW_ID}"`);
           }
           const config = [
-            `name = "${env.LINKORA_WORKER_NAME}"`,
+            `name = "${env.LINKETRY_WORKER_NAME}"`,
             'main = "src/index.ts"',
-            `compatibility_date = "${env.LINKORA_COMPATIBILITY_DATE || '2026-07-08'}"`,
+            `compatibility_date = "${env.LINKETRY_COMPATIBILITY_DATE || '2026-07-08'}"`,
             'compatibility_flags = ["nodejs_compat"]',
             'routes = [',
             routeLines,
             ']',
             '',
             '[vars]',
-            `LINKORA_VERSION = "${env.RESOLVED_LINKORA_VERSION || '0.9.20'}"`,
-            `LINKORA_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
-            `LINKORA_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.10.3'}"`,
+            `LINKETRY_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
+            `LINKETRY_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             '',
             '[[d1_databases]]',
             'binding = "DB"',
-            `database_name = "${env.LINKORA_D1_DATABASE_NAME}"`,
-            `database_id = "${env.LINKORA_D1_DATABASE_ID}"`,
+            `database_name = "${env.LINKETRY_D1_DATABASE_NAME}"`,
+            `database_id = "${env.LINKETRY_D1_DATABASE_ID}"`,
             'migrations_dir = "../../migrations"',
             '',
             ...kvNamespaces,
@@ -151,26 +151,29 @@ jobs:
           fs.writeFileSync('apps/worker/wrangler.toml', config);
           NODE
 
-      - name: Ensure ADMIN_TOKEN secret
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != ''
+      - name: Ensure LINKETRY_ADMIN_TOKEN secret
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_WORKER_NAME != ''
         run: |
-          if [ -n "$ADMIN_TOKEN" ]; then
-            echo "Using ADMIN_TOKEN from the optional recovery override in GitHub repository secrets."
-            echo "ADMIN_TOKEN_SOURCE=configured" >> "$GITHUB_ENV"
-            printf '%s' "$ADMIN_TOKEN" | npx wrangler secret put ADMIN_TOKEN
+          if [ -n "$LINKETRY_ADMIN_TOKEN_OVERRIDE" ]; then
+            echo "Using LINKETRY_ADMIN_TOKEN from the optional recovery override in GitHub repository secrets."
+            echo "LINKETRY_ADMIN_TOKEN_SOURCE=configured" >> "$GITHUB_ENV"
+            printf '%s' "$LINKETRY_ADMIN_TOKEN_OVERRIDE" | npx wrangler secret put LINKETRY_ADMIN_TOKEN
           else
-            EXISTING_SECRETS="$(npx wrangler secret list --name "$LINKORA_WORKER_NAME" --format json 2>/dev/null || true)"
-            if printf '%s' "$EXISTING_SECRETS" | grep -q '"name"[[:space:]]*:[[:space:]]*"ADMIN_TOKEN"'; then
-              echo "Existing Worker ADMIN_TOKEN found; preserving it."
-              echo "ADMIN_TOKEN_SOURCE=preserved" >> "$GITHUB_ENV"
+            EXISTING_SECRETS="$(npx wrangler secret list --name "$LINKETRY_WORKER_NAME" --format json 2>/dev/null || true)"
+            if printf '%s' "$EXISTING_SECRETS" | grep -q '"name"[[:space:]]*:[[:space:]]*"LINKETRY_ADMIN_TOKEN"'; then
+              echo "Existing Worker LINKETRY_ADMIN_TOKEN found; preserving it."
+              echo "LINKETRY_ADMIN_TOKEN_SOURCE=preserved" >> "$GITHUB_ENV"
+            elif printf '%s' "$EXISTING_SECRETS" | grep -q '"name"[[:space:]]*:[[:space:]]*"ADMIN_TOKEN"'; then
+              echo "Legacy Worker ADMIN_TOKEN found; preserving it for the compatibility window."
+              echo "LINKETRY_ADMIN_TOKEN_SOURCE=legacy" >> "$GITHUB_ENV"
             else
-              echo "No Worker ADMIN_TOKEN found; generating one for the first deployment."
-              GENERATED_TOKEN="linkora_$(openssl rand -hex 32)"
-              echo "ADMIN_TOKEN_SOURCE=generated" >> "$GITHUB_ENV"
-              printf '%s' "$GENERATED_TOKEN" | npx wrangler secret put ADMIN_TOKEN
+              echo "No Worker admin token found; generating one for the first deployment."
+              GENERATED_TOKEN="linketry_$(openssl rand -hex 32)"
+              echo "LINKETRY_ADMIN_TOKEN_SOURCE=generated" >> "$GITHUB_ENV"
+              printf '%s' "$GENERATED_TOKEN" | npx wrangler secret put LINKETRY_ADMIN_TOKEN
               echo ""
               echo "============================================================"
-              echo "Generated ADMIN_TOKEN: $GENERATED_TOKEN"
+              echo "Generated LINKETRY_ADMIN_TOKEN: $GENERATED_TOKEN"
               echo "============================================================"
               echo "This value is shown only in this first-deployment log."
               echo "Save it in a password manager. Later deployments preserve the Worker secret."
@@ -180,41 +183,43 @@ jobs:
         working-directory: apps/worker
 
       - name: Apply D1 migrations
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != ''
-        run: npx wrangler d1 migrations apply "$LINKORA_D1_DATABASE_NAME" --remote
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKETRY_D1_DATABASE_NAME != '' && env.LINKETRY_D1_DATABASE_ID != '' && env.LINKETRY_KV_NAMESPACE_ID != ''
+        run: npx wrangler d1 migrations apply "$LINKETRY_D1_DATABASE_NAME" --remote
         working-directory: apps/worker
 
       - name: Deploy Worker
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKORA_D1_DATABASE_NAME != '' && env.LINKORA_D1_DATABASE_ID != '' && env.LINKORA_KV_NAMESPACE_ID != ''
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKETRY_D1_DATABASE_NAME != '' && env.LINKETRY_D1_DATABASE_ID != '' && env.LINKETRY_KV_NAMESPACE_ID != ''
         run: npx wrangler deploy
         working-directory: apps/worker
 
       - name: Deploy Admin
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKORA_API_URL != '' && env.LINKORA_PAGES_PROJECT != ''
-        run: npx wrangler pages deploy apps/admin/dist --project-name "$LINKORA_PAGES_PROJECT" --branch main
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_API_URL != '' && env.LINKETRY_PAGES_PROJECT != ''
+        run: npx wrangler pages deploy apps/admin/dist --project-name "$LINKETRY_PAGES_PROJECT" --branch main
 
       - name: Write deployment access summary
         if: always()
         run: |
-          ADMIN_URL="$LINKORA_ADMIN_URL"
-          if [ -z "$ADMIN_URL" ] && [ -n "$LINKORA_PAGES_PROJECT" ]; then
-            ADMIN_URL="https://${LINKORA_PAGES_PROJECT}.pages.dev"
+          ADMIN_URL="$LINKETRY_ADMIN_URL"
+          if [ -z "$ADMIN_URL" ] && [ -n "$LINKETRY_PAGES_PROJECT" ]; then
+            ADMIN_URL="https://${LINKETRY_PAGES_PROJECT}.pages.dev"
           fi
           {
-            echo "## Linkora access"
+            echo "## Linketry access"
             echo ""
             echo "| Role | URL |"
             echo "|---|---|"
             echo "| Admin dashboard | ${ADMIN_URL:-Not configured — recommended: https://admin.example.com} |"
-            echo "| Worker API and short links | ${LINKORA_API_URL:-Not configured — recommended: https://go.example.com} |"
+            echo "| Worker API and short links | ${LINKETRY_API_URL:-Not configured — recommended: https://go.example.com} |"
             echo ""
-            echo "### ADMIN_TOKEN"
-            if [ "$ADMIN_TOKEN_SOURCE" = "generated" ]; then
-              echo "A token was generated automatically during this first deployment. Open the **Ensure ADMIN_TOKEN secret** step log, copy the one-time token, and save it in a password manager. Later deployments preserve the existing Worker secret."
-            elif [ "$ADMIN_TOKEN_SOURCE" = "preserved" ]; then
-              echo "The existing automatically generated Worker token was preserved. Use the value saved from the first deployment. If it was lost, set a new repository secret named **ADMIN_TOKEN** and rerun deployment once to replace it."
-            elif [ "$ADMIN_TOKEN_SOURCE" = "configured" ]; then
-              echo "The optional repository secret **ADMIN_TOKEN** replaced the Worker token for recovery. Use the original value you saved; GitHub cannot display it later."
+            echo "### LINKETRY_ADMIN_TOKEN"
+            if [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "generated" ]; then
+              echo "A token was generated automatically during this first deployment. Open the **Ensure LINKETRY_ADMIN_TOKEN secret** step log, copy the one-time token, and save it in a password manager. Later deployments preserve the existing Worker secret."
+            elif [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "preserved" ]; then
+              echo "The existing automatically generated Worker token was preserved. Use the value saved from the first deployment. If it was lost, set a new repository secret named **LINKETRY_ADMIN_TOKEN** and rerun deployment once to replace it."
+            elif [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "legacy" ]; then
+              echo "The existing legacy **ADMIN_TOKEN** Worker secret was preserved, so this upgrade does not rotate credentials. Migrate it to **LINKETRY_ADMIN_TOKEN** during the compatibility window."
+            elif [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "configured" ]; then
+              echo "The optional repository secret **LINKETRY_ADMIN_TOKEN** replaced the Worker token for recovery. Use the original value you saved; GitHub cannot display it later."
             else
               echo "The token step did not run. Configure Cloudflare credentials, then rerun deployment."
             fi
@@ -227,14 +232,14 @@ jobs:
           echo "Type-check and Admin build completed successfully."
 
       - name: Skip Worker deploy
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && (env.LINKORA_WORKER_NAME == '' || env.RESOLVED_WORKER_DOMAINS == '' || env.LINKORA_D1_DATABASE_NAME == '' || env.LINKORA_D1_DATABASE_ID == '' || env.LINKORA_KV_NAMESPACE_ID == '')
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && (env.LINKETRY_WORKER_NAME == '' || env.RESOLVED_WORKER_DOMAINS == '' || env.LINKETRY_D1_DATABASE_NAME == '' || env.LINKETRY_D1_DATABASE_ID == '' || env.LINKETRY_KV_NAMESPACE_ID == '')
         run: |
-          echo "Worker deploy skipped because one or more required LINKORA_* Worker repository variables are not configured."
+          echo "Worker deploy skipped because one or more required LINKETRY_* Worker repository variables are not configured."
           echo "R2, Queue, and KV_PREVIEW_ID are optional advanced features and do not block the basic deployment."
           echo "See docs/SELF_HOSTING.md for the required variable list."
 
       - name: Skip Admin deploy
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && (env.LINKORA_API_URL == '' || env.LINKORA_PAGES_PROJECT == '')
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && (env.LINKETRY_API_URL == '' || env.LINKETRY_PAGES_PROJECT == '')
         run: |
-          echo "Admin deploy skipped because LINKORA_API_URL or LINKORA_PAGES_PROJECT repository variable is not configured."
+          echo "Admin deploy skipped because LINKETRY_API_URL or LINKETRY_PAGES_PROJECT repository variable is not configured."
           echo "Set them under GitHub repository Settings -> Secrets and variables -> Actions -> Variables."

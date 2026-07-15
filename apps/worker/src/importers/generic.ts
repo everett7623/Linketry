@@ -1,5 +1,5 @@
-import type { ImportAdapter, ImportFieldMapping, NormalizedImportItem, ImportValidationResult } from '@linkora/shared';
-import { validateSlug, validateLongUrl } from '@linkora/shared';
+import type { ImportAdapter, ImportFieldMapping, NormalizedImportItem, ImportValidationResult } from '@linketry/shared';
+import { validateSlug, validateLongUrl } from '@linketry/shared';
 import { domainFromUrl, normalizeDomain } from './domain';
 
 interface GenericRow {

@@ -1,4 +1,4 @@
-import type { Link, KVCacheEntry, VisitLinkSnapshot, VisitQueueMessage, VisitRequestSnapshot } from '@linkora/shared';
+import type { Link, KVCacheEntry, VisitLinkSnapshot, VisitQueueMessage, VisitRequestSnapshot } from '@linketry/shared';
 import type { Env } from '../types';
 import { generateId, now, sha256 } from '../utils/id';
 import { incrementClicks, insertVisit, upsertDailyStats } from '../db/index';

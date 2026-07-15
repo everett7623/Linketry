@@ -1,6 +1,6 @@
 # CHANGELOG
 
-All notable changes to Linkora will be documented here.
+All notable changes to Linketry will be documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 Versioning follows [Semantic Versioning](https://semver.org/).
@@ -10,6 +10,110 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 _(none)_
+
+---
+
+## [0.10.3] - 2026-07-15
+
+### Added
+
+- Added the Linketry chain-link and analytics-trajectory Logo to the Admin login screen, navigation branding, and README.
+- Added a matching compact SVG favicon and browser theme color for small-size product identification.
+
+### Verified
+
+- Verified the login page visually at desktop size, confirmed the Logo and favicon return successfully, and retained the complete Worker/Admin regression suites.
+
+---
+
+## [0.10.2] - 2026-07-15
+
+### Added
+
+- Added authenticated, bounded duplicate destination lookup through `GET /api/v1/links/duplicates` with normalized URL comparison and current-link exclusion for edits.
+- Added English and Simplified Chinese advisory warnings to Create/Edit Link, including links to existing matches while preserving intentional duplicate creation.
+
+### Safety
+
+- Duplicate detection is read-only, debounced, failure-tolerant, and kept entirely outside the redirect path; D1 remains the source of truth and KV behavior is unchanged.
+
+### Tests
+
+- Added URL normalization policy tests, OpenAPI route-drift coverage for the new endpoint, and browser regression coverage for non-blocking create warnings and edit self-exclusion.
+
+---
+
+## [0.10.1] - 2026-07-15
+
+### Added
+
+- Added an authenticated OpenAPI 3.1 document at `/api/v1/openapi.json` covering the canonical Linketry integration surface, bearer-token access, standard response envelopes, errors, path parameters, and pagination metadata.
+- Added an authenticated Swagger UI at `/api/v1/docs`; the document and UI contain no credential examples and do not persist authorization.
+
+### Tests
+
+- Added a Worker contract test that compares the OpenAPI operation inventory with mounted Hono route declarations and fails when API routes drift without an intentional contract update.
+
+---
+
+## [0.10.0] - 2026-07-15
+
+### Changed
+
+- Renamed the project and runtime identity from Linkora to Linketry, with author `everettlabs`, repository `everettlabs/linketry`, website `linketry.dev`, canonical Docker image name `everett7623/linketry`, and the positioning “Linketry is a self-hosted link management, analytics and monitoring platform.”
+- Renamed workspace packages to `@linketry/*`, exports and UI copy to Linketry, fresh-install D1 defaults to `linketry`, and project configuration to the `LINKETRY_*` prefix.
+- Moved the canonical Admin API contract to `/api/v1/*`; all Admin API calls and current documentation now use the versioned namespace.
+- New backups, exports, cache keys, notification copy, Webhook headers, user agents, and runtime metadata use Linketry naming.
+
+### Upgrade Compatibility
+
+- Kept deprecated `/api/*` route aliases throughout the `0.10.x` compatibility window and added deprecation response headers.
+- Worker configuration prefers `LINKETRY_ADMIN_TOKEN`, `LINKETRY_VERSION`, and Linketry cron variables while accepting the existing `ADMIN_TOKEN` and `LINKORA_*` variables.
+- GitHub Actions prefers `LINKETRY_*` variables but falls back to existing Linkora repository values, preserving the current D1/KV/R2/Queue bindings and Worker token.
+- Admin browser storage migrates legacy Linkora token, API origin, locale, and interface mode values without logging out existing users.
+- Redirect cache reads legacy `linkora:slug:*` keys on a new-key miss and deletes both generations after link mutations; D1 remains the source of truth.
+- Linketry backup import and restore continue accepting the legacy `Linkora Backup` marker, and Webhook deliveries temporarily include matching `X-Linkora-*` compatibility headers.
+- Added a dedicated non-destructive Linkora upgrade guide. Version `0.10.0` adds no D1 migration and does not recreate, reset, seed, or overwrite an existing database.
+
+### Tests
+
+- Added API-version policy, legacy browser-storage migration, legacy KV cache fallback/clearing, and old/new backup marker regression coverage.
+- Retained the full bulk UTM, redirect, analytics, health monitoring, notification, Admin unit, browser smoke, type-check, and production-build verification suites.
+
+---
+
+## [0.9.24] - 2026-07-15
+
+### Added
+
+- Added an Advanced Links bulk UTM workflow for selected links or every link matching the current filters.
+- Added add-missing, replace-selected, and remove-selected modes for `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, and `utm_content`.
+- Added exact-count, before/after, invalid-URL, and duplicate-parameter previews plus a downloadable CSV change record.
+
+### Safety
+
+- Preserved unrelated raw query parameters, URL encoding, and fragments; credentialed URLs and malformed query keys are rejected from bulk changes.
+- Recomputed every confirmed change against the current stored URL, skipped stale rows, wrote at most 100 links in one optimistic D1 batch, and cleared KV only for successfully changed links.
+- Kept redirect handling and analytics behavior unchanged.
+
+### Tests
+
+- Added Worker policy, CSV, stale-write, maximum-batch, and selective-cache tests.
+- Added a real-browser Admin flow for filtered preview, confirmation, and CSV download; the full Worker and Admin suites pass.
+- Allowed Playwright contributors to opt into an existing system Chrome executable when bundled Chromium is unavailable.
+
+---
+
+## [0.9.23] - 2026-07-15
+
+### Planning
+
+- Recorded the official Linketry project site and isolated Demo as pre-1.0 work, with domain purchase and DNS deferred until the owner selects the domain.
+- Kept the future supporter/coffee site on a separate owner-managed domain so sponsor setup does not block the project launch.
+- Refreshed the Sink comparison through v0.2.11 and ordered the remaining work as bulk UTM, OpenAPI, duplicate destination detection, beginner deployment bootstrap, project site/Demo, optional Access/click integrations, and Admin presentation enhancements.
+- Documented Demo isolation, synthetic-data, reset/read-only, abuse-control, and secret-boundary requirements.
+- Required Demo deployments to use unique resource identifiers, fail before migrations when production identifiers overlap, and never alter the existing deployed instance or its data.
+- Split deployment planning into non-destructive upgrades for the existing owner instance, fresh beginner installs in each user's own Cloudflare account, and a third isolated official Demo environment.
 
 ---
 
@@ -58,7 +162,7 @@ _(none)_
 
 - Added an independent short-link domain migration workflow that previews and migrates every link stored under one source domain, without changing slugs or destination/Aff URLs.
 - Added migration-count concurrency protection, D1 `domain` and `short_url` synchronization, bounded old/new KV cache invalidation, audit logging, and a downloaded migration record CSV.
-- Added an Advanced Links action that pre-fills the current domain filter and configured default domain, shows matching counts and samples, and warns when the target is not active in Linkora's domain catalog.
+- Added an Advanced Links action that pre-fills the current domain filter and configured default domain, shows matching counts and samples, and warns when the target is not active in Linketry's domain catalog.
 
 ### Tests
 
@@ -112,7 +216,7 @@ _(none)_
 ### Tests
 
 - Added import batching regression coverage, including the 195-link case split into eight bounded batches.
-- Verified the supplied 195-row Linkora CSV end to end against a clean local D1 database: 195 succeeded and 0 failed. Reimporting the same file skipped all 195 conflicts and overwrote none.
+- Verified the supplied 195-row Linketry CSV end to end against a clean local D1 database: 195 succeeded and 0 failed. Reimporting the same file skipped all 195 conflicts and overwrote none.
 
 ---
 
@@ -121,8 +225,8 @@ _(none)_
 ### Changed
 
 - Simplified the beginner deployment to require only one custom hostname: `go.example.com` for the Worker API and short links.
-- The Admin now defaults to Cloudflare Pages' automatically created `linkora-admin.pages.dev` URL in onboarding, deployment summaries, smoke checks, and documentation.
-- Moved `admin.example.com` and `LINKORA_ADMIN_URL` into the optional advanced path so first-time users do not need to configure Admin DNS or a Pages custom domain.
+- The Admin now defaults to Cloudflare Pages' automatically created `linketry-admin.pages.dev` URL in onboarding, deployment summaries, smoke checks, and documentation.
+- Moved `admin.example.com` and `LINKETRY_ADMIN_URL` into the optional advanced path so first-time users do not need to configure Admin DNS or a Pages custom domain.
 
 ---
 
@@ -131,7 +235,7 @@ _(none)_
 ### Added
 
 - Added a reusable bilingual deployment access guide to the Login and first-run Setup screens. It identifies `admin.example.com` as the Admin entry point, `go.example.com` as the Worker API and basic short-link entry point, and shows the exact GitHub Actions path for retrieving the automatically generated `ADMIN_TOKEN`.
-- Added `LINKORA_ADMIN_URL` as a repository variable for deployment summaries.
+- Added `LINKETRY_ADMIN_URL` as a repository variable for deployment summaries.
 - GitHub Actions now writes a final access summary containing the Admin URL, API URL, and token retrieval or recovery instructions.
 
 ### Changed
@@ -169,13 +273,13 @@ _(none)_
 
 ### Added
 
-- Ported two high-value Shlink features into Linkora:
-  - **Query parameter forwarding**: query params on the short URL are now merged into the destination URL when redirecting. Internal `linkora_*` params are excluded.
+- Ported two high-value Shlink features into Linketry:
+  - **Query parameter forwarding**: query params on the short URL are now merged into the destination URL when redirecting. Internal `linketry_*` params are excluded.
   - **Automatic title resolution**: when a link is created without a title, the Worker fetches the destination page in the background and extracts the `<title>` tag, then updates the link record.
 
 ### Changed
 
-- Updated `docs/SHLINK_FEATURE_GAP.md` with the full Shlink vs Linkora capability comparison and priority roadmap.
+- Updated `docs/SHLINK_FEATURE_GAP.md` with the full Shlink vs Linketry capability comparison and priority roadmap.
 
 ---
 
@@ -212,8 +316,8 @@ _(none)_
 
 ### Changed
 
-- Made `LINKORA_KV_PREVIEW_ID` optional in the GitHub Actions deploy workflow. New users only need one KV namespace for production deployment.
-- Updated self-hosting documentation to list `LINKORA_KV_PREVIEW_ID` under optional advanced variables.
+- Made `LINKETRY_KV_PREVIEW_ID` optional in the GitHub Actions deploy workflow. New users only need one KV namespace for production deployment.
+- Updated self-hosting documentation to list `LINKETRY_KV_PREVIEW_ID` under optional advanced variables.
 
 ---
 
@@ -522,7 +626,7 @@ _(none)_
 
 ### Added
 
-- GitHub Actions Worker deployment now supports multiple custom domains through `LINKORA_WORKER_DOMAINS`, so a stable API domain and a public short-link domain can be bound at the same time.
+- GitHub Actions Worker deployment now supports multiple custom domains through `LINKETRY_WORKER_DOMAINS`, so a stable API domain and a public short-link domain can be bound at the same time.
 - Admin login now allows an API Origin override stored in the browser, providing a recovery path when the Admin was built with the wrong API URL.
 - Admin authentication bootstrap now falls back from a stale browser API Origin override to the build-time API URL.
 
@@ -536,7 +640,7 @@ _(none)_
 
 ### Changed
 
-- Changed Linkora's open-source license from MIT to GNU GPL v3 only (`GPL-3.0-only`).
+- Changed Linketry's open-source license from MIT to GNU GPL v3 only (`GPL-3.0-only`).
 - Updated package metadata, repository license notice, README, roadmap, and release tracking to reflect GPL-3.0-only licensing.
 
 ---
@@ -569,7 +673,7 @@ _(none)_
 - Link tags are now synchronized with the Tags catalog during list, create, edit, import, rename, and delete flows.
 - Added a GitHub Actions workflow for automatic Worker and Admin deployment on pushes to `main`.
 - Create/Edit Link forms now show existing Tags catalog entries as selectable tag chips.
-- Added Sink, YOURLS, Dub, and Linkora `backup.json` import adapters.
+- Added Sink, YOURLS, Dub, and Linketry `backup.json` import adapters.
 - Import confirm now supports `skip`, `rename`, and `overwrite` conflict strategies.
 - Added Shlink API pull import, password-protected links, safety warning pages, UTM templates, and Audit Logs.
 - Added bulk link creation, Links advanced filters, Generic CSV / JSON field mapping, and an Analytics dashboard backed by daily stats aggregation.
@@ -580,7 +684,7 @@ _(none)_
 - Added multi-domain management, per-link short domain selection, and domain-aware redirect lookups.
 - Added webhook notifications with signed deliveries for link, import, and backup events.
 - Added V4 smart redirect rules for country, device, browser, referer, language, and weighted/A-B traffic splitting.
-- Linkora backups now include redirect rules, and `backup.json` restore reattaches rules to restored links.
+- Linketry backups now include redirect rules, and `backup.json` restore reattaches rules to restored links.
 - Added V4 campaign and project grouping backed by `campaign:*` and `project:*` tags.
 - Added V4 manual link health checks for individual URLs, single links, and capped batches of active links.
 - Added V4 local smart link suggestions for slugs, titles, descriptions, and tags from URL/page metadata.
@@ -595,9 +699,9 @@ _(none)_
 
 ### Changed
 
-- Bumped Linkora package and runtime version to `0.7.0`.
-- Added a shared `LINKORA_VERSION` constant used by Worker fallbacks and Admin version display.
-- GitHub Actions now resolves the deployment version from `package.json` when `LINKORA_VERSION` is not explicitly set.
+- Bumped Linketry package and runtime version to `0.7.0`.
+- Added a shared `LINKETRY_VERSION` constant used by Worker fallbacks and Admin version display.
+- GitHub Actions now resolves the deployment version from `package.json` when `LINKETRY_VERSION` is not explicitly set.
 
 ---
 

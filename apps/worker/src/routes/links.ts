@@ -6,6 +6,7 @@ import {
   getLinkBySlug,
   getLinkById,
   getLinksByIds,
+  getDuplicateDestinationCandidates,
   getLinkDomainMigrationPreview,
   getLinkSlugsByDomain,
   migrateLinkDomain,
@@ -21,11 +22,12 @@ import { emitWebhook } from '../webhooks/index';
 import { setCachedLink, deleteCachedLink } from '../cache/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
 import { generateId, now, sha256 } from '../utils/id';
-import { validateSlug, validateLongUrl, validateDomain } from '@linkora/shared';
-import type { Link, KVCacheEntry } from '@linkora/shared';
+import { validateSlug, validateLongUrl, validateDomain } from '@linketry/shared';
+import type { Link, KVCacheEntry } from '@linketry/shared';
 import { normalizeFallbackUrl } from '../links/fallbackUrl';
 import { domainMigrationSample, migratedShortUrl } from '../links/domainMigration';
 import { resolvePageTitle } from '../utils/pageTitle';
+import { normalizeDestinationUrl } from '../links/duplicateDestination';
 
 const links = new Hono<{ Bindings: Env }>();
 
@@ -360,7 +362,7 @@ links.use('*', async (c, next) => {
   await next();
 });
 
-// GET /api/links
+// GET /api/v1/links
 links.get('/', async (c) => {
   const keyword = c.req.query('keyword');
   const tag = c.req.query('tag');
@@ -401,7 +403,7 @@ links.get('/', async (c) => {
   });
 });
 
-// POST /api/links
+// POST /api/v1/links
 links.post('/', async (c) => {
   let body: LinkBody;
   try {
@@ -428,7 +430,7 @@ links.post('/', async (c) => {
   return jsonCreated(sanitizeLink(link));
 });
 
-// POST /api/links/bulk-create
+// POST /api/v1/links/bulk-create
 links.post('/bulk-create', async (c) => {
   let body: { items?: unknown };
   try {
@@ -502,7 +504,7 @@ links.post('/bulk-create', async (c) => {
   }, successCount > 0 ? 201 : 400);
 });
 
-// POST /api/links/bulk
+// POST /api/v1/links/bulk
 links.post('/bulk', async (c) => {
   let body: { ids?: unknown; action?: unknown };
   try {
@@ -586,7 +588,7 @@ links.post('/bulk', async (c) => {
   });
 });
 
-// POST /api/links/bulk-tag
+// POST /api/v1/links/bulk-tag
 links.post('/bulk-tag', async (c) => {
   let body: { ids?: unknown; tags?: unknown; mode?: unknown };
   try {
@@ -677,6 +679,30 @@ links.post('/bulk-replace-url/confirm', async (c) => {
   return jsonOk({ changed: changed.length, skipped, rollback_csv: csv });
 });
 
+// GET /api/v1/links/duplicates?url=https://example.com&excludeId=link_id
+links.get('/duplicates', async (c) => {
+  const rawUrl = c.req.query('url') ?? '';
+  const destination = normalizeDestinationUrl(rawUrl);
+  if (!destination) return jsonError('url must be a valid http or https URL', 400);
+  const excludeId = c.req.query('excludeId')?.trim() || undefined;
+  const limit = parsePaginationNumber(c.req.query('limit'), 5, 20);
+  const candidates = await getDuplicateDestinationCandidates(
+    c.env,
+    destination.originPrefix,
+    rawUrl,
+    excludeId
+  );
+  const matches = candidates.filter(
+    (link) => normalizeDestinationUrl(link.long_url)?.normalizedUrl === destination.normalizedUrl
+  );
+  return jsonOk({
+    normalized_url: destination.normalizedUrl,
+    items: sanitizeLinks(matches.slice(0, limit)),
+    total: matches.length,
+    has_more: matches.length > limit || candidates.length >= 501,
+  });
+});
+
 links.post('/migrate-domain/preview', async (c) => {
   let body: { source_domain?: unknown; target_domain?: unknown };
   try { body = await c.req.json(); } catch { return jsonError('Invalid JSON body', 400); }
@@ -756,14 +782,14 @@ links.post('/migrate-domain/confirm', async (c) => {
   return jsonOk({ changed, source_domain: sourceDomain, target_domain: targetDomain, rollback_csv: csv });
 });
 
-// GET /api/links/:id
+// GET /api/v1/links/:id
 links.get('/:id', async (c) => {
   const link = await getLinkById(c.env, c.req.param('id'));
   if (!link) return jsonError('Link not found', 404);
   return jsonOk(sanitizeLink(link));
 });
 
-// PUT /api/links/:id
+// PUT /api/v1/links/:id
 links.put('/:id', async (c) => {
   const id = c.req.param('id');
   const existing = await getLinkById(c.env, id);
@@ -879,7 +905,7 @@ links.put('/:id', async (c) => {
   return jsonOk(updated ? sanitizeLink(updated) : null);
 });
 
-// DELETE /api/links/:id
+// DELETE /api/v1/links/:id
 links.delete('/:id', async (c) => {
   const id = c.req.param('id');
   const existing = await getLinkById(c.env, id);
@@ -896,7 +922,7 @@ links.delete('/:id', async (c) => {
   return jsonOk({ message: 'Link deleted' });
 });
 
-// POST /api/links/:id/disable
+// POST /api/v1/links/:id/disable
 links.post('/:id/disable', async (c) => {
   const id = c.req.param('id');
   const existing = await getLinkById(c.env, id);
@@ -913,7 +939,7 @@ links.post('/:id/disable', async (c) => {
   return jsonOk({ message: 'Link disabled' });
 });
 
-// POST /api/links/:id/enable
+// POST /api/v1/links/:id/enable
 links.post('/:id/enable', async (c) => {
   const id = c.req.param('id');
   const existing = await getLinkById(c.env, id);
@@ -931,7 +957,7 @@ links.post('/:id/enable', async (c) => {
   return jsonOk({ message: 'Link enabled' });
 });
 
-// POST /api/links/:id/archive
+// POST /api/v1/links/:id/archive
 links.post('/:id/archive', async (c) => {
   const id = c.req.param('id');
   const existing = await getLinkById(c.env, id);
@@ -948,7 +974,7 @@ links.post('/:id/archive', async (c) => {
   return jsonOk({ message: 'Link archived' });
 });
 
-// POST /api/links/:id/restore
+// POST /api/v1/links/:id/restore
 links.post('/:id/restore', async (c) => {
   const id = c.req.param('id');
   const existing = await getLinkById(c.env, id);

@@ -3,8 +3,8 @@ import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { getExistingSlugs } from '../db/index';
 import { jsonError, jsonOk } from '../utils/response';
-import { validateLongUrl, validateSlug } from '@linkora/shared';
-import type { LinkSuggestionResult } from '@linkora/shared';
+import { validateLongUrl, validateSlug } from '@linketry/shared';
+import type { LinkSuggestionResult } from '@linketry/shared';
 
 const metadata = new Hono<{ Bindings: Env }>();
 
@@ -53,7 +53,7 @@ metadata.post('/title', async (c) => {
       signal,
       headers: {
         Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1',
-        'User-Agent': 'Linkora/0.1 (+https://github.com/EvenFrank/Linkora)',
+        'User-Agent': 'Linketry/0.1 (+https://github.com/everettlabs/linketry)',
       },
     });
   } catch {
@@ -107,7 +107,7 @@ metadata.post('/preview', async (c) => {
   const validation = validateLongUrl(url);
   if (!validation.valid) return jsonError(validation.error!, 400);
   try {
-    const response = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(FETCH_TIMEOUT_MS), headers: { Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1', 'User-Agent': 'Linkora/0.1 preview (+https://github.com/EvenFrank/Linkora)' } });
+    const response = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(FETCH_TIMEOUT_MS), headers: { Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1', 'User-Agent': 'Linketry/0.1 preview (+https://github.com/everettlabs/linketry)' } });
     if (!response.ok) return jsonError(`Target URL returned HTTP ${response.status}`, 400);
     const contentType = response.headers.get('Content-Type') ?? '';
     if (contentType && !/\b(html|xhtml|xml)\b/i.test(contentType)) return jsonError('Target URL did not return an HTML page', 400);
@@ -178,7 +178,7 @@ async function fetchSuggestionMetadata(url: string): Promise<{
       signal,
       headers: {
         Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1',
-        'User-Agent': 'Linkora/0.1 suggestions (+https://github.com/EvenFrank/Linkora)',
+        'User-Agent': 'Linketry/0.1 suggestions (+https://github.com/everettlabs/linketry)',
       },
     });
 

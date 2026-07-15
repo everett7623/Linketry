@@ -54,7 +54,7 @@ export function formatHealthNotification(
   const isFailure = event === 'health_check.failed';
   const items = isFailure ? rawItems.filter((item) => item.status !== 'healthy') : rawItems;
   const lines = [
-    isFailure ? '⚠️ Linkora Link Alert' : '✅ Linkora Link Recovered',
+    isFailure ? '⚠️ Linketry Link Alert' : '✅ Linketry Link Recovered',
     '',
     isFailure
       ? `Affected Links: ${items.length}`

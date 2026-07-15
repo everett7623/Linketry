@@ -12,10 +12,11 @@ import { UtmBuilder } from '../components/UtmBuilder';
 import { Button } from '../components/ui/Button';
 import { Input, Select, Textarea } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
-import type { Domain, Link, LinkSuggestionResult, Tag } from '@linkora/shared';
+import type { Domain, Link, LinkSuggestionResult, Tag } from '@linketry/shared';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import { useLocale } from '../contexts/LocaleContext';
 import { getLinkNote, saveLinkNote } from '../api/linkNotes';
+import { DuplicateDestinationWarning } from '../components/links/DuplicateDestinationWarning';
 
 function toDatetimeLocal(value?: string | null): string {
   if (!value) return '';
@@ -293,6 +294,7 @@ export function EditLink() {
           onChange={(e) => set('long_url', e.target.value)}
           error={errors.long_url}
         />
+        <DuplicateDestinationWarning url={form.long_url} excludeId={link.id} />
         {isAdvanced && (
           <div className="flex justify-end">
             <Button

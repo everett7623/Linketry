@@ -1,4 +1,4 @@
-import type { ConversionEvent, Link, Visit, VisitTarget } from '@linkora/shared';
+import type { ConversionEvent, Link, Visit, VisitTarget } from '@linketry/shared';
 import type { Env } from '../types';
 
 export interface AnalyticsFilters {

@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import type { Domain } from '@linkora/shared';
-import { validateDomain } from '@linkora/shared';
+import type { Domain } from '@linketry/shared';
+import { validateDomain } from '@linketry/shared';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import {

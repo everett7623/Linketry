@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import type { Visit } from '@linkora/shared';
+import type { Visit } from '@linketry/shared';
 import { useLocale } from '../../contexts/LocaleContext';
 
 export function Metric({

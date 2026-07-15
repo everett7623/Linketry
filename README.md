@@ -1,19 +1,35 @@
-# Linkora
+# Linketry
 
-A lightweight, stable, self-hosted short link system built on Cloudflare Workers + D1 + KV.
+<p align="center">
+  <img src="apps/admin/public/linketry-logo.png" alt="Linketry logo" width="360" />
+</p>
+
+Linketry is a self-hosted link management, analytics and monitoring platform.
+
+自托管短链接管理、访问分析与健康监控平台。
+
+| Identity | Value |
+|---|---|
+| Author | `everettlabs` |
+| Website | [linketry.dev](https://linketry.dev) |
+| GitHub | [everettlabs/linketry](https://github.com/everettlabs/linketry) |
+| Docker image | `everett7623/linketry` |
+| API namespace | `/api/v1` |
+| Environment prefix | `LINKETRY_` |
+| Fresh-install D1 name | `linketry` |
 
 > **Core Principle:** Redirect stability first. Stats failures must never break redirects.
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/everett7623/Linkora)
-[![Deploy to Cloudflare Pages](https://deploy.pages.cloudflare.com/button)](https://deploy.pages.cloudflare.com/?url=https://github.com/everett7623/Linkora)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/everettlabs/linketry)
+[![Deploy to Cloudflare Pages](https://deploy.pages.cloudflare.com/button)](https://deploy.pages.cloudflare.com/?url=https://github.com/everettlabs/linketry)
 
-> **New to self-hosting?** Follow the [quick-start guide](docs/SELF_HOSTING.md) for the fastest first deployment. Advanced features like R2 backups, Queues, multiple domains, and webhooks stay optional.
+> **New to self-hosting?** Follow the [quick-start guide](docs/SELF_HOSTING.md). Existing Linkora deployments must use the [non-destructive upgrade guide](docs/UPGRADING_FROM_LINKORA.md) and keep their current D1/KV/R2/Queue bindings.
 
 ---
 
 ## Product Direction
 
-Linkora is free and open source first. The project prioritizes self-hosting on your own Cloudflare account, data ownership, migration safety, stable redirects, and long-term operation over SaaS complexity.
+Linketry is free and open source first. The project prioritizes self-hosting on your own Cloudflare account, data ownership, migration safety, stable redirects, and long-term operation over SaaS complexity.
 
 Advanced capabilities are planned as optional layers. The Admin should stay comfortable for simple short-link use, while power users can enable advanced operations, analytics, automation, and campaign tooling as needed.
 
@@ -25,6 +41,7 @@ For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING
 - 🔒 Admin panel with token authentication
 - 🔗 Create, edit, disable, archive, and delete short links
 - Bulk create short links and bulk update selected links
+- Preview-first bulk UTM add/replace/remove for selected or filtered links, with guarded writes, selective cache clearing, and a downloadable change record
 - 🔍 Search by slug, URL, title; filter by tag, status, source, domain, created date, password, warning, and limits
 - 🏷️ Tag support and tag management
 - 📊 Overview dashboard, filterable analytics, single-link analytics, UTM/target/conversion breakdowns, reports, and visits export
@@ -35,7 +52,7 @@ For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING
 - Manual and scheduled health checks for active links' original destination/Aff URLs
 - Local smart suggestions for slug, title, description, and tags from page metadata
 - Telegram, Discord, Slack, Feishu, DingTalk, WeCom, and signed Webhook notifications for scheduled target failures and recoveries
-- 📥 Import from Shlink, Sink, YOURLS, Dub, Linkora backup, and generic CSV / JSON with field mapping
+- 📥 Import from Shlink, Sink, YOURLS, Dub, Linketry backup, and generic CSV / JSON with field mapping
 - 🧭 Import preview with skip, rename, or overwrite conflict handling
 - Password-protected links, safety warning pages, and UTM builder templates
 - Audit Logs page for admin actions and imports
@@ -58,7 +75,7 @@ For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING
 ## Project Structure
 
 ```
-linkora/
+linketry/
 ├── apps/
 │   ├── worker/          # Cloudflare Worker — redirects & API
 │   └── admin/           # React admin panel
@@ -92,7 +109,7 @@ npm install
 cp apps/worker/wrangler.toml.example apps/worker/wrangler.toml
 # Copy example vars
 cp apps/worker/.dev.vars.example apps/worker/.dev.vars
-# Edit .dev.vars and set ADMIN_TOKEN
+# Edit .dev.vars and set LINKETRY_ADMIN_TOKEN
 
 # Prepare local D1 state
 npm run db:migrate:local --workspace=apps/worker
@@ -119,7 +136,7 @@ This repository also keeps a maintainer production runbook in [DEPLOYMENT.md](DE
 ### 1. Create D1 Database
 
 ```bash
-wrangler d1 create linkora-db
+wrangler d1 create linketry
 ```
 
 Copy `apps/worker/wrangler.toml.example` to `apps/worker/wrangler.toml`, then put the returned `database_id` into the D1 binding.
@@ -146,8 +163,8 @@ Copy both IDs into `apps/worker/wrangler.toml`.
 ### 4. Create R2 Backup Buckets
 
 ```bash
-wrangler r2 bucket create linkora-backups
-wrangler r2 bucket create linkora-backups-dev
+wrangler r2 bucket create linketry-backups
+wrangler r2 bucket create linketry-backups-dev
 ```
 
 The Worker binds these buckets as `BACKUPS`, runs a daily scheduled backup, and supports preview-first one-click restore from completed snapshots.
@@ -155,7 +172,7 @@ The Worker binds these buckets as `BACKUPS`, runs a daily scheduled backup, and 
 ### 5. Create Queue for Visit Stats
 
 ```bash
-wrangler queues create linkora-visits --message-retention-period-secs 60
+wrangler queues create linketry-visits --message-retention-period-secs 60
 ```
 
 The Worker uses this queue for asynchronous visit statistics and falls back to direct `ctx.waitUntil()` recording if queue send fails.
@@ -163,7 +180,7 @@ The Worker uses this queue for asynchronous visit statistics and falls back to d
 ### 6. Set Admin Token (Production)
 
 ```bash
-wrangler secret put ADMIN_TOKEN
+wrangler secret put LINKETRY_ADMIN_TOKEN
 ```
 
 ## Environment Variables
@@ -172,9 +189,9 @@ See `.env.example`, `apps/worker/.dev.vars.example`, and `apps/admin/.env.exampl
 
 | Variable          | Description                       |
 | ----------------- | --------------------------------- |
-| `ADMIN_TOKEN`     | Bearer token for admin API auth   |
-| `LINKORA_VERSION` | Current version string (optional) |
-| `VITE_API_URL`    | API base URL for admin frontend   |
+| `LINKETRY_ADMIN_TOKEN`     | Bearer token for admin API auth   |
+| `LINKETRY_VERSION` | Current version string (optional) |
+| `VITE_LINKETRY_API_URL`    | API base URL for admin frontend   |
 
 ## Deploy
 
@@ -185,11 +202,11 @@ Pushing to `main` can deploy automatically through GitHub Actions after the Clou
 Configure only one custom hostname. Cloudflare Pages automatically provides the Admin URL, so beginners do not need to create an Admin DNS record or custom domain.
 
 ```txt
-linkora-admin.pages.dev Admin UI (automatic)
+linketry-admin.pages.dev Admin UI (automatic)
 go.example.com          Worker API + short links (the only custom hostname)
 ```
 
-The basic profile requires Worker, D1, KV, Pages, and only the `go.example.com` custom hostname. The first deployment automatically generates `ADMIN_TOKEN`; a branded Admin domain, R2 backups, Queues, Cron, and a separate public short-link domain remain optional advanced features.
+The basic profile requires Worker, D1, KV, Pages, and only the `go.example.com` custom hostname. The first deployment automatically generates `LINKETRY_ADMIN_TOKEN`; a branded Admin domain, R2 backups, Queues, Cron, and a separate public short-link domain remain optional advanced features.
 
 For a reusable open-source setup, configure these GitHub repository values:
 
@@ -203,19 +220,19 @@ CLOUDFLARE_ACCOUNT_ID
 Variables:
 
 ```txt
-LINKORA_API_URL=https://go.example.com
-LINKORA_PAGES_PROJECT=linkora-admin
-LINKORA_WORKER_NAME=linkora-worker
-LINKORA_SHORT_DOMAIN=go.example.com
-LINKORA_D1_DATABASE_NAME=linkora-db
-LINKORA_D1_DATABASE_ID=<your-d1-database-id>
-LINKORA_KV_NAMESPACE_ID=<your-kv-namespace-id>
-LINKORA_KV_PREVIEW_ID=<your-kv-preview-id>
+LINKETRY_API_URL=https://go.example.com
+LINKETRY_PAGES_PROJECT=linketry-admin
+LINKETRY_WORKER_NAME=linketry-worker
+LINKETRY_SHORT_DOMAIN=go.example.com
+LINKETRY_D1_DATABASE_NAME=linketry
+LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
+LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
+LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
 ```
 
-After the first deploy, open the automatic `https://linkora-admin.pages.dev` URL shown in the workflow summary. The same summary points to the automatically generated token in the **Ensure ADMIN_TOKEN secret** step. A branded `admin.example.com` domain can be added later, but is not part of the beginner flow.
+After the first deploy, open the automatic `https://linketry-admin.pages.dev` URL shown in the workflow summary. The same summary points to the automatically generated token in the **Ensure LINKETRY_ADMIN_TOKEN secret** step. A branded `admin.example.com` domain can be added later, but is not part of the beginner flow.
 
-For the advanced profile, optionally add `LINKORA_WORKER_DOMAINS`, R2 bucket variables, and `LINKORA_VISITS_QUEUE` as described in [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
+For the advanced profile, optionally add `LINKETRY_WORKER_DOMAINS`, R2 bucket variables, and `LINKETRY_VISITS_QUEUE` as described in [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
 
 ### Worker
 
@@ -232,13 +249,13 @@ npm run build --workspace=apps/admin
 # Deploy the dist/ folder to Cloudflare Pages, Netlify, or any static host
 ```
 
-For production builds where Admin and Worker use separate domains, set `VITE_API_URL` to the stable Worker API domain:
+For production builds where Admin and Worker use separate domains, set `VITE_LINKETRY_API_URL` to the stable Worker API domain:
 
 ```bash
-VITE_API_URL=https://go.example.com npm run build --workspace=apps/admin
+VITE_LINKETRY_API_URL=https://go.example.com npm run build --workspace=apps/admin
 ```
 
-For migrations or strict operational isolation, keep `go.example.com` as the stable Admin API domain and add the public short-link domain, such as `s.example.com`, through `LINKORA_WORKER_DOMAINS`. This third public role is optional.
+For migrations or strict operational isolation, keep `go.example.com` as the stable Admin API domain and add the public short-link domain, such as `s.example.com`, through `LINKETRY_WORKER_DOMAINS`. This third public role is optional.
 
 ## Shlink Import
 
@@ -246,8 +263,8 @@ See [docs/IMPORT_SHLINK.md](docs/IMPORT_SHLINK.md) for the full import guide.
 
 Quick steps:
 
-1. Export from Shlink, or enter Shlink URL + API key in Linkora Admin.
-2. In Linkora Admin → **Import / Export** → upload file or click **Fetch Shlink**.
+1. Export from Shlink, or enter Shlink URL + API key in Linketry Admin.
+2. In Linketry Admin → **Import / Export** → upload file or click **Fetch Shlink**.
 3. Select source: **Shlink** when uploading manually.
 4. Click **Preview** to review conflicts
 5. Click **Import** to confirm
@@ -262,15 +279,15 @@ See [docs/MIGRATION_FROM_SHLINK.md](docs/MIGRATION_FROM_SHLINK.md).
 
 **Summary:**
 
-1. Deploy Linkora to `go.example.com` as the stable API domain
+1. Deploy Linketry to `go.example.com` as the stable API domain
 2. Import Shlink data and verify old slugs work
 3. Run for 1–2 weeks in parallel
-4. Switch DNS for production domain to Linkora Worker
+4. Switch DNS for production domain to Linketry Worker
 5. Keep Shlink running 1–2 weeks for rollback
 
 ## Rollback
 
-If Linkora has issues, point the production domain DNS back to Shlink. No data is lost.
+If Linketry has issues, point the production domain DNS back to Shlink. No data is lost.
 
 ## Analytics
 

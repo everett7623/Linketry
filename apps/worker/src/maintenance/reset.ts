@@ -1,9 +1,14 @@
-import type { Backup } from '@linkora/shared';
+import type { Backup } from '@linketry/shared';
 import type { Env } from '../types';
 import { createR2Backup } from '../backups/index';
 import { now } from '../utils/id';
 
-export const RESET_CONFIRMATION = 'RESET LINKORA';
+export const RESET_CONFIRMATION = 'RESET LINKETRY';
+const LEGACY_RESET_CONFIRMATION = 'RESET LINKORA';
+
+export function isResetConfirmation(value: unknown): boolean {
+  return value === RESET_CONFIRMATION || value === LEGACY_RESET_CONFIRMATION;
+}
 
 const RESET_TABLES = [
   { name: 'visit_targets', optional: true },
@@ -23,7 +28,7 @@ const RESET_TABLES = [
 const DEFAULT_SETTINGS: Record<string, string> = {
   default_redirect_type: '302',
   default_domain: '',
-  site_name: 'Linkora',
+  site_name: 'Linketry',
   analytics_retention_days: '0',
   backup_retention_days: '30',
   health_monitoring_enabled: 'false',
@@ -50,12 +55,13 @@ export interface InstanceResetResult extends InstanceResetPreview {
 
 export async function previewInstanceReset(env: Env): Promise<InstanceResetPreview> {
   const tables: Record<string, number> = {};
-  for (const table of RESET_TABLES) tables[table.name] = await countRows(env, table.name, table.optional === true);
+  for (const table of RESET_TABLES)
+    tables[table.name] = await countRows(env, table.name, table.optional === true);
   return {
     confirmationPhrase: RESET_CONFIRMATION,
     tables,
     totalRows: Object.values(tables).reduce((sum, count) => sum + count, 0),
-    kvPrefix: 'linkora:slug:',
+    kvPrefix: 'linketry:slug:',
     preservesBackups: true,
     preservesAdminToken: true,
   };
@@ -64,7 +70,7 @@ export async function previewInstanceReset(env: Env): Promise<InstanceResetPrevi
 export async function resetInstance(env: Env, createBackup: boolean): Promise<InstanceResetResult> {
   const preview = await previewInstanceReset(env);
   const preResetBackup = createBackup ? await createR2Backup(env, 'pre-reset') : undefined;
-  const kvDeleted = await clearLinkoraSlugCache(env);
+  const kvDeleted = await clearSlugCaches(env);
   const resetAt = now();
 
   for (const table of RESET_TABLES) await deleteRows(env, table.name, table.optional === true);
@@ -81,7 +87,9 @@ export async function resetInstance(env: Env, createBackup: boolean): Promise<In
 
 async function countRows(env: Env, table: string, optional: boolean): Promise<number> {
   try {
-    const row = await env.DB.prepare(`SELECT COUNT(*) as count FROM ${table}`).first<{ count: number }>();
+    const row = await env.DB.prepare(`SELECT COUNT(*) as count FROM ${table}`).first<{
+      count: number;
+    }>();
     return row?.count ?? 0;
   } catch (error) {
     if (!optional) throw error;
@@ -99,20 +107,25 @@ async function deleteRows(env: Env, table: string, optional: boolean): Promise<v
 
 async function restoreDefaultSettings(env: Env, updatedAt: string): Promise<void> {
   for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
-    await env.DB.prepare(
-      'INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?)'
-    )
+    await env.DB.prepare('INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?)')
       .bind(key, value, updatedAt)
       .run();
   }
 }
 
-async function clearLinkoraSlugCache(env: Env): Promise<number> {
+async function clearSlugCaches(env: Env): Promise<number> {
+  const prefixes = ['linketry:slug:', 'linkora:slug:'];
+  let deleted = 0;
+  for (const prefix of prefixes) deleted += await clearCachePrefix(env, prefix);
+  return deleted;
+}
+
+async function clearCachePrefix(env: Env, prefix: string): Promise<number> {
   let cursor: string | undefined;
   let deleted = 0;
 
   do {
-    const page = await env.KV.list({ prefix: 'linkora:slug:', cursor });
+    const page = await env.KV.list({ prefix, cursor });
     await Promise.all(page.keys.map((key) => env.KV.delete(key.name)));
     deleted += page.keys.length;
     cursor = page.list_complete ? undefined : page.cursor;
