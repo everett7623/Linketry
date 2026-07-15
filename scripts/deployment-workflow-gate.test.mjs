@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { inspectMigrations, runDeploymentWorkflowGate } from './deployment-workflow-gate.mjs';
 
-const version = '0.14.1';
+const version = '0.15.0';
 const commit = 'a'.repeat(40);
 const migrations = [
   { name: '0001_init.sql', source: 'CREATE TABLE links (id TEXT PRIMARY KEY);' },
@@ -191,11 +191,13 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   const secret = workflow.indexOf('- name: Ensure LINKETRY_ADMIN_TOKEN secret');
   const migrations = workflow.indexOf('- name: Apply D1 migrations');
   const deploy = workflow.indexOf('- name: Deploy Worker');
+  const siteDeploy = workflow.indexOf('- name: Deploy project site');
 
   assert.ok(gate > -1);
   assert.ok(gate < secret);
   assert.ok(secret < migrations);
   assert.ok(migrations < deploy);
+  assert.ok(deploy < siteDeploy);
   for (const name of [
     'LINKETRY_DEPLOYMENT_TRACK',
     'LINKETRY_APPROVED_RELEASE',

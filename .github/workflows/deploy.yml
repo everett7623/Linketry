@@ -22,6 +22,8 @@ jobs:
       LINKETRY_ADMIN_ZONE: ${{ vars.LINKETRY_ADMIN_ZONE }}
       LINKETRY_API_URL: ${{ vars.LINKETRY_API_URL }}
       LINKETRY_PAGES_PROJECT: ${{ vars.LINKETRY_PAGES_PROJECT }}
+      LINKETRY_SITE_PROJECT: ${{ vars.LINKETRY_SITE_PROJECT }}
+      LINKETRY_SITE_URL: ${{ vars.LINKETRY_SITE_URL }}
       LINKETRY_WORKER_NAME: ${{ vars.LINKETRY_WORKER_NAME }}
       LINKETRY_WORKER_DOMAINS: ${{ vars.LINKETRY_WORKER_DOMAINS }}
       LINKETRY_SHORT_DOMAIN: ${{ vars.LINKETRY_SHORT_DOMAIN }}
@@ -88,6 +90,9 @@ jobs:
       - name: Test Admin unit rules
         run: npm run test:unit --workspace=apps/admin
 
+      - name: Test project site contract
+        run: npm run test:site
+
       - name: Test Worker public pages and redirects
         run: npm run test --workspace=apps/worker
 
@@ -95,6 +100,9 @@ jobs:
         run: npm run build --workspace=apps/admin
         env:
           VITE_LINKETRY_API_URL: ${{ env.LINKETRY_API_URL }}
+
+      - name: Build project site
+        run: npm run build:site
 
       - name: Generate Worker config
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKETRY_D1_DATABASE_NAME != '' && env.LINKETRY_D1_DATABASE_ID != '' && env.LINKETRY_KV_NAMESPACE_ID != ''
@@ -152,7 +160,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.14.1'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.15.0'}"`,
             `LINKETRY_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
             `LINKETRY_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             '',
@@ -215,6 +223,10 @@ jobs:
       - name: Deploy Admin
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_API_URL != '' && env.LINKETRY_PAGES_PROJECT != ''
         run: npx wrangler pages deploy apps/admin/dist --project-name "$LINKETRY_PAGES_PROJECT" --branch main
+
+      - name: Deploy project site
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_SITE_PROJECT != ''
+        run: npx wrangler pages deploy apps/site/dist --project-name "$LINKETRY_SITE_PROJECT" --branch main
 
       - name: Ensure Linketry Admin DNS
         if: env.CLOUDFLARE_DNS_API_TOKEN != '' && env.LINKETRY_ADMIN_URL != '' && env.LINKETRY_ADMIN_ZONE != '' && env.LINKETRY_PAGES_PROJECT != ''
@@ -293,6 +305,10 @@ jobs:
           if [ -z "$ADMIN_URL" ] && [ -n "$LINKETRY_PAGES_PROJECT" ]; then
             ADMIN_URL="https://${LINKETRY_PAGES_PROJECT}.pages.dev"
           fi
+          SITE_URL="$LINKETRY_SITE_URL"
+          if [ -z "$SITE_URL" ] && [ -n "$LINKETRY_SITE_PROJECT" ]; then
+            SITE_URL="https://${LINKETRY_SITE_PROJECT}.pages.dev"
+          fi
           {
             echo "## Linketry access"
             echo ""
@@ -300,6 +316,7 @@ jobs:
             echo "|---|---|"
             echo "| Admin dashboard | ${ADMIN_URL:-Not configured — recommended: https://admin.example.com} |"
             echo "| Worker API and short links | ${LINKETRY_API_URL:-Not configured — recommended: https://go.example.com} |"
+            echo "| Project site | ${SITE_URL:-Not configured — optional: https://linketry.com} |"
             echo ""
             echo "### LINKETRY_ADMIN_TOKEN"
             if [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "generated" ]; then
@@ -317,7 +334,7 @@ jobs:
         if: env.CLOUDFLARE_API_TOKEN == '' || env.CLOUDFLARE_ACCOUNT_ID == ''
         run: |
           echo "Cloudflare deploy skipped because CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not configured."
-          echo "Type-check and Admin build completed successfully."
+          echo "Type-check, Admin build, and project-site build completed successfully."
 
       - name: Skip Worker deploy
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && (env.LINKETRY_WORKER_NAME == '' || env.RESOLVED_WORKER_DOMAINS == '' || env.LINKETRY_D1_DATABASE_NAME == '' || env.LINKETRY_D1_DATABASE_ID == '' || env.LINKETRY_KV_NAMESPACE_ID == '')
@@ -331,3 +348,9 @@ jobs:
         run: |
           echo "Admin deploy skipped because LINKETRY_API_URL or LINKETRY_PAGES_PROJECT repository variable is not configured."
           echo "Set them under GitHub repository Settings -> Secrets and variables -> Actions -> Variables."
+
+      - name: Skip project site deploy
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_SITE_PROJECT == ''
+        run: |
+          echo "Project-site deploy skipped because LINKETRY_SITE_PROJECT is not configured."
+          echo "The tested static build remains available under apps/site/dist."

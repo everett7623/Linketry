@@ -154,7 +154,7 @@ routes = [
 ]
 
 [vars]
-LINKETRY_VERSION = "0.14.1"
+LINKETRY_VERSION = "0.15.0"
 
 [[d1_databases]]
 binding = "DB"
@@ -195,7 +195,7 @@ curl https://go.example.com/health
 Expected response:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.14.1"}}
+{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.15.0"}}
 ```
 
 ---
@@ -309,7 +309,7 @@ Defined in `apps/worker/wrangler.toml`:
 
 | Name | Example |
 |------|---------|
-| `LINKETRY_VERSION` | `0.14.1` |
+| `LINKETRY_VERSION` | `0.15.0` |
 | `LINKETRY_DAILY_CRON` | `0 18 * * *` |
 | `LINKETRY_HEALTH_CRON` | `0 * * * *` |
 
@@ -359,13 +359,15 @@ It deploys Admin only when the Cloudflare secrets and these repository variables
 | `LINKETRY_R2_BUCKET` | `linketry-backups` | Optional: generates the R2 backup bucket binding |
 | `LINKETRY_R2_PREVIEW_BUCKET` | `linketry-backups-dev` | Optional: generates the preview R2 bucket binding |
 | `LINKETRY_VISITS_QUEUE` | `linketry-visits` | Optional: generates queue producer and consumer bindings |
+| `LINKETRY_SITE_PROJECT` | `linketry-site` | Optional maintainer Pages project for the official product site |
+| `LINKETRY_SITE_URL` | `https://linketry.com` | Optional canonical project-site URL shown in deployment summaries |
 
 Every Cloudflare-enabled workflow run also requires exact deployment approvals:
 
 | Name | Example | Purpose |
 |------|---------|---------|
 | `LINKETRY_DEPLOYMENT_TRACK` | `upgrade` | Allows only the reviewed `fresh` or `upgrade` path; Demo is rejected here |
-| `LINKETRY_APPROVED_RELEASE` | `0.14.1` | Must match the root package version |
+| `LINKETRY_APPROVED_RELEASE` | `0.15.0` | Must match the root package version |
 | `LINKETRY_APPROVED_COMMIT` | `<40-character SHA>` | Must match the commit being deployed |
 | `LINKETRY_APPROVED_MIGRATIONS_SHA256` | `<digest>` | Must match `npm run deploy:migration-digest` |
 
@@ -376,6 +378,12 @@ If either Admin variable is missing, the workflow still builds Admin but skips t
 If any core Worker variable is missing, the workflow skips Worker deploy instead of relying on a committed production `wrangler.toml`. Missing R2 and Queue variables only disable those advanced bindings.
 
 On the first successful deployment, the workflow automatically creates `LINKETRY_ADMIN_TOKEN` as a Worker secret and prints it once in the **Ensure LINKETRY_ADMIN_TOKEN secret** step. Later deployments preserve the existing Worker secret. If the token is lost, set a replacement GitHub repository secret named `LINKETRY_ADMIN_TOKEN` and rerun deployment once.
+
+### Official Project Site
+
+The public project site is isolated from the Admin under `apps/site`. Maintainers can validate it with `npm run test:site` and `npm run build:site`. Set `LINKETRY_SITE_PROJECT=linketry-site` to deploy the build through the same release-bound workflow.
+
+The automatic preview is `https://linketry-site.pages.dev`. To activate the purchased apex domain, add `linketry.com` under that Pages project's **Custom domains** after the domain is an active Cloudflare zone. Do not create only a manual apex DNS record without associating the custom domain with Pages first.
 
 ---
 

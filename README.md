@@ -25,6 +25,8 @@ Linketry is a self-hosted link management, analytics and monitoring platform.
 
 > **New to self-hosting?** Follow the [quick-start guide](docs/SELF_HOSTING.md) and run the [read-only deployment preflight](docs/DEPLOYMENT_PREFLIGHT.md) before provisioning or deployment. Installations older than 0.10 must use the [non-destructive upgrade guide](docs/UPGRADING_PRE_0_10.md) and keep their current D1/KV/R2/Queue bindings until migration is verified.
 
+The official project site lives in `apps/site` and is deployed independently from the Admin. Its automatic Pages URL is [linketry-site.pages.dev](https://linketry-site.pages.dev); `linketry.com` becomes canonical after the purchased apex domain is added to the Pages project and its Cloudflare nameservers are active.
+
 ---
 
 ## Product Direction
@@ -78,7 +80,8 @@ For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING
 linketry/
 ├── apps/
 │   ├── worker/          # Cloudflare Worker — redirects & API
-│   └── admin/           # React admin panel
+│   ├── admin/           # React admin panel
+│   └── site/            # Official Linketry project site
 ├── packages/
 │   └── shared/          # Shared types & validators
 ├── migrations/
@@ -237,7 +240,7 @@ LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.14.1
+LINKETRY_APPROVED_RELEASE=0.15.0
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true

@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07111f" />
+    <meta
+      name="description"
+      content="Linketry is a self-hosted link management, analytics and monitoring platform built for Cloudflare."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Linketry — Own every link" />
+    <meta
+      property="og:description"
+      content="Self-hosted link management, analytics and monitoring on your Cloudflare account."
+    />
+    <meta property="og:url" content="https://linketry.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Linketry — Own every link" />
+    <meta
+      name="twitter:description"
+      content="Self-hosted link management, analytics and monitoring on your Cloudflare account."
+    />
+    <link rel="canonical" href="https://linketry.com/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Linketry — Own every link</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="#top" aria-label="Linketry home"
+          ><img src="/favicon.svg" width="34" height="34" alt="" /><span>Linketry</span></a
+        >
+        <button
+          class="menu-button"
+          type="button"
+          aria-expanded="false"
+          aria-controls="site-navigation"
+          data-menu-button
+        >
+          <span>Menu</span><i aria-hidden="true"></i>
+        </button>
+        <nav id="site-navigation" class="site-nav" aria-label="Primary" data-navigation>
+          <a href="#features">Features</a><a href="#architecture">Architecture</a
+          ><a href="#deploy">Deploy</a><a href="#docs">Docs</a
+          ><a class="nav-github" href="https://github.com/everett7623/Linketry">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section id="top" class="hero">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <div class="shell hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow"><span></span> Open source · Self-hosted</p>
+            <h1>Own every link.<br /><em>Understand every click.</em></h1>
+            <p class="hero-lede">
+              Short links, analytics, health monitoring, imports, backups and automation—deployed
+              inside your own Cloudflare account.
+            </p>
+            <div class="actions">
+              <a
+                class="button primary"
+                href="https://github.com/everett7623/Linketry/blob/main/docs/SELF_HOSTING.md"
+                >Deploy Linketry <span aria-hidden="true">↗</span></a
+              >
+              <a class="button secondary" href="https://github.com/everett7623/Linketry"
+                >View source</a
+              >
+            </div>
+            <ul class="proof">
+              <li>✓ Your data</li>
+              <li>✓ Your domains</li>
+              <li>✓ No per-click fee</li>
+            </ul>
+          </div>
+
+          <div class="link-console" aria-label="Example Linketry redirect">
+            <div class="console-bar">
+              <span></span><span></span><span></span>
+              <p>Redirect inspector</p>
+            </div>
+            <div class="console-body">
+              <div class="route">
+                <b>L</b>
+                <div>
+                  <small>SHORT LINK</small><code>go.your-domain.com/<strong>launch</strong></code>
+                </div>
+                <i>302</i>
+              </div>
+              <div class="route-path" aria-hidden="true">↓</div>
+              <div class="route">
+                <b class="destination">↗</b>
+                <div><small>DESTINATION</small><code>example.com/product/launch</code></div>
+                <i class="latency">24 ms</i>
+              </div>
+              <div class="console-stats">
+                <div><strong>12.8k</strong><small>VISITS</small></div>
+                <div><strong>34</strong><small>COUNTRIES</small></div>
+                <div><strong>99.99%</strong><small>UPTIME</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="shell platform-strip" aria-label="Cloudflare platform components">
+          <span>RUNS ON</span><strong>Workers</strong><strong>D1</strong><strong>KV</strong
+          ><strong>Pages</strong><strong>R2 <small>optional</small></strong
+          ><strong>Queues <small>optional</small></strong>
+        </div>
+      </section>
+
+      <section id="features" class="section">
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow"><span></span> A complete link stack</p>
+              <h2>More than a URL shortener.</h2>
+            </div>
+            <p>
+              Run the daily link workflow from one calm interface, while keeping D1 as your source
+              of truth and KV as a fast redirect cache.
+            </p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card wide">
+              <span>01</span>
+              <div>
+                <h3>Manage and migrate</h3>
+                <p>
+                  Create, tag, group, archive and bulk-manage links. Import Shlink, JSON or CSV
+                  safely with previews, conflict checks and migration records.
+                </p>
+              </div>
+              <div class="tag-cloud">
+                <i>/launch</i><i>/docs</i><i>/newsletter</i><i>/campaign</i>
+              </div>
+            </article>
+            <article class="feature-card">
+              <span>02</span>
+              <h3>Measure what matters</h3>
+              <p>
+                Explore clicks, visitors, countries, devices, referers, campaigns and conversions
+                with saved views and scheduled reports.
+              </p>
+              <div class="mini-bars" aria-hidden="true">
+                <i style="--bar: 46%"></i><i style="--bar: 68%"></i><i style="--bar: 55%"></i
+                ><i style="--bar: 88%"></i><i style="--bar: 72%"></i><i style="--bar: 96%"></i>
+              </div>
+            </article>
+            <article class="feature-card">
+              <span>03</span>
+              <h3>Monitor and recover</h3>
+              <p>
+                Detect broken destinations, send recovery-aware alerts, keep audit history and
+                protect operations with backups and restore previews.
+              </p>
+              <div class="health"><i></i> All monitored destinations healthy</div>
+            </article>
+            <article class="feature-card wide">
+              <span>04</span>
+              <div>
+                <h3>Integrate on a stable API</h3>
+                <p>
+                  Build browser extensions, Shortcuts or internal tools against a versioned OpenAPI
+                  contract, scoped tokens and signed webhooks.
+                </p>
+              </div>
+              <pre><code><b>GET</b> /api/v1/links
+Authorization: Bearer ••••••••
+
+<em>200</em> { "success": true }</code></pre>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section product-section">
+        <div class="shell product-grid">
+          <div class="product-copy">
+            <p class="eyebrow"><span></span> One focused workspace</p>
+            <h2>Clear operations as your link library grows.</h2>
+            <p>
+              Simple mode keeps everyday actions close. Advanced mode reveals analytics, monitoring,
+              automation, backups and API tools when you need them.
+            </p>
+            <ul>
+              <li>✓ English and Simplified Chinese</li>
+              <li>✓ Duplicate destination warnings</li>
+              <li>✓ Password protection starts disabled</li>
+              <li>✓ Exportable data and change records</li>
+            </ul>
+          </div>
+          <div class="admin-preview" role="img" aria-label="Preview of the Linketry Admin overview">
+            <aside>
+              <div><img src="/favicon.svg" alt="" />Linketry</div>
+              <small>DAILY</small><b>⌂ Overview</b><span>⌁ Links</span><span>＋ Create link</span
+              ><span>◇ Tags</span><small>INSIGHTS</small><span>▥ Analytics</span
+              ><span>◉ Health checks</span><small>SYSTEM</small><span>⚙ Settings</span>
+            </aside>
+            <div class="preview-main">
+              <header>
+                <div>
+                  <h3>Overview</h3>
+                  <p>Your link workspace</p>
+                </div>
+                <button>＋ Create link</button>
+              </header>
+              <div class="metrics">
+                <div><small>TOTAL LINKS</small><strong>1,248</strong><i>⌁</i></div>
+                <div><small>TOTAL CLICKS</small><strong>82,491</strong><i>↗</i></div>
+                <div><small>TODAY</small><strong>734</strong><i>↗</i></div>
+              </div>
+              <div class="preview-panels">
+                <div>
+                  <b>Recently created</b>
+                  <p><span>/launch</span><small>42 clicks</small></p>
+                  <p><span>/docs</span><small>18 clicks</small></p>
+                  <p><span>/news</span><small>7 clicks</small></p>
+                </div>
+                <div>
+                  <b>Top links</b>
+                  <p><span>/product</span><small>12.8k</small></p>
+                  <p><span>/github</span><small>9.4k</small></p>
+                  <p><span>/start</span><small>7.1k</small></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="architecture" class="section architecture-section">
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow"><span></span> Built for the edge</p>
+              <h2>Fast redirects. Durable truth.</h2>
+            </div>
+            <p>
+              The redirect path stays small. Analytics and monitoring run outside the critical
+              response, so observability cannot hold up a visitor.
+            </p>
+          </div>
+          <div class="architecture-map" role="img" aria-label="Linketry redirect architecture">
+            <div class="arch-node">
+              <small>REQUEST</small><strong>Visitor</strong><span>go.example.com/docs</span>
+            </div>
+            <div class="arch-arrow"><small>HTTPS</small>→</div>
+            <div class="arch-node worker">
+              <small>EDGE</small><strong>Cloudflare Worker</strong><span>Redirect + Admin API</span>
+            </div>
+            <div class="branches"><i>cache →</i><i>truth →</i><i>async →</i></div>
+            <div class="stores">
+              <div><small>FAST PATH</small><strong>KV</strong><span>Redirect cache</span></div>
+              <div class="primary-store">
+                <small>PRIMARY</small><strong>D1</strong><span>Links + analytics</span>
+              </div>
+              <div>
+                <small>OPTIONAL</small><strong>R2 / Queue</strong><span>Backup + events</span>
+              </div>
+            </div>
+          </div>
+          <p class="architecture-note">
+            <span>Principle</span> D1 is always the source of truth. KV accelerates redirects but
+            never owns primary link state.
+          </p>
+        </div>
+      </section>
+
+      <section id="deploy" class="section deploy-section">
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow"><span></span> Self-host in your account</p>
+              <h2>From clone to first link.</h2>
+            </div>
+            <p>
+              The guided bootstrap previews every resource name, checks the selected account and
+              requires an exact confirmation before creating anything.
+            </p>
+          </div>
+          <ol class="deploy-steps">
+            <li>
+              <span>01</span>
+              <div>
+                <h3>Clone and install</h3>
+                <p>
+                  Fork the GPL-licensed repository and install the pinned workspace dependencies.
+                </p>
+              </div>
+              <code>npm install</code>
+            </li>
+            <li>
+              <span>02</span>
+              <div>
+                <h3>Preview resources</h3>
+                <p>Generate unique D1, KV, Worker and Pages names without changing Cloudflare.</p>
+              </div>
+              <code>npm run deploy:bootstrap</code>
+            </li>
+            <li>
+              <span>03</span>
+              <div>
+                <h3>Approve and deploy</h3>
+                <p>
+                  Bind the reviewed release, commit and migrations, then let the safety-gated
+                  workflow deploy.
+                </p>
+              </div>
+              <code>git push origin main</code>
+            </li>
+          </ol>
+          <div class="deploy-callout">
+            <div>
+              <strong>Fresh installs and upgrades are different tracks.</strong>
+              <p>
+                Existing deployments keep their bindings and require a verified backup before
+                migrations or deploy.
+              </p>
+            </div>
+            <a href="https://github.com/everett7623/Linketry/blob/main/docs/DEPLOYMENT_PREFLIGHT.md"
+              >Read the safety model ↗</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section id="docs" class="section docs-section">
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow"><span></span> Open by default</p>
+              <h2>Docs for operators and builders.</h2>
+            </div>
+            <p>Every feature, deployment track and recovery path lives with the source.</p>
+          </div>
+          <div class="docs-grid">
+            <a href="https://github.com/everett7623/Linketry/blob/main/docs/SELF_HOSTING.md"
+              ><span>01</span>
+              <h3>Self-hosting</h3>
+              <p>Provision D1 and KV, deploy, log in and run smoke checks.</p>
+              <b>Open guide ↗</b></a
+            >
+            <a href="https://github.com/everett7623/Linketry/blob/main/docs/API.md"
+              ><span>02</span>
+              <h3>API contract</h3>
+              <p>Use the authenticated versioned API and OpenAPI document.</p>
+              <b>Read API docs ↗</b></a
+            >
+            <a href="https://github.com/everett7623/Linketry/blob/main/docs/BACKUP_AND_RESTORE.md"
+              ><span>03</span>
+              <h3>Backup & recovery</h3>
+              <p>Export portable data and preview restores before writing.</p>
+              <b>Plan recovery ↗</b></a
+            >
+            <a href="https://github.com/everett7623/Linketry/blob/main/docs/ROADMAP.md"
+              ><span>04</span>
+              <h3>Roadmap</h3>
+              <p>See what is complete and which ideas remain deferred.</p>
+              <b>View roadmap ↗</b></a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="section roadmap-section">
+        <div class="shell roadmap-grid">
+          <div>
+            <p class="eyebrow"><span></span> Road to 1.0</p>
+            <h2>Built in public, one stable layer at a time.</h2>
+          </div>
+          <div class="roadmap-list">
+            <article class="complete">
+              <span>COMPLETE</span>
+              <h3>Core link platform</h3>
+              <p>Redirects, Admin, analytics, monitoring, migration, backups and OpenAPI.</p>
+            </article>
+            <article class="active">
+              <span>IN PROGRESS</span>
+              <h3>Public launch foundation</h3>
+              <p>Beginner deployment, project site, isolated Demo and operational hardening.</p>
+            </article>
+            <article>
+              <span>PLANNED</span>
+              <h3>Access and integrations</h3>
+              <p>Optional Cloudflare Access, async events and display preferences.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="final-cta">
+        <div class="shell">
+          <div>
+            <p class="eyebrow"><span></span> Your links, your infrastructure</p>
+            <h2>Start with one link.<br />Keep control as you grow.</h2>
+          </div>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/everett7623/Linketry"
+              >Get Linketry on GitHub ↗</a
+            ><a
+              class="button secondary"
+              href="https://github.com/everett7623/Linketry/blob/main/docs/SELF_HOSTING.md"
+              >Read the guide</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <a class="brand" href="#top"
+          ><img src="/favicon.svg" width="30" height="30" alt="" /><span>Linketry</span></a
+        >
+        <p>Self-hosted link management, analytics and monitoring.</p>
+        <nav aria-label="Footer">
+          <a href="https://github.com/everett7623/Linketry">GitHub</a
+          ><a href="https://github.com/everett7623/Linketry/blob/main/LICENSE">GPL-3.0</a
+          ><a href="https://github.com/everett7623/Linketry/blob/main/docs/ROADMAP.md">Roadmap</a>
+        </nav>
+      </div>
+      <div class="shell footer-bottom">
+        <span>© <span data-year></span> Linketry</span
+        ><span>Built for Cloudflare. Owned by you.</span>
+      </div>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

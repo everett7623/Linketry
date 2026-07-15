@@ -305,15 +305,15 @@ One item in "In Progress" at a time whenever possible.
 
 ### Priority 5 — Official Project Site And Safe Demo
 
-- [ ] Prepare an official Linketry-domain site with product introduction, feature overview, screenshots, architecture, deployment entry, documentation, roadmap, license, and GitHub links
-- [ ] Keep the final domain name and DNS configuration as an owner-supplied external prerequisite
+- [x] Prepare an official Linketry-domain site with product introduction, feature overview, screenshots, architecture, deployment entry, documentation, roadmap, license, and GitHub links
+- [x] Use the owner-supplied `linketry.com` domain while keeping apex-domain activation as an explicit DNS prerequisite
 - [ ] Deploy the Demo with isolated D1/KV/optional R2 resources and synthetic data only
 - [ ] Give the Demo unique Worker, Pages, D1, KV, R2, Queue, Token, and domain identifiers; never reuse the existing production bindings or project names
 - [ ] Fail the Demo deployment before migrations or deploy commands when any protected production resource identifier or domain matches
 - [ ] Keep Demo workflows separate from the production `main` deployment workflow and prohibit Demo automation from changing production DNS, bindings, migrations, backups, or data
 - [ ] Make the Demo read-only or automatically reset it on a documented schedule, and rate-limit abuse-prone operations
 - [ ] Use a separate Demo short-link host and never expose production credentials or shared writable secrets in the frontend
-- [ ] Take and verify an independent production backup before any future production deployment change associated with the public launch
+- [x] Take and verify an independent production backup before any future production deployment change associated with the public launch
 - [ ] Add deployment and smoke coverage for the project site, Admin Demo, and sample redirect
 - [ ] Add the supporter link only after the owner provides the separate coffee-site URL
 

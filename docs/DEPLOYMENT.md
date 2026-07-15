@@ -61,6 +61,7 @@ The repository includes `.github/workflows/deploy.yml`. On every push to `main`,
 3. build Admin with `VITE_LINKETRY_API_URL` from the `LINKETRY_API_URL` repository variable
 4. deploy the Worker, only when Cloudflare repository secrets are configured
 5. deploy Admin to the Pages project named by `LINKETRY_PAGES_PROJECT`, only when Cloudflare repository secrets and variables are configured
+6. optionally deploy the official project site when `LINKETRY_SITE_PROJECT` is configured
 
 Add these GitHub repository secrets before relying on automatic deployment:
 
@@ -81,10 +82,12 @@ LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.14.1
+LINKETRY_APPROVED_RELEASE=0.15.0
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<output-of-npm-run-deploy:migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
+LINKETRY_SITE_PROJECT=linketry-site
+LINKETRY_SITE_URL=https://linketry.com
 ```
 
 The workflow validates these exact approvals and the selected account/resources before any Cloudflare write. For later releases, switch the track to `upgrade` and configure the verified-backup gates in [DEPLOYMENT_PREFLIGHT.md](DEPLOYMENT_PREFLIGHT.md).
@@ -96,6 +99,8 @@ The basic Cloudflare API token needs Workers, D1, KV, and Pages deployment permi
 If either secret is missing, the workflow intentionally skips Cloudflare deployment after the type-check and Admin build pass. Use manual Wrangler deploys until the secrets are configured.
 If an Admin variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.
 If a Worker variable is missing, the workflow skips Worker deploy rather than relying on a committed production `wrangler.toml`. `LINKETRY_SHORT_DOMAIN` remains supported as a legacy single-domain fallback when `LINKETRY_WORKER_DOMAINS` is not set.
+
+`LINKETRY_SITE_PROJECT` is a maintainer-only optional deployment and is not required for a self-hosted Linketry instance. Its `linketry.com` apex custom domain must be associated in the Cloudflare Pages project before DNS can serve it.
 
 ## Smoke Checks
 

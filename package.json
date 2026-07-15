@@ -1,6 +1,6 @@
 {
   "name": "linketry",
-  "version": "0.14.1",
+  "version": "0.15.0",
   "description": "Linketry is a self-hosted link management, analytics and monitoring platform.",
   "author": "everettlabs",
   "homepage": "https://linketry.com",
@@ -18,7 +18,9 @@
     "dev:worker": "npm run dev --workspace=apps/worker",
     "dev:admin": "npm run dev --workspace=apps/admin",
     "build:admin": "npm run build --workspace=apps/admin",
+    "build:site": "npm run build --workspace=apps/site",
     "test:admin": "npm run test --workspace=apps/admin",
+    "test:site": "npm run test --workspace=apps/site",
     "test:worker": "npm run test --workspace=apps/worker",
     "test:deployment": "node --test scripts/deployment-preflight.test.mjs scripts/deployment-bootstrap.test.mjs scripts/deployment-workflow-gate.test.mjs",
     "deploy:preflight": "node scripts/deployment-preflight.mjs",

@@ -13,11 +13,11 @@ Last updated: 2026-07-16
 | Worker backend             | ✅ Code complete       | Local type-check passing; deployed on Cloudflare Workers                                                                               |
 | Admin frontend             | 🟡 i18n in progress    | Default-English EN/ZH covers Admin workflows and public status pages; EN/ZH browser smoke covers core Admin navigation; Admin dates/counts/status labels now follow the selected locale |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                    |
-| Documentation              | ✅ Complete            | README, self-hosting guide, analytics guide, backup/reset guide, root runbooks, `docs/` reference set, and V7-V10 long-term roadmap    |
-| Deployment                 | ✅ Deployed            | Worker and Admin deployed; GitHub Actions deploy workflow added                                                                        |
+| Documentation              | ✅ Complete            | README, self-hosting guide, project site, analytics guide, backup/reset guide, runbooks, and long-term roadmap                         |
+| Deployment                 | 🟡 Site activation     | Worker and Admin deployed; project-site Pages project created and workflow added; `linketry.com` DNS activation remains               |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                       |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md` |
-| Current version            | 🟡 0.14.1              | Production deploys now fail closed on unapproved release, commit, migration, track, or upgrade-safety state |
+| Current version            | 🟡 0.15.0              | Official project site is ready for Pages deployment; custom `linketry.com` activation remains a DNS step |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
@@ -110,7 +110,7 @@ Last updated: 2026-07-16
 ## Next Steps
 
 1. Complete deployment Bootstrap with a fresh-account first-link rehearsal; guided provisioning, three-track preflight, and production workflow enforcement are complete
-2. Launch an official Linketry-domain project site and an isolated, read-only or resettable Demo after the owner selects the domain
+2. Activate the prepared project site on the purchased `linketry.com` apex domain, then build an isolated, read-only or resettable Demo
 3. Add optional Cloudflare Access and asynchronous signed click webhooks, then complete Admin display preferences
 4. Keep themes, card views, social preview customization, broader locales, real-time visuals, optional AI, and external clients behind the foundational work
 5. Keep the separate supporter/coffee domain and Shlink retirement operations deferred until their external prerequisites are ready

@@ -13,6 +13,20 @@ _(none)_
 
 ---
 
+## [0.15.0] - 2026-07-16
+
+### Added
+
+- Added an independent `apps/site` project for `linketry.com` with product positioning, feature overview, Admin interface preview, architecture, self-hosting entry, documentation, roadmap, license, and GitHub links.
+- Added responsive navigation, accessible landmarks, reduced-motion behavior, a custom 404 page, sitemap, robots policy, and hardened Cloudflare Pages headers.
+- Added an optional `LINKETRY_SITE_PROJECT` deployment path to the existing safety-gated GitHub Actions workflow.
+
+### Tests
+
+- Added three project-site contract tests and extended workflow ordering coverage to keep project-site deployment behind the production safety gate.
+
+---
+
 ## [0.14.1] - 2026-07-16
 
 ### Fixed

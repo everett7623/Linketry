@@ -1,0 +1,18 @@
+{
+  "name": "@linketry/site",
+  "version": "0.15.0",
+  "author": "everettlabs",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 4174",
+    "build": "tsc && vite build",
+    "test": "node --test tests/site.test.mjs",
+    "preview": "vite preview --port 4174"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vite": "^5.3.4"
+  }
+}
