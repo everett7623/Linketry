@@ -5,7 +5,7 @@
 - 将旧产品品牌、仓库元数据和新手部署默认值统一为 Linketry。
 - 使用定位：`Linketry is a self-hosted link management, analytics and monitoring platform.`
 - 使用中文定位：`自托管短链接管理、访问分析与健康监控平台`。
-- 统一作者 `everettlabs`、仓库 `linketry`、镜像 `everett7623/linketry`、环境变量前缀 `LINKETRY_`、数据库默认名 `linketry`、API 命名空间 `/api/v1`、官网 `https://linketry.dev`。
+- 统一作者 `everettlabs`、仓库 `linketry`、镜像 `everett7623/linketry`、环境变量前缀 `LINKETRY_`、数据库默认名 `linketry`、API 命名空间 `/api/v1`、官网 `https://linketry.com`。
 - 保证现有部署可升级，不重建或覆盖既有 D1 数据。
 
 ## 兼容映射

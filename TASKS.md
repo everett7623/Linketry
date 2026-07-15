@@ -47,6 +47,7 @@ One item in "In Progress" at a time whenever possible.
 
 ## ✅ Completed — Linketry 0.11 Final Identity Cutover
 
+- [x] Set the purchased `linketry.com` domain as the official website in README, package metadata, project records, and GitHub
 - [x] Remove superseded product-name compatibility code from Worker, Admin, tests, documentation, and deployment configuration
 - [x] Migrate production D1 and R2 data to canonical Linketry resources with complete row/object verification
 - [x] Rename KV and Queue resources in place, recreate Worker and Pages projects, and transfer production domains
@@ -59,7 +60,7 @@ One item in "In Progress" at a time whenever possible.
 ## ✅ Completed — Linketry 0.10 Rebrand And Upgrade Safety
 
 - [x] Rename product, package scope, repository metadata, runtime copy, exports, notifications, and fresh-install resource defaults to Linketry
-- [x] Set author `everettlabs`, website `linketry.dev`, repository `everett7623/Linketry`, and canonical image name `everett7623/linketry`
+- [x] Set author `everettlabs`, website `linketry.com`, repository `everett7623/Linketry`, and canonical image name `everett7623/linketry`
 - [x] Move the canonical Admin API to `/api/v1` while keeping deprecated `/api/*` aliases for the `0.10.x` compatibility window
 - [x] Prefer `LINKETRY_*` Worker/Admin configuration while temporarily accepting superseded repository variables and Worker secrets
 - [x] Migrate browser-local auth/API/locale/mode keys without logging users out

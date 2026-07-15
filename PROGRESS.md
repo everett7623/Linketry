@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-07-15
+Last updated: 2026-07-16
 
 ---
 
@@ -17,7 +17,7 @@ Last updated: 2026-07-15
 | Deployment                 | ✅ Deployed            | Worker and Admin deployed; GitHub Actions deploy workflow added                                                                        |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                       |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md` |
-| Current version            | ✅ 0.11.1              | Final Linketry identity cutover complete; least-privilege CI now treats custom-domain DNS as an explicitly permissioned optional step |
+| Current version            | ✅ 0.11.2              | Official website changed to `linketry.com`; project identity and repository metadata are synchronized |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
@@ -27,7 +27,7 @@ Last updated: 2026-07-15
 
 | Area | Status | Notes |
 |---|---|---|
-| Product identity | ✅ Complete | Linketry; author `everettlabs`; website `linketry.dev`; repository `everett7623/Linketry`; image `everett7623/linketry` |
+| Product identity | ✅ Complete | Linketry; author `everettlabs`; website `linketry.com`; repository `everett7623/Linketry`; image `everett7623/linketry` |
 | API namespace | ✅ Complete | `/api/v1` is canonical; compatibility aliases remain limited to the API deprecation policy |
 | Existing data | ✅ Preserved | All 14 production D1 tables retained exact row counts; all 10 R2 backup objects copied and verified |
 | Configuration | ✅ Complete | Worker and GitHub Actions use only canonical `LINKETRY_*` configuration and secret names |

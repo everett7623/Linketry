@@ -11,7 +11,7 @@ Linketry is a self-hosted link management, analytics and monitoring platform.
 | Identity | Value |
 |---|---|
 | Author | `everettlabs` |
-| Website | [linketry.dev](https://linketry.dev) |
+| Website | [linketry.com](https://linketry.com) |
 | GitHub | [everett7623/Linketry](https://github.com/everett7623/Linketry) |
 | Docker image | `everett7623/linketry` |
 | API namespace | `/api/v1` |

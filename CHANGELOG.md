@@ -13,6 +13,14 @@ _(none)_
 
 ---
 
+## [0.11.2] - 2026-07-16
+
+### Changed
+
+- Changed the official Linketry website to [linketry.com](https://linketry.com) across README identity metadata, package metadata, project records, and the GitHub repository homepage.
+
+---
+
 ## [0.11.1] - 2026-07-15
 
 ### Fixed
@@ -98,7 +106,7 @@ _(none)_
 
 ### Changed
 
-- Renamed the previous project and runtime identity to Linketry, with author `everettlabs`, repository `everett7623/Linketry`, website `linketry.dev`, canonical Docker image name `everett7623/linketry`, and the positioning “Linketry is a self-hosted link management, analytics and monitoring platform.”
+- Renamed the previous project and runtime identity to Linketry, with author `everettlabs`, repository `everett7623/Linketry`, website `linketry.com`, canonical Docker image name `everett7623/linketry`, and the positioning “Linketry is a self-hosted link management, analytics and monitoring platform.”
 - Renamed workspace packages to `@linketry/*`, exports and UI copy to Linketry, fresh-install D1 defaults to `linketry`, and project configuration to the `LINKETRY_*` prefix.
 - Moved the canonical Admin API contract to `/api/v1/*`; all Admin API calls and current documentation now use the versioned namespace.
 - New backups, exports, cache keys, notification copy, Webhook headers, user agents, and runtime metadata use Linketry naming.
