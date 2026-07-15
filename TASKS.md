@@ -47,6 +47,7 @@ One item in "In Progress" at a time whenever possible.
 
 ## ✅ Completed — Linketry 0.11 Final Identity Cutover
 
+- [x] Prevent optional password autofill, support edit-then-clear removal, and disable stale Admin API caching
 - [x] Set the purchased `linketry.com` domain as the official website in README, package metadata, project records, and GitHub
 - [x] Remove superseded product-name compatibility code from Worker, Admin, tests, documentation, and deployment configuration
 - [x] Migrate production D1 and R2 data to canonical Linketry resources with complete row/object verification

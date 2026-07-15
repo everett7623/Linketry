@@ -100,7 +100,10 @@ export async function apiFetch<T>(
 }
 
 export async function apiGet<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const result = await apiFetch<{ success: boolean; data: T }>(path, options);
+  const result = await apiFetch<{ success: boolean; data: T }>(path, {
+    cache: 'no-store',
+    ...options,
+  });
   return result.data;
 }
 

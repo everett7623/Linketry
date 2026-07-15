@@ -13,6 +13,20 @@ _(none)_
 
 ---
 
+## [0.11.3] - 2026-07-16
+
+### Fixed
+
+- Prevented password managers from auto-filling the optional Create/Edit Link password fields, so new short links remain unprotected by default.
+- Made an edited password field that is cleared send an explicit removal request while preserving an existing password when the field is left untouched.
+- Disabled caching for Admin API GET requests and Worker JSON responses so password-protection state refreshes immediately after saving.
+
+### Tests
+
+- Added password-update policy tests, no-store response coverage, and a browser regression covering password-free creation and password removal.
+
+---
+
 ## [0.11.2] - 2026-07-16
 
 ### Changed

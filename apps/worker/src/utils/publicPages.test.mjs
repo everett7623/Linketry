@@ -9,6 +9,7 @@ import {
   resolvePublicLocale,
 } from './publicPages.ts';
 import { redirectResponse } from './redirectResponse.ts';
+import { jsonError, jsonOk } from './jsonResponse.ts';
 
 test('public pages default to English and honor language quality', () => {
   assert.equal(resolvePublicLocale(), 'en');
@@ -41,4 +42,9 @@ test('normal redirect responses preserve status and Location without a body', as
     assert.equal(response.headers.get('Location'), 'https://example.com/path');
     assert.equal(await response.text(), '');
   }
+});
+
+test('API JSON responses prevent stale Admin state from being cached', () => {
+  assert.equal(jsonOk({ ok: true }).headers.get('Cache-Control'), 'private, no-store');
+  assert.equal(jsonError('invalid').headers.get('Cache-Control'), 'private, no-store');
 });

@@ -26,6 +26,13 @@ const link = {
   updated_at: '2026-07-10T08:00:00.000Z',
 };
 
+const protectedLink = {
+  ...link,
+  id: 'link_smoke_protected',
+  slug: 'private-docs',
+  password_protected: true,
+};
+
 function apiResponse(data: unknown) {
   return {
     status: 200,
@@ -223,6 +230,14 @@ async function mockAdminApi(page: Page) {
     }
     if (path === `/api/v1/links/${link.id}` && request.method() === 'PUT') {
       await route.fulfill(apiResponse(link));
+      return;
+    }
+    if (path === `/api/v1/links/${protectedLink.id}` && request.method() === 'GET') {
+      await route.fulfill(apiResponse(protectedLink));
+      return;
+    }
+    if (path === `/api/v1/links/${protectedLink.id}` && request.method() === 'PUT') {
+      await route.fulfill(apiResponse({ ...protectedLink, password_protected: false }));
       return;
     }
     if (path === '/api/v1/links/migrate-domain/preview' && request.method() === 'POST') {
@@ -441,6 +456,42 @@ test('duplicate destinations warn without blocking create and edit excludes the 
   await expect(page.getByLabel(messages.en.destinationUrl)).toHaveValue(link.long_url);
   await page.waitForTimeout(500);
   await expect(page.getByText(/already used by/)).toHaveCount(0);
+  await page.evaluate(() => window.__assertNoBrowserErrors());
+});
+
+test('password defaults to empty and editing back to empty clears existing protection', async ({ page }) => {
+  await authenticate(page, 'en', 'advanced');
+  await page.goto('/links/create');
+
+  const createPassword = page.getByLabel(messages.en.passwordOptional);
+  await expect(createPassword).toHaveValue('');
+  await expect(createPassword).toHaveAttribute('autocomplete', 'new-password');
+  await page.getByLabel(messages.en.destinationUrl).fill('https://example.com/public');
+  await page.getByLabel(messages.en.customSlug).fill('public-docs');
+
+  const createRequestPromise = page.waitForRequest(
+    (request) => request.method() === 'POST' && new URL(request.url()).pathname === '/api/v1/links'
+  );
+  await page.getByRole('button', { name: messages.en.createLink }).click();
+  const createBody = (await createRequestPromise).postDataJSON() as Record<string, unknown>;
+  expect(createBody).not.toHaveProperty('password');
+
+  await page.goto(`/links/${protectedLink.id}/edit`);
+  const editPassword = page.getByLabel(messages.en.newPasswordOptional);
+  await expect(editPassword).toHaveValue('');
+  await expect(editPassword).toHaveAttribute('autocomplete', 'new-password');
+  await editPassword.fill('temporary-password');
+  await editPassword.fill('');
+
+  const updateRequestPromise = page.waitForRequest(
+    (request) =>
+      request.method() === 'PUT' &&
+      new URL(request.url()).pathname === `/api/v1/links/${protectedLink.id}`
+  );
+  await page.getByRole('button', { name: messages.en.saveChanges }).click();
+  const updateBody = (await updateRequestPromise).postDataJSON() as Record<string, unknown>;
+  expect(updateBody.password).toBeNull();
+  await expect(page).toHaveURL(/\/links$/);
   await page.evaluate(() => window.__assertNoBrowserErrors());
 });
 

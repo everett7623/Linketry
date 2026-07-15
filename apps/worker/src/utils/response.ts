@@ -1,4 +1,3 @@
-import type { ApiResponse } from '@linketry/shared';
 import {
   renderDisabledPage,
   renderExpiredPage,
@@ -8,26 +7,7 @@ import {
   type PublicLocale,
   type PublicPageTemplate,
 } from './publicPages';
-
-export function jsonOk<T>(data: T, status = 200): Response {
-  const body: ApiResponse<T> = { success: true, data };
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-
-export function jsonError(error: string, status = 400): Response {
-  const body: ApiResponse = { success: false, error };
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-
-export function jsonCreated<T>(data: T): Response {
-  return jsonOk(data, 201);
-}
+export { jsonCreated, jsonError, jsonOk } from './jsonResponse';
 
 const htmlHeaders = { 'Content-Type': 'text/html; charset=utf-8', Vary: 'Accept-Language' };
 

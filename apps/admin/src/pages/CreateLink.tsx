@@ -383,6 +383,7 @@ export function CreateLink() {
             <Input
               label={t('passwordOptional')}
               type="password"
+              autoComplete="new-password"
               value={form.password}
               onChange={(e) => set('password', e.target.value)}
               error={errors.password}

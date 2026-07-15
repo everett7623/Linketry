@@ -17,6 +17,7 @@ import { useAdminMode } from '../contexts/AdminModeContext';
 import { useLocale } from '../contexts/LocaleContext';
 import { getLinkNote, saveLinkNote } from '../api/linkNotes';
 import { DuplicateDestinationWarning } from '../components/links/DuplicateDestinationWarning';
+import { resolvePasswordUpdate } from '../utils/linkPassword';
 
 function toDatetimeLocal(value?: string | null): string {
   if (!value) return '';
@@ -58,6 +59,7 @@ export function EditLink() {
     fallback_url: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const [note, setNote] = useState('');
   const [noteSaving, setNoteSaving] = useState(false);
 
@@ -66,6 +68,7 @@ export function EditLink() {
     getLink(id)
       .then((l) => {
         setLink(l);
+        setPasswordTouched(false);
         const tags = l.tags ? (JSON.parse(l.tags) as string[]).join(', ') : '';
         setForm({
           long_url: l.long_url,
@@ -229,7 +232,12 @@ export function EditLink() {
       } as const;
       await updateLink(id, {
         ...payload,
-        password: form.clear_password ? null : form.password.trim() || undefined,
+        password: resolvePasswordUpdate({
+          existingPasswordProtected: link?.password_protected === true,
+          password: form.password,
+          passwordTouched,
+          clearPassword: form.clear_password,
+        }),
       });
       success(t('linkUpdated'));
       navigate('/links');
@@ -438,8 +446,12 @@ export function EditLink() {
             <Input
               label={t(link.password_protected ? 'newPasswordOptional' : 'passwordOptional')}
               type="password"
+              autoComplete="new-password"
               value={form.password}
-              onChange={(e) => set('password', e.target.value)}
+              onChange={(e) => {
+                setPasswordTouched(true);
+                set('password', e.target.value);
+              }}
               error={errors.password}
               hint={t(link.password_protected ? 'keepPasswordHint' : 'passwordHint')}
               disabled={form.clear_password}
