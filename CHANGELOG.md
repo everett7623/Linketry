@@ -13,6 +13,21 @@ _(none)_
 
 ---
 
+## [0.12.0] - 2026-07-16
+
+### Added
+
+- Added a read-only `deploy:preflight` command for fresh self-hosting, existing production upgrades, and the isolated official Demo.
+- Added optional Wrangler account, D1, and KV read checks with redacted targets and no token output.
+- Added fail-closed upgrade backup/migration gates, destructive-operation rejection, and Demo production-overlap protection.
+- Published separate manual Wrangler and GitHub Actions Admin-token guidance.
+
+### Tests
+
+- Added deployment policy coverage for credential redaction, domain validation, upgrade gates, destructive flags, Demo isolation, optional bindings, and read-only Cloudflare resource matching.
+
+---
+
 ## [0.11.3] - 2026-07-16
 
 ### Fixed

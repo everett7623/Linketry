@@ -17,7 +17,7 @@ Last updated: 2026-07-16
 | Deployment                 | ✅ Deployed            | Worker and Admin deployed; GitHub Actions deploy workflow added                                                                        |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                       |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md` |
-| Current version            | ✅ 0.11.3              | Optional passwords now default to empty, clear reliably, and refresh without stale Admin state |
+| Current version            | 🟡 0.12.0              | Read-only deployment preflight now separates fresh, upgrade, and Demo safety policies |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
@@ -34,7 +34,7 @@ Last updated: 2026-07-16
 | Admin session | ✅ Complete | Admin uses only canonical Linketry browser-storage keys |
 | Cache and backup | ✅ Complete | D1 remains the source of truth; canonical cache keys and backup markers are enforced |
 | Cloudflare | ✅ Complete | Worker, Pages, D1, KV, R2, and Queue use canonical Linketry resource names |
-| Deployment tracks | ✅ Documented | Fresh beginner install, non-destructive existing upgrade, and isolated Demo remain separate |
+| Deployment tracks | 🟡 Bootstrap in progress | Fresh, upgrade, and Demo tracks now have redacted local/Cloudflare preflight checks; guided D1/KV provisioning and rehearsals remain |
 
 ---
 
@@ -109,7 +109,7 @@ Last updated: 2026-07-16
 
 ## Next Steps
 
-1. Separate non-destructive owner production upgrades, fresh beginner installs in each user's own Cloudflare account, and the official Demo; add required-resource provisioning, backup/migration gates, preflight checks, and fresh-account/upgrade rehearsals
+1. Continue deployment Bootstrap with confirmation-gated D1/KV provisioning, workflow enforcement, binding output, and fresh-account/upgrade rehearsals; the three-track read-only preflight is complete
 2. Launch an official Linketry-domain project site and an isolated, read-only or resettable Demo after the owner selects the domain
 3. Add optional Cloudflare Access and asynchronous signed click webhooks, then complete Admin display preferences
 4. Keep themes, card views, social preview customization, broader locales, real-time visuals, optional AI, and external clients behind the foundational work

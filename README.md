@@ -23,7 +23,7 @@ Linketry is a self-hosted link management, analytics and monitoring platform.
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/everett7623/Linketry)
 [![Deploy to Cloudflare Pages](https://deploy.pages.cloudflare.com/button)](https://deploy.pages.cloudflare.com/?url=https://github.com/everett7623/Linketry)
 
-> **New to self-hosting?** Follow the [quick-start guide](docs/SELF_HOSTING.md). Installations older than 0.10 must use the [non-destructive upgrade guide](docs/UPGRADING_PRE_0_10.md) and keep their current D1/KV/R2/Queue bindings until migration is verified.
+> **New to self-hosting?** Follow the [quick-start guide](docs/SELF_HOSTING.md) and run the [read-only deployment preflight](docs/DEPLOYMENT_PREFLIGHT.md) before provisioning or deployment. Installations older than 0.10 must use the [non-destructive upgrade guide](docs/UPGRADING_PRE_0_10.md) and keep their current D1/KV/R2/Queue bindings until migration is verified.
 
 ---
 
@@ -130,6 +130,14 @@ npm run dev --workspace=apps/admin
 ## Cloudflare Setup
 
 For a new self-hosted deployment, follow [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md). It includes the Cloudflare resource checklist, template configuration, GitHub Actions variables, and smoke tests.
+
+Validate the chosen fresh, upgrade, or Demo track without changing Cloudflare resources:
+
+```bash
+npm run deploy:preflight -- --track fresh --check-cloudflare
+```
+
+See [docs/DEPLOYMENT_PREFLIGHT.md](docs/DEPLOYMENT_PREFLIGHT.md) for required gates and safe output behavior.
 
 This repository also keeps a maintainer production runbook in [DEPLOYMENT.md](DEPLOYMENT.md).
 

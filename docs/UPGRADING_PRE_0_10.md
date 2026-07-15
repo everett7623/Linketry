@@ -10,6 +10,14 @@ Linketry 0.11 completes the product-identity cutover and accepts only the canoni
 4. Set the Worker secret `LINKETRY_ADMIN_TOKEN` to the saved Admin token so existing clients continue to authenticate.
 5. Confirm the generated `wrangler.toml` binds `DB` to the intended database ID before deploying.
 
+Load the recorded production targets into the current shell, set the verified backup/migration gates, and run the read-only upgrade preflight before any migration or deploy command:
+
+```bash
+npm run deploy:preflight -- --track upgrade --check-cloudflare
+```
+
+The required gate variables and prohibited upgrade flags are documented in [Deployment Preflight](DEPLOYMENT_PREFLIGHT.md). Keep a concrete `LINKETRY_BACKUP_REFERENCE` such as the verified backup filename, R2 object, or D1 restore-point timestamp.
+
 Do not initialize, reset, seed Demo data, or copy production identifiers from the fresh-install guide during an upgrade.
 
 ## Canonical Resource Names

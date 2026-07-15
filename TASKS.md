@@ -7,7 +7,7 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🔴 In Progress
 
-- [x] V9+: Publish a versioned OpenAPI contract for `/api/v1`
+- [ ] V9+: Complete Beginner Deployment Bootstrap (read-only track preflight complete; guided D1/KV provisioning and rehearsals remain)
 
 ---
 
@@ -40,8 +40,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] V8: Normalize Admin dates, numbers, status labels, QR labels, placeholders, and API scope labels by selected locale
 - [x] V8: Localize redirect rule types, health-check details, group confirmations, and import conflict previews
 - [x] V8: Localize remaining long-tail page content, validation wording, and export/report details
-- [ ] V9: Add public read-only stats pages with privacy controls
-- [ ] V9: Improve bot classification and conversion attribution
+- [x] V9: Add public read-only stats pages with privacy controls
+- [x] V9: Improve bot classification and conversion attribution
 
 ---
 
@@ -291,17 +291,17 @@ One item in "In Progress" at a time whenever possible.
 
 ### Priority 4 — Beginner Deployment Bootstrap
 
-- [ ] Define three explicit deployment tracks: existing production upgrade, fresh beginner self-hosting, and isolated official Demo
+- [x] Define three explicit deployment tracks: existing production upgrade, fresh beginner self-hosting, and isolated official Demo
 - [ ] Keep the existing owner deployment upgradeable with its current bindings, but require a verified backup, migration-status review, and non-destructive incremental migrations before deploy
 - [ ] Prohibit production upgrades from running initialization SQL, factory reset, Demo seeding, resource recreation, or automatic binding/domain replacement
 - [ ] Provide an idempotent guided workflow or script for required D1 and KV provisioning and binding output
 - [ ] Make the beginner path create brand-new resources in the new user's own Cloudflare account without depending on Linketry maintainer domains, IDs, tokens, databases, or prior deployment state
 - [ ] Generate or collect unique beginner resource names and confirm the selected account and target resources before the first write
-- [ ] Keep R2, Queues, extra domains, and advanced Cron resources explicitly optional
-- [ ] Add permission and configuration preflight checks without printing tokens or secrets
-- [ ] Reconcile manual and GitHub Actions `LINKETRY_ADMIN_TOKEN` guidance into two clearly separated deployment paths
+- [x] Keep R2, Queues, extra domains, and advanced Cron resources explicitly optional
+- [x] Add permission and configuration preflight checks without printing tokens or secrets
+- [x] Reconcile manual and GitHub Actions `LINKETRY_ADMIN_TOKEN` guidance into two clearly separated deployment paths
 - [ ] Validate the complete basic deployment on a fresh Cloudflare account and record the smoke-test result
-- [ ] Add separate upgrade and fresh-install smoke checklists, including existing-link redirect verification for production upgrades and first-link creation for beginners
+- [x] Add separate upgrade and fresh-install smoke checklists, including existing-link redirect verification for production upgrades and first-link creation for beginners
 
 ### Priority 5 — Official Project Site And Safe Demo
 

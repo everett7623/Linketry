@@ -40,6 +40,14 @@ npx wrangler login
 npm install
 ```
 
+Before creating or deploying resources, load your selected Cloudflare and `LINKETRY_*` values into the current shell and run the read-only fresh-install preflight:
+
+```bash
+npm run deploy:preflight -- --track fresh --check-cloudflare
+```
+
+Set `LINKETRY_FRESH_INSTALL_CONFIRMED=true` only after confirming the target account and resources belong to this new installation. The command validates configuration and D1/KV read access but does not create or change anything. See [Deployment Preflight](DEPLOYMENT_PREFLIGHT.md) for the complete variable list and redaction guarantees.
+
 ## 2. Choose Names
 
 Pick values before creating resources:
@@ -117,7 +125,7 @@ Edit `apps/worker/wrangler.toml` and replace:
 | `<your-kv-namespace-id>` | The production KV namespace ID |
 | `<your-kv-preview-id>` | The preview KV namespace ID |
 
-Set the production admin token:
+For a manual Wrangler deployment, set the production admin token:
 
 ```bash
 cd apps/worker
@@ -127,6 +135,8 @@ cd ../..
 
 Use a long random value. Do not commit `.dev.vars` or real secrets.
 Do not deploy with someone else's Cloudflare resource IDs.
+
+Do not repeat this manual token step when using the GitHub Actions first-deployment path below: that path generates the Worker secret once and reports it in the deployment log. A GitHub repository secret named `LINKETRY_ADMIN_TOKEN` is only a recovery or intentional-rotation override.
 
 ## 5. Apply D1 Migrations
 
@@ -164,7 +174,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.11.3"}}
+{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.12.0"}}
 ```
 
 ## 7. Build and Deploy Admin
@@ -232,7 +242,7 @@ Leave these unset for the basic deployment; enable them later from the Admin Adv
 
 ```txt
 LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKETRY_VERSION=0.11.3
+LINKETRY_VERSION=0.12.0
 LINKETRY_COMPATIBILITY_DATE=2026-07-08
 LINKETRY_WORKER_DOMAINS=go.example.com,s.example.com
 LINKETRY_R2_BUCKET=linketry-backups
