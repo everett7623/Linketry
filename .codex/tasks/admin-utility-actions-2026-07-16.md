@@ -10,10 +10,9 @@ Place the Admin language switch, light/dark switch, and a reserved coffee-suppor
 
 ## Link Decision
 
-- Canonical reserved URL: https://everettlabs.dev/support
-- Reason: support can later include coffee, sponsorship, migration help, and other owner-defined options.
-- Future compatibility: /coffee can redirect to /support when the site is activated.
-- Current external state: everettlabs.dev has Cloudflare authority records but no resolvable site record, so the UI entry is intentionally a placeholder.
+- Canonical active URL: https://everettlabs.dev/coffee/
+- The owner supplied and activated the final Coffee destination in v0.24.0.
+- The Sidebar continues to open the external page without sending an Admin token.
 
 ## Refactor Comparison
 

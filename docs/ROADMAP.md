@@ -232,7 +232,7 @@ Ordered delivery:
 1. Done: publish an authenticated OpenAPI contract and Swagger documentation, with route drift checks.
 2. Done: warn about duplicate normalized destination URLs during create/edit while allowing intentional duplicates.
 3. In progress: fresh self-hosting now has dry-run-first, confirmation-gated, idempotent D1/KV provisioning with unique names and binding output. Fresh, upgrade, and Demo tracks share redacted preflight checks, D1/KV account verification, and fail-closed isolation checks. The production workflow enforces approved release/commit/migration state plus backup-backed upgrade gates before any Cloudflare write; the separate Demo workflow adds protected-account enforcement and exact release approvals. Fresh-account rehearsal remains.
-4. In progress: the independent official project site is live at `linketry.com`. The isolated manual Demo workflow now includes synthetic seed data, public read-only Admin/Worker enforcement, suppression of real-visitor analytics writes, and a native Worker rate limit. Provision the separate-account Worker, Pages, D1, KV, scoped credentials, and Demo short-link host, then complete live smoke tests.
+4. Done in v0.24.0: the independent official project site is live at `linketry.com`, and the isolated read-only Demo is live at `demo.linketry.com` with separate-account Worker, Pages, D1, KV, scoped credentials, synthetic data, suppressed real-visitor analytics writes, and a native Worker rate limit.
 5. Add optional Cloudflare Access authentication and asynchronous signed `link.clicked` webhooks without weakening bearer-token recovery or redirect stability.
 6. Done in v0.16.0: Admin density and optional-module visibility preferences.
 7. Theme preferences completed in v0.17.0, the optional Links card view in v0.19.0, and the community locale workflow in v0.20.0; follow with reviewed locale contributions, per-link social preview controls, and later ecosystem clients built against OpenAPI.
@@ -240,8 +240,7 @@ Ordered delivery:
 External prerequisites:
 
 - The purchased `linketry.com` apex is active on the `linketry-site` Pages project and has passed DNS, TLS, HTTP, and canonical-metadata verification.
-- The reserved everettlabs.dev/support destination requires an owner-managed page before the Admin support entry is considered live; /coffee can redirect to it later.
-- The future supporter/coffee page will use a separate owner-managed domain and is not a release blocker.
+- The owner-managed `https://everettlabs.dev/coffee/` page is the active project and Admin support destination.
 - The existing deployed Linketry instance and its data remain protected production resources; Demo workflows may not alter their DNS, bindings, migrations, backups, or stored data.
 
 Deferred presentation and ecosystem work:

@@ -11,7 +11,7 @@ function apiResponse(data: unknown) {
   };
 }
 
-test('Sidebar groups language, theme, and reserved support actions', async ({ page }) => {
+test('Sidebar groups language, theme, and active coffee support actions', async ({ page }) => {
   await page.addInitScript((version) => {
     localStorage.setItem('linketry_token', 'test-token');
     localStorage.setItem('linketry.locale', 'en');

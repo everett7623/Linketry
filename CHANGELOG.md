@@ -13,6 +13,31 @@ _(none)_
 
 ---
 
+## [0.24.0] - 2026-07-17
+
+### Added
+
+- Added first-viewport, navigation, and footer entries from `linketry.com` to the live public Demo at `https://demo.linketry.com`.
+- Added official project Coffee links to `https://everettlabs.dev/coffee/` on the project site and in the Admin Sidebar utility group.
+- Added explicit public copy that the Demo is read-only, uses synthetic data, and requires no visitor token.
+
+### Changed
+
+- Updated Demo deployment examples to use the active `demo.linketry.com` Pages custom domain and the deployed compatibility date.
+- Updated package/runtime versions, deployment fallbacks, self-hosting examples, progress records, roadmap, and task records to `0.24.0`.
+
+### Security
+
+- Kept the internal Demo `LINKETRY_ADMIN_TOKEN` as a random Worker secret; no default `Linketry` credential is exposed or accepted by the public frontend.
+- Preserved the existing Demo read-only API enforcement, synthetic-only analytics boundary, and production-account isolation.
+
+### Tests
+
+- Added project-site contract coverage for the Demo URL, Coffee URL, no-token copy, and opener protection.
+- Updated Admin browser coverage for the active Coffee support destination.
+
+---
+
 ## [0.23.0] - 2026-07-17
 
 ### Added

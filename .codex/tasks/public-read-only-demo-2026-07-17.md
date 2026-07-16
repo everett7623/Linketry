@@ -2,7 +2,7 @@
 
 ## Status
 
-Code and GitHub safety configuration are complete in v0.23.0. Live Cloudflare Demo provisioning is blocked until a second, production-isolated Cloudflare account and scoped token are available.
+Complete and live. The v0.23.0 safety layer is deployed in an isolated Cloudflare account, and v0.24.0 exposes the public Admin at `https://demo.linketry.com` without a visitor token.
 
 ## Completed
 
@@ -18,12 +18,14 @@ Code and GitHub safety configuration are complete in v0.23.0. Live Cloudflare De
 - [x] Extended the manual Demo workflow to build, migrate, seed, deploy, and summarize the isolated targets.
 - [x] Added explicit `workers.dev` routing so the first isolated launch needs no production-zone DNS permission.
 
-## External Blocker
+## Live Activation
 
-- [ ] Add a second Cloudflare account that is different from protected production account `4cc48c...99e36`.
-- [ ] Create `linketry-demo-*` D1, KV, Worker, and Pages resources in that account.
-- [ ] Add a narrowly scoped Demo API token/account ID and a separate Demo Worker hostname to the protected GitHub environment.
-- [ ] Rerun read-only preflight, approve the exact release/commit/migration digest, deploy manually, and complete live smoke tests.
+- [x] Added a second Cloudflare account that is different from the protected production account.
+- [x] Created isolated `linketry-demo-*` D1, KV, Worker, and Pages resources in that account.
+- [x] Added a narrowly scoped Demo API token/account ID and separate `workers.dev` Worker hostname to the protected GitHub environment.
+- [x] Approved the exact release/commit/migration digest, deployed manually, and completed live smoke tests.
+- [x] Activated `demo.linketry.com` on the Demo Pages project through owner-managed DNS.
+- [x] Kept the internal Admin token random and unexposed; visitors open the read-only Demo without a token.
 
 ## Verification
 

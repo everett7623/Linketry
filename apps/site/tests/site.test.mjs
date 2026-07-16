@@ -23,9 +23,19 @@ test('project site publishes the complete public-launch content contract', () =>
 test('project site uses canonical Linketry identity and public links', () => {
   assert.match(page, /<link rel="canonical" href="https:\/\/linketry\.com\/"/);
   assert.match(page, /https:\/\/github\.com\/everett7623\/Linketry/);
+  assert.match(page, /https:\/\/demo\.linketry\.com/);
+  assert.match(page, /https:\/\/everettlabs\.dev\/coffee\//);
+  assert.match(page, /No token required/);
   assert.match(page, /docs\/SELF_HOSTING\.md/);
   assert.match(page, /docs\/ROADMAP\.md/);
   assert.doesNotMatch(page, /Linkora/i);
+});
+
+test('external coffee links do not retain opener access', () => {
+  assert.match(
+    page,
+    /href="https:\/\/everettlabs\.dev\/coffee\/" target="_blank" rel="noopener noreferrer"/
+  );
 });
 
 test('project site includes accessible navigation and hardened static headers', () => {

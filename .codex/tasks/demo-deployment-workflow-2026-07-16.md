@@ -2,7 +2,7 @@
 
 ## Status
 
-Deployment isolation completed in Linketry v0.18.0; public read-only and synthetic-data controls completed in v0.23.0. Live isolated resources remain external.
+Deployment isolation completed in Linketry v0.18.0; public read-only and synthetic-data controls completed in v0.23.0; isolated resources and `demo.linketry.com` are live as of v0.24.0.
 
 ## Scope
 
@@ -23,7 +23,7 @@ Deployment isolation completed in Linketry v0.18.0; public read-only and synthet
 
 - The Demo API token must be scoped to a separate Cloudflare account with no production write capability.
 - The workflow remains manual until the separate account, resources, credentials, and hostnames are reviewed.
-- Resource provisioning, DNS activation, and live Demo smoke tests remain separate follow-up work.
+- Separate-account resource provisioning, Pages custom-domain activation, and live Demo smoke tests are complete.
 - Redirect logic, D1 schema, production workflow behavior, and production data are not changed by this slice.
 
 ## Verification

@@ -13,9 +13,7 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🟡 Next — Operations And UX Planning
 
-- [ ] Provision and smoke-test the isolated public Demo after a second Cloudflare account and scoped token are available
 - [ ] V9+: Integrate next high-value Shlink capabilities into Linketry (multi-segment slugs, extra-path forwarding, expired-link cleanup)
-- [ ] Activate the owner-managed everettlabs.dev/support page and optionally redirect /coffee to it
 
 - [x] V7: Add configurable backup retention, starting with a 30-day default
 - [x] V7: Add periodic target health monitoring, failure alerts, recovery alerts, and bounded status history
@@ -46,6 +44,17 @@ One item in "In Progress" at a time whenever possible.
 - [x] V8: Add accessible per-browser light, dark, and system theme preferences
 - [x] V9: Add public read-only stats pages with privacy controls
 - [x] V9: Improve bot classification and conversion attribution
+
+---
+
+## ✅ Completed — Public Demo And Coffee Entry Points (v0.24.0)
+
+- [x] Provision and smoke-test isolated D1, KV, Worker, and Pages resources in a separate Cloudflare account
+- [x] Activate the read-only Admin at https://demo.linketry.com with synthetic data and no visitor token
+- [x] Preserve a random internal Worker Admin token without exposing it in the public frontend
+- [x] Add Live Demo entry points to the official site header, hero, and footer
+- [x] Activate https://everettlabs.dev/coffee/ as the project and Admin support destination
+- [x] Keep redirect logic, production Worker resources, D1, KV, and migrations unchanged
 
 ---
 
@@ -80,7 +89,7 @@ One item in "In Progress" at a time whenever possible.
 
 - [x] Group language, light/dark theme, and owner support into three equal Sidebar icon controls
 - [x] Keep the complete language selector on Login and Settings
-- [x] Reserve https://everettlabs.dev/support as the canonical support destination
+- [x] Centralize the owner-support destination behind one external-link constant
 - [x] Open external support without an Admin token and with noopener/noreferrer protection
 - [x] Split the 251-line Sidebar into navigation, utility, and Footer modules without changing its 17 routes
 - [x] Add EN/ZH accessible labels and Playwright coverage
@@ -362,15 +371,15 @@ One item in "In Progress" at a time whenever possible.
 
 - [x] Prepare an official Linketry-domain site with product introduction, feature overview, screenshots, architecture, deployment entry, documentation, roadmap, license, and GitHub links
 - [x] Use the owner-supplied `linketry.com` domain while keeping apex-domain activation as an explicit DNS prerequisite
-- [ ] Deploy the Demo with isolated D1/KV/optional R2 resources and synthetic data only
-- [ ] Give the Demo unique Worker, Pages, D1, KV, R2, Queue, Token, and domain identifiers; never reuse the existing production bindings or project names
+- [x] Deploy the Demo with isolated D1/KV resources and synthetic data only
+- [x] Give the Demo unique Worker, Pages, D1, KV, Token, and domain identifiers; never reuse the existing production bindings or project names
 - [x] Fail the Demo deployment before migrations or deploy commands when any protected production account, resource identifier, name, or domain matches
 - [x] Keep Demo workflows separate from the production `main` deployment workflow and prohibit Demo automation from changing production DNS, bindings, migrations, backups, or data
-- [ ] Make the Demo read-only or automatically reset it on a documented schedule, and rate-limit abuse-prone operations
-- [ ] Use a separate Demo short-link host and never expose production credentials or shared writable secrets in the frontend
+- [x] Make the Demo read-only and rate-limit abuse-prone API reads
+- [x] Use a separate Demo Worker hostname and never expose production credentials or shared writable secrets in the frontend
 - [x] Take and verify an independent production backup before any future production deployment change associated with the public launch
-- [ ] Add deployment and smoke coverage for the project site, Admin Demo, and sample redirect
-- [ ] Add the supporter link only after the owner provides the separate coffee-site URL
+- [x] Add deployment and smoke coverage for the project site, Admin Demo, and sample redirect
+- [x] Add the supporter link after the owner provided https://everettlabs.dev/coffee/
 
 ### Priority 6 — Optional Access And Click Integrations
 

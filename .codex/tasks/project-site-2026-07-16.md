@@ -9,6 +9,7 @@ Complete. The independent Pages project is deployed and `linketry.com` is active
 - [x] Added an independent static Vite workspace under `apps/site`.
 - [x] Reused the canonical Linketry mark and dark cyan/blue/indigo brand system.
 - [x] Added product introduction, feature overview, Admin interface preview, architecture, self-hosting entry, docs, roadmap, license, and GitHub links.
+- [x] Added header, first-viewport, and footer links to the live read-only Demo plus the owner-managed Coffee page in v0.24.0.
 - [x] Added responsive navigation, skip link, semantic landmarks, reduced-motion support, hardened Pages headers, robots policy, sitemap, and custom 404 page.
 - [x] Added project-site contract tests and a production workflow build/deploy path behind the existing release safety gate.
 - [x] Created the isolated `linketry-site` Cloudflare Pages project without changing Worker, D1, KV, R2, Queue, Admin, or short-link resources.

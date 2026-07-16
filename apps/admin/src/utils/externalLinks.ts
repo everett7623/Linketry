@@ -1,1 +1,1 @@
-export const EVERETTLABS_SUPPORT_URL = 'https://everettlabs.dev/support';
+export const EVERETTLABS_SUPPORT_URL = 'https://everettlabs.dev/coffee/';

@@ -123,6 +123,12 @@ p {
 .site-nav a:hover {
   color: #f8fbff;
 }
+.site-nav .nav-demo {
+  color: #75e6c1;
+}
+.site-nav .nav-demo:hover {
+  color: #b7f7e2;
+}
 .site-nav .nav-github {
   padding: 9px 15px;
   border: 1px solid var(--line-strong);
@@ -245,10 +251,30 @@ h1 em {
   box-shadow: 0 15px 40px rgba(8, 145, 178, 0.18);
   color: white;
 }
+.button.demo {
+  border-color: rgba(93, 194, 163, 0.45);
+  background: #1f8f70;
+  box-shadow: 0 15px 40px rgba(31, 143, 112, 0.16);
+  color: white;
+}
+.button.demo:hover {
+  border-color: rgba(117, 230, 193, 0.7);
+  background: #257f67;
+}
 .button.secondary {
   border-color: var(--line-strong);
   background: rgba(15, 30, 50, 0.5);
   color: #d5dfeb;
+}
+.demo-status {
+  margin: 14px 0 0;
+  color: #7890a7;
+  font-size: 11px;
+  font-weight: 650;
+}
+.demo-status span {
+  margin: 0 7px;
+  color: #3c536b;
 }
 .proof {
   display: flex;

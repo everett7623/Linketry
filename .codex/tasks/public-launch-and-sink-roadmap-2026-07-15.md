@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementation is in progress. Bulk UTM, OpenAPI, duplicate detection, the project site, deployment safety foundations, and Admin display preferences are delivered; fresh-account rehearsal, site-domain activation, the isolated Demo, and optional integrations remain.
+Implementation is in progress. Bulk UTM, OpenAPI, duplicate detection, the project site, deployment safety foundations, Admin display preferences, the isolated live Demo, and the Coffee entry are delivered; fresh-account rehearsal and optional integrations remain.
 
 ## Confirmed Decisions
 
@@ -40,7 +40,7 @@ Detailed acceptance criteria are tracked in `TASKS.md` and the phase boundaries 
 - Demo credentials must not authorize production or unrestricted destructive actions.
 - Any future production deployment change related to the public launch requires a verified production backup first.
 - Analytics, webhooks, AI, and presentation features must not block redirects.
-- No sponsor URL is committed until the owner supplies the final lawful destination.
+- The owner-supplied project support destination is `https://everettlabs.dev/coffee/`.
 
 ## Verification For Future Implementation
 
@@ -48,6 +48,6 @@ Detailed acceptance criteria are tracked in `TASKS.md` and the phase boundaries 
 - [ ] Admin build, unit tests, and browser smoke coverage for each UI phase.
 - [ ] Fresh-account deployment rehearsal before calling beginner deployment complete.
 - [ ] Existing-production upgrade rehearsal proves that stored links and analytics survive the release.
-- [ ] Demo isolation, reset, abuse-control, and secret-exposure checks before public launch.
-- [ ] Production-resource mismatch checks prove that Demo deployment stops before any write when identifiers overlap.
+- [x] Demo isolation, read-only behavior, abuse-control, and secret-exposure checks completed before public launch.
+- [x] Production-resource mismatch checks prove that Demo deployment stops before any write when identifiers overlap.
 - [ ] Release metadata, changelog, progress, task, roadmap, and diff checks for every completed phase.

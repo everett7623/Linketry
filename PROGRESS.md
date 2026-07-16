@@ -14,12 +14,24 @@ Last updated: 2026-07-17
 | Admin frontend             | ✅ V8 complete         | EN/ZH, display preferences, themes, updates, table/card views, grouped Sidebar utilities, and traffic-alert controls are browser tested                                                                 |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
-| Deployment                 | 🟡 Demo provisioning   | Production and `linketry.com` are live; the Demo workflow, read-only controls, rate limit, and synthetic seed are complete; separate-account Demo resources remain                                       |
+| Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.23.0              | The official site is active and the isolated public Demo software/safety layer is implemented and verified locally                                                                                     |
+| Current version            | ✅ 0.24.0              | The official site links to the live no-token Demo and the owner-managed Coffee page                                                                                                                     |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.24.0 Public Demo And Coffee Entry Points
+
+| Area                 | Status      | Notes                                                                                         |
+| -------------------- | ----------- | --------------------------------------------------------------------------------------------- |
+| Official site Demo   | ✅ Live     | `linketry.com` links to `https://demo.linketry.com` in the header, hero, and footer           |
+| Visitor access       | ✅ No token | Public reads open directly; the internal Admin token remains a random, unexposed Worker secret |
+| Demo data boundary   | ✅ Enforced | The public instance is read-only, synthetic-only, rate-limited, and isolated from production  |
+| Coffee destination   | ✅ Active   | Project-site and Admin support actions use `https://everettlabs.dev/coffee/`                  |
+| Redirect-path impact | ✅ None     | No redirect handler, D1, KV, migration, or production Worker behavior changed                 |
 
 ---
 
@@ -33,7 +45,7 @@ Last updated: 2026-07-17
 | Worker enforcement      | ✅ Read only        | Mutating Demo API requests return 403, while safe reads can bypass owner authentication only in explicit Demo mode         |
 | Synthetic-only boundary | ✅ Enforced         | Redirects still work, but public visits do not change Demo analytics; deploys refresh an idempotent synthetic dataset      |
 | Abuse control           | ✅ Implemented      | Demo API reads use Cloudflare's native Rate Limiting binding with a hashed client key and 120 requests/minute             |
-| Live Demo resources     | 🟡 External blocker | A second Cloudflare account, scoped token, isolated D1/KV/Worker/Pages, hostname, and live smoke tests are still required  |
+| Live Demo resources     | ✅ Live             | Separate-account D1/KV/Worker/Pages resources and scoped credentials are active and smoke tested                          |
 
 ---
 
@@ -57,7 +69,7 @@ Last updated: 2026-07-17
 | Sidebar utilities | ✅ Complete  | Language, light/dark theme, and support are three equal icon controls                     |
 | Language          | ✅ Preserved | Sidebar cycles registered locales; Login and Settings retain the full selector            |
 | Theme             | ✅ Complete  | Quick action switches the resolved light/dark theme; Settings still supports system mode  |
-| Support           | 🟡 Reserved  | Canonical link is https://everettlabs.dev/support; the external page is not yet active    |
+| Support           | ✅ Active    | Canonical project-support link is https://everettlabs.dev/coffee/                         |
 | Refactor safety   | ✅ Verified  | All 17 routes and four navigation groups retain their original order and visibility flags |
 | Runtime impact    | ✅ None      | Worker, redirects, API, D1, KV, and deployment behavior are unchanged                     |
 
@@ -86,7 +98,7 @@ Last updated: 2026-07-17
 | Admin session     | ✅ Complete              | Admin uses only canonical Linketry browser-storage keys                                                                                                                        |
 | Cache and backup  | ✅ Complete              | D1 remains the source of truth; canonical cache keys and backup markers are enforced                                                                                           |
 | Cloudflare        | ✅ Complete              | Worker, Pages, D1, KV, R2, and Queue use canonical Linketry resource names                                                                                                     |
-| Deployment tracks | 🟡 Rehearsal in progress | Guided D1/KV provisioning, redacted preflight checks, production enforcement, and an isolated manual Demo workflow are complete; fresh-account and live Demo rehearsals remain |
+| Deployment tracks | 🟡 Rehearsal in progress | Guided D1/KV provisioning, production enforcement, and the isolated live Demo are complete; only the beginner fresh-account rehearsal remains                    |
 
 ---
 
@@ -162,10 +174,9 @@ Last updated: 2026-07-17
 ## Next Steps
 
 1. Complete deployment Bootstrap with a fresh-account first-link rehearsal; guided provisioning, three-track preflight, production enforcement, and the separate Demo workflow are complete
-2. Provision the reviewed `linketry-demo-*` resources in a second Cloudflare account, add scoped credentials and a separate Demo Worker hostname, then deploy and run live smoke tests
-3. Add optional Cloudflare Access and asynchronous signed click webhooks without weakening bearer-token recovery or redirect stability
-4. Keep social preview customization, new reviewed locale catalogs, real-time visuals, optional AI, and external clients behind the foundational work
-5. Keep the separate supporter/coffee domain and Shlink retirement operations deferred until their external prerequisites are ready
+2. Add optional Cloudflare Access and asynchronous signed click webhooks without weakening bearer-token recovery or redirect stability
+3. Keep social preview customization, new reviewed locale catalogs, real-time visuals, optional AI, and external clients behind the foundational work
+4. Keep Shlink retirement operations deferred until their external prerequisites are ready
 
 ---
 
