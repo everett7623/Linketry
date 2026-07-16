@@ -13,6 +13,24 @@ _(none)_
 
 ---
 
+## [0.20.1] - 2026-07-16
+
+### Fixed
+
+- Synchronized the production workflow's generated Worker version fallback with the reviewed Linketry release instead of retaining the stale `0.18.0` value.
+- Documented the exact approval recovery sequence used when a production deployment is safely blocked by stale release or commit variables.
+
+### Security
+
+- Production still requires an exact release, commit, migration digest, verified backup, reviewed migrations, and confirmed upgrade target before any Cloudflare write.
+- Migration SQL, redirect behavior, D1/KV bindings, stored data, and API contracts are unchanged.
+
+### Tests
+
+- Re-ran deployment safety policies and the affected Worker, Admin, and project-site checks before updating production approval variables.
+
+---
+
 ## [0.20.0] - 2026-07-16
 
 ### Added

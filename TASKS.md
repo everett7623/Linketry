@@ -302,6 +302,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Keep R2, Queues, extra domains, and advanced Cron resources explicitly optional
 - [x] Add permission and configuration preflight checks without printing tokens or secrets
 - [x] Reconcile manual and GitHub Actions `LINKETRY_ADMIN_TOKEN` guidance into two clearly separated deployment paths
+- [x] Recover the v0.20 deployment through the v0.20.1 workflow fallback fix and exact production release/commit approvals
 - [ ] Validate the complete basic deployment on a fresh Cloudflare account and record the smoke-test result
 - [x] Add separate upgrade and fresh-install smoke checklists, including existing-link redirect verification for production upgrades and first-link creation for beginners
 
