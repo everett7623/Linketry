@@ -6,11 +6,11 @@ Linketry records redirect analytics asynchronously so a statistics failure never
 
 The Admin panel has two dashboard-style pages:
 
-| Page | Purpose |
-|------|---------|
-| Overview | High-level dashboard with total links, total clicks, today's clicks, recently created links, and top links by clicks |
-| Analytics | Filterable traffic dashboard for attribution, targets, UTM dimensions, and conversions |
-| Link Analytics | Single-link detail page with daily trend, referrers, devices, redirect targets, and conversions |
+| Page           | Purpose                                                                                                              |
+| -------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Overview       | High-level dashboard with total links, total clicks, today's clicks, recently created links, and top links by clicks |
+| Analytics      | Filterable traffic dashboard for attribution, targets, UTM dimensions, and conversions                               |
+| Link Analytics | Single-link detail page with daily trend, referrers, devices, redirect targets, and conversions                      |
 
 ## Tracked Visit Data
 
@@ -111,8 +111,13 @@ Retention cleanup runs separately from scheduled backups. Cleanup failures are l
 
 Linketry stores a hash of the visitor IP rather than the raw IP address. The unique visitor count is approximate because it is based on distinct hashed IPs in the selected date range.
 
+Public read-only statistics are implemented with per-link opt-in, hashed share tokens, bounded date ranges, optional country/referrer disclosure, noindex/nofollow responses, and private no-store caching. Public sharing is disabled by default.
+
 ## Future Analytics Ideas
 
-- Better bot classification
-- Public read-only stats pages
-- More conversion attribution fields, such as client-provided visitor/session IDs
+- Privacy-safe session or visitor-level conversion attribution
+- More conversion attribution fields, such as external campaign IDs and client-provided visitor IDs
+- Scheduled traffic anomaly detection for unusual click volume, referrer changes, country shifts, or bot-rate changes
+- Configurable thresholds, suppression windows, and recovery notices for anomaly alerts
+
+Traffic anomaly detection must use bounded scheduled or post-processing work. It must not add synchronous queries, target probes, or notification delivery to the redirect path. Alert designs should include minimum-volume thresholds and explainable evidence to reduce false positives.

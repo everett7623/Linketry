@@ -13,15 +13,15 @@ export interface ImportAdapter {
 
 ## Current Adapters
 
-| Adapter | File | Formats |
-|---------|------|---------|
-| Shlink | `apps/worker/src/importers/shlink.ts` | JSON, JSONL, CSV, API pull |
-| Sink | `apps/worker/src/importers/platforms.ts` | JSON, JSONL |
-| YOURLS | `apps/worker/src/importers/platforms.ts` | JSON, JSONL |
-| Dub | `apps/worker/src/importers/platforms.ts` | JSON, JSONL |
-| Linketry backup | `apps/worker/src/importers/platforms.ts` | `backup.json` |
-| Generic CSV | `apps/worker/src/importers/generic.ts` | CSV |
-| Generic JSON | `apps/worker/src/importers/generic.ts` | JSON, JSONL-style newline objects, wrapped arrays |
+| Adapter         | File                                     | Formats                                           |
+| --------------- | ---------------------------------------- | ------------------------------------------------- |
+| Shlink          | `apps/worker/src/importers/shlink.ts`    | JSON, JSONL, CSV, API pull                        |
+| Sink            | `apps/worker/src/importers/platforms.ts` | JSON, JSONL                                       |
+| YOURLS          | `apps/worker/src/importers/platforms.ts` | JSON, JSONL                                       |
+| Dub             | `apps/worker/src/importers/platforms.ts` | JSON, JSONL                                       |
+| Linketry backup | `apps/worker/src/importers/platforms.ts` | `backup.json`                                     |
+| Generic CSV     | `apps/worker/src/importers/generic.ts`   | CSV                                               |
+| Generic JSON    | `apps/worker/src/importers/generic.ts`   | JSON, JSONL-style newline objects, wrapped arrays |
 
 Adapters are registered in `apps/worker/src/routes/importRoutes.ts`.
 
@@ -42,6 +42,20 @@ Example:
 
 The generic adapter still falls back to built-in aliases such as `code`, `alias`, `destination`, `url`, `labels`, and `categories`.
 
+## Candidate Adapters
+
+The original Linketry plan identified Bitly, Rebrandly, and TinyURL as useful migration sources. They remain candidates rather than implemented adapters.
+
+| Candidate | Status                       | Requirement before implementation                         |
+| --------- | ---------------------------- | --------------------------------------------------------- |
+| Bitly     | Planned when demand is clear | Real redacted API/export fixtures and pagination behavior |
+| Rebrandly | Deferred                     | Real redacted export fixtures and domain/slug examples    |
+| TinyURL   | Deferred                     | Real redacted export fixtures and account/export shape    |
+
+Do not infer a production field contract from an old planning table or a platform name. Before implementation, collect representative current exports, record format/version details, confirm how custom domains and click totals are represented, and define fixtures that contain no credentials or personal data.
+
+Prioritize adapters based on user migration demand and maintainability. A platform-specific adapter should provide more reliable normalization than the Generic importer; otherwise, document a Generic field mapping instead.
+
 ## Adding an Adapter
 
 1. Create `apps/worker/src/importers/<source>.ts`.
@@ -50,6 +64,16 @@ The generic adapter still falls back to built-in aliases such as `code`, `alias`
 4. Register the adapter in `importRoutes.ts`.
 5. Add source selection in `apps/admin/src/pages/ImportExport.tsx`.
 6. Add tests or at least local preview/confirm smoke checks.
+
+Adapter acceptance also requires:
+
+- representative redacted fixtures;
+- detection that does not claim unrelated Generic payloads;
+- preview counts for valid, conflict, and invalid rows;
+- skip, rename, and overwrite coverage;
+- preservation of source slug and short domain when the source provides them;
+- bounded asynchronous confirmation for large files;
+- downloadable failure reporting.
 
 ## Conflict Rules
 

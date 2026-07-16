@@ -79,6 +79,10 @@ export const settingsPageMessages = {
     lightThemeHelp: 'Use a bright, high-contrast workspace.',
     darkTheme: 'Dark',
     darkThemeHelp: 'Use the original low-light workspace.',
+    quickActions: 'Quick actions',
+    switchLanguage: 'Language: {current}. Switch to {next}.',
+    switchTheme: 'Switch to {theme} theme.',
+    supportEverettlabs: 'Support everettlabs',
   },
   'zh-CN': {
     bulkCreateLinks: '批量创建短链',
@@ -156,5 +160,9 @@ export const settingsPageMessages = {
     lightThemeHelp: '使用明亮且高对比度的工作界面。',
     darkTheme: '深色',
     darkThemeHelp: '使用原有的低光环境工作界面。',
+    quickActions: '快捷操作',
+    switchLanguage: '当前语言：{current}。切换到 {next}。',
+    switchTheme: '切换到{theme}主题。',
+    supportEverettlabs: '请 everettlabs 喝杯咖啡',
   },
 } as const;

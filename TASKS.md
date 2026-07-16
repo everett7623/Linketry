@@ -14,6 +14,7 @@ One item in "In Progress" at a time whenever possible.
 ## 🟡 Next — Operations And UX Planning
 
 - [ ] V9+: Integrate next high-value Shlink capabilities into Linketry (multi-segment slugs, extra-path forwarding, expired-link cleanup)
+- [ ] Activate the owner-managed everettlabs.dev/support page and optionally redirect /coffee to it
 
 - [x] V7: Add configurable backup retention, starting with a 30-day default
 - [x] V7: Add periodic target health monitoring, failure alerts, recovery alerts, and bounded status history
@@ -44,6 +45,29 @@ One item in "In Progress" at a time whenever possible.
 - [x] V8: Add accessible per-browser light, dark, and system theme preferences
 - [x] V9: Add public read-only stats pages with privacy controls
 - [x] V9: Improve bot classification and conversion attribution
+
+---
+
+## ✅ Completed — Admin Utility Actions (v0.21.0)
+
+- [x] Group language, light/dark theme, and owner support into three equal Sidebar icon controls
+- [x] Keep the complete language selector on Login and Settings
+- [x] Reserve https://everettlabs.dev/support as the canonical support destination
+- [x] Open external support without an Admin token and with noopener/noreferrer protection
+- [x] Split the 251-line Sidebar into navigation, utility, and Footer modules without changing its 17 routes
+- [x] Add EN/ZH accessible labels and Playwright coverage
+
+---
+
+## ✅ Completed — Development Documentation Consolidation (v0.20.2)
+
+- [x] Add a code-backed architecture guide for redirect, cache, async, data, and failure boundaries
+- [x] Add a contributor development guide for code placement, verification, deployment tracks, and release hygiene
+- [x] Link maintained developer documents from README
+- [x] Record Bitly, Rebrandly, and TinyURL as fixture-gated candidate adapters
+- [x] Correct completed Analytics documentation and add privacy-safe traffic anomaly detection to future scope
+- [x] Preserve automatic fallback_url use as an opt-in, redirect-safe evaluation item rather than current behavior
+- [x] Keep historical names, domains, API examples, and obsolete schema assumptions out of current guidance
 
 ---
 
@@ -664,13 +688,13 @@ Deployment experience:
 - [x] Hide advanced controls inside link forms and the Links table when Simple mode is active
 - [x] Advanced mode exposes Redirect Rules, Webhooks, API Tokens, advanced Analytics filters, backups internals, and bulk tooling
 - [x] Advanced Setup reports R2, Queue, and multi-domain runtime capabilities
-- [ ] Instance-level feature visibility settings for optional modules
-- [ ] Per-browser or per-admin preferences for sidebar density, table density, and advanced panels
+- [x] Instance-level feature visibility settings for optional modules
+- [x] Per-browser or per-admin preferences for sidebar density, table density, and advanced panels
 - [x] Required first-run setup wizard for new self-hosters
 - [x] Language switcher with English as default and Simplified Chinese as an option
-- [ ] Complete i18n coverage for remaining labels, validation messages, empty states, errors, and documentation links
-- [ ] Locale-aware date, time zone, number, and CSV/export formatting settings
-- [ ] Contextual help text for advanced fields only when advanced mode is enabled
+- [x] Complete i18n coverage for remaining labels, validation messages, empty states, errors, and documentation links
+- [x] Locale-aware date, time zone, number, and CSV/export formatting settings
+- [x] Contextual help text for advanced fields only when advanced mode is enabled
 
 ## 🔵 Backlog — V9 Growth Tools, Reporting, And Link Intelligence
 
@@ -685,8 +709,10 @@ Deployment experience:
 - [x] Saved Analytics filters and reusable report views
 - [ ] Privacy-safe session or visitor-level conversion attribution
 - [ ] Additional conversion attribution fields, such as external campaign IDs and client-provided visitor IDs
+- [ ] Scheduled privacy-safe traffic anomaly alerts with explainable thresholds and suppression
+- [ ] Evaluate opt-in fallback_url failover using previously recorded health state, without synchronous redirect-path probes
 - [ ] Long-idle auto-archive rules with review queue and dry-run mode
-- [ ] Additional import adapters when demand is clear, such as Bitly
+- [ ] Additional fixture-backed import adapters when demand is clear: Bitly, Rebrandly, and TinyURL
 
 ## 🔵 Backlog — V10 Collaboration And Governance
 

@@ -13,6 +13,57 @@ _(none)_
 
 ---
 
+## [0.21.0] - 2026-07-16
+
+### Added
+
+- Added one compact Sidebar group with equal language, light/dark theme, and coffee-support icon controls.
+- Reserved https://everettlabs.dev/support as the canonical owner-support destination, with /coffee available for a future redirect.
+- Added EN/ZH accessible names and real-browser coverage for the three controls, persistence, and external-link safety.
+
+### Changed
+
+- Split the oversized Sidebar into focused navigation, Footer, and utility-action modules while preserving all 17 routes, four groups, and existing visibility rules.
+- Kept the full locale selector on Login and Settings while making the Sidebar language action cycle the registered locale catalog.
+- Kept system-theme selection in Settings while providing a direct light/dark Sidebar toggle.
+
+### Security
+
+- The external support link opens with noopener and noreferrer and does not receive the Admin token.
+- Worker routes, redirects, API contracts, D1, KV, Cloudflare bindings, and stored data are unchanged.
+
+### Tests
+
+- Passed 35 Admin unit tests, 12 real-browser Admin smoke tests, Admin and project-site production builds, Worker type-check and 60 Worker tests, 35 deployment safety tests, and release consistency checks.
+
+---
+
+## [0.20.2] - 2026-07-16
+
+### Added
+
+- Added a code-backed architecture guide covering the current redirect path, D1/KV ownership, asynchronous work, data model, failure isolation, and extension boundaries.
+- Added a contributor development guide covering code placement, API and migration changes, import acceptance, verification, deployment tracks, and release hygiene.
+- Added maintained roadmap entries for fixture-backed Bitly, Rebrandly, and TinyURL adapters, privacy-safe traffic anomaly detection, and a redirect-safe evaluation of optional fallback failover.
+
+### Changed
+
+- Added a README developer-documentation index and synchronized V8/V9 status summaries.
+- Updated Import and Analytics documentation so completed features and future requirements match current code and roadmap state.
+- Corrected stale V8 task checkboxes and routed useful requirements from the original project plan into maintained repository documents.
+
+### Security
+
+- New adapter guidance requires real redacted fixtures and forbids guessed source contracts.
+- Future anomaly alerts and fallback evaluation are explicitly kept off the redirect hot path.
+- Redirect behavior, API contracts, D1 schema, KV keys, Cloudflare bindings, secrets, and production data are unchanged.
+
+### Tests
+
+- Passed documentation link/structure and release metadata checks, Worker type-check and 60 Worker tests, 35 deployment safety tests, Admin and project-site production builds, and diff checks.
+
+---
+
 ## [0.20.1] - 2026-07-16
 
 ### Fixed

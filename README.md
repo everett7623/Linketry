@@ -8,15 +8,15 @@ Linketry is a self-hosted link management, analytics and monitoring platform.
 
 自托管短链接管理、访问分析与健康监控平台。
 
-| Identity | Value |
-|---|---|
-| Author | `everettlabs` |
-| Website | [linketry.com](https://linketry.com) |
-| GitHub | [everett7623/Linketry](https://github.com/everett7623/Linketry) |
-| Docker image | `everett7623/linketry` |
-| API namespace | `/api/v1` |
-| Environment prefix | `LINKETRY_` |
-| Fresh-install D1 name | `linketry` |
+| Identity              | Value                                                           |
+| --------------------- | --------------------------------------------------------------- |
+| Author                | `everettlabs`                                                   |
+| Website               | [linketry.com](https://linketry.com)                            |
+| GitHub                | [everett7623/Linketry](https://github.com/everett7623/Linketry) |
+| Docker image          | `everett7623/linketry`                                          |
+| API namespace         | `/api/v1`                                                       |
+| Environment prefix    | `LINKETRY_`                                                     |
+| Fresh-install D1 name | `linketry`                                                      |
 
 > **Core Principle:** Redirect stability first. Stats failures must never break redirects.
 
@@ -41,6 +41,7 @@ For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING
 - ⚡ Fast short link redirects via Cloudflare Workers + KV cache
 - 🔒 Admin panel with token authentication
 - Authenticated Admin startup checks for newer upstream GitHub versions, with a cached and dismissible EN/ZH update notice
+- Compact Sidebar actions for language, light/dark theme, and the reserved owner support page
 - 🔗 Create, edit, disable, archive, and delete short links
 - Switch the Links workspace between the default table and a responsive per-browser card view with the same confirmed actions
 - Bulk create short links and bulk update selected links
@@ -90,6 +91,15 @@ linketry/
 │   └── 0002_analytics_depth.sql
 └── docs/                # Extended documentation
 ```
+
+## Developer Documentation
+
+- [Architecture](docs/ARCHITECTURE.md) — current redirect path, runtime components, data ownership, and failure boundaries
+- [Development guide](docs/DEVELOPMENT.md) — code placement, safe workflow, verification, and release hygiene
+- [API contract](docs/API.md) — authenticated route behavior and examples
+- [Import adapters](docs/IMPORT_ADAPTERS.md) — adapter contract, supported sources, and candidate integrations
+- [Analytics](docs/ANALYTICS.md) — tracking, privacy, reporting, and future analysis
+- [Roadmap](docs/ROADMAP.md) — completed scope and future product direction
 
 ## Local Development
 
@@ -201,11 +211,11 @@ wrangler secret put LINKETRY_ADMIN_TOKEN
 
 See `.env.example`, `apps/worker/.dev.vars.example`, and `apps/admin/.env.example` for all required variables.
 
-| Variable          | Description                       |
-| ----------------- | --------------------------------- |
-| `LINKETRY_ADMIN_TOKEN`     | Bearer token for admin API auth   |
-| `LINKETRY_VERSION` | Current version string (optional) |
-| `VITE_LINKETRY_API_URL`    | API base URL for admin frontend   |
+| Variable                | Description                       |
+| ----------------------- | --------------------------------- |
+| `LINKETRY_ADMIN_TOKEN`  | Bearer token for admin API auth   |
+| `LINKETRY_VERSION`      | Current version string (optional) |
+| `VITE_LINKETRY_API_URL` | API base URL for admin frontend   |
 
 ## Deploy
 
@@ -323,8 +333,8 @@ The Admin includes an **Overview** dashboard, a filterable **Analytics** dashboa
 | **V5** ✅          | Open-source packaging, self-hosting docs, template config, reusable deploy workflow                                             |
 | **V6** ✅          | Analytics depth: per-link pages, filters, UTM, A/B targets, conversions, reports, retention                                     |
 | **V7** In Progress | Operations: one-click restore, backup retention, target monitoring, alerts, custom status pages                                 |
-| **V8** In Progress | Usability: Simple / Advanced mode, required first-run wizard, and default-English EN/ZH foundation implemented                  |
-| **V9** Planned     | Growth: bulk URL/UTM operations, public stats, notes, OpenGraph previews, scheduled reports                                     |
+| **V8** ✅          | Usability: Simple / Advanced mode, first-run wizard, EN/ZH, themes, density, card view, and update notices                      |
+| **V9** In Progress | Growth: bulk URL/UTM operations, public stats, notes, OpenGraph previews, scheduled reports, attribution, and lifecycle tools   |
 | **V10** Future     | Collaboration: multi-user, roles, teams, governance, optional managed services                                                  |
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for details.

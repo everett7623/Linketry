@@ -137,8 +137,9 @@ Done:
 Future optional enhancements:
 
 - Done: better bot classification for search, preview, AI, SEO, monitoring, and automation clients
-- Public read-only stats pages
+- Done: public read-only stats pages with per-link opt-in and privacy controls
 - Session or visitor-level conversion attribution
+- Scheduled privacy-safe traffic anomaly detection with explainable thresholds and suppression
 
 ## Long-Term Product Principles
 
@@ -187,6 +188,7 @@ Planned:
 - Done: instance-level feature visibility settings for optional modules, while keeping core and recovery routes reachable
 - Done: per-browser sidebar and table density preferences with Simple/Advanced mode compatibility
 - Done: accessible per-browser light, dark, and system-following theme preferences
+- Done in v0.21.0: one compact Sidebar group for language, light/dark theme, and a reserved owner support link
 - Done: required first-run setup wizard verifies API readiness, one default short domain, and the first link from real instance state
 - Done: language switcher with English as the default and Simplified Chinese as an option
 - Done: i18n foundation covers core and advanced link management, deployment, operations, audit, backup/restore, and analytics workflows
@@ -214,8 +216,10 @@ Planned:
 - Done: saved Analytics filters and reusable report views
 - Session or visitor-level conversion attribution where privacy-safe
 - More conversion attribution fields, such as external campaign IDs and client-provided visitor IDs
+- Scheduled traffic anomaly alerts for unusual volume, source, country, or bot-rate changes without redirect-path work
+- Evaluate opt-in fallback_url failover from previously recorded health state; never probe a destination synchronously during redirect
 - Long-idle auto-archive rules with review queue and dry-run mode
-- Additional import adapters when demand is clear, such as Bitly
+- Additional import adapters when demand and real export fixtures are available, including Bitly, Rebrandly, and TinyURL
 
 ## Pre-1.0: Integration And Public Launch
 
@@ -235,7 +239,8 @@ Ordered delivery:
 
 External prerequisites:
 
-- The owner will select and purchase the Linketry project domain before DNS and production site configuration.
+- The purchased linketry.com domain still requires Pages apex activation and final DNS verification.
+- The reserved everettlabs.dev/support destination requires an owner-managed page before the Admin support entry is considered live; /coffee can redirect to it later.
 - The future supporter/coffee page will use a separate owner-managed domain and is not a release blocker.
 - The existing deployed Linketry instance and its data remain protected production resources; Demo workflows may not alter their DNS, bindings, migrations, backups, or stored data.
 
