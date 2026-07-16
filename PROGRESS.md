@@ -10,16 +10,29 @@ Last updated: 2026-07-16
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ Code complete       | Local type-check passing; deployed on Cloudflare Workers                                                                                                                                                |
-| Admin frontend             | ✅ V8 complete         | EN/ZH, display preferences, themes, updates, table/card views, and grouped Sidebar utility actions are browser tested                                                                                   |
+| Worker backend             | ✅ Code complete       | Redirect-safe scheduled traffic anomaly detection and authenticated alert controls are locally verified; the previous release is deployed on Cloudflare Workers                                        |
+| Admin frontend             | ✅ V8 complete         | EN/ZH, display preferences, themes, updates, table/card views, grouped Sidebar utilities, and traffic-alert controls are browser tested                                                                 |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
 | Deployment                 | 🟡 External activation | Production is deployed; the project site and isolated manual Demo workflow are prepared; DNS activation and live Demo resources remain                                                                  |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.21.0              | Sidebar language/theme/support utilities are grouped and verified; the external support destination remains a reserved owner-managed page                                                               |
+| Current version            | ✅ 0.22.0              | Privacy-safe scheduled traffic anomaly alerts are implemented and verified locally; production deployment follows the guarded main workflow                                                            |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.22.0 Privacy-Safe Traffic Anomaly Alerts
+
+| Area                  | Status      | Notes                                                                                                     |
+| --------------------- | ----------- | --------------------------------------------------------------------------------------------------------- |
+| Detection window      | ✅ Complete | Latest 24 hours compared with the bounded previous 7-day daily baseline                                  |
+| Explainable signals   | ✅ Complete | Volume multiplier and bot-rate percentage-point evidence with a configurable minimum sample              |
+| Alert lifecycle       | ✅ Complete | Opt-in daily Cron evaluation, manual run, repeat suppression, active state, and recovery notifications    |
+| Admin and API         | ✅ Complete | EN/ZH Analytics controls plus authenticated status, config, and run endpoints in OpenAPI                  |
+| Privacy boundary      | ✅ Verified | Only aggregate counts/rates are persisted; no new visitor, IP, session, referrer, or country identifiers |
+| Redirect-path impact  | ✅ None     | Redirect handler, redirect rules, D1 link ownership, and KV cache behavior are unchanged                 |
 
 ---
 
@@ -248,6 +261,7 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Conversion events          | ✅ Done              | `POST /api/v1/conversions` records authenticated goal events                                                                                                                                          |
 | Analytics report export    | ✅ Done              | `/api/v1/export/analytics.csv` exports summary report sections                                                                                                                                        |
 | Raw analytics retention    | ✅ Done              | `analytics_retention_days` setting is enforced by scheduled Worker cleanup                                                                                                                            |
+| Traffic anomaly alerts     | ✅ Done              | Daily aggregate 24-hour/7-day baseline checks cover volume and bot-rate spikes with minimum samples, suppression, recovery, and existing notification channels                                         |
 | V6 validation              | ✅ Production passed | GitHub Actions migration/deploy passed; production smoke covered health, auth rejection, redirects, filters, single-link analytics, conversions, Analytics CSV export, retention setting, and cleanup |
 
 ### V7 Progress
@@ -271,7 +285,7 @@ Database columns for V2–V4 are already present in `migrations/0001_init.sql` t
 | Version                                           | Scope                                                                                                                                                                     | Status          |
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
 | V7 Operations, Recovery, And Monitoring           | R2 restore, backup retention, periodic target monitoring, alerts, fallback URL UI, custom status pages, operations dashboard, better bot classification                   | In progress     |
-| V9 Growth Tools, Reporting, And Link Intelligence | Public stats sharing, reporting, campaign tools, previews, notes, attribution, and lifecycle automation                                                                   | In progress     |
+| V9 Growth Tools, Reporting, And Link Intelligence | Public stats sharing, reporting, campaign tools, previews, notes, privacy-safe traffic alerts, attribution, and lifecycle automation                                              | In progress     |
 | V8 Usability Modes And Internationalization       | Simple / Advanced mode, deployment capability reporting, first-run wizard, full-page EN/ZH localization, browser smoke coverage, and locale-aware formatting              | Complete        |
 | V9 Growth Tools, Reporting, And Link Intelligence | Bulk URL and UTM operations, link notes, OpenGraph previews, public stats pages, scheduled reports, saved analytics views, conversion attribution, long-idle auto-archive | Planned         |
 | V10 Collaboration And Governance                  | Multi-user, roles, teams, token governance, audit retention, per-project access, optional managed services                                                                | Future optional |

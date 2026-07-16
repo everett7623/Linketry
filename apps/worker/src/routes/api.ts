@@ -27,6 +27,7 @@ import settingsRoutes from './settings';
 import systemRoutes from './system';
 import tagsRoutes from './tags';
 import tokenRoutes from './tokens';
+import trafficAnomalyRoutes from './trafficAnomalies';
 import utmTemplateRoutes from './utmTemplates';
 import webhookRoutes from './webhooks';
 import { API_ROUTE_PREFIXES } from './apiVersion';
@@ -47,6 +48,7 @@ export function registerAdminApiRoutes(app: Hono<{ Bindings: Env }>): void {
     app.route(`${prefix}/analytics`, analyticsRoutes);
     app.route(`${prefix}/analytics-views`, analyticsViewRoutes);
     app.route(`${prefix}/analytics-reports`, analyticsReportRoutes);
+    app.route(`${prefix}/analytics-alerts`, trafficAnomalyRoutes);
     app.route(`${prefix}/utm-templates`, utmTemplateRoutes);
     app.route(`${prefix}/link-notes`, linkNoteRoutes);
     app.route(`${prefix}/conversions`, conversionRoutes);

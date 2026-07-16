@@ -1,5 +1,6 @@
 import type { ConversionEvent, Link, Visit, VisitTarget } from '@linketry/shared';
 import type { Env } from '../types';
+import type { TrafficAnomalyMetrics } from '../analytics/trafficAnomalyPolicy';
 
 export interface AnalyticsFilters {
   days?: number;
@@ -196,6 +197,43 @@ export async function cleanupAnalyticsRetention(env: Env): Promise<{ retentionDa
   await safeRun(env, 'DELETE FROM visit_targets WHERE created_at < ?', [cutoff]);
   await safeRun(env, 'DELETE FROM conversion_events WHERE created_at < ?', [cutoff]);
   return { retentionDays, cutoff };
+}
+
+export async function getTrafficAnomalyMetrics(
+  env: Env,
+  evaluatedAt: string
+): Promise<TrafficAnomalyMetrics> {
+  const evaluatedAtMs = Date.parse(evaluatedAt);
+  if (!Number.isFinite(evaluatedAtMs)) throw new Error('Traffic anomaly evaluation time is invalid');
+
+  const currentStart = new Date(evaluatedAtMs - 24 * 60 * 60 * 1000).toISOString();
+  const baselineStart = new Date(evaluatedAtMs - 8 * 24 * 60 * 60 * 1000).toISOString();
+  const row = await env.DB.prepare(
+    `SELECT
+       COALESCE(SUM(CASE WHEN created_at >= ? THEN 1 ELSE 0 END), 0) AS current_visits,
+       COALESCE(SUM(CASE WHEN created_at >= ? AND is_bot = 1 THEN 1 ELSE 0 END), 0) AS current_bot_visits,
+       COALESCE(SUM(CASE WHEN created_at < ? THEN 1 ELSE 0 END), 0) AS baseline_visits,
+       COALESCE(SUM(CASE WHEN created_at < ? AND is_bot = 1 THEN 1 ELSE 0 END), 0) AS baseline_bot_visits
+     FROM visits
+     WHERE created_at >= ? AND created_at < ?`
+  )
+    .bind(currentStart, currentStart, currentStart, currentStart, baselineStart, evaluatedAt)
+    .first<{
+      current_visits: number;
+      current_bot_visits: number;
+      baseline_visits: number;
+      baseline_bot_visits: number;
+    }>();
+
+  return {
+    evaluatedAt,
+    currentStart,
+    baselineStart,
+    currentVisits: Number(row?.current_visits ?? 0),
+    currentBotVisits: Number(row?.current_bot_visits ?? 0),
+    baselineVisits: Number(row?.baseline_visits ?? 0),
+    baselineBotVisits: Number(row?.baseline_bot_visits ?? 0),
+  };
 }
 
 function buildVisitFilter(options: AnalyticsFilters): { where: string; params: unknown[] } {

@@ -34,6 +34,8 @@ settings.get('/', async (c) => {
   delete allSettings.public_stats_shares;
   delete allSettings.analytics_saved_views;
   delete allSettings.analytics_report_records;
+  delete allSettings.traffic_anomaly_config;
+  delete allSettings.traffic_anomaly_state;
   delete allSettings.utm_templates;
   delete allSettings.link_notes;
   delete allSettings.notification_channels;

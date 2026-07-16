@@ -6,6 +6,7 @@ import { API_OPERATIONS, createOpenApiDocument } from './document.ts';
 const routeModules = [
   ['analytics.ts', '/analytics', 'analyticsRoutes'],
   ['analyticsReports.ts', '/analytics-reports', 'routes'],
+  ['trafficAnomalies.ts', '/analytics-alerts', 'trafficAnomalies'],
   ['analyticsViews.ts', '/analytics-views', 'routes'],
   ['audit.ts', '/audit', 'auditRoutes'],
   ['auth.ts', '/auth', 'auth'],
@@ -54,9 +55,9 @@ test('OpenAPI operation inventory matches mounted Hono route declarations', asyn
 });
 
 test('OpenAPI document is versioned, secured, unique, and contains no credential examples', () => {
-  const document = createOpenApiDocument({}, '0.21.0');
+  const document = createOpenApiDocument({}, '0.22.0');
   assert.equal(document.openapi, '3.1.0');
-  assert.equal(document.info.version, '0.21.0');
+  assert.equal(document.info.version, '0.22.0');
   assert.equal(
     new Set(API_OPERATIONS.map((item) => key(item.method, item.path))).size,
     API_OPERATIONS.length

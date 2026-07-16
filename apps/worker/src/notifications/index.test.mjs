@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildNotificationRequest, formatHealthNotification } from './policy.ts';
+import {
+  buildNotificationRequest,
+  formatHealthNotification,
+  formatTrafficAnomalyNotification,
+} from './policy.ts';
 
 test('notification providers use their native text payloads', () => {
   assert.deepEqual(
@@ -130,4 +134,44 @@ test('health recovery notifications use the complete default format', () => {
   assert.match(message, /Response Time: 84 ms/);
   assert.match(message, /Detected At: 2026-07-14 06:30:25 UTC/);
   assert.match(message, /The target URL has returned to normal\./);
+});
+
+test('traffic anomaly notifications explain aggregate thresholds without visitor identifiers', () => {
+  const message = formatTrafficAnomalyNotification('traffic_anomaly.detected', {
+    anomalies: [
+      { kind: 'volume_spike', change: 3, threshold: 2 },
+      { kind: 'bot_rate_spike', change: 40, threshold: 25 },
+    ],
+    snapshot: {
+      currentStart: '2026-07-15T00:00:00.000Z',
+      evaluatedAt: '2026-07-16T00:00:00.000Z',
+      currentVisits: 180,
+      baselineAverageVisits: 60,
+      currentBotRate: 50,
+      baselineBotRate: 10,
+    },
+  });
+
+  assert.match(message, /Visits: 180 \| 7-day daily baseline: 60/);
+  assert.match(message, /Volume spike: 3x baseline \(threshold 2x\)/);
+  assert.match(message, /Bot-rate spike: \+40 percentage points \(threshold \+25\)/);
+  assert.match(message, /No visitor identifiers are included/);
+  assert.doesNotMatch(message, /ip_hash|user_agent|session/i);
+});
+
+test('traffic anomaly recovery names the aggregate signals that recovered', () => {
+  const message = formatTrafficAnomalyNotification('traffic_anomaly.recovered', {
+    recovered: ['volume_spike', 'bot_rate_spike'],
+    snapshot: {
+      currentStart: '2026-07-15T00:00:00.000Z',
+      evaluatedAt: '2026-07-16T00:00:00.000Z',
+      currentVisits: 70,
+      baselineAverageVisits: 60,
+      currentBotRate: 12,
+      baselineBotRate: 10,
+    },
+  });
+
+  assert.match(message, /Recovered signals: volume, bot rate/);
+  assert.match(message, /returned within the configured thresholds/);
 });

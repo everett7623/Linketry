@@ -139,7 +139,7 @@ Future optional enhancements:
 - Done: better bot classification for search, preview, AI, SEO, monitoring, and automation clients
 - Done: public read-only stats pages with per-link opt-in and privacy controls
 - Session or visitor-level conversion attribution
-- Scheduled privacy-safe traffic anomaly detection with explainable thresholds and suppression
+- Done in v0.22.0: scheduled privacy-safe volume and bot-rate anomaly detection with minimum samples, explainable thresholds, suppression, and recovery
 
 ## Long-Term Product Principles
 
@@ -216,7 +216,7 @@ Planned:
 - Done: saved Analytics filters and reusable report views
 - Session or visitor-level conversion attribution where privacy-safe
 - More conversion attribution fields, such as external campaign IDs and client-provided visitor IDs
-- Scheduled traffic anomaly alerts for unusual volume, source, country, or bot-rate changes without redirect-path work
+- Done in v0.22.0: scheduled volume and bot-rate anomaly alerts with bounded aggregate windows and no redirect-path work; source/country shifts remain deferred pending a minimum-volume privacy contract
 - Evaluate opt-in fallback_url failover from previously recorded health state; never probe a destination synchronously during redirect
 - Long-idle auto-archive rules with review queue and dry-run mode
 - Additional import adapters when demand and real export fixtures are available, including Bitly, Rebrandly, and TinyURL

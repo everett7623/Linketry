@@ -5,6 +5,7 @@ import { handleRedirect } from './routes/redirect';
 import { runScheduledHealthChecks } from './routes/healthChecks';
 import publicStatsRoutes from './routes/publicStats';
 import { createScheduledAnalyticsReport } from './analytics/scheduledReports';
+import { runScheduledTrafficAnomalyCheck } from './analytics/trafficAnomalies';
 import { processVisitQueueBatch } from './analytics/index';
 import { createR2Backup } from './backups/index';
 import { cleanupBackupRetention } from './backups/retention';
@@ -130,6 +131,11 @@ const handler: ExportedHandler<Env, VisitQueueMessage> = {
       ctx.waitUntil(
         createScheduledAnalyticsReport(env).catch((error) =>
           console.error('Scheduled Analytics report failed', error)
+        )
+      );
+      ctx.waitUntil(
+        runScheduledTrafficAnomalyCheck(env).catch((error) =>
+          console.error('Scheduled traffic anomaly check failed', error)
         )
       );
     }

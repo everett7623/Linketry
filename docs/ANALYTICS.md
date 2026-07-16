@@ -107,17 +107,34 @@ The `analytics_retention_days` setting controls cleanup of old raw analytics row
 
 Retention cleanup runs separately from scheduled backups. Cleanup failures are logged but do not block backups or redirects.
 
+## Traffic Anomaly Alerts
+
+Traffic anomaly alerts are opt-in under **Analytics → Traffic Anomaly Alerts**. The daily Cron compares two bounded aggregate windows:
+
+- Current window: the latest 24 hours
+- Baseline window: the preceding 7 complete 24-hour periods, represented as a daily average
+
+The detector currently covers:
+
+- Visit volume at or above the configured baseline multiplier
+- Bot rate at or above the configured percentage-point increase
+
+Both windows must meet the configured minimum daily visit count before either signal is eligible. Operators can configure the minimum visits, volume multiplier, bot-rate increase, and repeat-suppression period. An authenticated **Check now** action uses the same policy and can send notifications when the feature is enabled.
+
+Active signals, the most recent aggregate snapshot, and alert/recovery timestamps are stored in D1 settings. Alerts and recoveries use the existing configured notification channels. A delivery failure is logged and does not affect redirects or visit ingestion.
+
 ## Privacy Notes
 
 Linketry stores a hash of the visitor IP rather than the raw IP address. The unique visitor count is approximate because it is based on distinct hashed IPs in the selected date range.
 
 Public read-only statistics are implemented with per-link opt-in, hashed share tokens, bounded date ranges, optional country/referrer disclosure, noindex/nofollow responses, and private no-store caching. Public sharing is disabled by default.
 
+Traffic anomaly detection stores only aggregate visit counts, bot counts, rates, windows, and alert state. It does not add or persist new visitor, IP, session, referrer, or country identifiers.
+
 ## Future Analytics Ideas
 
 - Privacy-safe session or visitor-level conversion attribution
 - More conversion attribution fields, such as external campaign IDs and client-provided visitor IDs
-- Scheduled traffic anomaly detection for unusual click volume, referrer changes, country shifts, or bot-rate changes
-- Configurable thresholds, suppression windows, and recovery notices for anomaly alerts
+- Additional bounded anomaly dimensions, such as aggregate referrer or country shifts, only after a minimum-volume privacy contract is defined
 
-Traffic anomaly detection must use bounded scheduled or post-processing work. It must not add synchronous queries, target probes, or notification delivery to the redirect path. Alert designs should include minimum-volume thresholds and explainable evidence to reduce false positives.
+Any additional traffic anomaly detection must keep using bounded scheduled or post-processing work. It must not add synchronous queries, target probes, or notification delivery to the redirect path.

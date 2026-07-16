@@ -93,6 +93,57 @@ export function formatHealthNotification(
   return lines.join('\n').slice(0, MAX_NOTIFICATION_LENGTH);
 }
 
+export function formatTrafficAnomalyNotification(
+  event: 'traffic_anomaly.detected' | 'traffic_anomaly.recovered',
+  data: unknown
+): string {
+  const record = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
+  const snapshot =
+    record.snapshot && typeof record.snapshot === 'object'
+      ? (record.snapshot as Record<string, unknown>)
+      : {};
+  const anomalies = Array.isArray(record.anomalies)
+    ? record.anomalies.filter(
+        (item): item is Record<string, unknown> => !!item && typeof item === 'object'
+      )
+    : [];
+  const recovered = Array.isArray(record.recovered)
+    ? record.recovered.filter((item): item is string => typeof item === 'string')
+    : [];
+  const isDetected = event === 'traffic_anomaly.detected';
+  const lines = [
+    isDetected ? 'Linketry Traffic Anomaly' : 'Linketry Traffic Recovered',
+    '',
+    `Window: ${detectedAt(snapshot.currentStart)} to ${detectedAt(snapshot.evaluatedAt)}`,
+    `Visits: ${numberValue(snapshot.currentVisits)} | 7-day daily baseline: ${numberValue(snapshot.baselineAverageVisits)}`,
+    `Bot rate: ${numberValue(snapshot.currentBotRate)}% | baseline: ${numberValue(snapshot.baselineBotRate)}%`,
+  ];
+
+  if (isDetected) {
+    for (const item of anomalies) {
+      if (item.kind === 'volume_spike') {
+        lines.push(
+          `Volume spike: ${numberValue(item.change)}x baseline (threshold ${numberValue(item.threshold)}x)`
+        );
+      }
+      if (item.kind === 'bot_rate_spike') {
+        lines.push(
+          `Bot-rate spike: +${numberValue(item.change)} percentage points (threshold +${numberValue(item.threshold)})`
+        );
+      }
+    }
+    lines.push('', 'Review aggregate Analytics before taking action. No visitor identifiers are included.');
+  } else {
+    lines.push(
+      `Recovered signals: ${recovered.map(anomalyLabel).join(', ') || 'traffic baseline'}`,
+      '',
+      'Traffic has returned within the configured thresholds.'
+    );
+  }
+
+  return lines.join('\n').slice(0, MAX_NOTIFICATION_LENGTH);
+}
+
 function healthStatus(item: Record<string, unknown>, isFailure: boolean): string {
   if (!isFailure) return 'Online';
   return item.status === 'warning' ? 'Target Warning' : 'Target Offline';
@@ -124,4 +175,10 @@ function stringValue(value: unknown): string {
 
 function arrayLength(value: unknown): number {
   return Array.isArray(value) ? value.length : 0;
+}
+
+function anomalyLabel(value: string): string {
+  if (value === 'volume_spike') return 'volume';
+  if (value === 'bot_rate_spike') return 'bot rate';
+  return value;
 }

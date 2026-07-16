@@ -62,6 +62,9 @@ export const API_OPERATIONS: ApiOperation[] = [
   ['put', '/analytics-reports/config', 'Update report configuration', 'Analytics', 'write'],
   ['post', '/analytics-reports/run', 'Run an analytics report', 'Analytics', 'write'],
   ['get', '/analytics-reports/download', 'Download an analytics report', 'Analytics', 'read'],
+  ['get', '/analytics-alerts', 'Read traffic anomaly alert state', 'Analytics', 'read'],
+  ['put', '/analytics-alerts/config', 'Update traffic anomaly alert configuration', 'Analytics', 'write'],
+  ['post', '/analytics-alerts/run', 'Run traffic anomaly detection', 'Analytics', 'write'],
   ['post', '/conversions', 'Record a conversion', 'Analytics', 'write'],
   ['get', '/audit', 'List audit events', 'Operations', 'read'],
   ['get', '/backups', 'List backups', 'Backups', 'read'],
@@ -142,7 +145,7 @@ const jsonResponse = (
   content: { 'application/json': { schema } },
 });
 
-export function createOpenApiDocument(_env: Env, version = '0.21.0') {
+export function createOpenApiDocument(_env: Env, version = '0.22.0') {
   const paths: Record<string, Record<string, unknown>> = {};
   for (const operation of API_OPERATIONS) {
     const parameters = [...operation.path.matchAll(/\{([^}]+)\}/g)].map((match) => ({

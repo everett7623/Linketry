@@ -192,6 +192,20 @@ Telegram accepts `credential` as the bot token and `target` as the chat ID or `@
 
 Scheduled failure and recovery deliveries use Linketry's built-in plain-text format. Messages include the short link when its domain is available, target URL, target status, HTTP status, response time, and an explicit UTC detection time. Notification templates are not stored per instance.
 
+The same configured channels also receive opt-in aggregate traffic anomaly and recovery notices. Those messages include only the 24-hour visit count, previous 7-day daily baseline, bot-rate comparison, and the thresholds that fired.
+
+## Traffic Anomaly Alerts
+
+Traffic anomaly endpoints require admin or appropriately scoped API-token access.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/v1/analytics-alerts` | Read the opt-in configuration and latest aggregate state |
+| `PUT` | `/api/v1/analytics-alerts/config` | Set minimum volume, volume/bot-rate thresholds, suppression, and enabled state |
+| `POST` | `/api/v1/analytics-alerts/run` | Run the same bounded check used by the daily Cron; returns `409` while disabled |
+
+Configuration fields are `enabled`, `minimumVisits` (10-100000), `volumeMultiplier` (1.25-10), `botRateDeltaPercentagePoints` (5-100), and `suppressionMinutes` (0-10080). The response state contains only aggregate counts/rates and timestamps.
+
 ## Links
 
 | Method | Path |

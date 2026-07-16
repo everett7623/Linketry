@@ -4,6 +4,7 @@ import { now } from '../utils/id';
 import {
   buildNotificationRequest,
   formatHealthNotification,
+  formatTrafficAnomalyNotification,
   NOTIFICATION_PROVIDERS,
   type NotificationProvider,
 } from './policy';
@@ -116,6 +117,44 @@ export async function emitHealthNotifications(
       message: 'Linketry notification delivery failed',
       error: error instanceof Error ? error.message : String(error),
     }));
+  }
+}
+
+export async function emitTrafficAnomalyNotifications(
+  env: Env,
+  event: 'traffic_anomaly.detected' | 'traffic_anomaly.recovered',
+  data: unknown
+): Promise<void> {
+  try {
+    await deliverConfiguredNotifications(env, formatTrafficAnomalyNotification(event, data));
+  } catch (error) {
+    console.warn(
+      JSON.stringify({
+        message: 'Linketry traffic anomaly notification delivery failed',
+        error: error instanceof Error ? error.message : String(error),
+      })
+    );
+  }
+}
+
+async function deliverConfiguredNotifications(env: Env, message: string): Promise<void> {
+  const stored = await getStoredConfig(env);
+  const deliveries = NOTIFICATION_PROVIDERS.flatMap((provider) => {
+    const channel = stored[provider];
+    return channel?.enabled && channel.credential ? [deliver(provider, channel, message)] : [];
+  });
+  const results = await Promise.all(deliveries);
+  for (const result of results) {
+    if (!result.ok) {
+      console.warn(
+        JSON.stringify({
+          message: 'Linketry notification delivery failed',
+          provider: result.provider,
+          status: result.status,
+          error: result.error,
+        })
+      );
+    }
   }
 }
 

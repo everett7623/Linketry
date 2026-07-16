@@ -13,6 +13,33 @@ _(none)_
 
 ---
 
+## [0.22.0] - 2026-07-16
+
+### Added
+
+- Added opt-in daily traffic anomaly detection that compares the latest 24 hours with a bounded previous 7-day daily baseline.
+- Added explainable volume-spike and bot-rate-spike evidence, configurable minimum volume, thresholds, repeat suppression, and recovery state.
+- Added authenticated traffic-alert status, configuration, and manual-run API endpoints plus an English/Simplified Chinese Analytics panel.
+- Added aggregate anomaly and recovery delivery through the existing Telegram, Discord, Slack, Feishu, DingTalk, and WeCom notification channels.
+
+### Changed
+
+- Added the traffic-alert endpoints to the published OpenAPI inventory and documented the alert contract for self-hosters.
+- Updated production and isolated Demo deployment fallbacks, approval examples, workspace metadata, and runtime version examples to `0.22.0`.
+
+### Security
+
+- Detection reads and persists only aggregate visit counts and bot rates; it adds no visitor, IP, session, referrer, or country identifiers.
+- All queries and notification delivery run from scheduled or authenticated post-processing paths. Redirect handling, redirect rules, D1 link ownership, and KV cache behavior are unchanged.
+- Low-volume samples are ignored by default to reduce false positives, and stored alert state is excluded from the general Settings response.
+
+### Tests
+
+- Passed Worker type-check and 69 Worker tests, 35 Admin unit tests, 13 real-browser Admin tests, 35 deployment safety tests, 3 project-site tests, and both Admin/project-site production builds.
+- Added policy coverage for validation, low-volume protection, threshold evidence, suppression, and recovery; added notification privacy/format tests and a real-browser configuration/manual-check workflow.
+
+---
+
 ## [0.21.0] - 2026-07-16
 
 ### Added

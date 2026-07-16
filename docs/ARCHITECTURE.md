@@ -22,7 +22,7 @@ This document describes the current runtime architecture. It is derived from the
 | Admin Pages app   | React operator interface                                              | Recommended |
 | Cloudflare R2     | Scheduled and operator-created backup snapshots                       | No          |
 | Cloudflare Queue  | Asynchronous visit ingestion                                          | No          |
-| Daily Cron        | Backups, retention cleanup, and scheduled analytics reports           | No          |
+| Daily Cron        | Backups, retention cleanup, reports, and aggregate traffic alerts     | No          |
 | Health Cron       | Rotating target checks and alerts                                     | No          |
 | Project site      | Public Linketry product and documentation site                        | No          |
 
@@ -154,7 +154,7 @@ New adapters normalize real source exports into the shared ImportAdapter contrac
 
 ### Analytics
 
-New dimensions should be recorded outside the redirect decision whenever possible. Privacy-safe traffic anomaly detection belongs in scheduled or post-processing workflows, not in the redirect response path.
+New dimensions should be recorded outside the redirect decision whenever possible. Traffic anomaly detection uses a bounded daily aggregate query over the latest 24 hours and previous 7-day baseline; thresholds, state, and notification delivery stay in scheduled or authenticated post-processing workflows, never in the redirect response path.
 
 ### Automatic fallback
 

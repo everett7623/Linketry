@@ -48,6 +48,17 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed — Privacy-Safe Traffic Anomaly Alerts (v0.22.0)
+
+- [x] Compare the latest 24 hours with a bounded previous 7-day daily baseline outside the redirect path
+- [x] Ignore low-volume samples and explain volume-spike and bot-rate-spike thresholds
+- [x] Add opt-in settings for minimum visits, volume multiplier, bot-rate delta, and repeat suppression
+- [x] Persist only aggregate alert state and emit recovery-aware notifications through existing channels
+- [x] Add authenticated status/config/run endpoints to the published OpenAPI inventory
+- [x] Add an EN/ZH Analytics panel and real-browser configuration/manual-check coverage
+
+---
+
 ## ✅ Completed — Admin Utility Actions (v0.21.0)
 
 - [x] Group language, light/dark theme, and owner support into three equal Sidebar icon controls
@@ -709,7 +720,7 @@ Deployment experience:
 - [x] Saved Analytics filters and reusable report views
 - [ ] Privacy-safe session or visitor-level conversion attribution
 - [ ] Additional conversion attribution fields, such as external campaign IDs and client-provided visitor IDs
-- [ ] Scheduled privacy-safe traffic anomaly alerts with explainable thresholds and suppression
+- [x] Scheduled privacy-safe traffic anomaly alerts with explainable thresholds and suppression
 - [ ] Evaluate opt-in fallback_url failover using previously recorded health state, without synchronous redirect-path probes
 - [ ] Long-idle auto-archive rules with review queue and dry-run mode
 - [ ] Additional fixture-backed import adapters when demand is clear: Bitly, Rebrandly, and TinyURL

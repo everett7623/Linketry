@@ -181,7 +181,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.21.0"}}
+{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.22.0"}}
 ```
 
 ## 7. Build and Deploy Admin
@@ -236,7 +236,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.21.0
+LINKETRY_APPROVED_RELEASE=0.22.0
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
@@ -256,7 +256,7 @@ Leave these unset for the basic deployment; enable them later from the Admin Adv
 
 ```txt
 LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKETRY_VERSION=0.21.0
+LINKETRY_VERSION=0.22.0
 LINKETRY_COMPATIBILITY_DATE=2026-07-08
 LINKETRY_WORKER_DOMAINS=go.example.com,s.example.com
 LINKETRY_R2_BUCKET=linketry-backups
@@ -326,6 +326,17 @@ The monitor checks each active link's stored `long_url`, follows redirects, retr
 Notification channels use Linketry's built-in plain-text failure and recovery formats. They include the short link, target URL, status, HTTP status, response time, and UTC detection time; operators configure channel credentials and targets, not message templates.
 
 Notification tokens and Incoming Webhook URLs are stored as write-only instance settings: they are not returned by the API and are excluded from Linketry backup exports. Keep D1 access restricted to the deployment account.
+
+### Scheduled traffic anomaly alerts
+
+In **Advanced mode**, open **Analytics → Traffic Anomaly Alerts** to enable a daily aggregate comparison between the latest 24 hours and the previous 7-day daily baseline. Configure:
+
+1. A minimum daily visit count so low-volume samples are ignored.
+2. The volume multiplier that indicates a traffic spike.
+3. The bot-rate percentage-point increase that indicates unusual automation traffic.
+4. The repeat-suppression period.
+
+Use **Check now** after saving to inspect the current aggregate evidence. Alerts and recovery notices use the same notification channels configured for target monitoring. Only aggregate visit/bot counts and rates are stored; no new visitor, IP, or session identifiers are collected. Detection and delivery run outside the redirect path.
 
 ## 10. Smoke Test
 

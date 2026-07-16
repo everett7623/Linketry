@@ -29,6 +29,7 @@ import {
   type AnalyticsReportState,
 } from '../api/analytics';
 import { BarList, DailyBars, Metric, RecentVisits } from '../components/analytics/AnalyticsBlocks';
+import { TrafficAnomalyPanel } from '../components/analytics/TrafficAnomalyPanel';
 import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
@@ -289,6 +290,8 @@ export function Analytics() {
         <div className="mt-4 flex gap-2"><Button loading={reportBusy} onClick={updateReportConfig}>{t('saveSchedule')}</Button><Button variant="secondary" loading={reportBusy} disabled={!reports.r2Configured} onClick={runReport}>{t('runReportNow')}</Button></div>
         <div className="mt-4 overflow-x-auto"><table className="w-full text-sm"><tbody className="divide-y divide-slate-800">{reports.records.slice(0, 10).map((record) => <tr key={`${record.key}-${record.created_at}`}><td className="py-3 text-slate-400">{new Date(record.created_at).toLocaleString()}</td><td className="py-3 text-slate-400">{record.status === 'completed' ? t('completedStatus') : t('failedStatus')}</td><td className="py-3 text-right">{record.status === 'completed' && <Button size="sm" variant="ghost" icon={<Download size={14}/>} onClick={() => downloadScheduledAnalyticsReport(record)}>{t('download')}</Button>}</td></tr>)}</tbody></table>{reports.records.length === 0 && <p className="py-3 text-sm text-slate-500">{t('noScheduledReports')}</p>}</div>
       </section>}
+
+      <TrafficAnomalyPanel />
 
       <div className="grid gap-6 xl:grid-cols-2">
         <BarList
