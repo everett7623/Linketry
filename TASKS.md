@@ -18,6 +18,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Preserve explicit Node.js 24 and npm cache configuration
 - [x] Add workflow policy assertions that prevent a regression to the deprecated Node.js 20 actions
 - [x] Preserve deployment permissions, safety gates, Cloudflare write ordering, and runtime behavior
+- [x] Live-verify both v6 actions without deprecation annotations in isolated Demo run `29604677229`
 
 ---
 
