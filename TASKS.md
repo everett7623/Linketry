@@ -11,6 +11,15 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed - Sidebar Toggle Placement (v0.25.9)
+
+- [x] Keep the Linketry Logo row free of the desktop collapse control
+- [x] Move collapse/expand into a dedicated navigation control row
+- [x] Preserve mobile navigation and stored desktop collapse behavior
+- [x] Verify expanded, collapsed, mobile, dark, and light layouts
+
+---
+
 ## ✅ Completed - Cross-platform Demo Parity Verification (v0.25.8)
 
 - [x] Normalize SVG line endings before strict canonical brand comparison

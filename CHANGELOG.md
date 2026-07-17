@@ -13,6 +13,15 @@ _(none)_
 
 ---
 
+## [0.25.9] - 2026-07-17
+
+### Changed
+
+- Moved the desktop navigation collapse control out of the Linketry Logo row and into a dedicated navigation control row.
+- Kept the collapsed navigation toggle visible without changing the mobile drawer or saved display preference behavior.
+
+---
+
 ## [0.25.8] - 2026-07-17
 
 ### Fixed

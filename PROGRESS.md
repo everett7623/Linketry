@@ -17,9 +17,20 @@ Last updated: 2026-07-17
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.25.8              | Demo parity verification compares canonical SVG content consistently across Windows and Linux line endings                                                                     |
+| Current version            | ✅ 0.25.9              | Desktop navigation controls are visually separated from the Linketry brand area                                                                                                 |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.25.9 Sidebar Toggle Placement
+
+| Area                     | Status      | Notes                                                                                                  |
+| ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------ |
+| Brand area               | ✅ Complete | The desktop Logo row contains only the Linketry brand                                                  |
+| Navigation toggle        | ✅ Complete | Collapse/expand remains available in a dedicated navigation row and persists per browser               |
+| Responsive verification  | ✅ Complete | Expanded, collapsed, mobile, dark, and light layouts were verified                                     |
+| Redirect-path impact     | ✅ None     | Worker redirects, KV cache behavior, D1 data, and production domains were not changed                  |
 
 ---
 

@@ -51,9 +51,10 @@ export function Sidebar({
     >
       {/* Logo */}
       <div
+        data-sidebar-brand
         className={clsx(
           'flex items-center gap-2.5 border-b border-slate-800',
-          collapsed && !mobile ? 'justify-between px-2 py-3' : compact ? 'px-4 py-3.5' : 'px-5 py-5'
+          collapsed && !mobile ? 'justify-center px-2 py-3' : compact ? 'px-4 py-3.5' : 'px-5 py-5'
         )}
       >
         <div
@@ -80,21 +81,6 @@ export function Sidebar({
             <X size={19} aria-hidden="true" />
           </button>
         )}
-        {!mobile && (
-          <button
-            type="button"
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100"
-            aria-label={t(collapsed ? 'expandNavigation' : 'collapseNavigation')}
-            title={t(collapsed ? 'expandNavigation' : 'collapseNavigation')}
-            onClick={onToggle}
-          >
-            {collapsed ? (
-              <PanelLeftOpen size={17} aria-hidden="true" />
-            ) : (
-              <PanelLeftClose size={17} aria-hidden="true" />
-            )}
-          </button>
-        )}
       </div>
 
       {/* Nav */}
@@ -105,6 +91,23 @@ export function Sidebar({
         )}
         aria-busy={loadingVisibility}
       >
+        {!mobile && (
+          <div className={clsx('mb-2 flex', collapsed ? 'justify-center' : 'justify-end px-1')}>
+            <button
+              type="button"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100"
+              aria-label={t(collapsed ? 'expandNavigation' : 'collapseNavigation')}
+              title={t(collapsed ? 'expandNavigation' : 'collapseNavigation')}
+              onClick={onToggle}
+            >
+              {collapsed ? (
+                <PanelLeftOpen size={17} aria-hidden="true" />
+              ) : (
+                <PanelLeftClose size={17} aria-hidden="true" />
+              )}
+            </button>
+          </div>
+        )}
         {visibleGroups.map((group, groupIndex) => (
           <section
             key={group.label}
