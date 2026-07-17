@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { PanelLeftClose, PanelLeftOpen, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import { isFeatureVisible } from '../utils/adminMode';
 import { useLocale } from '../contexts/LocaleContext';
@@ -15,16 +15,9 @@ interface SidebarProps {
   mobile?: boolean;
   onClose?: () => void;
   onNavigate?: () => void;
-  onToggle?: () => void;
 }
 
-export function Sidebar({
-  collapsed = false,
-  mobile = false,
-  onClose,
-  onNavigate,
-  onToggle,
-}: SidebarProps) {
+export function Sidebar({ collapsed = false, mobile = false, onClose, onNavigate }: SidebarProps) {
   const { mode } = useAdminMode();
   const { sidebarDensity, loadingVisibility, moduleIsVisible } = useDisplayPreferences();
   const { t } = useLocale();
@@ -51,7 +44,6 @@ export function Sidebar({
     >
       {/* Logo */}
       <div
-        data-sidebar-brand
         className={clsx(
           'flex items-center gap-2.5 border-b border-slate-800',
           collapsed && !mobile ? 'justify-center px-2 py-3' : compact ? 'px-4 py-3.5' : 'px-5 py-5'
@@ -91,23 +83,6 @@ export function Sidebar({
         )}
         aria-busy={loadingVisibility}
       >
-        {!mobile && (
-          <div className={clsx('mb-2 flex', collapsed ? 'justify-center' : 'justify-end px-1')}>
-            <button
-              type="button"
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100"
-              aria-label={t(collapsed ? 'expandNavigation' : 'collapseNavigation')}
-              title={t(collapsed ? 'expandNavigation' : 'collapseNavigation')}
-              onClick={onToggle}
-            >
-              {collapsed ? (
-                <PanelLeftOpen size={17} aria-hidden="true" />
-              ) : (
-                <PanelLeftClose size={17} aria-hidden="true" />
-              )}
-            </button>
-          </div>
-        )}
         {visibleGroups.map((group, groupIndex) => (
           <section
             key={group.label}

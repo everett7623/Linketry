@@ -13,6 +13,15 @@ _(none)_
 
 ---
 
+## [0.25.10] - 2026-07-17
+
+### Changed
+
+- Moved the desktop navigation collapse control from the Sidebar into the main content toolbar, matching the standard dashboard shell position.
+- Kept the control visible and stable when the Sidebar changes between expanded and collapsed widths.
+
+---
+
 ## [0.25.9] - 2026-07-17
 
 ### Changed

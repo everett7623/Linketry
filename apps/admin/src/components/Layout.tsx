@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { useDisplayPreferences } from '../contexts/DisplayPreferencesContext';
 import { UpdateBanner } from './UpdateBanner';
@@ -29,10 +29,7 @@ export function Layout() {
       data-table-density={tableDensity}
     >
       <div className="hidden h-full lg:block">
-        <Sidebar
-          collapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        />
+        <Sidebar collapsed={sidebarCollapsed} />
       </div>
 
       {mobileSidebarOpen && (
@@ -52,6 +49,21 @@ export function Layout() {
       )}
 
       <main className="min-w-0 flex-1 overflow-y-auto bg-slate-950">
+        <div className="sticky top-0 z-30 hidden h-14 items-center border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur lg:flex">
+          <button
+            type="button"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100"
+            aria-label={t(sidebarCollapsed ? 'expandNavigation' : 'collapseNavigation')}
+            title={t(sidebarCollapsed ? 'expandNavigation' : 'collapseNavigation')}
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          >
+            {sidebarCollapsed ? (
+              <PanelLeftOpen size={18} aria-hidden="true" />
+            ) : (
+              <PanelLeftClose size={18} aria-hidden="true" />
+            )}
+          </button>
+        </div>
         <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur lg:hidden">
           <button
             type="button"

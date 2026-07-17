@@ -11,6 +11,15 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed - Main Toolbar Navigation Toggle (v0.25.10)
+
+- [x] Remove the desktop collapse control from the Sidebar navigation area
+- [x] Place collapse/expand at the left edge of the main content toolbar
+- [x] Preserve mobile navigation and stored desktop collapse behavior
+- [x] Verify expanded, collapsed, mobile, dark, and light layouts
+
+---
+
 ## ✅ Completed - Sidebar Toggle Placement (v0.25.9)
 
 - [x] Keep the Linketry Logo row free of the desktop collapse control

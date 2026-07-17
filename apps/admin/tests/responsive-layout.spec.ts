@@ -117,10 +117,15 @@ test('Desktop Admin can collapse navigation and use the wider workspace', async 
   const collapseNavigation = page.getByRole('button', { name: messages.en.collapseNavigation });
   await expect(collapseNavigation).toBeVisible();
   await expect(
-    page.locator('[data-sidebar-brand]').getByRole('button', {
+    page.locator('aside').getByRole('button', {
       name: messages.en.collapseNavigation,
     })
   ).toHaveCount(0);
+  await expect(
+    page.locator('main').getByRole('button', {
+      name: messages.en.collapseNavigation,
+    })
+  ).toHaveCount(1);
   await expect(page.getByRole('link', { name: messages.en.analytics })).toBeVisible();
 
   const expanded = await page.locator('aside').evaluate((element) => ({

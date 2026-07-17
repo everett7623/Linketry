@@ -14,9 +14,9 @@ const run = (status: string, conclusion: string | null = null) => ({
 test('upgrade polling waits for a successful workflow and matching runtime version', async () => {
   const phases: string[] = [];
   const runs = [run('queued'), run('in_progress'), run('completed', 'success')];
-  const versions = ['0.25.8', '0.25.9'];
+  const versions = ['0.25.9', '0.25.10'];
   const result = await waitForOnlineUpgrade({
-    targetVersion: '0.25.9',
+    targetVersion: '0.25.10',
     runId: 42,
     readRun: async () => runs.shift()!,
     readRuntimeVersion: async () => versions.shift()!,
@@ -31,12 +31,12 @@ test('upgrade polling waits for a successful workflow and matching runtime versi
 test('upgrade polling reports a failed workflow without claiming a new version', async () => {
   let runtimeChecks = 0;
   const result = await waitForOnlineUpgrade({
-    targetVersion: '0.25.9',
+    targetVersion: '0.25.10',
     runId: 42,
     readRun: async () => run('completed', 'failure'),
     readRuntimeVersion: async () => {
       runtimeChecks += 1;
-      return '0.25.9';
+      return '0.25.10';
     },
     sleep,
   });
@@ -47,7 +47,7 @@ test('upgrade polling reports a failed workflow without claiming a new version',
 
 test('upgrade polling fails when the workflow succeeds but runtime version stays stale', async () => {
   const result = await waitForOnlineUpgrade({
-    targetVersion: '0.25.9',
+    targetVersion: '0.25.10',
     runId: 42,
     readRun: async () => run('completed', 'success'),
     readRuntimeVersion: async () => '0.25.4',
@@ -59,7 +59,7 @@ test('upgrade polling fails when the workflow succeeds but runtime version stays
 
 test('upgrade polling can be cancelled without leaving a background timer', async () => {
   const result = await waitForOnlineUpgrade({
-    targetVersion: '0.25.9',
+    targetVersion: '0.25.10',
     runId: null,
     readRun: async () => run('queued'),
     readRuntimeVersion: async () => '0.25.4',
