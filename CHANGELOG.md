@@ -13,6 +13,29 @@ _(none)_
 
 ---
 
+## [0.25.4] - 2026-07-17
+
+### Added
+
+- Added an Admin **Online upgrade** action that opens the current deployment repository's protected GitHub Actions workflow.
+- Added authenticated manual release approval bound to the selected branch's exact package version and commit.
+- Added deployment regression coverage for missing confirmation, missing actor metadata, exact environment overrides, and unchanged push approvals.
+
+### Changed
+
+- Update notices now link directly to the changelog and deployment workflow instead of only opening the repository root.
+- GitHub Actions injects the current repository URL into the Admin build so forked self-hosted instances upgrade from their own repository.
+
+### Security
+
+- GitHub and Cloudflare credentials remain outside browser code, while migration digest, backup, migration review, target confirmation, destructive-operation, and remote-resource gates remain mandatory.
+
+### Fixed
+
+- Recovered the blocked v0.25.3 production rollout by synchronizing its exact release and commit approvals, allowing the canonical SVG Sidebar logo to replace the stale raster build.
+
+---
+
 ## [0.25.3] - 2026-07-17
 
 ### Changed

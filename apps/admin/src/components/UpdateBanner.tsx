@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ExternalLink, X } from 'lucide-react';
+import { ExternalLink, RefreshCw, X } from 'lucide-react';
 import { LINKETRY_VERSION } from '@linketry/shared';
 import { checkForUpdates, type UpdateCheckResult } from '../api/updates';
 import { useLocale } from '../contexts/LocaleContext';
@@ -43,7 +43,7 @@ export function UpdateBanner() {
 
   return (
     <div className="mx-auto mt-4 max-w-7xl px-6" role="status" aria-live="polite">
-      <div className="flex items-start gap-3 rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 text-sm text-slate-200">
+      <div className="relative flex flex-col gap-3 rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 pr-10 text-sm text-slate-200 sm:flex-row sm:items-start">
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-slate-100">
             {t('updateAvailableTitle', { version: update.latestVersion })}
@@ -52,21 +52,32 @@ export function UpdateBanner() {
             {t('updateAvailableDescription', { currentVersion: update.currentVersion })}
           </p>
         </div>
-        <a
-          href={update.repositoryUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 font-medium text-brand-400 hover:bg-brand-500/10 hover:text-brand-300"
-        >
-          {t('viewUpdate')}
-          <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-        </a>
+        <div className="flex shrink-0 flex-wrap items-center justify-start gap-1 sm:justify-end">
+          <a
+            href={update.changelogUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-medium text-slate-300 hover:bg-slate-800 hover:text-slate-100"
+          >
+            {t('viewChanges')}
+            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+          </a>
+          <a
+            href={update.upgradeWorkflowUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-2.5 py-1 font-medium text-white hover:bg-brand-500"
+          >
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+            {t('upgradeOnline')}
+          </a>
+        </div>
         <button
           type="button"
           onClick={dismiss}
           aria-label={t('dismissUpdate')}
           title={t('dismissUpdate')}
-          className="shrink-0 rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+          className="absolute right-3 top-3 shrink-0 rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100"
         >
           <X className="h-4 w-4" aria-hidden="true" />
         </button>

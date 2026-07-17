@@ -112,6 +112,10 @@ npm run deploy:migration-digest
 
 A fresh deployment also requires `LINKETRY_FRESH_INSTALL_CONFIRMED=true`. An upgrade requires the backup and review variables above. Update the exact release and commit approval for every production release, and update the migration approval whenever any file under `migrations/` changes.
 
+For an authenticated online upgrade, open **Actions** → **Deploy Linketry** from the Admin update banner, choose the release branch, check the release-safety confirmation, and run the workflow. That manual confirmation binds the run to the selected branch's exact package version and GitHub SHA, so it does not require editing `LINKETRY_APPROVED_RELEASE` or `LINKETRY_APPROVED_COMMIT` first. All migration, backup, target, destructive-operation, and remote-resource checks remain mandatory.
+
+Push-triggered runs do not use this manual approval path. They continue to require the exact repository variables above and fail closed when those values are stale.
+
 The gate rejects the Demo track in this production workflow, scans migrations for destructive SQL, reruns the full account/resource preflight, and reads remote D1 migration status. The official Demo uses the separate, manual-only `.github/workflows/deploy-demo.yml` workflow.
 
 ## Official Demo

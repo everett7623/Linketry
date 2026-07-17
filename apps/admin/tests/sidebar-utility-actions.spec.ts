@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
 import { messages } from '../src/i18n/messages';
 import { EVERETTLABS_SUPPORT_URL } from '../src/utils/externalLinks';
@@ -11,16 +11,7 @@ function apiResponse(data: unknown) {
   };
 }
 
-test('Sidebar groups language, theme, and active coffee support actions', async ({ page }) => {
-  await page.addInitScript((version) => {
-    localStorage.setItem('linketry_token', 'test-token');
-    localStorage.setItem('linketry.locale', 'en');
-    localStorage.setItem('linketry_theme', 'dark');
-    localStorage.setItem(
-      'linketry_update_check',
-      JSON.stringify({ latestVersion: version, checkedAt: Date.now() })
-    );
-  }, LINKETRY_VERSION);
+async function mockDashboardApi(page: Page) {
   await page.route('**/api/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path === '/api/v1/auth/me') {
@@ -51,6 +42,19 @@ test('Sidebar groups language, theme, and active coffee support actions', async 
     }
     await route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"mock"}' });
   });
+}
+
+test('Sidebar groups language, theme, and active coffee support actions', async ({ page }) => {
+  await page.addInitScript((version) => {
+    localStorage.setItem('linketry_token', 'test-token');
+    localStorage.setItem('linketry.locale', 'en');
+    localStorage.setItem('linketry_theme', 'dark');
+    localStorage.setItem(
+      'linketry_update_check',
+      JSON.stringify({ latestVersion: version, checkedAt: Date.now() })
+    );
+  }, LINKETRY_VERSION);
+  await mockDashboardApi(page);
 
   await page.goto('/overview');
 
@@ -78,4 +82,41 @@ test('Sidebar groups language, theme, and active coffee support actions', async 
     .poll(() => page.evaluate(() => localStorage.getItem('linketry.locale')))
     .toBe('zh-CN');
   await expect(page.getByRole('group', { name: messages['zh-CN'].quickActions })).toBeVisible();
+});
+
+test('Update notice exposes a safe repository upgrade workflow without mobile overflow', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => {
+    localStorage.setItem('linketry_token', 'test-token');
+    localStorage.setItem('linketry.locale', 'en');
+    localStorage.setItem('linketry_theme', 'dark');
+    localStorage.removeItem('linketry_update_check');
+    localStorage.removeItem('linketry_dismissed_update_version');
+  });
+  await mockDashboardApi(page);
+  await page.route('https://api.github.com/repos/**/contents/package.json?ref=main', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ name: 'linketry', version: '99.0.0' }),
+    })
+  );
+
+  await page.goto('/overview');
+
+  const notice = page.getByRole('status');
+  await expect(notice).toBeVisible();
+  await expect(notice.getByRole('link', { name: messages.en.viewChanges })).toHaveAttribute(
+    'href',
+    'https://github.com/everett7623/Linketry/blob/main/CHANGELOG.md'
+  );
+  await expect(notice.getByRole('link', { name: messages.en.upgradeOnline })).toHaveAttribute(
+    'href',
+    'https://github.com/everett7623/Linketry/actions/workflows/deploy.yml'
+  );
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
 });

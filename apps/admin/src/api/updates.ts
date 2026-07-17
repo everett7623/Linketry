@@ -10,9 +10,15 @@ import {
   type StorageLike,
 } from '../utils/browserStorage.ts';
 
-const GITHUB_PACKAGE_URL =
-  'https://api.github.com/repos/everett7623/Linketry/contents/package.json?ref=main';
-export const GITHUB_REPOSITORY_URL = 'https://github.com/everett7623/Linketry';
+const DEFAULT_GITHUB_REPOSITORY_URL = 'https://github.com/everett7623/Linketry';
+const configuredRepositoryUrl = import.meta.env?.VITE_LINKETRY_REPOSITORY_URL?.trim();
+export const GITHUB_REPOSITORY_URL = (
+  configuredRepositoryUrl || DEFAULT_GITHUB_REPOSITORY_URL
+).replace(/\/+$/, '');
+const githubRepositoryPath = new URL(GITHUB_REPOSITORY_URL).pathname.replace(/^\/+|\/+$/g, '');
+const GITHUB_PACKAGE_URL = `https://api.github.com/repos/${githubRepositoryPath}/contents/package.json?ref=main`;
+export const GITHUB_CHANGELOG_URL = `${GITHUB_REPOSITORY_URL}/blob/main/CHANGELOG.md`;
+export const GITHUB_UPGRADE_WORKFLOW_URL = `${GITHUB_REPOSITORY_URL}/actions/workflows/deploy.yml`;
 const VERSION_CHECK_TIMEOUT_MS = 8_000;
 let activeGitHubRequest: Promise<string> | null = null;
 
@@ -35,6 +41,8 @@ export interface UpdateCheckResult {
   latestVersion: string;
   updateAvailable: boolean;
   repositoryUrl: string;
+  changelogUrl: string;
+  upgradeWorkflowUrl: string;
 }
 
 async function requestLatestVersion(
@@ -109,5 +117,7 @@ export async function checkForUpdates(options: CheckForUpdatesOptions): Promise<
     latestVersion,
     updateAvailable: isNewerVersion(latestVersion, currentVersion),
     repositoryUrl: GITHUB_REPOSITORY_URL,
+    changelogUrl: GITHUB_CHANGELOG_URL,
+    upgradeWorkflowUrl: GITHUB_UPGRADE_WORKFLOW_URL,
   };
 }

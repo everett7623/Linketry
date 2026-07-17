@@ -206,4 +206,11 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   ]) {
     assert.match(workflow, new RegExp(`${name}: \\$\\{\\{ vars\\.${name} \\}\\}`));
   }
+  assert.match(workflow, /confirm_release:/);
+  assert.match(workflow, /LINKETRY_MANUAL_RELEASE_APPROVED: \$\{\{ inputs\.confirm_release \}\}/);
+  assert.match(workflow, /node scripts\/deployment-release-approval\.mjs/);
+  assert.match(
+    workflow,
+    /VITE_LINKETRY_REPOSITORY_URL: \$\{\{ github\.server_url \}\}\/\$\{\{ github\.repository \}\}/
+  );
 });

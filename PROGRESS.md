@@ -17,9 +17,22 @@ Last updated: 2026-07-17
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.25.3              | Canonical dark/light Linketry logo assets and GitHub/Admin/project-site display metadata are synchronized                                                                                              |
+| Current version            | ✅ 0.25.4              | Safe repository-owner online upgrades and exact manual release approval are implemented                                                                                                               |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.25.4 Safe Online Upgrade
+
+| Area                    | Status      | Notes                                                                                                      |
+| ----------------------- | ----------- | ---------------------------------------------------------------------------------------------------------- |
+| Production recovery     | ✅ Complete | v0.25.3 approval variables were synchronized and Worker/Admin/site deployment completed successfully       |
+| Admin upgrade entry     | ✅ Complete | Update notices link to the deployment repository changelog and protected production workflow              |
+| Manual release approval | ✅ Complete | Authenticated workflow dispatch approves only the selected branch's exact package version and commit       |
+| Existing safety gates   | ✅ Preserved | Migration digest, backup, review, target, destructive-operation, and remote-resource checks remain active |
+| Browser credential risk | ✅ None     | GitHub and Cloudflare credentials never enter Admin browser code                                           |
+| Redirect-path impact    | ✅ None     | Redirect handlers, KV cache behavior, D1 link data, and visit recording were not changed                   |
 
 ---
 

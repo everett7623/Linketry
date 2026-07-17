@@ -85,6 +85,14 @@ test('successful update checks are cached and newer versions remain detectable',
 
   assert.equal(first.updateAvailable, true);
   assert.equal(first.latestVersion, '0.20.0');
+  assert.equal(
+    first.changelogUrl,
+    'https://github.com/everett7623/Linketry/blob/main/CHANGELOG.md'
+  );
+  assert.equal(
+    first.upgradeWorkflowUrl,
+    'https://github.com/everett7623/Linketry/actions/workflows/deploy.yml'
+  );
   assert.deepEqual(cached, first);
   assert.equal(fetchCount, 1);
 });

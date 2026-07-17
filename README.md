@@ -166,6 +166,8 @@ See [docs/DEPLOYMENT_PREFLIGHT.md](docs/DEPLOYMENT_PREFLIGHT.md) for required ga
 
 GitHub Actions production runs are additionally bound to an approved release version, exact commit, migration digest, and fresh-or-upgrade safety state before any Cloudflare write. Generate the reviewed digest with `npm run deploy:migration-digest`.
 
+Deployed Admin instances also expose a safe **Online upgrade** action when a newer version is available. It opens the deployment repository's authenticated **Deploy Linketry** workflow; the repository owner must confirm the release, and the existing migration, backup, target, and resource gates still run before any Cloudflare write. No GitHub or Cloudflare credential is stored in the browser.
+
 This repository also keeps a maintainer production runbook in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ### 1. Create Required D1 And KV Resources

@@ -11,6 +11,18 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed - Safe Online Upgrade (v0.25.4)
+
+- [x] Diagnose the stale v0.22.0 production build and recover the approved v0.25.3 deployment
+- [x] Add authenticated manual approval for the selected branch's exact version and commit
+- [x] Keep normal push deployments bound to repository approval variables
+- [x] Add Admin changelog and online-upgrade actions for the current deployment repository
+- [x] Preserve migration, backup, target, destructive-operation, and remote-resource gates
+- [x] Add deployment and Admin unit coverage
+- [x] Complete browser regression and production rollout readiness verification
+
+---
+
 ## ✅ Completed - Brand Logo Refresh (v0.25.3)
 
 - [x] Replace GitHub README logo with the canonical `https://linketry.com/favicon.svg` brand mark

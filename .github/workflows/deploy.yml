@@ -5,6 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      confirm_release:
+        description: I reviewed the release, verified the backup, and approve deploying this branch
+        required: true
+        default: false
+        type: boolean
 
 concurrency:
   group: deploy-linketry
@@ -71,6 +77,11 @@ jobs:
           echo "RESOLVED_LINKETRY_VERSION=$PACKAGE_VERSION" >> "$GITHUB_ENV"
           echo "Linketry version: $PACKAGE_VERSION"
 
+      - name: Resolve authenticated manual release approval
+        env:
+          LINKETRY_MANUAL_RELEASE_APPROVED: ${{ inputs.confirm_release }}
+        run: node scripts/deployment-release-approval.mjs
+
       - name: Test deployment preflight policies
         run: npm run test:deployment
 
@@ -100,6 +111,7 @@ jobs:
         run: npm run build --workspace=apps/admin
         env:
           VITE_LINKETRY_API_URL: ${{ env.LINKETRY_API_URL }}
+          VITE_LINKETRY_REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
 
       - name: Build project site
         run: npm run build:site
@@ -160,7 +172,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.25.3'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.25.4'}"`,
             `LINKETRY_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
             `LINKETRY_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             '',

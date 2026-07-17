@@ -181,7 +181,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.25.3"}}
+{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.25.4"}}
 ```
 
 ## 7. Build and Deploy Admin
@@ -236,7 +236,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.25.3
+LINKETRY_APPROVED_RELEASE=0.25.4
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
@@ -245,6 +245,10 @@ LINKETRY_FRESH_INSTALL_CONFIRMED=true
 Use `git rev-parse HEAD` for the exact commit and `npm run deploy:migration-digest` for the reviewed migration digest. The workflow checks these approvals before its first Cloudflare write. After the first successful deployment, switch `LINKETRY_DEPLOYMENT_TRACK` to `upgrade` and set the verified-backup and migration-review variables in [Deployment Preflight](DEPLOYMENT_PREFLIGHT.md) before later releases.
 
 Push the approved commit to `main` and the workflow will type-check, build, enforce the deployment gate, migrate D1, set the `LINKETRY_ADMIN_TOKEN` secret, deploy the Worker, and deploy the Admin.
+
+After the first deployment, the Admin update banner provides **Online upgrade**. It opens this deployment repository's protected **Deploy Linketry** workflow. Sign in to GitHub, choose the release branch, check the release-safety confirmation, and run the workflow. The authenticated manual run approves only that branch's exact package version and commit; the migration digest, verified backup reference, migration review, target confirmation, and remote-resource checks still have to pass. Browser code never receives GitHub or Cloudflare credentials.
+
+Normal `push` deployments remain bound to `LINKETRY_APPROVED_RELEASE` and `LINKETRY_APPROVED_COMMIT`. The online path is an explicit repository-owner action, not an automatic background update.
 
 The completed workflow includes a **Linketry access** summary with the Admin and API URLs.
 
@@ -256,7 +260,7 @@ Leave these unset for the basic deployment; enable them later from the Admin Adv
 
 ```txt
 LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKETRY_VERSION=0.25.3
+LINKETRY_VERSION=0.25.4
 LINKETRY_COMPATIBILITY_DATE=2026-07-08
 LINKETRY_WORKER_DOMAINS=go.example.com,s.example.com
 LINKETRY_R2_BUCKET=linketry-backups
