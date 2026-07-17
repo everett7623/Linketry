@@ -43,6 +43,15 @@ test('stores sidebar and table density independently in the current browser', ()
   assert.equal(storage.getItem('linketry_table_density'), 'comfortable');
 });
 
+test('stores analytics auto-refresh preferences in the current browser', () => {
+  const storage = memoryStorage();
+  writeBrowserSetting('analyticsAutoRefresh', 'true', storage);
+  writeBrowserSetting('analyticsRefreshInterval', '10', storage);
+
+  assert.equal(storage.getItem('linketry_analytics_auto_refresh'), 'true');
+  assert.equal(storage.getItem('linketry_analytics_refresh_interval'), '10');
+});
+
 test('stores sidebar collapse and Demo access independently', () => {
   const storage = memoryStorage();
   writeBrowserSetting('sidebarCollapsed', 'true', storage);

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Activity,
   Bot,
@@ -34,6 +34,8 @@ import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
 import { useLocale } from '../contexts/LocaleContext';
+import { AnalyticsRefreshControl } from '../components/analytics/AnalyticsRefreshControl';
+import { useAnalyticsRefresh } from '../hooks/useAnalyticsRefresh';
 
 const DEFAULT_FILTERS: AnalyticsFilters = { days: 30 };
 
@@ -43,7 +45,6 @@ export function Analytics() {
   const [filters, setFilters] = useState<AnalyticsFilters>(DEFAULT_FILTERS);
   const [draft, setDraft] = useState<AnalyticsFilters>(DEFAULT_FILTERS);
   const [data, setData] = useState<AnalyticsSummary | null>(null);
-  const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [views, setViews] = useState<SavedAnalyticsView[]>([]);
   const [viewName, setViewName] = useState('');
@@ -51,13 +52,16 @@ export function Analytics() {
   const [reports, setReports] = useState<AnalyticsReportState | null>(null);
   const [reportBusy, setReportBusy] = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
-    getAnalytics(filters)
-      .then(setData)
-      .catch(() => error(t('analyticsLoadFailed')))
-      .finally(() => setLoading(false));
-  }, [filters]);
+  const loadAnalytics = useCallback(() => getAnalytics(filters), [filters]);
+  const handleAnalyticsError = useCallback(
+    () => error(t('analyticsLoadFailed')),
+    [error, t]
+  );
+  const refresh = useAnalyticsRefresh({
+    load: loadAnalytics,
+    onData: setData,
+    onError: handleAnalyticsError,
+  });
 
   useEffect(() => { getSavedAnalyticsViews().then((result) => setViews(result.items)).catch(() => error(t('savedViewsLoadFailed'))); }, []);
   useEffect(() => { getAnalyticsReportState().then(setReports).catch(() => error(t('scheduledReportsLoadFailed'))); }, []);
@@ -115,7 +119,7 @@ export function Analytics() {
     catch (e) { error(String(e)); } finally { setReportBusy(false); }
   };
 
-  if (loading) {
+  if (refresh.initialLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
@@ -130,14 +134,25 @@ export function Analytics() {
           <h1 className="text-2xl font-bold text-slate-100">{t('analytics')}</h1>
           <p className="mt-0.5 text-sm text-slate-400">{t('analyticsSubtitle')}</p>
         </div>
-        <Button
-          variant="secondary"
-          icon={<Download size={15} />}
-          loading={downloading}
-          onClick={exportReport}
-        >
-          {t('exportCsv')}
-        </Button>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <AnalyticsRefreshControl
+            enabled={refresh.autoRefresh}
+            intervalSeconds={refresh.intervalSeconds}
+            refreshing={refresh.refreshing}
+            lastUpdated={refresh.lastUpdated}
+            onEnabledChange={refresh.setAutoRefresh}
+            onIntervalChange={refresh.setIntervalSeconds}
+            onRefresh={refresh.refreshNow}
+          />
+          <Button
+            variant="secondary"
+            icon={<Download size={15} />}
+            loading={downloading}
+            onClick={exportReport}
+          >
+            {t('exportCsv')}
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
@@ -267,16 +282,22 @@ export function Analytics() {
         />
         <Metric
           label={t('conversions')}
-          value={data?.conversionsTotal ?? 0}
+          value={data?.conversionsTotal ?? t('unavailable')}
           icon={<Target size={16} />}
         />
         <Metric
           label={t('conversionRate')}
-          value={`${data?.conversionRate ?? 0}%`}
+          value={data?.conversionRate === null ? t('unavailable') : `${data?.conversionRate ?? 0}%`}
           icon={<Activity size={16} />}
         />
         <Metric label={t('botRate')} value={`${botRate}%`} icon={<Bot size={16} />} />
       </div>
+
+      {data && !data.conversionAttributionAvailable && (
+        <p className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+          {t('conversionFilterUnavailable')}
+        </p>
+      )}
 
       <DailyBars items={data?.daily ?? []} />
 
@@ -320,7 +341,7 @@ export function Analytics() {
           title={t('conversionEvents')}
           valueLabel={t('eventsValue')}
           items={(data?.topConversionEvents ?? []).map((item) => ({
-            label: item.event_name,
+            label: item.currency ? `${item.event_name} (${item.currency})` : item.event_name,
             value: item.conversions,
           }))}
         />

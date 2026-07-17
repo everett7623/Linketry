@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router-dom';
 import {
   Activity,
@@ -29,6 +29,8 @@ import { Select } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
 import { useLocale } from '../contexts/LocaleContext';
 import { getApiBase } from '../api/client';
+import { AnalyticsRefreshControl } from '../components/analytics/AnalyticsRefreshControl';
+import { useAnalyticsRefresh } from '../hooks/useAnalyticsRefresh';
 
 export function LinkAnalytics() {
   const { id = '' } = useParams();
@@ -36,7 +38,6 @@ export function LinkAnalytics() {
   const { t } = useLocale();
   const [days, setDays] = useState(30);
   const [data, setData] = useState<LinkAnalyticsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [share, setShare] = useState<PublicStatsConfig>({ enabled: false });
   const [shareDays, setShareDays] = useState(30);
@@ -45,14 +46,16 @@ export function LinkAnalytics() {
   const [shareUrl, setShareUrl] = useState('');
   const [sharing, setSharing] = useState(false);
 
-  useEffect(() => {
-    if (!id) return;
-    setLoading(true);
-    getLinkAnalytics(id, { days })
-      .then(setData)
-      .catch(() => error(t('linkAnalyticsLoadFailed')))
-      .finally(() => setLoading(false));
-  }, [id, days]);
+  const loadAnalytics = useCallback(() => getLinkAnalytics(id, { days }), [days, id]);
+  const handleAnalyticsError = useCallback(
+    () => error(t('linkAnalyticsLoadFailed')),
+    [error, t]
+  );
+  const refresh = useAnalyticsRefresh({
+    load: loadAnalytics,
+    onData: setData,
+    onError: handleAnalyticsError,
+  });
 
   useEffect(() => {
     if (!id) return;
@@ -94,7 +97,7 @@ export function LinkAnalytics() {
     }
   };
 
-  if (loading) {
+  if (refresh.initialLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
@@ -123,6 +126,15 @@ export function LinkAnalytics() {
           <p className="mt-0.5 max-w-3xl truncate text-sm text-slate-400">{link?.long_url}</p>
         </div>
         <div className="flex flex-wrap gap-3">
+          <AnalyticsRefreshControl
+            enabled={refresh.autoRefresh}
+            intervalSeconds={refresh.intervalSeconds}
+            refreshing={refresh.refreshing}
+            lastUpdated={refresh.lastUpdated}
+            onEnabledChange={refresh.setAutoRefresh}
+            onIntervalChange={refresh.setIntervalSeconds}
+            onRefresh={refresh.refreshNow}
+          />
           <Select
             value={String(days)}
             onChange={(e) => setDays(Number(e.target.value))}
@@ -162,12 +174,16 @@ export function LinkAnalytics() {
         />
         <Metric
           label={t('conversions')}
-          value={summary?.conversionsTotal ?? 0}
+          value={summary?.conversionsTotal ?? t('unavailable')}
           icon={<Target size={16} />}
         />
         <Metric
           label={t('conversionRate')}
-          value={`${summary?.conversionRate ?? 0}%`}
+          value={
+            summary?.conversionRate === null
+              ? t('unavailable')
+              : `${summary?.conversionRate ?? 0}%`
+          }
           icon={<Activity size={16} />}
         />
         <Metric label={t('botRate')} value={`${botRate}%`} icon={<Bot size={16} />} />
@@ -207,7 +223,7 @@ export function LinkAnalytics() {
           title={t('conversionEvents')}
           valueLabel={t('eventsValue')}
           items={(summary?.topConversionEvents ?? []).map((item) => ({
-            label: item.event_name,
+            label: item.currency ? `${item.event_name} (${item.currency})` : item.event_name,
             value: item.conversions,
           }))}
         />

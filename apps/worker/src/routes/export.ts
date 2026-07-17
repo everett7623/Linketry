@@ -121,8 +121,15 @@ export function analyticsCsv(summary: AnalyticsSummary): string {
     ['summary', 'unique_visitors', summary.uniqueVisitors, ''],
     ['summary', 'unique_links', summary.uniqueLinks, ''],
     ['summary', 'bot_clicks', summary.botClicks, ''],
+    ['summary', 'eligible_human_clicks', summary.eligibleClicks, ''],
     ['summary', 'conversions_total', summary.conversionsTotal, ''],
     ['summary', 'conversion_rate_percent', summary.conversionRate, ''],
+    [
+      'summary',
+      'conversion_attribution_available',
+      String(summary.conversionAttributionAvailable),
+      '',
+    ],
   ];
 
   for (const item of summary.daily) rows.push(['daily', item.date, item.clicks, 'clicks']);
@@ -138,7 +145,14 @@ export function analyticsCsv(summary: AnalyticsSummary): string {
   for (const item of summary.topUtmTerms) rows.push(['utm_term', item.value, item.clicks, 'clicks']);
   for (const item of summary.topUtmContents) rows.push(['utm_content', item.value, item.clicks, 'clicks']);
   for (const item of summary.topTargets) rows.push(['redirect_targets', item.target_url, item.clicks, item.redirect_rule_type ?? 'default']);
-  for (const item of summary.topConversionEvents) rows.push(['conversion_events', item.event_name, item.conversions, item.value_total]);
+  for (const item of summary.topConversionEvents) {
+    rows.push([
+      'conversion_events',
+      item.event_name,
+      item.conversions,
+      item.currency ? `${item.currency}:${item.value_total}` : item.value_total,
+    ]);
+  }
 
   return rows.map((row) => row.map(csv).join(',')).join('\r\n');
 }

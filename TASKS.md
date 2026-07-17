@@ -11,6 +11,22 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed - Admin Shell And Analytics Accuracy (v0.26.0)
+
+- [x] Align the Sidebar brand row and desktop content toolbar
+- [x] Show the running version under the Logo with a changelog link
+- [x] Move desktop language, theme, support, mode, and Demo status controls into the top toolbar
+- [x] Add saved 5/10/30 second near-real-time refresh and manual refresh to aggregate and per-link Analytics
+- [x] Calculate conversion event rate against human clicks and exclude classified bots
+- [x] Mark conversion metrics unavailable for visit-only attribution filters
+- [x] Add idempotent client `event_id` support and separate conversion values by currency
+- [x] Prevent long Analytics target/referrer labels from creating mobile horizontal overflow
+- [x] Prevent Playwright from attaching to an unrelated service on the configured port
+- [x] Verify Admin unit/build, Worker type/test, and complete Admin browser smoke coverage
+- [x] Preserve redirect, KV, D1 link, and asynchronous visit-recording behavior
+
+---
+
 ## ✅ Completed - Main Toolbar Navigation Toggle (v0.25.10)
 
 - [x] Remove the desktop collapse control from the Sidebar navigation area
@@ -865,7 +881,7 @@ Deployment experience:
 - [x] Scheduled analytics report exports
 - [x] Saved Analytics filters and reusable report views
 - [ ] Privacy-safe session or visitor-level conversion attribution
-- [ ] Additional conversion attribution fields, such as external campaign IDs and client-provided visitor IDs
+- [ ] Additional attribution fields, such as external campaign IDs and privacy-safe visitor/session identifiers; retry idempotency is complete through `event_id`
 - [x] Scheduled privacy-safe traffic anomaly alerts with explainable thresholds and suppression
 - [ ] Evaluate opt-in fallback_url failover using previously recorded health state, without synchronous redirect-path probes
 - [ ] Long-idle auto-archive rules with review queue and dry-run mode

@@ -1,5 +1,7 @@
 export type BrowserSetting =
   | 'adminMode'
+  | 'analyticsAutoRefresh'
+  | 'analyticsRefreshInterval'
   | 'apiBase'
   | 'demoAccess'
   | 'dismissedUpdateVersion'
@@ -20,6 +22,8 @@ export interface StorageLike {
 
 const STORAGE_KEYS: Record<BrowserSetting, string> = {
   adminMode: 'linketry_admin_mode',
+  analyticsAutoRefresh: 'linketry_analytics_auto_refresh',
+  analyticsRefreshInterval: 'linketry_analytics_refresh_interval',
   apiBase: 'linketry_api_base',
   demoAccess: 'linketry_demo_access',
   dismissedUpdateVersion: 'linketry_dismissed_update_version',

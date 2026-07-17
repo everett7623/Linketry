@@ -44,7 +44,7 @@ async function mockDashboardApi(page: Page) {
   });
 }
 
-test('Sidebar groups language, theme, and active coffee support actions', async ({ page }) => {
+test('Desktop toolbar groups language, theme, and active coffee support actions', async ({ page }) => {
   await page.addInitScript((version) => {
     localStorage.setItem('linketry_token', 'test-token');
     localStorage.setItem('linketry.locale', 'en');
@@ -58,8 +58,10 @@ test('Sidebar groups language, theme, and active coffee support actions', async 
 
   await page.goto('/overview');
 
-  const actions = page.getByRole('group', { name: messages.en.quickActions });
+  const toolbar = page.getByTestId('desktop-toolbar');
+  const actions = toolbar.getByRole('group', { name: messages.en.quickActions });
   await expect(actions.locator('button, a')).toHaveCount(3);
+  await expect(page.locator('aside').getByRole('group', { name: messages.en.quickActions })).toHaveCount(0);
 
   const support = actions.getByRole('link', { name: messages.en.supportEverettlabs });
   await expect(support).toHaveAttribute('href', EVERETTLABS_SUPPORT_URL);

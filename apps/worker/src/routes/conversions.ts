@@ -6,6 +6,7 @@ import { createConversionEvent } from '../db/analytics';
 import { getLinkByDomainAndSlug, getLinkById, getLinkBySlug } from '../db/index';
 import { generateId, now, sha256 } from '../utils/id';
 import { jsonError, jsonOk } from '../utils/response';
+import { parseConversionInput } from '../analytics/conversionPolicy';
 
 const conversions = new Hono<{ Bindings: Env }>();
 
@@ -23,18 +24,18 @@ conversions.post('/', async (c) => {
     return jsonError('Invalid JSON body', 400);
   }
 
-  const parsed = parseConversionBody(body);
+  const parsed = parseConversionInput(body);
   if (parsed.error) return jsonError(parsed.error, 400);
 
   const link = await resolveConversionLink(c.env, body);
   if (!link) return jsonError('Link not found', 404);
 
   const event: ConversionEvent = {
-    id: generateId(),
+    id: parsed.value!.eventId ?? generateId(),
     link_id: link.id,
     slug: link.slug,
     domain: link.domain ?? null,
-    event_name: parsed.value!.event_name,
+    event_name: parsed.value!.eventName,
     value: parsed.value!.value,
     currency: parsed.value!.currency,
     metadata: parsed.value!.metadata,
@@ -43,11 +44,13 @@ conversions.post('/', async (c) => {
     created_at: now(),
   };
 
-  await createConversionEvent(c.env, event);
-  return jsonOk(event, 201);
+  const inserted = await createConversionEvent(c.env, event);
+  if (inserted) return jsonOk({ ...event, duplicate: false }, 201);
+  return jsonOk({ id: event.id, duplicate: true }, 200);
 });
 
 interface ConversionBody {
+  event_id?: unknown;
   link_id?: unknown;
   slug?: unknown;
   domain?: unknown;
@@ -55,49 +58,6 @@ interface ConversionBody {
   value?: unknown;
   currency?: unknown;
   metadata?: unknown;
-}
-
-interface ConversionPayload {
-  event_name: string;
-  value: number | null;
-  currency: string | null;
-  metadata: string | null;
-}
-
-function parseConversionBody(body: ConversionBody): { value?: ConversionPayload; error?: string } {
-  const eventName = typeof body.event_name === 'string' ? body.event_name.trim() : '';
-  if (!/^[a-zA-Z0-9_.:-]{1,80}$/.test(eventName)) {
-    return { error: 'event_name must be 1-80 characters using letters, numbers, dot, underscore, colon, or dash' };
-  }
-
-  const value = parseOptionalNumber(body.value);
-  if (value.error) return { error: value.error };
-
-  const currency = typeof body.currency === 'string' && body.currency.trim()
-    ? body.currency.trim().toUpperCase()
-    : null;
-  if (currency && !/^[A-Z0-9]{2,12}$/.test(currency)) {
-    return { error: 'currency must be 2-12 uppercase letters or numbers' };
-  }
-
-  const metadata = stringifyMetadata(body.metadata);
-  if (metadata.error) return { error: metadata.error };
-
-  return { value: { event_name: eventName, value: value.value, currency, metadata: metadata.value } };
-}
-
-function parseOptionalNumber(value: unknown): { value: number | null; error?: string } {
-  if (value === undefined || value === null || value === '') return { value: null };
-  const parsed = typeof value === 'number' ? value : Number(value);
-  if (!Number.isFinite(parsed)) return { value: null, error: 'value must be a number' };
-  return { value: parsed };
-}
-
-function stringifyMetadata(value: unknown): { value: string | null; error?: string } {
-  if (value === undefined || value === null || value === '') return { value: null };
-  const text = typeof value === 'string' ? value : JSON.stringify(value);
-  if (text.length > 4000) return { value: null, error: 'metadata must be 4000 characters or less' };
-  return { value: text };
 }
 
 async function resolveConversionLink(env: Env, body: ConversionBody): Promise<Link | null> {

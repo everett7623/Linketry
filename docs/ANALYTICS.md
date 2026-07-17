@@ -61,7 +61,7 @@ The Analytics page currently shows:
 - Approximate unique visitors based on distinct hashed IPs
 - Unique clicked links
 - Bot clicks and bot rate
-- Conversion count and conversion rate
+- Conversion event count and events per human click
 - Daily click trend
 - Top links
 - Top countries
@@ -76,6 +76,10 @@ The Analytics page currently shows:
 
 Analytics summary reports can be exported from `GET /api/v1/export/analytics.csv`. Raw visits can still be exported from `GET /api/v1/export/visits.csv`.
 
+The Analytics and Link Analytics pages refresh every 10 seconds by default. Operators can select a 5, 10, or 30 second interval, disable automatic refresh, or refresh manually. This is bounded near-real-time polling, not a WebSocket stream. Automatic refresh pauses while the browser tab is hidden, and the latest completed request wins if filters change while a request is running.
+
+Conversion rate is calculated as conversion events divided by eligible human clicks. Classified bot clicks are excluded from the denominator. Conversion events do not currently store visit-level country, device, browser, or referrer attribution, so applying any of those filters makes `conversionsTotal`, `conversionRate`, and `topConversionEvents` unavailable rather than combining filtered clicks with unfiltered events.
+
 ## Conversion Events
 
 Authenticated API clients can record conversion or goal events:
@@ -88,6 +92,7 @@ Content-Type: application/json
 
 ```json
 {
+  "event_id": "order:2026-0001",
   "link_id": "link-id",
   "event_name": "signup",
   "value": 29,
@@ -96,7 +101,11 @@ Content-Type: application/json
 }
 ```
 
-`event_name` is limited to letters, numbers, dot, underscore, colon, and dash. Metadata is stored as a bounded JSON string.
+`event_id` is optional and is limited to letters, numbers, dot, underscore, colon, and dash. When supplied, it is the idempotency key: repeating the same event returns the existing identifier with `duplicate: true` instead of inserting another row. Without `event_id`, Linketry generates a new identifier.
+
+`event_name` uses the same bounded character set. Metadata is stored as a bounded JSON string. Conversion value totals are grouped by both event name and currency, so unlike currencies are never added together.
+
+This endpoint requires a write-scoped API token and is intended for trusted server-to-server calls. Do not place an Admin token or write-scoped API token in public browser JavaScript. Browser-side conversion collection requires a future dedicated public ingestion boundary.
 
 ## Retention
 

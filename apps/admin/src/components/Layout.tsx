@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { useDisplayPreferences } from '../contexts/DisplayPreferencesContext';
 import { UpdateBanner } from './UpdateBanner';
 import { DemoModeBanner } from './DemoModeBanner';
 import { useLocale } from '../contexts/LocaleContext';
+import { NAV_GROUPS } from './sidebar/sidebarNavigation';
+import { SidebarUtilityActions } from './sidebar/SidebarUtilityActions';
+import { AdminModeControl, DemoReadOnlyStatus } from './AdminShellControls';
 
 export function Layout() {
   const { sidebarCollapsed, sidebarDensity, tableDensity, setSidebarCollapsed } =
     useDisplayPreferences();
   const { t } = useLocale();
+  const location = useLocation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const pageLabel = resolvePageLabel(location.pathname);
 
   useEffect(() => {
     if (!mobileSidebarOpen) return;
@@ -49,20 +54,33 @@ export function Layout() {
       )}
 
       <main className="min-w-0 flex-1 overflow-y-auto bg-slate-950">
-        <div className="sticky top-0 z-30 hidden h-14 items-center border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur lg:flex">
-          <button
-            type="button"
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100"
-            aria-label={t(sidebarCollapsed ? 'expandNavigation' : 'collapseNavigation')}
-            title={t(sidebarCollapsed ? 'expandNavigation' : 'collapseNavigation')}
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          >
-            {sidebarCollapsed ? (
-              <PanelLeftOpen size={18} aria-hidden="true" />
-            ) : (
-              <PanelLeftClose size={18} aria-hidden="true" />
-            )}
-          </button>
+        <div
+          data-testid="desktop-toolbar"
+          className="sticky top-0 z-30 hidden h-16 items-center gap-3 border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur lg:flex"
+        >
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100"
+              aria-label={t(sidebarCollapsed ? 'expandNavigation' : 'collapseNavigation')}
+              title={t(sidebarCollapsed ? 'expandNavigation' : 'collapseNavigation')}
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            >
+              {sidebarCollapsed ? (
+                <PanelLeftOpen size={18} aria-hidden="true" />
+              ) : (
+                <PanelLeftClose size={18} aria-hidden="true" />
+              )}
+            </button>
+            <span className="truncate text-sm font-semibold text-slate-200">
+              {pageLabel ? t(pageLabel) : 'Linketry'}
+            </span>
+          </div>
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <AdminModeControl />
+            <SidebarUtilityActions placement="toolbar" />
+            <DemoReadOnlyStatus compact />
+          </div>
         </div>
         <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur lg:hidden">
           <button
@@ -84,4 +102,10 @@ export function Layout() {
       </main>
     </div>
   );
+}
+
+function resolvePageLabel(pathname: string) {
+  return NAV_GROUPS.flatMap((group) => group.items)
+    .filter((item) => pathname === item.to || pathname.startsWith(`${item.to}/`))
+    .sort((a, b) => b.to.length - a.to.length)[0]?.label;
 }

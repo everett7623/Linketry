@@ -9,6 +9,8 @@ import { useDisplayPreferences } from '../contexts/DisplayPreferencesContext';
 import { SidebarFooter } from './sidebar/SidebarFooter';
 import { NAV_GROUPS } from './sidebar/sidebarNavigation';
 import { BrandMark } from './BrandMark';
+import { LINKETRY_VERSION } from '@linketry/shared';
+import { GITHUB_CHANGELOG_URL } from '../api/updates';
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -44,24 +46,35 @@ export function Sidebar({ collapsed = false, mobile = false, onClose, onNavigate
     >
       {/* Logo */}
       <div
+        data-testid="sidebar-brand"
         className={clsx(
-          'flex items-center gap-2.5 border-b border-slate-800',
-          collapsed && !mobile ? 'justify-center px-2 py-3' : compact ? 'px-4 py-3.5' : 'px-5 py-5'
+          'flex h-16 items-center gap-2.5 border-b border-slate-800',
+          collapsed && !mobile ? 'justify-center px-2' : compact ? 'px-4' : 'px-5'
         )}
       >
-        <div
+        <a
+          href={GITHUB_CHANGELOG_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           className={clsx(
             'flex min-w-0 items-center gap-2.5',
             collapsed && !mobile && 'justify-center'
           )}
+          aria-label={t('viewVersionChangelog', { version: LINKETRY_VERSION })}
+          title={t('viewVersionChangelog', { version: LINKETRY_VERSION })}
         >
           <BrandMark size="sm" />
           {!collapsed && (
-            <span className="truncate text-lg font-bold tracking-tight text-slate-100">
-              Linketry
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate text-lg font-bold leading-5 tracking-tight text-slate-100">
+                Linketry
+              </span>
+              <span className="mt-0.5 font-mono text-[10px] leading-3 text-slate-500 transition-colors hover:text-brand-400">
+                v{LINKETRY_VERSION}
+              </span>
             </span>
           )}
-        </div>
+        </a>
         {mobile && (
           <button
             type="button"
@@ -122,7 +135,7 @@ export function Sidebar({ collapsed = false, mobile = false, onClose, onNavigate
         ))}
       </nav>
 
-      <SidebarFooter collapsed={collapsed} compact={compact} />
+      <SidebarFooter collapsed={collapsed} compact={compact} mobile={mobile} />
     </aside>
   );
 }

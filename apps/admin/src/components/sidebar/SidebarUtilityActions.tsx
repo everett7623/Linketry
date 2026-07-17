@@ -8,7 +8,13 @@ import { EVERETTLABS_SUPPORT_URL } from '../../utils/externalLinks';
 const CONTROL_CLASS =
   'flex h-9 min-w-0 items-center justify-center rounded-lg border border-slate-700 bg-slate-950 text-slate-400 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500';
 
-export function SidebarUtilityActions({ collapsed = false }: { collapsed?: boolean }) {
+export function SidebarUtilityActions({
+  collapsed = false,
+  placement = 'sidebar',
+}: {
+  collapsed?: boolean;
+  placement?: 'sidebar' | 'toolbar';
+}) {
   const { locale, setLocale, t } = useLocale();
   const { resolvedTheme, setPreference } = useTheme();
   const currentLocale = getLocaleDefinition(locale);
@@ -28,7 +34,13 @@ export function SidebarUtilityActions({ collapsed = false }: { collapsed?: boole
     <div
       role="group"
       aria-label={t('quickActions')}
-      className={collapsed ? 'flex flex-col gap-2' : 'grid grid-cols-3 gap-2'}
+      className={
+        placement === 'toolbar'
+          ? 'flex items-center gap-2'
+          : collapsed
+            ? 'flex flex-col gap-2'
+            : 'grid grid-cols-3 gap-2'
+      }
     >
       <button
         type="button"

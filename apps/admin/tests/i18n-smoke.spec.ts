@@ -493,7 +493,9 @@ test('Simplified Chinese core workflow renders localized navigation and forms', 
     .getByRole('link', { name: messages['zh-CN'].settings })
     .click();
   await expect(page.getByRole('heading', { name: messages['zh-CN'].settings })).toBeVisible();
-  await expect(page.getByRole('main').getByLabel(messages['zh-CN'].language)).toHaveValue('zh-CN');
+  await expect(
+    page.getByRole('main').getByLabel(messages['zh-CN'].language, { exact: true })
+  ).toHaveValue('zh-CN');
   await page.evaluate(() => window.__assertNoBrowserErrors());
 });
 

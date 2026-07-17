@@ -26,8 +26,10 @@ export interface AnalyticsSummary {
   botClicks: number;
   uniqueVisitors: number;
   uniqueLinks: number;
-  conversionsTotal: number;
-  conversionRate: number;
+  eligibleClicks: number;
+  conversionsTotal: number | null;
+  conversionRate: number | null;
+  conversionAttributionAvailable: boolean;
   daily: Array<{ date: string; clicks: number }>;
   topLinks: Array<{ id?: string | null; slug: string; domain?: string | null; title?: string | null; clicks: number }>;
   topCountries: Array<{ country: string; clicks: number }>;
@@ -41,7 +43,12 @@ export interface AnalyticsSummary {
   topUtmTerms: Array<{ value: string; clicks: number }>;
   topUtmContents: Array<{ value: string; clicks: number }>;
   topTargets: Array<{ target_url: string; redirect_rule_id?: string | null; redirect_rule_type?: string | null; clicks: number }>;
-  topConversionEvents: Array<{ event_name: string; conversions: number; value_total: number }>;
+  topConversionEvents: Array<{
+    event_name: string;
+    currency: string | null;
+    conversions: number;
+    value_total: number;
+  }>;
   recentVisits: Visit[];
 }
 
@@ -84,6 +91,7 @@ export function disablePublicStatsShare(id: string): Promise<PublicStatsConfig> 
 }
 
 export interface ConversionPayload {
+  event_id?: string;
   link_id?: string;
   slug?: string;
   domain?: string;
@@ -103,7 +111,9 @@ export function getLinkAnalytics(id: string, filters: AnalyticsFilters = {}): Pr
   return apiGet(`/api/v1/analytics/links/${id}?${q.toString()}`);
 }
 
-export function createConversion(payload: ConversionPayload): Promise<ConversionEvent> {
+export function createConversion(
+  payload: ConversionPayload
+): Promise<(ConversionEvent & { duplicate: false }) | { id: string; duplicate: true }> {
   return apiPost('/api/v1/conversions', payload);
 }
 

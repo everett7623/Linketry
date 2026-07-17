@@ -13,6 +13,33 @@ _(none)_
 
 ---
 
+## [0.26.0] - 2026-07-17
+
+### Added
+
+- Added 5, 10, or 30 second near-real-time refresh controls to the aggregate and single-link Analytics pages, with a manual refresh action, saved browser preferences, and background-tab pause behavior.
+- Added optional client-provided conversion `event_id` values so server integrations can retry safely without creating duplicate events.
+- Added focused conversion-policy, refresh-preference, responsive-shell, and browser workflow coverage.
+
+### Changed
+
+- Aligned the desktop Sidebar brand row and content toolbar to the same height, moved desktop utility actions into the toolbar, and exposed the exact Linketry version beneath the Logo with a changelog link.
+- Renamed the conversion metrics to describe event counts and events per human click, excluding classified bot clicks from the denominator.
+- Grouped conversion value totals by event name and currency instead of mixing unlike currencies in one total.
+
+### Fixed
+
+- Conversion metrics now report unavailable when country, device, browser, or referrer filters cannot be applied to conversion events, instead of combining filtered clicks with unfiltered conversions.
+- Long Analytics target and referrer labels no longer force horizontal scrolling on mobile layouts.
+- Playwright now starts its own strict-port Admin server and cannot silently attach to an unrelated service already using the configured port.
+
+### Security
+
+- Conversion writes remain authenticated server-to-server API operations; write tokens must not be embedded in browser code.
+- Redirect handlers, KV cache behavior, D1 link data, and asynchronous visit recording were not changed.
+
+---
+
 ## [0.25.10] - 2026-07-17
 
 ### Changed

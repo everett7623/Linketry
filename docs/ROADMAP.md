@@ -131,6 +131,9 @@ Done:
 - UTM source, medium, and campaign breakdown
 - Smart redirect and A/B target breakdown through `visit_targets`
 - Authenticated conversion or goal event API
+- Idempotent conversion retries through optional client-provided event IDs
+- Human-click conversion-event rates, currency-separated values, and unavailable-state guards for unsupported visit-only filters
+- Near-real-time Admin refresh with bounded polling and hidden-tab pause behavior
 - Exportable Analytics CSV reports
 - Configurable raw analytics retention
 
@@ -217,7 +220,7 @@ Planned:
 - Done: scheduled Analytics CSV report exports to R2 with saved-view support
 - Done: saved Analytics filters and reusable report views
 - Session or visitor-level conversion attribution where privacy-safe
-- More conversion attribution fields, such as external campaign IDs and client-provided visitor IDs
+- More attribution fields, such as external campaign IDs and privacy-safe visitor/session identifiers; retry idempotency is already available through `event_id`
 - Done in v0.22.0: scheduled volume and bot-rate anomaly alerts with bounded aggregate windows and no redirect-path work; source/country shifts remain deferred pending a minimum-volume privacy contract
 - Evaluate opt-in fallback_url failover from previously recorded health state; never probe a destination synchronously during redirect
 - Long-idle auto-archive rules with review queue and dry-run mode

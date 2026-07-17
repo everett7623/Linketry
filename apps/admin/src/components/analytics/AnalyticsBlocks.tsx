@@ -14,7 +14,7 @@ export function Metric({
 }) {
   const { locale } = useLocale();
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+    <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-900 p-5">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm text-slate-400">{label}</span>
         <div className="rounded-lg bg-brand-500/10 p-2 text-brand-400">{icon}</div>
@@ -39,7 +39,7 @@ export function BarList({
   const displayValueLabel = valueLabel ?? t('clicksValue');
   const max = Math.max(...items.map((item) => item.value), 1);
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+    <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-900 p-5">
       <h2 className="mb-4 text-sm font-semibold text-slate-300">{title}</h2>
       <div className="space-y-3">
         {items.length === 0 ? (
@@ -47,13 +47,16 @@ export function BarList({
         ) : (
           items.map((item) => (
             <div key={`${item.label}-${item.value}`} className="space-y-1">
-              <div className="flex justify-between gap-3 text-xs">
+              <div className="flex min-w-0 justify-between gap-3 text-xs">
                 {item.to ? (
-                  <Link to={item.to} className="truncate text-brand-400 hover:text-brand-300">
+                  <Link
+                    to={item.to}
+                    className="min-w-0 truncate text-brand-400 hover:text-brand-300"
+                  >
                     {item.label}
                   </Link>
                 ) : (
-                  <span className="truncate text-slate-400">{item.label}</span>
+                  <span className="min-w-0 truncate text-slate-400">{item.label}</span>
                 )}
                 <span className="shrink-0 text-slate-500">
                   {item.value.toLocaleString(locale)} {displayValueLabel}

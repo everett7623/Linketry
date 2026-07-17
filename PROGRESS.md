@@ -11,15 +11,31 @@ Last updated: 2026-07-17
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker backend             | ✅ Code complete       | Redirect-safe scheduled traffic anomaly detection and authenticated alert controls are locally verified; the previous release is deployed on Cloudflare Workers                                        |
-| Admin frontend             | ✅ V8 complete         | EN/ZH, display preferences, themes, collapsible desktop Sidebar, updates, table/card views, grouped utilities, and traffic-alert controls are browser tested                              |
+| Admin frontend             | ✅ V8 complete         | EN/ZH, aligned shell controls, visible version metadata, near-real-time Analytics refresh, display preferences, themes, updates, and traffic-alert controls are browser tested            |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.25.10             | Desktop navigation collapse/expand is located in the main content toolbar                                                                                                        |
+| Current version            | 🟡 0.26.0 code         | Code and release metadata are complete on `main` after this change; production and isolated Demo deployment remain pending                                                       |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.26.0 Admin Shell And Analytics Accuracy
+
+| Area                            | Status       | Notes                                                                                                                         |
+| ------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Desktop shell                   | ✅ Complete  | Sidebar brand and main toolbar share a 64px height; utilities and mode controls are grouped in the toolbar                    |
+| Version visibility              | ✅ Complete  | The exact running version appears beneath the Logo and links to the changelog                                                 |
+| Near-real-time Analytics        | ✅ Complete  | Aggregate and per-link pages support manual refresh and saved 5/10/30 second polling that pauses in hidden tabs               |
+| Conversion rate                | ✅ Corrected | Events are divided by eligible human clicks, with classified bot clicks excluded                                             |
+| Filter attribution             | ✅ Guarded   | Visit-only country/device/browser/referrer filters make conversion metrics unavailable until visit-level attribution exists  |
+| Conversion ingestion           | ✅ Hardened  | Optional `event_id` supports idempotent server retries and values are separated by currency                                   |
+| Verification                   | ✅ Complete  | Admin unit/build, Worker type/test, and 18-test Admin browser smoke coverage pass                                              |
+| Production/Demo rollout        | 🟡 Pending   | This release updates `main` only; Cloudflare deployment remains a separate protected action                                  |
+| Redirect-path impact           | ✅ None      | Redirect handlers, KV cache behavior, D1 link records, and asynchronous visit recording were not changed                     |
 
 ---
 

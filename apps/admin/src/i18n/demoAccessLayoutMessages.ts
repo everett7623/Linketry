@@ -10,6 +10,7 @@ export const demoAccessLayoutMessages = {
     showDemoAccessCode: 'Show Demo access code',
     hideDemoAccessCode: 'Hide Demo access code',
     enterDemo: 'Enter Demo',
+    viewVersionChangelog: 'View changelog for Linketry v{version}',
   },
   'zh-CN': {
     collapseNavigation: '收起导航',
@@ -22,5 +23,6 @@ export const demoAccessLayoutMessages = {
     showDemoAccessCode: '显示演示访问码',
     hideDemoAccessCode: '隐藏演示访问码',
     enterDemo: '进入演示',
+    viewVersionChangelog: '查看 Linketry v{version} 变更记录',
   },
 } as const;

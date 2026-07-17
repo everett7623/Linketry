@@ -475,8 +475,10 @@ Response data includes:
 - `uniqueVisitors` — approximate, based on distinct hashed IPs
 - `uniqueLinks`
 - `botClicks`
+- `eligibleClicks` — total clicks minus classified bot clicks
 - `conversionsTotal`
-- `conversionRate`
+- `conversionRate` — conversion events per eligible human click, as a percentage
+- `conversionAttributionAvailable`
 - `daily`
 - `topLinks`
 - `topCountries`
@@ -497,6 +499,7 @@ Conversion payload:
 
 ```json
 {
+  "event_id": "order:2026-0001",
   "link_id": "link-id",
   "event_name": "signup",
   "value": 29,
@@ -505,6 +508,10 @@ Conversion payload:
 }
 ```
 
-`POST /api/v1/conversions` requires write access. The link can be identified by `link_id`, or by `slug` with optional `domain`.
+`POST /api/v1/conversions` requires write access. The link can be identified by `link_id`, or by `slug` with optional `domain`. It is intended for trusted server-to-server integrations; never embed the Admin token or a write-scoped API token in browser code.
+
+`event_id` is an optional idempotency key. The first insert returns `201` with the stored event and `duplicate: false`; a retry with the same identifier returns only `{ "id": "...", "duplicate": true }` with status `200`. If omitted, Linketry generates a new event identifier. Conversion value totals in `topConversionEvents` are grouped by `event_name` and `currency`.
+
+Country, device, browser, and referrer filters are visit-only until session or visitor attribution is implemented. When any of those filters is active, `conversionAttributionAvailable` is `false`, conversion totals/rate are `null`, and the conversion event list is empty.
 
 Visit writes keep using `ctx.waitUntil()` or the optional queue path so analytics failures do not block redirects.

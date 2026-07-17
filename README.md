@@ -44,14 +44,14 @@ For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING
 - ⚡ Fast short link redirects via Cloudflare Workers + KV cache
 - 🔒 Admin panel with token authentication
 - Authenticated Admin startup checks for newer upstream GitHub versions, with a cached and dismissible EN/ZH update notice
-- Compact Sidebar actions for language, light/dark theme, and the reserved owner support page
+- Aligned Admin shell with the running version under the Logo and desktop language, theme, mode, Demo, and support actions in the top toolbar
 - 🔗 Create, edit, disable, archive, and delete short links
 - Switch the Links workspace between the default table and a responsive per-browser card view with the same confirmed actions
 - Bulk create short links and bulk update selected links
 - Preview-first bulk UTM add/replace/remove for selected or filtered links, with guarded writes, selective cache clearing, and a downloadable change record
 - 🔍 Search by slug, URL, title; filter by tag, status, source, domain, created date, password, warning, and limits
 - 🏷️ Tag support and tag management
-- 📊 Overview dashboard, filterable analytics, single-link analytics, UTM/target/conversion breakdowns, reports, and visits export
+- 📊 Overview dashboard, near-real-time filterable analytics, single-link analytics, UTM/target/conversion breakdowns, reports, and visits export
 - 🔑 Scoped API tokens for read, write, and admin API access
 - 🌐 Multi-domain catalog with per-link short domain selection
 - Smart redirect rules for country, device, browser, referer, language, and weighted/A-B traffic

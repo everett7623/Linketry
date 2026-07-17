@@ -1,6 +1,10 @@
 import type { ConversionEvent, Link, Visit, VisitTarget } from '@linketry/shared';
 import type { Env } from '../types';
 import type { TrafficAnomalyMetrics } from '../analytics/trafficAnomalyPolicy';
+import {
+  calculateConversionEventRate,
+  conversionAttributionAvailable,
+} from '../analytics/conversionPolicy';
 
 export interface AnalyticsFilters {
   days?: number;
@@ -27,8 +31,10 @@ export interface AnalyticsSummary {
   botClicks: number;
   uniqueVisitors: number;
   uniqueLinks: number;
-  conversionsTotal: number;
-  conversionRate: number;
+  eligibleClicks: number;
+  conversionsTotal: number | null;
+  conversionRate: number | null;
+  conversionAttributionAvailable: boolean;
   daily: Array<{ date: string; clicks: number }>;
   topLinks: Array<{ id?: string | null; slug: string; domain?: string | null; title?: string | null; clicks: number }>;
   topCountries: Array<{ country: string; clicks: number }>;
@@ -42,7 +48,12 @@ export interface AnalyticsSummary {
   topUtmTerms: Array<{ value: string; clicks: number }>;
   topUtmContents: Array<{ value: string; clicks: number }>;
   topTargets: Array<{ target_url: string; redirect_rule_id?: string | null; redirect_rule_type?: string | null; clicks: number }>;
-  topConversionEvents: Array<{ event_name: string; conversions: number; value_total: number }>;
+  topConversionEvents: Array<{
+    event_name: string;
+    currency: string | null;
+    conversions: number;
+    value_total: number;
+  }>;
   recentVisits: Visit[];
 }
 
@@ -117,6 +128,8 @@ export async function getAnalyticsSummary(env: Env, options: AnalyticsFilters = 
     getTopTargets(env, filter),
     getConversionStats(env, options, days),
   ]);
+  const eligibleClicks = Math.max(0, totalClicks - botClicks);
+  const hasConversionAttribution = conversionAttributionAvailable(options);
 
   return {
     days,
@@ -124,8 +137,15 @@ export async function getAnalyticsSummary(env: Env, options: AnalyticsFilters = 
     botClicks,
     uniqueVisitors,
     uniqueLinks,
-    conversionsTotal: conversionStats.total,
-    conversionRate: totalClicks > 0 ? Number(((conversionStats.total / totalClicks) * 100).toFixed(2)) : 0,
+    eligibleClicks,
+    conversionsTotal: hasConversionAttribution ? conversionStats.total : null,
+    conversionRate: calculateConversionEventRate(
+      conversionStats.total,
+      totalClicks,
+      botClicks,
+      hasConversionAttribution
+    ),
+    conversionAttributionAvailable: hasConversionAttribution,
     daily,
     topLinks,
     topCountries: topCountries as AnalyticsSummary['topCountries'],
@@ -165,9 +185,9 @@ export async function insertVisitTarget(env: Env, target: VisitTarget): Promise<
   ).run();
 }
 
-export async function createConversionEvent(env: Env, event: ConversionEvent): Promise<void> {
-  await env.DB.prepare(
-    `INSERT INTO conversion_events (id, link_id, slug, domain, event_name, value, currency, metadata, ip_hash, user_agent, created_at)
+export async function createConversionEvent(env: Env, event: ConversionEvent): Promise<boolean> {
+  const result = await env.DB.prepare(
+    `INSERT OR IGNORE INTO conversion_events (id, link_id, slug, domain, event_name, value, currency, metadata, ip_hash, user_agent, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
     event.id,
@@ -182,6 +202,7 @@ export async function createConversionEvent(env: Env, event: ConversionEvent): P
     event.user_agent ?? null,
     event.created_at
   ).run();
+  return Number(result.meta.changes ?? 0) > 0;
 }
 
 export async function cleanupAnalyticsRetention(env: Env): Promise<{ retentionDays: number; cutoff?: string }> {
@@ -287,12 +308,21 @@ async function getTopTargets(env: Env, filter: { where: string; params: unknown[
   return safeAll(env, `SELECT vt.target_url, vt.redirect_rule_id, vt.redirect_rule_type, COUNT(*) as clicks FROM visits v JOIN visit_targets vt ON vt.visit_id = v.id ${LINK_JOIN} WHERE ${filter.where} GROUP BY vt.target_url, vt.redirect_rule_id, vt.redirect_rule_type ORDER BY clicks DESC LIMIT 10`, filter.params);
 }
 
-async function getConversionStats(env: Env, options: AnalyticsFilters, days: number): Promise<{ total: number; events: AnalyticsSummary['topConversionEvents'] }> {
+async function getConversionStats(
+  env: Env,
+  options: AnalyticsFilters,
+  days: number
+): Promise<{ total: number; events: AnalyticsSummary['topConversionEvents'] }> {
+  if (!conversionAttributionAvailable(options)) return { total: 0, events: [] };
   const filter = buildConversionFilter(options, days);
   const from = `FROM conversion_events ce ${CONVERSION_LINK_JOIN} WHERE ${filter.where}`;
   const [total, events] = await Promise.all([
     safeFirstCount(env, `SELECT COUNT(*) as count ${from}`, filter.params),
-    safeAll<AnalyticsSummary['topConversionEvents'][number]>(env, `SELECT ce.event_name, COUNT(*) as conversions, COALESCE(SUM(ce.value), 0) as value_total ${from} GROUP BY ce.event_name ORDER BY conversions DESC LIMIT 10`, filter.params),
+    safeAll<AnalyticsSummary['topConversionEvents'][number]>(
+      env,
+      `SELECT ce.event_name, ce.currency, COUNT(*) as conversions, COALESCE(SUM(ce.value), 0) as value_total ${from} GROUP BY ce.event_name, ce.currency ORDER BY conversions DESC LIMIT 10`,
+      filter.params
+    ),
   ]);
   return { total, events };
 }
