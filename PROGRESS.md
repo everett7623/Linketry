@@ -11,15 +11,58 @@ Last updated: 2026-07-17
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker backend             | ✅ Code complete       | Redirect-safe scheduled traffic anomaly detection and authenticated alert controls are locally verified; the previous release is deployed on Cloudflare Workers                                        |
-| Admin frontend             | ✅ V8 complete         | EN/ZH, display preferences, themes, updates, table/card views, grouped Sidebar utilities, and traffic-alert controls are browser tested                                                                 |
+| Admin frontend             | ✅ V8 complete         | EN/ZH, display preferences, themes, collapsible desktop Sidebar, updates, table/card views, grouped utilities, and traffic-alert controls are browser tested                              |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.25.4              | Safe repository-owner online upgrades and exact manual release approval are implemented                                                                                                               |
+| Current version            | ✅ 0.25.7              | Demo/production route, version, brand, read API, and synthetic advanced-feature parity are enforced before a Demo deployment can complete                                      |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.25.7 Demo Production Parity
+
+| Area                     | Status      | Notes                                                                                                                        |
+| ------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Live drift diagnosis     | ✅ Complete | `demo.linketry.com` was confirmed on v0.25.1 with no deployed light Logo asset while the repository was already on v0.25.6   |
+| Brand source parity      | ✅ Complete | Admin and project site dark/light SVG assets must remain byte-identical                                                      |
+| Production route parity  | ✅ Complete | Demo and production use the same complete `App.tsx` route inventory                                                          |
+| Advanced synthetic data  | ✅ Complete | UTM, notes, notification, webhook, anomaly, groups, analytics, backup, token, audit, and health read surfaces have samples    |
+| Post-deployment gate     | ✅ Complete | Version meta, two Logo hashes, 18 read APIs, and write rejection are verified against the live Demo                           |
+| Redirect-path impact     | ✅ None     | Redirect handlers, KV cache behavior, D1 production data, and production domains were not changed                            |
+| Production/Demo rollout  | 🟡 Pending | Source is ready at v0.25.7; the live Demo remains v0.25.1 until a reviewed commit and isolated manual Demo deployment succeed |
+
+---
+
+## Linketry 0.25.6 Demo Access And Workspace Layout
+
+| Area                    | Status      | Notes                                                                                                                      |
+| ----------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Demo preview entry      | ✅ Complete | The isolated Demo uses a public preview access code and stores only a local browser grant                               |
+| Demo API boundary       | ✅ Preserved | Worker reads remain synthetic, read-only, rate-limited, and write requests are rejected before routing                   |
+| Cloudflare credentials  | ✅ Isolated | Demo deployment permissions belong to the Demo account and are not exposed through the Admin or reused for production    |
+| Desktop navigation      | ✅ Complete | Sidebar collapse state is persisted per browser; mobile navigation remains an overlay drawer                              |
+| Workspace width         | ✅ Complete | Main content and operational banners use the available desktop width up to 1600px                                        |
+| Language roadmap        | ✅ Recorded | Additional locales will land in reviewed batches with catalog, formatting, and browser coverage gates                   |
+| Redirect-path impact    | ✅ None     | Redirect handlers, KV cache behavior, D1 link data, and visit recording were not changed                                 |
+| Production rollout      | 🟡 Pending | v0.25.6 is implemented locally; production activation requires commit, push, and a successful protected deployment      |
+
+---
+
+## Linketry 0.25.5 In-App One-Click Upgrade
+
+| Area                    | Status      | Notes                                                                                                                     |
+| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Admin upgrade flow      | ✅ Complete | Available updates can be confirmed in the Admin, tracked through GitHub Actions, verified against `/health`, and reloaded |
+| Credential boundary     | ✅ Complete | The optional fine-grained GitHub token remains a Worker secret and is never returned to or embedded in the browser       |
+| Deployment target       | ✅ Fixed    | The Worker can trigger only `deploy.yml` for the configured repository and branch                                        |
+| Existing safety gates   | ✅ Preserved | Release approval, migration digest, backup, target, destructive-operation, and remote-resource checks still apply        |
+| Manual fallback         | ✅ Preserved | Installations without the optional token continue to open the protected GitHub Actions workflow                          |
+| Redirect-path impact    | ✅ None     | Redirect handlers, KV cache behavior, D1 link data, and visit recording were not changed                                 |
+| Production rollout      | 🟡 Pending | v0.25.5 is implemented locally; production activation requires the optional repository secret and a successful deploy   |
 
 ---
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { X } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, X } from 'lucide-react';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import { isFeatureVisible } from '../utils/adminMode';
 import { useLocale } from '../contexts/LocaleContext';
@@ -11,12 +11,20 @@ import { NAV_GROUPS } from './sidebar/sidebarNavigation';
 import { BrandMark } from './BrandMark';
 
 interface SidebarProps {
+  collapsed?: boolean;
   mobile?: boolean;
   onClose?: () => void;
   onNavigate?: () => void;
+  onToggle?: () => void;
 }
 
-export function Sidebar({ mobile = false, onClose, onNavigate }: SidebarProps) {
+export function Sidebar({
+  collapsed = false,
+  mobile = false,
+  onClose,
+  onNavigate,
+  onToggle,
+}: SidebarProps) {
   const { mode } = useAdminMode();
   const { sidebarDensity, loadingVisibility, moduleIsVisible } = useDisplayPreferences();
   const { t } = useLocale();
@@ -34,20 +42,33 @@ export function Sidebar({ mobile = false, onClose, onNavigate }: SidebarProps) {
         'flex h-full shrink-0 flex-col border-r border-slate-800 bg-slate-900 transition-[width]',
         mobile
           ? 'relative z-10 w-60 max-w-[calc(100vw-3rem)] shadow-2xl'
-          : compact
-            ? 'w-52'
-            : 'w-60'
+          : collapsed
+            ? 'w-20'
+            : compact
+              ? 'w-52'
+              : 'w-60'
       )}
     >
       {/* Logo */}
       <div
         className={clsx(
           'flex items-center gap-2.5 border-b border-slate-800',
-          compact ? 'px-4 py-3.5' : 'px-5 py-5'
+          collapsed && !mobile ? 'justify-between px-2 py-3' : compact ? 'px-4 py-3.5' : 'px-5 py-5'
         )}
       >
-        <BrandMark size="sm" />
-        <span className="font-bold text-lg text-slate-100 tracking-tight">Linketry</span>
+        <div
+          className={clsx(
+            'flex min-w-0 items-center gap-2.5',
+            collapsed && !mobile && 'justify-center'
+          )}
+        >
+          <BrandMark size="sm" />
+          {!collapsed && (
+            <span className="truncate text-lg font-bold tracking-tight text-slate-100">
+              Linketry
+            </span>
+          )}
+        </div>
         {mobile && (
           <button
             type="button"
@@ -59,24 +80,41 @@ export function Sidebar({ mobile = false, onClose, onNavigate }: SidebarProps) {
             <X size={19} aria-hidden="true" />
           </button>
         )}
+        {!mobile && (
+          <button
+            type="button"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100"
+            aria-label={t(collapsed ? 'expandNavigation' : 'collapseNavigation')}
+            title={t(collapsed ? 'expandNavigation' : 'collapseNavigation')}
+            onClick={onToggle}
+          >
+            {collapsed ? (
+              <PanelLeftOpen size={17} aria-hidden="true" />
+            ) : (
+              <PanelLeftClose size={17} aria-hidden="true" />
+            )}
+          </button>
+        )}
       </div>
 
       {/* Nav */}
       <nav
         className={clsx(
           'scrollbar-thin flex-1 overflow-y-auto',
-          compact ? 'px-2 py-2' : 'px-3 py-3'
+          collapsed ? 'px-2 py-3' : compact ? 'px-2 py-2' : 'px-3 py-3'
         )}
         aria-busy={loadingVisibility}
       >
         {visibleGroups.map((group, groupIndex) => (
           <section
             key={group.label}
-            className={clsx(groupIndex > 0 && (compact ? 'mt-2.5' : 'mt-4'))}
+            className={clsx(groupIndex > 0 && (collapsed ? 'mt-3' : compact ? 'mt-2.5' : 'mt-4'))}
           >
-            <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-600">
-              {t(group.label)}
-            </div>
+            {!collapsed && (
+              <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-600">
+                {t(group.label)}
+              </div>
+            )}
             <div className="space-y-0.5">
               {group.items.map((item) => (
                 <NavLink
@@ -86,16 +124,19 @@ export function Sidebar({ mobile = false, onClose, onNavigate }: SidebarProps) {
                   onClick={onNavigate}
                   className={({ isActive }) =>
                     clsx(
-                      'flex items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
-                      compact ? 'py-1.5' : 'py-2',
+                      'flex items-center rounded-lg text-sm font-medium transition-colors',
+                      collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3',
+                      !collapsed && (compact ? 'py-1.5' : 'py-2'),
                       isActive
                         ? 'bg-brand-600/20 text-brand-400'
                         : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
                     )
                   }
+                  aria-label={t(item.label)}
+                  title={collapsed ? t(item.label) : undefined}
                 >
                   {item.icon}
-                  {t(item.label)}
+                  {!collapsed && <span className="truncate">{t(item.label)}</span>}
                 </NavLink>
               ))}
             </div>
@@ -103,7 +144,7 @@ export function Sidebar({ mobile = false, onClose, onNavigate }: SidebarProps) {
         ))}
       </nav>
 
-      <SidebarFooter compact={compact} />
+      <SidebarFooter collapsed={collapsed} compact={compact} />
     </aside>
   );
 }

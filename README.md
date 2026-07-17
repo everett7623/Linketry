@@ -27,7 +27,7 @@ Linketry is a self-hosted link management, analytics and monitoring platform.
 
 > **New to self-hosting?** Follow the [quick-start guide](docs/SELF_HOSTING.md) and run the [read-only deployment preflight](docs/DEPLOYMENT_PREFLIGHT.md) before provisioning or deployment. Installations older than 0.10 must use the [non-destructive upgrade guide](docs/UPGRADING_PRE_0_10.md) and keep their current D1/KV/R2/Queue bindings until migration is verified.
 
-The official project site lives in `apps/site`, is deployed independently from the Admin, and is live at [linketry.com](https://linketry.com); [linketry-site.pages.dev](https://linketry-site.pages.dev) remains its automatic Pages URL. The isolated public Demo is live at [demo.linketry.com](https://demo.linketry.com) with the complete production Admin navigation, responsive mobile layout, synthetic advanced-feature records, read-only enforcement, and native Worker abuse controls. Visitors do not enter a default Demo token; the internal Admin token remains a random Worker secret. Project support uses the owner-managed [Coffee page](https://everettlabs.dev/coffee/).
+The official project site lives in `apps/site`, is deployed independently from the Admin, and is live at [linketry.com](https://linketry.com); [linketry-site.pages.dev](https://linketry-site.pages.dev) remains its automatic Pages URL. The isolated public Demo is live at [demo.linketry.com](https://demo.linketry.com) with the same Admin version, dark/light Logo assets, complete production navigation, responsive layout, and synthetic advanced-feature records. Its deployment fails unless those assets, 18 read APIs, and the read-only write boundary pass live verification. The Demo asks for a public preview code to enter the Admin; this code is a UX gate, not a Cloudflare or Admin secret. The internal Admin token remains a random Worker secret. Project support uses the owner-managed [Coffee page](https://everettlabs.dev/coffee/).
 
 ---
 
@@ -166,7 +166,7 @@ See [docs/DEPLOYMENT_PREFLIGHT.md](docs/DEPLOYMENT_PREFLIGHT.md) for required ga
 
 GitHub Actions production runs are additionally bound to an approved release version, exact commit, migration digest, and fresh-or-upgrade safety state before any Cloudflare write. Generate the reviewed digest with `npm run deploy:migration-digest`.
 
-Deployed Admin instances also expose a safe **Online upgrade** action when a newer version is available. It opens the deployment repository's authenticated **Deploy Linketry** workflow; the repository owner must confirm the release, and the existing migration, backup, target, and resource gates still run before any Cloudflare write. No GitHub or Cloudflare credential is stored in the browser.
+Deployed Admin instances expose a safe **Online upgrade** action when a newer version is available. With the optional Worker-side GitHub update secret, the Admin can trigger its fixed repository's protected **Deploy Linketry** workflow, follow the run, verify the new `/health` version, and reload itself. Without that secret it falls back to opening the workflow for manual confirmation. Existing migration, backup, target, and resource gates still run before any Cloudflare write, and no GitHub or Cloudflare credential is stored in the browser.
 
 This repository also keeps a maintainer production runbook in [DEPLOYMENT.md](DEPLOYMENT.md).
 
@@ -218,9 +218,14 @@ See `.env.example`, `apps/worker/.dev.vars.example`, and `apps/admin/.env.exampl
 
 | Variable                | Description                       |
 | ----------------------- | --------------------------------- |
-| `LINKETRY_ADMIN_TOKEN`  | Bearer token for admin API auth   |
-| `LINKETRY_VERSION`      | Current version string (optional) |
-| `VITE_LINKETRY_API_URL` | API base URL for admin frontend   |
+| `LINKETRY_ADMIN_TOKEN`         | Bearer token for admin API auth                       |
+| `LINKETRY_GITHUB_UPDATE_TOKEN` | Optional Worker secret for in-app GitHub deployment   |
+| `LINKETRY_UPDATE_REPOSITORY`   | Fixed `owner/repository` online-upgrade target        |
+| `LINKETRY_UPDATE_BRANCH`       | Fixed online-upgrade branch, normally `main`          |
+| `LINKETRY_VERSION`             | Current version string (optional)                     |
+| `VITE_LINKETRY_API_URL`        | API base URL for admin frontend                       |
+| `VITE_LINKETRY_UPDATE_BRANCH`  | Admin version-check branch; must match Worker config  |
+| `VITE_LINKETRY_DEMO_ACCESS_CODE` | Public UX gate for the isolated read-only Demo      |
 
 ## Deploy
 

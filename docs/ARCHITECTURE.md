@@ -97,7 +97,9 @@ The React Admin uses:
 - browser storage helpers for non-sensitive display preferences;
 - Simple and Advanced modes to control presentation, not server capability.
 
-Authenticated Admin startup performs a cached GitHub version check. It reads the upstream package version without sending the Admin token and shows a dismissible update notice only when a newer semantic version is available. A failed version check does not block Admin startup.
+Authenticated Admin startup performs a cached GitHub version check. It reads the deployment repository package version without sending the Admin token and shows a dismissible update notice only when a newer semantic version is available. A failed version check does not block Admin startup.
+
+Optional in-app upgrades use an Admin-authenticated Worker endpoint. The Worker holds a fine-grained GitHub token as a secret and can dispatch only the deployment-time repository's `deploy.yml` on its fixed branch. GitHub Actions remains the asynchronous source of truth and retains every production gate. The Admin polls the sanitized run status, then verifies `/health` reports the target version before reloading. There is no local binary replacement or process restart in the Workers and Pages runtime.
 
 ## Asynchronous Work
 

@@ -9,7 +9,7 @@ export function DemoModeBanner() {
 
   return (
     <div className="border-b border-amber-400/30 bg-amber-400/10 px-6 py-3 text-amber-100">
-      <div className="mx-auto flex max-w-7xl items-start gap-3">
+      <div className="mx-auto flex w-full max-w-[1600px] items-start gap-3">
         <Eye className="mt-0.5 shrink-0" size={18} aria-hidden="true" />
         <div>
           <p className="text-sm font-semibold">{t('demoReadOnlyTitle')}</p>

@@ -8,7 +8,8 @@ import { DemoModeBanner } from './DemoModeBanner';
 import { useLocale } from '../contexts/LocaleContext';
 
 export function Layout() {
-  const { sidebarDensity, tableDensity } = useDisplayPreferences();
+  const { sidebarCollapsed, sidebarDensity, tableDensity, setSidebarCollapsed } =
+    useDisplayPreferences();
   const { t } = useLocale();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -28,7 +29,10 @@ export function Layout() {
       data-table-density={tableDensity}
     >
       <div className="hidden h-full lg:block">
-        <Sidebar />
+        <Sidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
       </div>
 
       {mobileSidebarOpen && (
@@ -62,7 +66,7 @@ export function Layout() {
         </div>
         <DemoModeBanner />
         <UpdateBanner />
-        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
+        <div className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 sm:py-8">
           <Outlet />
         </div>
       </main>

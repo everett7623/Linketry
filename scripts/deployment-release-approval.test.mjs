@@ -12,7 +12,7 @@ const commit = 'a'.repeat(40);
 
 test('push deployments retain repository-variable release approvals', () => {
   assert.deepEqual(
-    resolveManualReleaseApproval({ env: { GITHUB_EVENT_NAME: 'push' }, version: '0.25.4' }),
+    resolveManualReleaseApproval({ env: { GITHUB_EVENT_NAME: 'push' }, version: '0.25.7' }),
     { mode: 'repository-variables' }
   );
 });
@@ -20,7 +20,7 @@ test('push deployments retain repository-variable release approvals', () => {
 test('authenticated manual confirmation approves only the selected version and commit', () => {
   assert.deepEqual(
     resolveManualReleaseApproval({
-      version: '0.25.4',
+      version: '0.25.7',
       env: {
         GITHUB_EVENT_NAME: 'workflow_dispatch',
         GITHUB_SHA: commit,
@@ -30,7 +30,7 @@ test('authenticated manual confirmation approves only the selected version and c
     }),
     {
       mode: 'workflow-dispatch',
-      approvedRelease: '0.25.4',
+      approvedRelease: '0.25.7',
       approvedCommit: commit,
       actor: 'everettlabs',
     }
@@ -46,14 +46,14 @@ test('manual deployment fails closed without confirmation or authenticated run m
   };
 
   assert.throws(
-    () => resolveManualReleaseApproval({ env: baseEnv, version: '0.25.4' }),
+    () => resolveManualReleaseApproval({ env: baseEnv, version: '0.25.7' }),
     /confirmation checkbox/
   );
   assert.throws(
     () =>
       resolveManualReleaseApproval({
         env: { ...baseEnv, LINKETRY_MANUAL_RELEASE_APPROVED: 'true', GITHUB_ACTOR: '' },
-        version: '0.25.4',
+        version: '0.25.7',
       }),
     /authenticated GitHub actor/
   );
@@ -66,7 +66,7 @@ test('manual approval writes only exact gate overrides to the GitHub environment
     writeManualReleaseApproval(
       {
         mode: 'workflow-dispatch',
-        approvedRelease: '0.25.4',
+        approvedRelease: '0.25.7',
         approvedCommit: commit,
         actor: 'everettlabs',
       },
@@ -74,7 +74,7 @@ test('manual approval writes only exact gate overrides to the GitHub environment
     );
     assert.equal(
       readFileSync(environmentFile, 'utf8'),
-      `LINKETRY_APPROVED_RELEASE=0.25.4\nLINKETRY_APPROVED_COMMIT=${commit}\n`
+      `LINKETRY_APPROVED_RELEASE=0.25.7\nLINKETRY_APPROVED_COMMIT=${commit}\n`
     );
   } finally {
     rmSync(directory, { recursive: true, force: true });

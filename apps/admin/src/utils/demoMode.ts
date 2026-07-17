@@ -6,6 +6,10 @@ export function isPublicDemoBuild(value: unknown): boolean {
   return typeof value === 'string' && value.trim().toLowerCase() === 'true';
 }
 
+export function isValidDemoAccessCode(candidate: string, configuredCode: string): boolean {
+  return configuredCode.length > 0 && candidate === configuredCode;
+}
+
 export function isReadOnlyRequest(method?: string): boolean {
   return READ_ONLY_METHODS.has((method ?? 'GET').toUpperCase());
 }

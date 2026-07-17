@@ -12,6 +12,7 @@ import { useLocale } from '../contexts/LocaleContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { DeploymentAccessGuide } from '../components/setup/DeploymentAccessGuide';
 import { BrandMark } from '../components/BrandMark';
+import { DEMO_ACCESS_CODE, IS_PUBLIC_DEMO } from '../config/demo';
 
 export function Login() {
   const [token, setToken] = useState('');
@@ -26,19 +27,20 @@ export function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token.trim()) return;
-    const normalizedApiOrigin = normalizeApiBase(apiOrigin);
-    if (apiOrigin.trim() && !normalizedApiOrigin) {
-      error(t('invalidOrigin'));
-      return;
+    if (!IS_PUBLIC_DEMO) {
+      const normalizedApiOrigin = normalizeApiBase(apiOrigin);
+      if (apiOrigin.trim() && !normalizedApiOrigin) {
+        error(t('invalidOrigin'));
+        return;
+      }
+      setApiBaseOverride(apiOrigin);
     }
-    setApiBaseOverride(apiOrigin);
     setLoading(true);
     const result = await login(token.trim());
     if (result === 'authenticated') {
       try {
         const [overview, settings] = await Promise.all([getOverview(), getSettings()]);
-        const needsSetup =
-          !settings.default_domain?.trim() || (overview?.totalLinks ?? 0) === 0;
+        const needsSetup = !settings.default_domain?.trim() || (overview?.totalLinks ?? 0) === 0;
         navigate(needsSetup ? '/setup' : '/overview', { replace: true });
       } catch {
         navigate('/overview', { replace: true });
@@ -46,7 +48,7 @@ export function Login() {
     } else if (result === 'unreachable') {
       error(t('unreachableApi'));
     } else {
-      error(t('invalidToken'));
+      error(t(IS_PUBLIC_DEMO ? 'invalidDemoAccessCode' : 'invalidToken'));
     }
     setLoading(false);
   };
@@ -60,7 +62,9 @@ export function Login() {
             <BrandMark size="lg" decorative={false} />
           </div>
           <h1 className="text-2xl font-bold text-slate-100">Linketry Admin</h1>
-          <p className="text-sm text-slate-400 mt-1">{t('adminSubtitle')}</p>
+          <p className="mt-1 text-sm text-slate-400">
+            {t(IS_PUBLIC_DEMO ? 'demoLoginSubtitle' : 'adminSubtitle')}
+          </p>
         </div>
 
         {/* Form */}
@@ -69,46 +73,69 @@ export function Login() {
           className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl"
         >
           <div className="mb-5">
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              {t('adminToken')}
+            <label
+              htmlFor="linketry-access-token"
+              className="block text-sm font-medium text-slate-300 mb-1.5"
+            >
+              {t(IS_PUBLIC_DEMO ? 'demoAccessCode' : 'adminToken')}
             </label>
             <div className="relative">
               <input
+                id="linketry-access-token"
                 type={showToken ? 'text' : 'password'}
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                placeholder={t('enterToken')}
+                placeholder={t(IS_PUBLIC_DEMO ? 'demoAccessCodePlaceholder' : 'enterToken')}
                 autoFocus
                 className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 pr-10 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowToken(!showToken)}
-                aria-label={t(showToken ? 'hideAdminToken' : 'showAdminToken')}
+                aria-label={t(
+                  IS_PUBLIC_DEMO
+                    ? showToken
+                      ? 'hideDemoAccessCode'
+                      : 'showDemoAccessCode'
+                    : showToken
+                      ? 'hideAdminToken'
+                      : 'showAdminToken'
+                )}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
               >
                 {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+            {IS_PUBLIC_DEMO && (
+              <p className="mt-2 text-xs text-slate-400">
+                {t('demoAccessHint', { code: DEMO_ACCESS_CODE })}
+              </p>
+            )}
           </div>
 
-          <div className="mb-5">
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              {t('apiOrigin')}
-            </label>
-            <input
-              type="url"
-              value={apiOrigin}
-              onChange={(e) => setApiOrigin(e.target.value)}
-              placeholder="https://go.example.com"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
-            />
-            <p className="mt-1.5 text-xs text-slate-500">
-              {getBuildApiBase()
-                ? t('defaultValue', { value: getBuildApiBase() })
-                : t('defaultSameOrigin')}
-            </p>
-          </div>
+          {!IS_PUBLIC_DEMO && (
+            <div className="mb-5">
+              <label
+                htmlFor="linketry-api-origin"
+                className="block text-sm font-medium text-slate-300 mb-1.5"
+              >
+                {t('apiOrigin')}
+              </label>
+              <input
+                id="linketry-api-origin"
+                type="url"
+                value={apiOrigin}
+                onChange={(e) => setApiOrigin(e.target.value)}
+                placeholder="https://go.example.com"
+                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
+              />
+              <p className="mt-1.5 text-xs text-slate-500">
+                {getBuildApiBase()
+                  ? t('defaultValue', { value: getBuildApiBase() })
+                  : t('defaultSameOrigin')}
+              </p>
+            </div>
+          )}
 
           <Button
             type="submit"
@@ -116,14 +143,15 @@ export function Login() {
             loading={loading}
             disabled={!token.trim()}
           >
-            {t('signIn')}
+            {t(IS_PUBLIC_DEMO ? 'enterDemo' : 'signIn')}
           </Button>
-
         </form>
 
-        <div className="mt-4">
-          <DeploymentAccessGuide apiOrigin={apiOrigin} compact />
-        </div>
+        {!IS_PUBLIC_DEMO && (
+          <div className="mt-4">
+            <DeploymentAccessGuide apiOrigin={apiOrigin} compact />
+          </div>
+        )}
 
         <p className="text-center text-xs text-slate-600 mt-6">
           Linketry v{LINKETRY_VERSION} — {t('selfHosted')}

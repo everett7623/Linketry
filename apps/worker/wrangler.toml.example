@@ -13,9 +13,11 @@ routes = [
 ]
 
 [vars]
-LINKETRY_VERSION = "0.25.4"
+LINKETRY_VERSION = "0.25.7"
 LINKETRY_DAILY_CRON = "0 18 * * *"
 LINKETRY_HEALTH_CRON = "0 * * * *"
+LINKETRY_UPDATE_REPOSITORY = "<your-github-owner>/<your-linketry-repository>"
+LINKETRY_UPDATE_BRANCH = "main"
 
 [[d1_databases]]
 binding = "DB"
@@ -39,3 +41,5 @@ crons = ["0 18 * * *", "0 * * * *"]
 # Secrets are set outside this file:
 #   cd apps/worker
 #   npx wrangler secret put LINKETRY_ADMIN_TOKEN
+# Optional in-app upgrades:
+#   npx wrangler secret put LINKETRY_GITHUB_UPDATE_TOKEN

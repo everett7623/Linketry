@@ -14,6 +14,9 @@ export const API_OPERATIONS: ApiOperation[] = [
   ['post', '/auth/logout', 'End the client session', 'Authentication', 'write'],
   ['get', '/overview', 'Read overview statistics', 'System', 'read'],
   ['get', '/system/capabilities', 'Read deployment capabilities', 'System', 'read'],
+  ['get', '/system/upgrade', 'Read online upgrade capability', 'System', 'read'],
+  ['post', '/system/upgrade', 'Trigger the configured deployment workflow', 'System', 'write'],
+  ['get', '/system/upgrade/{runId}', 'Read deployment workflow status', 'System', 'read'],
   ['get', '/links', 'List and filter links', 'Links', 'read'],
   ['get', '/links/duplicates', 'Find links with the same normalized destination', 'Links', 'read'],
   ['post', '/links', 'Create a link', 'Links', 'write'],
@@ -151,7 +154,7 @@ const jsonResponse = (
   content: { 'application/json': { schema } },
 });
 
-export function createOpenApiDocument(_env: Env, version = '0.25.4') {
+export function createOpenApiDocument(_env: Env, version = '0.25.7') {
   const paths: Record<string, Record<string, unknown>> = {};
   for (const operation of API_OPERATIONS) {
     const parameters = [...operation.path.matchAll(/\{([^}]+)\}/g)].map((match) => ({

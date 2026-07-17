@@ -181,7 +181,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.25.4"}}
+{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.25.7"}}
 ```
 
 ## 7. Build and Deploy Admin
@@ -223,6 +223,14 @@ CLOUDFLARE_ACCOUNT_ID
 
 `LINKETRY_ADMIN_TOKEN` does not need to be created manually. On the first deployment, the workflow generates it as a Worker secret and prints it once in the deployment log. A repository secret with the same name is only an optional recovery override if the generated value is lost.
 
+For in-app one-click upgrades, add the optional repository secret `LINKETRY_GITHUB_UPDATE_TOKEN`. Use a fine-grained GitHub token restricted to this Linketry repository with only **Actions: write** repository permission. The deployment workflow copies it into the Worker secret store; it is never included in the Admin build. If omitted, the Admin keeps the manual GitHub Actions fallback.
+
+1. In GitHub account settings, create a fine-grained personal access token for only this Linketry repository.
+2. Grant repository permission **Actions: Read and write**; do not grant organization or unrelated repository access.
+3. In the Linketry repository, open **Settings → Secrets and variables → Actions → Secrets** and create `LINKETRY_GITHUB_UPDATE_TOKEN`.
+4. Run **Deploy Linketry** once manually. The workflow copies the token into the Worker secret store without printing it.
+5. Confirm the next update from the Admin banner. Rotate the repository secret and rerun deployment before the token expires.
+
 To let GitHub Actions maintain a custom Admin-domain CNAME automatically, add an optional `CLOUDFLARE_DNS_API_TOKEN` secret restricted to Zone Read and DNS Write for your zone. Without it, deployment still succeeds and reports the CNAME target for manual setup.
 
 Add repository variables:
@@ -236,7 +244,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.25.4
+LINKETRY_APPROVED_RELEASE=0.25.7
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
@@ -246,7 +254,9 @@ Use `git rev-parse HEAD` for the exact commit and `npm run deploy:migration-dige
 
 Push the approved commit to `main` and the workflow will type-check, build, enforce the deployment gate, migrate D1, set the `LINKETRY_ADMIN_TOKEN` secret, deploy the Worker, and deploy the Admin.
 
-After the first deployment, the Admin update banner provides **Online upgrade**. It opens this deployment repository's protected **Deploy Linketry** workflow. Sign in to GitHub, choose the release branch, check the release-safety confirmation, and run the workflow. The authenticated manual run approves only that branch's exact package version and commit; the migration digest, verified backup reference, migration review, target confirmation, and remote-resource checks still have to pass. Browser code never receives GitHub or Cloudflare credentials.
+After the first deployment, the Admin update banner provides **Online upgrade**. When `LINKETRY_GITHUB_UPDATE_TOKEN` is configured, the primary instance Admin token can trigger this repository's fixed `deploy.yml` and branch directly. The banner follows the GitHub run, waits for a successful conclusion, verifies that `/health` reports the expected version, and then reloads the Admin. It cannot accept a repository, branch, commit, workflow, or target from the browser.
+
+The confirmation approves only the configured branch's exact package version and commit; the migration digest, verified backup reference, migration review, target confirmation, and remote-resource checks still have to pass. Scoped Linketry API tokens cannot trigger an upgrade. When the GitHub secret is absent, invalid, or expired, use the banner's manual Actions fallback, rotate the repository secret if needed, and rerun deployment once to update the Worker secret.
 
 Normal `push` deployments remain bound to `LINKETRY_APPROVED_RELEASE` and `LINKETRY_APPROVED_COMMIT`. The online path is an explicit repository-owner action, not an automatic background update.
 
@@ -260,7 +270,7 @@ Leave these unset for the basic deployment; enable them later from the Admin Adv
 
 ```txt
 LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKETRY_VERSION=0.25.4
+LINKETRY_VERSION=0.25.7
 LINKETRY_COMPATIBILITY_DATE=2026-07-08
 LINKETRY_WORKER_DOMAINS=go.example.com,s.example.com
 LINKETRY_R2_BUCKET=linketry-backups

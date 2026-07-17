@@ -8,6 +8,45 @@ One item in "In Progress" at a time whenever possible.
 ## 🔴 In Progress
 
 - [ ] V9+: Complete Beginner Deployment Bootstrap (guided provisioning, production gates, and isolated Demo workflow complete; fresh-account rehearsal remains)
+- [ ] Deploy reviewed v0.25.7 to the isolated Demo and confirm the live parity gate succeeds
+
+---
+
+## ✅ Completed - Demo Production Parity (v0.25.7)
+
+- [x] Diagnose the live Demo as a stale v0.25.1 Admin build
+- [x] Keep Demo and production on one Admin route and component inventory
+- [x] Enforce byte-identical canonical dark/light Logo assets for Admin and project site
+- [x] Add an exact Admin build version marker and cache-safe public verification
+- [x] Verify 18 production read APIs and fail closed when the Demo write boundary is missing
+- [x] Seed disabled, synthetic advanced-feature configuration without external delivery
+- [x] Keep the isolated Demo workflow manual and preserve production resource separation
+
+---
+
+## ✅ Completed - Demo Access And Workspace Layout (v0.25.6)
+
+- [x] Record the staged multilingual expansion roadmap and translation quality gates
+- [x] Add a separate public Demo preview access code without exposing or reusing the Admin token
+- [x] Keep Demo API reads public, synthetic, read-only, and rate-limited; reject writes before routing
+- [x] Record isolated Cloudflare deployment permission requirements and production credential separation
+- [x] Add persistent desktop Sidebar collapse with accessible icon labels and mobile drawer compatibility
+- [x] Expand the desktop workspace and shared banners to use available width without changing dense form widths
+- [x] Synchronize version metadata, changelog, progress, examples, and workflow configuration
+- [x] Verify Demo access, desktop collapse, mobile navigation, builds, and deployment policy regression
+
+---
+
+## ✅ Completed - In-App One-Click Upgrade (v0.25.5)
+
+- [x] Research Sub2API release replacement, checksum verification, restart, and rollback behavior
+- [x] Adapt the upgrade experience to immutable Cloudflare Workers and Pages deployments
+- [x] Keep the fine-grained GitHub token in a Worker secret and fix repository, branch, and workflow targets server-side
+- [x] Add authenticated deployment dispatch and workflow-run polling APIs
+- [x] Add Admin confirmation, progress, failure details, runtime-version verification, and automatic refresh
+- [x] Preserve the protected manual GitHub Actions fallback when automatic upgrades are not configured
+- [x] Synchronize workflow configuration, OpenAPI, self-hosting guidance, version metadata, and changelog
+- [x] Preserve all deployment safety gates and leave the redirect path unchanged
 
 ---
 

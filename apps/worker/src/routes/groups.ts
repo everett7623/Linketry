@@ -18,6 +18,7 @@ import {
 import { recordAudit } from '../audit/index';
 import { generateId, now } from '../utils/id';
 import { jsonCreated, jsonError, jsonOk } from '../utils/response';
+import { isPublicReadOnlyDemo } from '../demo/policy';
 
 const groups = new Hono<{ Bindings: Env }>();
 
@@ -37,7 +38,7 @@ groups.get('/', async (c) => {
   const type = parseGroupType(c.req.query('type'));
   if (c.req.query('type') && !type) return jsonError('type must be campaign or project', 400);
 
-  await syncGroupTagsFromLinks(c.env);
+  if (!isPublicReadOnlyDemo(c.env)) await syncGroupTagsFromLinks(c.env);
   const [tags, links] = await Promise.all([getAllTags(c.env), getAllLinks(c.env)]);
   const items = buildGroups(tags, links).filter((group) => !type || group.type === type);
 
@@ -57,7 +58,8 @@ groups.post('/', async (c) => {
 
   const tagName = groupTagName(parsed.value!.type, parsed.value!.name);
   const existing = await getTagByName(c.env, tagName);
-  if (existing) return jsonError(`${parsed.value!.type} "${parsed.value!.name}" already exists`, 409);
+  if (existing)
+    return jsonError(`${parsed.value!.type} "${parsed.value!.name}" already exists`, 409);
 
   const ts = now();
   const tag: Tag = {
@@ -129,7 +131,12 @@ groups.put('/:id', async (c) => {
     description: parsed.value!.description,
     updated_at: updatedAt,
   };
-  const group = tagToGroup(updatedTag, await getAllLinks(c.env), parsed.value!.type, parsed.value!.name);
+  const group = tagToGroup(
+    updatedTag,
+    await getAllLinks(c.env),
+    parsed.value!.type,
+    parsed.value!.name
+  );
   return jsonOk(group);
 });
 
@@ -181,16 +188,15 @@ function normalizeGroupPayload(
   const tagName = groupTagName(type, name);
   if (tagName.length > 50) return { error: 'group tag name must be 50 characters or less' };
 
-  const color = typeof body.color === 'string' && body.color.trim()
-    ? body.color.trim()
-    : null;
+  const color = typeof body.color === 'string' && body.color.trim() ? body.color.trim() : null;
   if (color && !/^#[0-9a-fA-F]{6}$/.test(color)) {
     return { error: 'color must be a hex color like #38bdf8' };
   }
 
-  const description = typeof body.description === 'string' && body.description.trim()
-    ? body.description.trim()
-    : null;
+  const description =
+    typeof body.description === 'string' && body.description.trim()
+      ? body.description.trim()
+      : null;
   if (description && description.length > 200) {
     return { error: 'description must be 200 characters or less' };
   }
@@ -199,7 +205,7 @@ function normalizeGroupPayload(
 }
 
 function parseGroupType(value: unknown): LinkGroupType | null {
-  return GROUP_TYPES.includes(value as LinkGroupType) ? value as LinkGroupType : null;
+  return GROUP_TYPES.includes(value as LinkGroupType) ? (value as LinkGroupType) : null;
 }
 
 function normalizeGroupName(value: unknown, type: LinkGroupType): string {
@@ -225,17 +231,20 @@ async function syncGroupTagsFromLinks(env: Env): Promise<void> {
   if (groupNames.length === 0) return;
 
   const ts = now();
-  await createTagsIfMissing(env, groupNames.map((name) => {
-    const meta = parseGroupTag(name)!;
-    return {
-      id: generateId(),
-      name,
-      color: DEFAULT_COLORS[meta.type],
-      description: null,
-      created_at: ts,
-      updated_at: ts,
-    };
-  }));
+  await createTagsIfMissing(
+    env,
+    groupNames.map((name) => {
+      const meta = parseGroupTag(name)!;
+      return {
+        id: generateId(),
+        name,
+        color: DEFAULT_COLORS[meta.type],
+        description: null,
+        created_at: ts,
+        updated_at: ts,
+      };
+    })
+  );
 }
 
 function buildGroups(tags: Tag[], links: Link[]): LinkGroup[] {
@@ -250,11 +259,12 @@ function buildGroups(tags: Tag[], links: Link[]): LinkGroup[] {
 
 function tagToGroup(tag: Tag, links: Link[], type: LinkGroupType, name: string): LinkGroup {
   const matchedLinks = links.filter((link) => linkHasTag(link, tag.name));
-  const lastClickedAt = matchedLinks
-    .map((link) => link.last_clicked_at)
-    .filter((value): value is string => !!value)
-    .sort()
-    .pop() ?? null;
+  const lastClickedAt =
+    matchedLinks
+      .map((link) => link.last_clicked_at)
+      .filter((value): value is string => !!value)
+      .sort()
+      .pop() ?? null;
 
   return {
     id: tag.id,
@@ -264,7 +274,8 @@ function tagToGroup(tag: Tag, links: Link[], type: LinkGroupType, name: string):
     color: tag.color,
     description: tag.description,
     linkCount: matchedLinks.length,
-    activeLinkCount: matchedLinks.filter((link) => link.status === 'active' && link.archived === 0).length,
+    activeLinkCount: matchedLinks.filter((link) => link.status === 'active' && link.archived === 0)
+      .length,
     totalClicks: matchedLinks.reduce((sum, link) => sum + link.clicks, 0),
     lastClickedAt,
     created_at: tag.created_at,

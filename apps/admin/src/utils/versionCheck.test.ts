@@ -85,6 +85,7 @@ test('successful update checks are cached and newer versions remain detectable',
 
   assert.equal(first.updateAvailable, true);
   assert.equal(first.latestVersion, '0.20.0');
+  assert.equal(first.branch, 'main');
   assert.equal(
     first.changelogUrl,
     'https://github.com/everett7623/Linketry/blob/main/CHANGELOG.md'

@@ -15,9 +15,12 @@ const configuredRepositoryUrl = import.meta.env?.VITE_LINKETRY_REPOSITORY_URL?.t
 export const GITHUB_REPOSITORY_URL = (
   configuredRepositoryUrl || DEFAULT_GITHUB_REPOSITORY_URL
 ).replace(/\/+$/, '');
+const configuredBranch = import.meta.env?.VITE_LINKETRY_UPDATE_BRANCH?.trim() || 'main';
+export const GITHUB_UPDATE_BRANCH = isSafeBranch(configuredBranch) ? configuredBranch : 'main';
 const githubRepositoryPath = new URL(GITHUB_REPOSITORY_URL).pathname.replace(/^\/+|\/+$/g, '');
-const GITHUB_PACKAGE_URL = `https://api.github.com/repos/${githubRepositoryPath}/contents/package.json?ref=main`;
-export const GITHUB_CHANGELOG_URL = `${GITHUB_REPOSITORY_URL}/blob/main/CHANGELOG.md`;
+const GITHUB_PACKAGE_URL = `https://api.github.com/repos/${githubRepositoryPath}/contents/package.json?ref=${encodeURIComponent(GITHUB_UPDATE_BRANCH)}`;
+const githubBranchPath = GITHUB_UPDATE_BRANCH.split('/').map(encodeURIComponent).join('/');
+export const GITHUB_CHANGELOG_URL = `${GITHUB_REPOSITORY_URL}/blob/${githubBranchPath}/CHANGELOG.md`;
 export const GITHUB_UPGRADE_WORKFLOW_URL = `${GITHUB_REPOSITORY_URL}/actions/workflows/deploy.yml`;
 const VERSION_CHECK_TIMEOUT_MS = 8_000;
 let activeGitHubRequest: Promise<string> | null = null;
@@ -40,6 +43,7 @@ export interface UpdateCheckResult {
   currentVersion: string;
   latestVersion: string;
   updateAvailable: boolean;
+  branch: string;
   repositoryUrl: string;
   changelogUrl: string;
   upgradeWorkflowUrl: string;
@@ -116,8 +120,20 @@ export async function checkForUpdates(options: CheckForUpdatesOptions): Promise<
     currentVersion,
     latestVersion,
     updateAvailable: isNewerVersion(latestVersion, currentVersion),
+    branch: GITHUB_UPDATE_BRANCH,
     repositoryUrl: GITHUB_REPOSITORY_URL,
     changelogUrl: GITHUB_CHANGELOG_URL,
     upgradeWorkflowUrl: GITHUB_UPGRADE_WORKFLOW_URL,
   };
+}
+
+function isSafeBranch(value: string): boolean {
+  return (
+    value.length <= 200 &&
+    /^[A-Za-z0-9._/-]+$/.test(value) &&
+    !value.includes('..') &&
+    !value.includes('//') &&
+    !value.startsWith('/') &&
+    !value.endsWith('/')
+  );
 }

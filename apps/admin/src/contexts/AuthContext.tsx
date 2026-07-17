@@ -6,7 +6,8 @@ import {
   removeBrowserSetting,
   writeBrowserSetting,
 } from '../utils/browserStorage';
-import { IS_PUBLIC_DEMO } from '../config/demo';
+import { DEMO_ACCESS_CODE, IS_PUBLIC_DEMO } from '../config/demo';
+import { isValidDemoAccessCode } from '../utils/demoMode';
 
 interface AuthState {
   authenticated: boolean;
@@ -20,11 +21,20 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function initialAuthState(): AuthState {
+  if (!IS_PUBLIC_DEMO) return { authenticated: false, loading: true };
+  try {
+    return {
+      authenticated: readBrowserSetting('demoAccess') === 'granted',
+      loading: false,
+    };
+  } catch {
+    return { authenticated: false, loading: false };
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>({
-    authenticated: IS_PUBLIC_DEMO,
-    loading: !IS_PUBLIC_DEMO,
-  });
+  const [state, setState] = useState<AuthState>(initialAuthState);
 
   useEffect(() => {
     if (IS_PUBLIC_DEMO) return;
@@ -55,7 +65,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (token: string): Promise<AuthResult> => {
-    if (IS_PUBLIC_DEMO) return 'authenticated';
+    if (IS_PUBLIC_DEMO) {
+      if (!isValidDemoAccessCode(token, DEMO_ACCESS_CODE)) return 'unauthorized';
+      writeBrowserSetting('demoAccess', 'granted');
+      setState({ authenticated: true, loading: false });
+      return 'authenticated';
+    }
 
     writeBrowserSetting('token', token);
     const result = await apiLogin(token);
@@ -70,7 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(() => {
     if (IS_PUBLIC_DEMO) {
-      setState({ authenticated: true, loading: false });
+      removeBrowserSetting('demoAccess');
+      setState({ authenticated: false, loading: false });
       return;
     }
     removeBrowserSetting('token');

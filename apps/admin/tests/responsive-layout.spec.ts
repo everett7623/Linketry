@@ -71,3 +71,67 @@ test('Mobile Admin uses a drawer without shrinking the page content', async ({ p
   await expect(page.getByRole('link', { name: messages.en.analytics })).toHaveCount(0);
   await expect(openNavigation).toBeVisible();
 });
+
+test('Desktop Admin can collapse navigation and use the wider workspace', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.addInitScript((version) => {
+    localStorage.setItem('linketry_token', 'test-token');
+    localStorage.setItem('linketry.locale', 'en');
+    localStorage.setItem('linketry_admin_mode', 'advanced');
+    localStorage.setItem('linketry_sidebar_collapsed', 'false');
+    localStorage.setItem(
+      'linketry_update_check',
+      JSON.stringify({ latestVersion: version, checkedAt: Date.now() })
+    );
+  }, LINKETRY_VERSION);
+
+  await page.route('**/api/v1/**', async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === '/api/v1/auth/me') {
+      await route.fulfill(apiResponse({ authenticated: true }));
+      return;
+    }
+    if (path === '/api/v1/settings') {
+      await route.fulfill(
+        apiResponse({ default_domain: 'go.example.com', admin_hidden_modules: '[]' })
+      );
+      return;
+    }
+    if (path === '/api/v1/overview') {
+      await route.fulfill(
+        apiResponse({
+          totalLinks: 5,
+          totalClicks: 84,
+          todayClicks: 6,
+          recentLinks: [],
+          topLinks: [],
+        })
+      );
+      return;
+    }
+    await route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"mock"}' });
+  });
+
+  await page.goto('/overview');
+
+  const collapseNavigation = page.getByRole('button', { name: messages.en.collapseNavigation });
+  await expect(collapseNavigation).toBeVisible();
+  await expect(page.getByRole('link', { name: messages.en.analytics })).toBeVisible();
+
+  const expanded = await page.locator('aside').evaluate((element) => ({
+    width: element.getBoundingClientRect().width,
+    pageWidth: document.documentElement.scrollWidth,
+  }));
+  expect(expanded.width).toBe(240);
+  expect(expanded.pageWidth).toBe(1440);
+
+  await collapseNavigation.click();
+  await expect(page.getByRole('button', { name: messages.en.expandNavigation })).toBeVisible();
+  await expect
+    .poll(() => page.locator('aside').evaluate((element) => element.getBoundingClientRect().width))
+    .toBe(80);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(1440);
+
+  await page.getByRole('button', { name: messages.en.expandNavigation }).click();
+  await expect(page.getByRole('button', { name: messages.en.collapseNavigation })).toBeVisible();
+});

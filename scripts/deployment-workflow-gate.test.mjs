@@ -189,13 +189,15 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   );
   const gate = workflow.indexOf('- name: Enforce deployment safety gate');
   const secret = workflow.indexOf('- name: Ensure LINKETRY_ADMIN_TOKEN secret');
+  const updateSecret = workflow.indexOf('- name: Configure optional online-upgrade secret');
   const migrations = workflow.indexOf('- name: Apply D1 migrations');
   const deploy = workflow.indexOf('- name: Deploy Worker');
   const siteDeploy = workflow.indexOf('- name: Deploy project site');
 
   assert.ok(gate > -1);
   assert.ok(gate < secret);
-  assert.ok(secret < migrations);
+  assert.ok(secret < updateSecret);
+  assert.ok(updateSecret < migrations);
   assert.ok(migrations < deploy);
   assert.ok(deploy < siteDeploy);
   for (const name of [
@@ -213,4 +215,12 @@ test('production workflow runs the safety gate before every Cloudflare write', (
     workflow,
     /VITE_LINKETRY_REPOSITORY_URL: \$\{\{ github\.server_url \}\}\/\$\{\{ github\.repository \}\}/
   );
+  assert.match(workflow, /VITE_LINKETRY_UPDATE_BRANCH: \$\{\{ env\.LINKETRY_UPDATE_BRANCH \}\}/);
+  assert.match(
+    workflow,
+    /LINKETRY_GITHUB_UPDATE_TOKEN_OVERRIDE: \$\{\{ secrets\.LINKETRY_GITHUB_UPDATE_TOKEN \}\}/
+  );
+  assert.match(workflow, /LINKETRY_UPDATE_REPOSITORY: \$\{\{ github\.repository \}\}/);
+  assert.match(workflow, /LINKETRY_UPDATE_BRANCH: \$\{\{ github\.ref_name \}\}/);
+  assert.doesNotMatch(workflow, /VITE_[A-Z0-9_]*GITHUB_UPDATE_TOKEN/);
 });

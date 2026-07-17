@@ -1,9 +1,11 @@
 export type BrowserSetting =
   | 'adminMode'
   | 'apiBase'
+  | 'demoAccess'
   | 'dismissedUpdateVersion'
   | 'linkView'
   | 'locale'
+  | 'sidebarCollapsed'
   | 'sidebarDensity'
   | 'tableDensity'
   | 'theme'
@@ -19,9 +21,11 @@ export interface StorageLike {
 const STORAGE_KEYS: Record<BrowserSetting, string> = {
   adminMode: 'linketry_admin_mode',
   apiBase: 'linketry_api_base',
+  demoAccess: 'linketry_demo_access',
   dismissedUpdateVersion: 'linketry_dismissed_update_version',
   linkView: 'linketry_link_view',
   locale: 'linketry.locale',
+  sidebarCollapsed: 'linketry_sidebar_collapsed',
   sidebarDensity: 'linketry_sidebar_density',
   tableDensity: 'linketry_table_density',
   theme: 'linketry_theme',

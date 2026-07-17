@@ -11,4 +11,7 @@ export interface Env {
   LINKETRY_DAILY_CRON?: string;
   LINKETRY_HEALTH_CRON?: string;
   LINKETRY_DEMO_MODE?: string;
+  LINKETRY_GITHUB_UPDATE_TOKEN?: string;
+  LINKETRY_UPDATE_REPOSITORY?: string;
+  LINKETRY_UPDATE_BRANCH?: string;
 }

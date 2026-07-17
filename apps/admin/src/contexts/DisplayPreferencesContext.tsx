@@ -12,11 +12,13 @@ import {
 } from '../utils/displayPreferences';
 
 interface DisplayPreferencesContextValue {
+  sidebarCollapsed: boolean;
   sidebarDensity: DisplayDensity;
   tableDensity: DisplayDensity;
   hiddenModules: OptionalModule[];
   loadingVisibility: boolean;
   setSidebarDensity: (density: DisplayDensity) => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
   setTableDensity: (density: DisplayDensity) => void;
   saveHiddenModules: (modules: OptionalModule[]) => Promise<void>;
   moduleIsVisible: (module?: OptionalModule) => boolean;
@@ -30,6 +32,9 @@ function readDensity(setting: 'sidebarDensity' | 'tableDensity'): DisplayDensity
 
 export function DisplayPreferencesProvider({ children }: { children: React.ReactNode }) {
   const { authenticated } = useAuth();
+  const [sidebarCollapsed, updateSidebarCollapsed] = useState(
+    () => readBrowserSetting('sidebarCollapsed') === 'true'
+  );
   const [sidebarDensity, updateSidebarDensity] = useState(() => readDensity('sidebarDensity'));
   const [tableDensity, updateTableDensity] = useState(() => readDensity('tableDensity'));
   const [hiddenModules, updateHiddenModules] = useState<OptionalModule[]>([]);
@@ -63,6 +68,11 @@ export function DisplayPreferencesProvider({ children }: { children: React.React
     updateSidebarDensity(density);
   }, []);
 
+  const setSidebarCollapsed = useCallback((collapsed: boolean) => {
+    writeBrowserSetting('sidebarCollapsed', String(collapsed));
+    updateSidebarCollapsed(collapsed);
+  }, []);
+
   const setTableDensity = useCallback((density: DisplayDensity) => {
     writeBrowserSetting('tableDensity', density);
     updateTableDensity(density);
@@ -76,11 +86,13 @@ export function DisplayPreferencesProvider({ children }: { children: React.React
 
   const value = useMemo<DisplayPreferencesContextValue>(
     () => ({
+      sidebarCollapsed,
       sidebarDensity,
       tableDensity,
       hiddenModules,
       loadingVisibility,
       setSidebarDensity,
+      setSidebarCollapsed,
       setTableDensity,
       saveHiddenModules,
       moduleIsVisible: (module) => isModuleVisible(module, hiddenModules),
@@ -89,7 +101,9 @@ export function DisplayPreferencesProvider({ children }: { children: React.React
       hiddenModules,
       loadingVisibility,
       saveHiddenModules,
+      setSidebarCollapsed,
       setSidebarDensity,
+      sidebarCollapsed,
       setTableDensity,
       sidebarDensity,
       tableDensity,

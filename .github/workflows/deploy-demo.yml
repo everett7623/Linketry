@@ -27,6 +27,7 @@ jobs:
       LINKETRY_WORKER_NAME: ${{ vars.LINKETRY_DEMO_WORKER_NAME }}
       LINKETRY_WORKER_DOMAINS: ${{ vars.LINKETRY_DEMO_WORKER_DOMAINS }}
       LINKETRY_DEMO_USE_WORKERS_DEV: ${{ vars.LINKETRY_DEMO_USE_WORKERS_DEV }}
+      LINKETRY_DEMO_ACCESS_CODE: ${{ vars.LINKETRY_DEMO_ACCESS_CODE }}
       LINKETRY_API_URL: ${{ vars.LINKETRY_DEMO_API_URL }}
       LINKETRY_ADMIN_URL: ${{ vars.LINKETRY_DEMO_ADMIN_URL }}
       LINKETRY_PAGES_PROJECT: ${{ vars.LINKETRY_DEMO_PAGES_PROJECT }}
@@ -86,6 +87,7 @@ jobs:
         env:
           VITE_LINKETRY_API_URL: ${{ env.LINKETRY_API_URL }}
           VITE_LINKETRY_DEMO_MODE: 'true'
+          VITE_LINKETRY_DEMO_ACCESS_CODE: ${{ env.LINKETRY_DEMO_ACCESS_CODE || 'LinketryDemo' }}
 
       - name: Generate isolated Demo Worker config
         run: |
@@ -149,7 +151,7 @@ jobs:
             ...routing,
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.25.4'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.25.7'}"`,
             'LINKETRY_DEMO_MODE = "read-only"',
             'LINKETRY_DAILY_CRON = "15 3 * * *"',
             'LINKETRY_HEALTH_CRON = "15 * * * *"',
@@ -244,6 +246,8 @@ jobs:
             --output "$RUNNER_TEMP/linketry-demo-seed.sql" \
             --artifact-dir "$RUNNER_TEMP/linketry-demo-artifacts" \
             --version "$RESOLVED_LINKETRY_VERSION"
+          node scripts/demo-feature-seed.mjs \
+            --output "$RUNNER_TEMP/linketry-demo-feature-seed.sql"
 
       - name: Seed isolated synthetic Demo data
         run: |
@@ -251,6 +255,14 @@ jobs:
             --remote \
             --config wrangler.demo.toml \
             --file "$RUNNER_TEMP/linketry-demo-seed.sql"
+        working-directory: apps/worker
+
+      - name: Seed synthetic Demo feature settings
+        run: |
+          npx wrangler d1 execute "$LINKETRY_D1_DATABASE_NAME" \
+            --remote \
+            --config wrangler.demo.toml \
+            --file "$RUNNER_TEMP/linketry-demo-feature-seed.sql"
         working-directory: apps/worker
 
       - name: Upload isolated synthetic Demo artifacts
@@ -282,6 +294,13 @@ jobs:
           npx wrangler pages deploy apps/admin/dist \
             --project-name "$LINKETRY_PAGES_PROJECT" \
             --branch main
+
+      - name: Verify Demo production parity
+        run: |
+          node scripts/demo-live-smoke.mjs \
+            --admin-url "${LINKETRY_ADMIN_URL:-https://${LINKETRY_PAGES_PROJECT}.pages.dev}" \
+            --api-url "$LINKETRY_API_URL" \
+            --version "$RESOLVED_LINKETRY_VERSION"
 
       - name: Write isolated Demo summary
         if: always()

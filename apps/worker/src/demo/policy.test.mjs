@@ -1,10 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {
-  checkDemoRateLimit,
-  isPublicReadOnlyDemo,
-  isReadOnlyMethod,
-} from './policy.ts';
+import { checkDemoRateLimit, isPublicReadOnlyDemo, isReadOnlyMethod } from './policy.ts';
 
 function createRateLimiter(outcomes) {
   const keys = [];
@@ -39,10 +35,7 @@ test('Demo rate limit sends only a hashed client key to the platform binding', a
   const second = await checkDemoRateLimit(env, request);
   const third = await checkDemoRateLimit(env, request);
 
-  assert.deepEqual(
-    [first.allowed, second.allowed, third.allowed],
-    [true, true, false]
-  );
+  assert.deepEqual([first.allowed, second.allowed, third.allowed], [true, true, false]);
   assert.equal(first.limit, 120);
   assert.equal(limiter.keys.length, 3);
   assert.doesNotMatch(limiter.keys[0], /203\.0\.113\.42/);

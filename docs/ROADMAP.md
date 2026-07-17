@@ -194,6 +194,8 @@ Planned:
 - Done: i18n foundation covers core and advanced link management, deployment, operations, audit, backup/restore, and analytics workflows
 - Done in v0.20.0: typed locale registry, native-language options, catalog/placeholder CI gate, contribution guide, and browser persistence coverage
 - Done: public 404, disabled, expired, password, and warning pages support English and Simplified Chinese without changing redirect semantics
+- Next language wave: add German, French, Spanish, Portuguese (BR/PT), Indonesian, Italian, Korean, Vietnamese, and Traditional Chinese in small reviewed batches
+- Language expansion gate: every new locale must have native-language labels, complete catalog parity, placeholder/interpolation tests, date/number/CSV formatting coverage, and browser smoke coverage for core workflows
 - Locale-aware date, time zone, number, and CSV/export formatting settings
 - Help text that explains advanced fields only when advanced mode is enabled
 

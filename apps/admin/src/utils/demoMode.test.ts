@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { isPublicDemoBuild, isReadOnlyRequest } from './demoMode.ts';
+import { isPublicDemoBuild, isReadOnlyRequest, isValidDemoAccessCode } from './demoMode.ts';
 
 test('public Demo build requires an explicit true flag', () => {
   assert.equal(isPublicDemoBuild('true'), true);
@@ -17,4 +17,10 @@ test('public Demo browser requests allow reads and reject writes', () => {
   assert.equal(isReadOnlyRequest('POST'), false);
   assert.equal(isReadOnlyRequest('PUT'), false);
   assert.equal(isReadOnlyRequest('DELETE'), false);
+});
+
+test('Demo preview code matches exactly and never accepts an empty configuration', () => {
+  assert.equal(isValidDemoAccessCode('LinketryDemo', 'LinketryDemo'), true);
+  assert.equal(isValidDemoAccessCode('linketrydemo', 'LinketryDemo'), false);
+  assert.equal(isValidDemoAccessCode('', ''), false);
 });

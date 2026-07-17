@@ -43,6 +43,15 @@ test('stores sidebar and table density independently in the current browser', ()
   assert.equal(storage.getItem('linketry_table_density'), 'comfortable');
 });
 
+test('stores sidebar collapse and Demo access independently', () => {
+  const storage = memoryStorage();
+  writeBrowserSetting('sidebarCollapsed', 'true', storage);
+  writeBrowserSetting('demoAccess', 'granted', storage);
+
+  assert.equal(storage.getItem('linketry_sidebar_collapsed'), 'true');
+  assert.equal(storage.getItem('linketry_demo_access'), 'granted');
+});
+
 test('stores the selected Links view only in the current browser', () => {
   const storage = memoryStorage();
   writeBrowserSetting('linkView', 'cards', storage);

@@ -4,6 +4,8 @@ The canonical API namespace is `/api/v1`. During the `0.10.x` upgrade window, th
 
 The authenticated machine-readable contract is available at `GET /api/v1/openapi.json`. An authenticated Swagger UI is available at `GET /api/v1/docs`. Supply an Admin token or scoped API token as `Authorization: Bearer <token>` when loading either resource; the generated contract contains no real token or secret examples. The OpenAPI inventory is checked against mounted Hono route declarations in the Worker test suite so new or removed endpoints require an intentional contract update.
 
+Online upgrade capability and status are exposed through `GET /api/v1/system/upgrade` and `GET /api/v1/system/upgrade/{runId}`. `POST /api/v1/system/upgrade` dispatches only the fixed deployment workflow and requires the primary instance Admin token; scoped API tokens cannot trigger it. Responses never contain the Worker-side GitHub token.
+
 Browser extensions, Raycast commands, Shortcuts, MCP bridges, and other clients should generate or validate integrations against this `/api/v1` contract. They must store bearer tokens in their platform's secret storage, request the narrowest useful scope, tolerate the standard `{ success, data }` / `{ success, error }` envelopes, and must not target the deprecated `/api` alias.
 
 `GET /api/v1/links/duplicates?url=<destination>&excludeId=<link-id>&limit=5` returns existing links with the same normalized destination. The comparison normalizes URL parsing, host casing, default ports, and query-parameter order while preserving meaningful protocols, paths, query values, and fragments. `excludeId` should be supplied while editing. Results are advisory and bounded; link creation and editing continue to allow intentional duplicates.

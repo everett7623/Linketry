@@ -1,0 +1,26 @@
+export const demoAccessLayoutMessages = {
+  en: {
+    collapseNavigation: 'Collapse navigation',
+    expandNavigation: 'Expand navigation',
+    demoLoginSubtitle: 'Enter the public preview code to explore the read-only Demo',
+    demoAccessCode: 'Demo Access Code',
+    demoAccessCodePlaceholder: 'Enter the Demo access code',
+    demoAccessHint: 'Public preview code: {code}',
+    invalidDemoAccessCode: 'Invalid Demo access code.',
+    showDemoAccessCode: 'Show Demo access code',
+    hideDemoAccessCode: 'Hide Demo access code',
+    enterDemo: 'Enter Demo',
+  },
+  'zh-CN': {
+    collapseNavigation: '收起导航',
+    expandNavigation: '展开导航',
+    demoLoginSubtitle: '输入公开预览码，进入只读演示后台',
+    demoAccessCode: '演示访问码',
+    demoAccessCodePlaceholder: '输入演示访问码',
+    demoAccessHint: '公开预览码：{code}',
+    invalidDemoAccessCode: '演示访问码无效。',
+    showDemoAccessCode: '显示演示访问码',
+    hideDemoAccessCode: '隐藏演示访问码',
+    enterDemo: '进入演示',
+  },
+} as const;

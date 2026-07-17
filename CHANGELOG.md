@@ -13,6 +13,83 @@ _(none)_
 
 ---
 
+## [0.25.7] - 2026-07-17
+
+### Added
+
+- Added a deterministic Admin version meta marker and post-deployment Demo parity verification for the release version, canonical dark/light Logo assets, 18 production read APIs, and the read-only write boundary.
+- Added synthetic UTM templates, link notes, disabled notification channels, disabled webhook configuration, traffic anomaly state, and full navigation visibility for production-like Demo pages.
+- Added deployment-policy coverage that keeps Demo and production on the same Admin route inventory and requires identical Admin/site brand assets.
+
+### Changed
+
+- The isolated Demo workflow now seeds advanced feature settings separately, deploys the shared production Admin build, waits for Pages propagation, and fails when the public Demo remains stale or incomplete.
+- Admin builds now advertise their exact package version in HTML for cache-safe runtime verification.
+
+### Fixed
+
+- Prevented the public Demo from silently retaining an old Admin build that lacks the current light-mode Logo or production feature surface.
+
+### Security
+
+- Demo notification and webhook fixtures remain disabled, contain synthetic values only, and cannot deliver externally.
+- Public Demo group reads no longer run the production-only tag synchronization write path.
+- The live write probe targets a nonexistent API path and expects the Demo middleware to reject it with `403`, so verification cannot mutate data.
+- Demo deployment remains manual and isolated; this release does not enable automatic Cloudflare writes.
+
+---
+
+## [0.25.6] - 2026-07-17
+
+### Added
+
+- Added a separate visitor-visible Demo preview code that gates the synthetic Admin experience without exposing or reusing the instance Admin token.
+- Added a persistent desktop Sidebar collapse control with accessible icon labels while preserving the existing mobile drawer.
+- Recorded staged German, French, Spanish, Portuguese, Indonesian, Italian, Korean, Vietnamese, and Traditional Chinese expansion with catalog, formatting, and browser-test quality gates.
+
+### Changed
+
+- Expanded Admin pages and operational banners to use the available desktop workspace up to 1600px.
+- The isolated Demo deployment accepts its public preview code through a repository variable, while its Worker API remains synthetic, read-only, and rate-limited.
+- Documented minimum, isolated Cloudflare deployment permissions for Demo Workers, KV, D1, Pages, and optional bindings.
+
+### Fixed
+
+- Associated Demo/Admin login labels with their inputs and removed the self-hosting deployment guide from the public Demo entry screen.
+
+### Security
+
+- The public Demo preview code is only a browser UX gate; the random `LINKETRY_ADMIN_TOKEN` remains a Worker secret and is never embedded in the Admin bundle.
+- Demo deployment credentials must belong to the isolated Demo account, remain outside browser code, and must not be reused for production.
+- Redirect handlers, KV cache behavior, D1 link records, and visit recording were not changed.
+
+---
+
+## [0.25.5] - 2026-07-17
+
+### Added
+
+- Added a Sub2API-style in-app upgrade flow for Cloudflare deployments: the Worker dispatches the fixed repository workflow, the Admin follows its run, verifies the new runtime version, and reloads automatically.
+- Added authenticated upgrade capability, dispatch, and run-status endpoints plus Worker, Admin polling, OpenAPI, and deployment-policy coverage.
+- Added an optional `LINKETRY_GITHUB_UPDATE_TOKEN` Worker secret for a fine-grained, repository-scoped GitHub token with `Actions: write`.
+
+### Changed
+
+- The production workflow now injects its repository and branch as fixed Worker upgrade targets and securely copies the optional GitHub update token into the Worker secret store.
+- Instances without the optional secret continue to use the manual GitHub Actions fallback.
+
+### Fixed
+
+- Kept in-progress upgrade state active across the React Strict Mode development remount so a successful dispatch continues into workflow polling.
+
+### Security
+
+- In-app dispatch requires the primary instance Admin token; scoped Linketry API tokens cannot trigger deployments.
+- Browser requests cannot select a repository, workflow, branch, commit, or deployment target, and never receive the GitHub token.
+- Existing release, migration, backup, target, destructive-operation, and remote-resource gates remain mandatory.
+
+---
+
 ## [0.25.4] - 2026-07-17
 
 ### Added

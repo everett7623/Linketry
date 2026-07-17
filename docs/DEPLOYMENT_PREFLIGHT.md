@@ -112,7 +112,9 @@ npm run deploy:migration-digest
 
 A fresh deployment also requires `LINKETRY_FRESH_INSTALL_CONFIRMED=true`. An upgrade requires the backup and review variables above. Update the exact release and commit approval for every production release, and update the migration approval whenever any file under `migrations/` changes.
 
-For an authenticated online upgrade, open **Actions** → **Deploy Linketry** from the Admin update banner, choose the release branch, check the release-safety confirmation, and run the workflow. That manual confirmation binds the run to the selected branch's exact package version and GitHub SHA, so it does not require editing `LINKETRY_APPROVED_RELEASE` or `LINKETRY_APPROVED_COMMIT` first. All migration, backup, target, destructive-operation, and remote-resource checks remain mandatory.
+For an authenticated online upgrade, configure the optional Worker secret `LINKETRY_GITHUB_UPDATE_TOKEN` from a fine-grained token limited to this repository with **Actions: write**. The primary instance Admin token can then confirm an upgrade in the update banner. The Worker dispatches only its deployment-time repository, `deploy.yml`, and branch; GitHub returns the workflow run ID, and the Admin follows that run before verifying the new `/health` version. Scoped Linketry API tokens cannot dispatch deployments.
+
+If the optional secret is unavailable, use the banner's manual **Actions** → **Deploy Linketry** fallback, choose the release branch, check the release-safety confirmation, and run the workflow. Both paths bind the run to the selected/configured branch's exact package version and GitHub SHA, so they do not require editing `LINKETRY_APPROVED_RELEASE` or `LINKETRY_APPROVED_COMMIT` first. All migration, backup, target, destructive-operation, and remote-resource checks remain mandatory.
 
 Push-triggered runs do not use this manual approval path. They continue to require the exact repository variables above and fail closed when those values are stale.
 
@@ -144,6 +146,7 @@ LINKETRY_DEMO_USE_WORKERS_DEV=true
 LINKETRY_DEMO_WORKER_DOMAINS=linketry-demo-worker.<Demo account subdomain>.workers.dev
 LINKETRY_DEMO_API_URL=https://linketry-demo-worker.<Demo account subdomain>.workers.dev
 LINKETRY_DEMO_ADMIN_URL=https://demo.linketry.com
+LINKETRY_DEMO_ACCESS_CODE=LinketryDemo
 LINKETRY_DEMO_PAGES_PROJECT=linketry-demo-admin
 LINKETRY_DEMO_D1_DATABASE_NAME=linketry-demo-d1
 LINKETRY_DEMO_D1_DATABASE_ID=<isolated Demo D1 ID>
@@ -171,7 +174,7 @@ Run **Deploy Isolated Linketry Demo** from GitHub Actions and type the exact con
 - the selected resources exist in the Demo account;
 - the release, Git commit, non-destructive migration policy, and reviewed migration digest match.
 
-The workflow deploys only the isolated Demo Worker and Admin. After the safety gate and migrations, it idempotently refreshes synthetic links, visits, conversions, tags, a Demo domain, settings, and audit samples. The Demo Admin is built without a login prompt, browser and Worker layers reject writes, redirect analytics does not record real visitors, and API reads use Cloudflare's native Rate Limiting binding with a hashed client key and a 120-request/minute policy. Visitors do not enter a default Demo token; the internal `LINKETRY_ADMIN_TOKEN` remains a random Worker secret and is never exposed in the frontend. The workflow does not deploy the production project site, modify DNS, copy production data, or provision resources.
+The workflow deploys only the isolated Demo Worker and Admin. After the safety gate and migrations, it idempotently refreshes synthetic links, visits, conversions, tags, a Demo domain, settings, audit samples, and disabled advanced-feature configuration. The Demo Admin asks for the public `LINKETRY_DEMO_ACCESS_CODE` preview code, while browser and Worker layers reject writes, redirect analytics does not record real visitors, and API reads use Cloudflare's native Rate Limiting binding with a hashed client key and a 120-request/minute policy. The preview code is a UX gate, not API authentication; the internal `LINKETRY_ADMIN_TOKEN` remains a random Worker secret and is never exposed in the frontend. After deployment, a live parity gate verifies the exact Admin/Worker version, canonical dark/light Logo assets, 18 production read APIs, and the `403` write boundary. The workflow does not deploy automatically, deploy the production project site, modify DNS, copy production data, or provision core resources.
 
 ## Admin Token: Choose One Deployment Path
 
