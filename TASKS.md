@@ -18,6 +18,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Fail early with exact guidance when the selected Cloudflare account returns R2 code `10042`
 - [x] Keep credentials redacted and preserve redirect, D1/KV, migrations, and deployed runtime behavior
 - [x] Record the rotated-token core Demo success and the remaining Cloudflare account-level R2 blocker
+- [x] Verify live R2 code `10042` stops before every mutation step in run `29602738195`
+- [x] Deploy and verify the Queue-enabled v0.26.1 core Demo in run `29602948600`
 
 ---
 

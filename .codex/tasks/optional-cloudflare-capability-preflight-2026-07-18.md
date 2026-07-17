@@ -2,7 +2,7 @@
 
 ## Status
 
-Implemented in Linketry v0.26.1. The code and regression coverage are complete; the live production and isolated Demo runtimes remain on verified v0.26.0 because this change only affects deployment tooling.
+Implemented in Linketry v0.26.1. The code and regression coverage are complete; the isolated Demo is live on v0.26.1 while production remains on verified v0.26.0.
 
 ## Context
 
@@ -11,6 +11,8 @@ Implemented in Linketry v0.26.1. The code and regression coverage are complete; 
 - Guarded Demo deployment run `29599334951` failed before migrations and deployment on each attempt because Cloudflare returned R2 error `10042`: R2 is not enabled for the selected account.
 - The two optional Demo R2 variables were removed, and guarded core deployment run `29600589228` completed successfully.
 - Live Demo verification passed for v0.26.0 health, D1/KV-backed reads, Queue binding, all Admin routes, synthetic Analytics, and the `403` write boundary.
+- After the v0.26.1 preflight shipped, run `29602738195` restored both R2 variables and failed in the new read-only gate with exact code `10042`; every mutation step was skipped.
+- The R2 variables were removed again, and guarded core run `29602948600` deployed the v0.26.1 Worker/Admin with Queue enabled.
 
 ## Completed
 
@@ -35,6 +37,8 @@ Implemented in Linketry v0.26.1. The code and regression coverage are complete; 
 - Admin tests: 47 unit and 18 Chromium browser tests passed; production build passed.
 - Project-site tests: 4 passed; production build passed.
 - No migration or redirect file changed, and no Cloudflare mutation was performed by the new checks.
+- GitHub live parity verified Admin/Worker v0.26.1, canonical brand assets, all 18 read APIs, and the `403` write boundary.
+- Live capabilities report D1 and KV enabled, Visit Queue enabled, and R2 backups disabled.
 
 ## Safety Boundary
 

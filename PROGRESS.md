@@ -10,14 +10,14 @@ Last updated: 2026-07-18
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.26.0 live         | Production and isolated Demo Workers are healthy; redirect stability, authentication, and Demo read-only boundaries passed post-deployment smoke checks                                                |
+| Worker backend             | ✅ Production + Demo   | Production is healthy on 0.26.0; the isolated Demo Worker is healthy on 0.26.1 with Queue enabled and R2 omitted             |
 | Admin frontend             | ✅ V8 complete         | EN/ZH, aligned shell controls, visible version metadata, near-real-time Analytics refresh, display preferences, themes, updates, and traffic-alert controls are browser tested            |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | 🟡 0.26.1 ready        | Deployment preflight fix is ready; production Worker/Admin and isolated Demo Worker/Admin remain verified on 0.26.0                                                             |
+| Current version            | ✅ 0.26.1 Demo live    | Deployment preflight fix and isolated Demo Worker/Admin are live; production Worker/Admin remain verified on 0.26.0          |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
@@ -31,8 +31,9 @@ Last updated: 2026-07-18
 | Queue capability check       | ✅ Complete | Configured Visit Queue bindings trigger a read-only Queue inventory in the same fail-closed gate                           |
 | Missing optional resources   | ✅ Guarded  | Successful inventory with missing names warns and permits the later guarded creation step                                  |
 | R2 account error             | ✅ Explained | Cloudflare code `10042` identifies R2 as unavailable in the exact selected account and blocks before writes               |
-| Live Demo core               | ✅ Healthy  | Rotated-token core deployment run `29600589228` passed; D1, KV, Queue, Worker, Pages, Analytics, and read-only boundaries are healthy |
+| Live Demo core               | ✅ 0.26.1 live | Run `29602948600` passed; D1, KV, Queue, Worker, Pages, Analytics, 18 read APIs, and the read-only boundary are healthy    |
 | Live Demo R2                 | 🟡 External | The Demo account still returns Cloudflare `10042`; R2 variables remain disabled until that account accepts R2 API access   |
+| Live R2 gate                 | ✅ Verified | Run `29602738195` stopped at read-only preflight with no mutations; all resource, migration, seed, and deployment writes were skipped |
 | Verification                 | ✅ Complete | 53 deployment, 81 Worker, 47 Admin unit, 18 Admin browser, and 4 project-site tests passed; type-checks and builds passed   |
 | Redirect-path impact         | ✅ None     | Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, and deployed runtime code were not changed        |
 
