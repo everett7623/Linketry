@@ -1,1 +1,1 @@
-export const LINKETRY_VERSION = '0.25.7';
+export const LINKETRY_VERSION = '0.25.8';

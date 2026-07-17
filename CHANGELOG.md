@@ -13,6 +13,15 @@ _(none)_
 
 ---
 
+## [0.25.8] - 2026-07-17
+
+### Fixed
+
+- Normalized SVG line endings during live Demo brand verification so Windows `CRLF` checkouts and Pages-deployed `LF` assets compare consistently without weakening canonical content checks.
+- Added regression coverage for cross-platform dark/light Logo parity verification.
+
+---
+
 ## [0.25.7] - 2026-07-17
 
 ### Added

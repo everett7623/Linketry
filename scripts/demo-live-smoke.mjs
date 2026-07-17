@@ -40,6 +40,13 @@ function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
 }
 
+function normalizeSvg(value) {
+  return Buffer.from(value)
+    .toString('utf8')
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n?/g, '\n');
+}
+
 async function fetchRequired(fetchImpl, url, init = {}) {
   const response = await fetchImpl(url, {
     redirect: 'follow',
@@ -67,7 +74,7 @@ async function verifyAdmin({ adminOrigin, version, fetchImpl, readFileImpl }) {
       fetchRequired(fetchImpl, `${adminOrigin}/${asset}?${suffix}`),
     ]);
     const remote = Buffer.from(await remoteResponse.arrayBuffer());
-    if (sha256(local) !== sha256(remote)) {
+    if (sha256(normalizeSvg(local)) !== sha256(normalizeSvg(remote))) {
       throw new Error(`Demo Admin ${asset} does not match the canonical repository asset.`);
     }
   }

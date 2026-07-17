@@ -12,6 +12,8 @@ Keep the isolated public Demo on the same Admin version, brand assets, routes, a
 - [x] Add synthetic advanced-feature records for production-like read-only pages.
 - [x] Synchronize version, changelog, progress, tasks, and deployment documentation.
 - [x] Run unit, deployment, Worker, build, production-mode, and Demo-mode browser regression.
+- [x] Deploy v0.25.7 to production and the isolated Demo with the public parity gate passing.
+- [x] Normalize canonical SVG line endings for consistent Windows and Linux verification in v0.25.8.
 
 ## Safety Boundary
 

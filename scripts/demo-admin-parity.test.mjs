@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { verifyDemoLiveParity } from './demo-live-smoke.mjs';
 
-const version = '0.25.7';
+const version = '0.25.8';
 const adminOrigin = 'https://demo.linketry.com';
 const apiOrigin = 'https://linketry-demo-worker.example.workers.dev';
 const darkLogo = readFileSync(new URL('../apps/admin/public/favicon.svg', import.meta.url));
@@ -108,6 +108,21 @@ test('live parity verification accepts the current version, brand, reads, and wr
   });
   assert.equal(report.version, version);
   assert.equal(report.readChecks, 18);
+});
+
+test('live parity verification accepts equivalent SVG line endings', async () => {
+  const readFileWithCrLf = async (url) => {
+    const content = await readFile(url, 'utf8');
+    return Buffer.from(content.replace(/\r?\n/g, '\r\n'));
+  };
+  const report = await verifyDemoLiveParity({
+    adminUrl: adminOrigin,
+    apiUrl: apiOrigin,
+    version,
+    fetchImpl: createFetch(),
+    readFileImpl: readFileWithCrLf,
+  });
+  assert.equal(report.version, version);
 });
 
 test('live parity verification rejects stale Admin versions and a missing write boundary', async () => {

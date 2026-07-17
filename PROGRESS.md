@@ -17,9 +17,20 @@ Last updated: 2026-07-17
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.25.7              | Demo/production route, version, brand, read API, and synthetic advanced-feature parity are enforced before a Demo deployment can complete                                      |
+| Current version            | ✅ 0.25.8              | Demo parity verification compares canonical SVG content consistently across Windows and Linux line endings                                                                     |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.25.8 Cross-platform Demo Parity Verification
+
+| Area                     | Status      | Notes                                                                                                         |
+| ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------- |
+| SVG comparison           | ✅ Complete | Canonical dark/light Logo validation normalizes `CRLF` and `LF` while preserving strict content comparison   |
+| Windows regression       | ✅ Complete | Local parity tests cover Windows checkout line endings against Pages-deployed assets                         |
+| v0.25.7 rollout          | ✅ Complete | Production and isolated Demo deployments completed with all release and live parity gates passing            |
+| Redirect-path impact     | ✅ None     | Redirect handlers, KV cache behavior, D1 production data, and production domains were not changed           |
 
 ---
 
@@ -33,7 +44,7 @@ Last updated: 2026-07-17
 | Advanced synthetic data  | ✅ Complete | UTM, notes, notification, webhook, anomaly, groups, analytics, backup, token, audit, and health read surfaces have samples    |
 | Post-deployment gate     | ✅ Complete | Version meta, two Logo hashes, 18 read APIs, and write rejection are verified against the live Demo                           |
 | Redirect-path impact     | ✅ None     | Redirect handlers, KV cache behavior, D1 production data, and production domains were not changed                            |
-| Production/Demo rollout  | 🟡 Pending | Source is ready at v0.25.7; the live Demo remains v0.25.1 until a reviewed commit and isolated manual Demo deployment succeed |
+| Production/Demo rollout  | ✅ Complete | v0.25.7 is live in production and the isolated Demo; the public parity gate completed successfully                         |
 
 ---
 

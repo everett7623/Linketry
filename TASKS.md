@@ -8,7 +8,14 @@ One item in "In Progress" at a time whenever possible.
 ## 🔴 In Progress
 
 - [ ] V9+: Complete Beginner Deployment Bootstrap (guided provisioning, production gates, and isolated Demo workflow complete; fresh-account rehearsal remains)
-- [ ] Deploy reviewed v0.25.7 to the isolated Demo and confirm the live parity gate succeeds
+
+---
+
+## ✅ Completed - Cross-platform Demo Parity Verification (v0.25.8)
+
+- [x] Normalize SVG line endings before strict canonical brand comparison
+- [x] Cover Windows `CRLF` and deployed `LF` assets with a regression test
+- [x] Deploy v0.25.7 to production and the isolated Demo with the live parity gate passing
 
 ---
 
