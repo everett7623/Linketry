@@ -7,7 +7,6 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🔴 In Progress
 
-- [ ] Deploy v0.26.6, switch the Demo Admin to the active `demoapi.linketry.com` API, and verify production/Demo parity
 - [ ] External release prerequisites: activate R2 in the isolated Demo account and configure the fine-grained `LINKETRY_GITHUB_UPDATE_TOKEN`
 
 ---
@@ -18,6 +17,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Accept Wrangler 4.111's `Project Name` field when inventorying Pages projects
 - [x] Preserve the fail-closed deployment ordering and existing Demo resource names
 - [x] Add a workflow contract assertion for repeat-project discovery
+- [x] Deploy Demo run `29647646987` and production run `29647646808`
+- [x] Verify the branded API, compiled Admin origin, 18 read APIs, `403` write boundary, and production/Demo version parity
 
 ---
 

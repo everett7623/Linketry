@@ -10,14 +10,14 @@ Last updated: 2026-07-18
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.26.5 live         | Production and isolated Demo Workers are healthy; v0.26.6 repeat-deployment fix is ready for rollout |
+| Worker backend             | ✅ 0.26.6 live         | Production and isolated Demo Workers are healthy; branded Demo API and Worker fallback are both active |
 | Admin frontend             | ✅ V8 complete         | EN/ZH, aligned shell controls, visible version metadata, near-real-time Analytics refresh, display preferences, themes, updates, and traffic-alert controls are browser tested            |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | 🟡 0.26.6 ready        | Wrangler Pages inventory compatibility is fixed; synchronized Demo/production rollout is pending |
+| Current version            | ✅ 0.26.6 live         | Production and isolated Demo Worker/Admin releases are synchronized and live |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
@@ -31,6 +31,8 @@ Last updated: 2026-07-18
 | Duplicate protection | ✅ Complete | Repeat deployments no longer attempt to recreate `linketry-demo-api`                                     |
 | Failure containment  | ✅ Verified | Run `29646559998` stopped before Worker secrets, migrations, seed writes, Worker deploy, and Admin deploy |
 | Verification         | ✅ Local    | 63 deployment, 81 Worker, 48 Admin unit, 20 Admin browser, 6 gateway, and 4 site tests pass; builds pass |
+| Live rollout         | ✅ Complete | Demo run `29647646987` and production run `29647646808` deployed v0.26.6 successfully                         |
+| Branded API          | ✅ Active   | `demoapi.linketry.com` reports v0.26.6, Admin compiles that origin, 18 read APIs pass, and writes return 403   |
 | Redirect-path impact | ✅ None     | Redirect handlers, asynchronous analytics, D1/KV data, and production domains are unchanged               |
 
 ---
@@ -43,8 +45,8 @@ Last updated: 2026-07-18
 | Isolated gateway           | ✅ Complete  | A Demo-account Pages Function proxies only `/health` and `/api/*` through a Service Binding to the Demo Worker          |
 | Data/resource ownership    | ✅ Preserved | D1, KV, Queue, optional R2, redirect handling, and the read-only policy remain exclusively on the Demo Worker           |
 | Deployment gate            | ✅ Complete  | Public API, Worker origin, gateway project, custom domain, protected resources, and write ordering are validated        |
-| Custom-domain registration | ✅ Initializing | Demo run `29641004812` registered `demoapi.linketry.com`; Pages is waiting for the external DNS CNAME                 |
-| DNS activation             | 🟡 Pending   | Add DNS-only CNAME `demoapi` to `linketry-demo-api.pages.dev`, then switch the Admin API URL after Pages reports active |
+| Custom-domain registration | ✅ Active    | `demoapi.linketry.com` is associated with `linketry-demo-api` and serves a valid Pages certificate                    |
+| DNS activation             | ✅ Complete  | DNS-only CNAME `demoapi` points to `linketry-demo-api.pages.dev`; the Demo Admin uses the branded API                 |
 | Verification               | ✅ Local     | 6 gateway and 60 deployment-policy tests pass; Wrangler compiles the Pages Function successfully                        |
 | Live rollout               | ✅ Complete  | Demo run `29641004812` and production run `29641004768` deployed v0.26.5; both Admins report the same version         |
 | Redirect-path impact       | ✅ None      | Production/Demo redirect handlers and asynchronous analytics code were not changed                                     |
