@@ -2,7 +2,7 @@
 
 ## Status
 
-Implemented in Linketry v0.26.3 after reviewing the live production Admin at `admin.uukk.de`.
+Implemented and deployed in Linketry v0.26.3 after reviewing the live production Admin at `admin.uukk.de`.
 
 ## Findings
 
@@ -36,3 +36,7 @@ Implemented in Linketry v0.26.3 after reviewing the live production Admin at `ad
 - Admin tests: 48 unit and 19 Chromium browser tests passed; production build passed.
 - Project-site tests: 4 passed; production build passed.
 - Live production Admin, project-site, and repository Logo hashes match before the cache fix.
+- Isolated Demo run `29634990846` passed the production-parity gate and deployed v0.26.3.
+- Production run `29635088591` deployed v0.26.3 from commit `ffc7d51`.
+- Production and Demo Workers report v0.26.3; both Admins return 200 and expose the v0.26.3 favicon cache key.
+- Production unauthenticated API and missing-slug checks return 401 and 404; the Demo read API remains publicly available in read-only mode.

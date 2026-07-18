@@ -21,6 +21,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Resurface a dismissed release when the operator explicitly checks again
 - [x] Distinguish automatic Online upgrade from the manual Open deployment fallback
 - [x] Keep GitHub metadata checks anonymous and preserve redirect/data behavior
+- [x] Deploy and verify isolated Demo run `29634990846` on v0.26.3
+- [x] Deploy production run `29635088591` and verify production/Demo version parity
 
 ---
 
