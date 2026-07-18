@@ -23,6 +23,8 @@ Core Demo rollout is complete and live at `https://demo.linketry.com`. The accou
 - The replacement token passes account, D1, KV, Queue, Worker, and Pages checks, but the isolated account returns Cloudflare R2 error `10042` before bucket inventory.
 - The successful core rollout therefore omitted only R2 bindings and synthetic R2 artifact uploads; the two R2 environment variables are temporarily unset.
 - `demoapi.linketry.com` is not active yet; the isolated API continues to use `https://linketry-demo-worker.tuomeixi.workers.dev` until the staged DNS cutover completes.
+- v0.26.5 Demo run `29641004812` deployed `linketry-demo-api`, passed its gateway parity gate and the full Demo parity gate, and registered the custom domain in `initializing` status.
+- v0.26.5 production run `29641004768` deployed the synchronized production Worker, Admin, and project site successfully.
 - Guarded v0.26.4 R2 recheck run `29639154619` still returned account-level code `10042`; all mutation and deployment steps were skipped and both R2 variables were removed again.
 - `demoapi.linketry.com` is the preferred public API name because `linketry.com` is the project site and Demo namespace, while production uses `admin.uukk.de` and `go.uukk.de`.
 - Direct cross-account CNAME routing to `workers.dev` is not used. v0.26.5 implements a Pages Function in the Demo account with a Service Binding to `linketry-demo-worker`; the `linketry.com` zone supplies only the public CNAME.
@@ -36,7 +38,7 @@ Core Demo rollout is complete and live at `https://demo.linketry.com`. The accou
 - [ ] Restore the two R2 environment variables, approve the exact release/commit/digest, and rerun the isolated Demo workflow.
 - [ ] Verify R2 backup downloads and report downloads after the successful R2 rollout.
 - [x] Implement the Demo-account Pages API gateway, isolated deployment gates, domain-registration helper, and local regression coverage.
-- [ ] Deploy the API gateway and verify `https://linketry-demo-api.pages.dev`.
+- [x] Deploy the API gateway and verify `https://linketry-demo-api.pages.dev` in Demo run `29641004812`.
 - [ ] Add DNS-only CNAME `demoapi` to `linketry-demo-api.pages.dev` and wait for the Pages custom domain to become active.
 - [ ] Switch `LINKETRY_DEMO_API_URL` to `https://demoapi.linketry.com`, redeploy the Admin, and retain the Worker origin variable as fallback.
 

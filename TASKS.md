@@ -7,7 +7,7 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🔴 In Progress
 
-- [ ] Roll out v0.26.5, activate the `demoapi.linketry.com` CNAME, switch the Demo Admin API URL, and verify production/Demo parity
+- [ ] Finish the staged `demoapi.linketry.com` DNS activation and switch the Demo Admin API URL after Pages reports the domain active
 - [ ] External release prerequisites: activate R2 in the isolated Demo account and configure the fine-grained `LINKETRY_GITHUB_UPDATE_TOKEN`
 
 ---
