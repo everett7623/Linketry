@@ -10,14 +10,14 @@ Last updated: 2026-07-18
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.26.3 live         | Production and isolated Demo Workers are healthy; production keeps Queue/R2 while Demo keeps Queue and omits unavailable R2 |
+| Worker backend             | ✅ 0.26.4 live         | Production and isolated Demo Workers are healthy; production keeps Queue/R2 while Demo keeps Queue and omits unavailable R2 |
 | Admin frontend             | ✅ V8 complete         | EN/ZH, aligned shell controls, visible version metadata, near-real-time Analytics refresh, display preferences, themes, updates, and traffic-alert controls are browser tested            |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | 🟡 0.26.4 ready        | Release diagnostics are implemented; production and isolated Demo remain live on verified v0.26.3                          |
+| Current version            | ✅ 0.26.4 live         | Production and isolated Demo report the same Worker/Admin release and release-readiness UI                                |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
@@ -32,6 +32,10 @@ Last updated: 2026-07-18
 | Upgrade readiness          | ✅ Complete  | One-click, manual, invalid, and unavailable Worker capability states are visible without secret values |
 | Refresh accuracy           | ✅ Fixed     | Cached checks retain their original timestamp; overlapping checks retain an accurate busy state        |
 | Verification               | ✅ Complete  | 53 deployment, 81 Worker, 48 Admin unit, 20 Admin browser, and 4 site tests passed; builds passed      |
+| Live Demo rollout          | ✅ Complete  | Run `29636513938` deployed v0.26.4 and passed the isolated Demo production-parity gate                 |
+| Production rollout         | ✅ Complete  | Run `29636582863` deployed v0.26.4 Worker, Admin, and project site from commit `7e56405`               |
+| Live release status        | ✅ Verified  | Demo Settings reports installed/latest v0.26.4 and accurately identifies manual deployment mode        |
+| Version parity             | ✅ Verified  | Both Workers report v0.26.4; both Admins return 200 and expose the v0.26.4 favicon cache key           |
 | Redirect-path impact       | ✅ None      | Redirect handlers, analytics scheduling, D1/KV data, migrations, and production resources are unchanged |
 
 ---

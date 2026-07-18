@@ -20,6 +20,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Refresh GitHub metadata and Worker upgrade readiness together on demand
 - [x] Keep all credential values protected and preserve existing deployment gates
 - [x] Pass deployment, Worker, Admin, site, type-check, browser, and build regression
+- [x] Deploy and verify isolated Demo run `29636513938` on v0.26.4
+- [x] Deploy production run `29636582863` and verify production/Demo version parity
 
 ---
 

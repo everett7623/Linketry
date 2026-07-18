@@ -2,7 +2,7 @@
 
 ## Status
 
-Implemented and regression verified for Linketry v0.26.4; production/Demo rollout is pending.
+Implemented, regression verified, and deployed in Linketry v0.26.4.
 
 ## Scope
 
@@ -25,4 +25,8 @@ Implemented and regression verified for Linketry v0.26.4; production/Demo rollou
 - Worker tests: 81 passed; TypeScript type-check passed.
 - Admin tests: 48 unit and 20 Chromium browser tests passed; production build passed.
 - Project-site tests: 4 passed; production build passed.
-- Live rollout: pending.
+- Isolated Demo run `29636513938` passed the production-parity gate and deployed v0.26.4.
+- Production run `29636582863` deployed v0.26.4 from commit `7e56405`.
+- Production and Demo Workers report v0.26.4; both Admins return 200 and expose the v0.26.4 favicon cache key.
+- Live Demo Settings reports installed/latest v0.26.4, a successful check timestamp, and manual deployment mode.
+- Production unauthenticated API and missing-slug checks return 401 and 404; the Demo read API remains publicly available in read-only mode.
