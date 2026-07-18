@@ -14,6 +14,8 @@ Move release discovery back to the bottom-left of the Admin shell while preservi
 - Preserved the automatic mount check, 15-minute foreground polling, and visibility refresh.
 - Added browser coverage for update persistence, manual refresh, toolbar cleanup, and responsive placement.
 - Visually verified 1440x900 desktop, 80px collapsed navigation, and 390x844 mobile navigation without horizontal overflow.
+- Deployed isolated Demo run `29655669311` and production run `29655669485` successfully.
+- Verified production and Demo health responses plus both Admin favicon cache keys report v0.26.7.
 
 ## Release Boundary
 

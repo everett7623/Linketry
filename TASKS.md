@@ -21,6 +21,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Add update-notification, toolbar, desktop, collapsed, and mobile regression coverage
 - [x] Verify the local Admin at 1440x900 and 390x844 without horizontal overflow
 - [x] Preserve explicit upgrade confirmation, protected credentials, redirect behavior, and Demo isolation
+- [x] Deploy Demo run `29655669311` and production run `29655669485`
+- [x] Verify both health endpoints and both Admin assets report v0.26.7
 
 ---
 
