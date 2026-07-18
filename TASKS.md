@@ -7,8 +7,17 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🔴 In Progress
 
-- [ ] Finish the staged `demoapi.linketry.com` DNS activation and switch the Demo Admin API URL after Pages reports the domain active
+- [ ] Deploy v0.26.6, switch the Demo Admin to the active `demoapi.linketry.com` API, and verify production/Demo parity
 - [ ] External release prerequisites: activate R2 in the isolated Demo account and configure the fine-grained `LINKETRY_GITHUB_UPDATE_TOKEN`
+
+---
+
+## ✅ Completed - Demo Gateway Repeat Deployment (v0.26.6)
+
+- [x] Diagnose failed cutover run `29646559998` before any Cloudflare runtime write
+- [x] Accept Wrangler 4.111's `Project Name` field when inventorying Pages projects
+- [x] Preserve the fail-closed deployment ordering and existing Demo resource names
+- [x] Add a workflow contract assertion for repeat-project discovery
 
 ---
 

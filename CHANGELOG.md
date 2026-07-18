@@ -13,6 +13,19 @@ _(none)_
 
 ---
 
+## [0.26.6] - 2026-07-18
+
+### Fixed
+
+- Demo API Pages project discovery now accepts Wrangler's `Project Name` JSON field, so repeat deployments reuse the existing gateway instead of attempting a duplicate project creation.
+
+### Security
+
+- The corrected lookup remains after the fail-closed Demo safety gate and before Worker secrets, migrations, seed writes, and deployments.
+- Redirect handlers, analytics scheduling, D1/KV data, production resources, and domain routing are unchanged.
+
+---
+
 ## [0.26.5] - 2026-07-18
 
 ### Added

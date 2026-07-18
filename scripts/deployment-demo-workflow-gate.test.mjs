@@ -343,6 +343,7 @@ test('Demo workflow keeps its gate before all Cloudflare writes and uses Demo-on
   assert.match(workflow, /Upload isolated synthetic Demo artifacts/);
   assert.match(workflow, /binding: 'DEMO_API'/);
   assert.match(workflow, /pages deploy public/);
+  assert.match(workflow, /scripts\/pages-project-inventory\.mjs/);
   assert.match(workflow, /scripts\/cloudflare-pages-domain\.mjs/);
   assert.match(workflow, /workers_dev = true/);
   assert.match(workflow, /LINKETRY_DEMO_MODE = "read-only"/);

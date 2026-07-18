@@ -157,7 +157,7 @@ jobs:
             ...routing,
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.26.5'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.26.6'}"`,
             'LINKETRY_DEMO_MODE = "read-only"',
             'LINKETRY_DAILY_CRON = "15 3 * * *"',
             'LINKETRY_HEALTH_CRON = "15 * * * *"',
@@ -210,16 +210,8 @@ jobs:
       - name: Ensure isolated Demo API Pages project
         run: |
           inventory="$(npx wrangler pages project list --json)"
-          if ! printf '%s' "$inventory" | node -e '
-            let body = "";
-            process.stdin.on("data", (chunk) => body += chunk);
-            process.stdin.on("end", () => {
-              const name = process.argv[1];
-              const payload = JSON.parse(body);
-              const projects = Array.isArray(payload) ? payload : payload.result;
-              process.exit(Array.isArray(projects) && projects.some((project) => project.name === name) ? 0 : 1);
-            });
-          ' "$LINKETRY_API_PAGES_PROJECT"; then
+          if ! printf '%s' "$inventory" |
+            node scripts/pages-project-inventory.mjs --has "$LINKETRY_API_PAGES_PROJECT"; then
             npx wrangler pages project create "$LINKETRY_API_PAGES_PROJECT" \
               --production-branch main \
               --compatibility-date "${LINKETRY_COMPATIBILITY_DATE:-2026-07-16}"

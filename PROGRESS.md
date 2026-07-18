@@ -10,16 +10,28 @@ Last updated: 2026-07-18
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.26.5 live         | Production and isolated Demo Workers are healthy; Demo API gateway is live on Pages and DNS cutover remains external |
+| Worker backend             | ✅ 0.26.5 live         | Production and isolated Demo Workers are healthy; v0.26.6 repeat-deployment fix is ready for rollout |
 | Admin frontend             | ✅ V8 complete         | EN/ZH, aligned shell controls, visible version metadata, near-real-time Analytics refresh, display preferences, themes, updates, and traffic-alert controls are browser tested            |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.26.5 live         | Production and isolated Demo Admin/Worker releases are synchronized; branded Demo API DNS activation remains pending |
+| Current version            | 🟡 0.26.6 ready        | Wrangler Pages inventory compatibility is fixed; synchronized Demo/production rollout is pending |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.26.6 Demo Gateway Repeat Deployment
+
+| Area                 | Status      | Notes                                                                                                      |
+| -------------------- | ----------- | ---------------------------------------------------------------------------------------------------------- |
+| Wrangler inventory   | ✅ Fixed    | Both `name` and Wrangler 4.111's `Project Name` JSON fields identify an existing API Pages project        |
+| Duplicate protection | ✅ Complete | Repeat deployments no longer attempt to recreate `linketry-demo-api`                                     |
+| Failure containment  | ✅ Verified | Run `29646559998` stopped before Worker secrets, migrations, seed writes, Worker deploy, and Admin deploy |
+| Verification         | ✅ Local    | 63 deployment, 81 Worker, 48 Admin unit, 20 Admin browser, 6 gateway, and 4 site tests pass; builds pass |
+| Redirect-path impact | ✅ None     | Redirect handlers, asynchronous analytics, D1/KV data, and production domains are unchanged               |
 
 ---
 

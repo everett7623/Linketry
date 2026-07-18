@@ -25,6 +25,7 @@ Core Demo rollout is complete and live at `https://demo.linketry.com`. The accou
 - `demoapi.linketry.com` is not active yet; the isolated API continues to use `https://linketry-demo-worker.tuomeixi.workers.dev` until the staged DNS cutover completes.
 - v0.26.5 Demo run `29641004812` deployed `linketry-demo-api`, passed its gateway parity gate and the full Demo parity gate, and registered the custom domain in `initializing` status.
 - v0.26.5 production run `29641004768` deployed the synchronized production Worker, Admin, and project site successfully.
+- DNS cutover run `29646559998` passed the safety gate but stopped before every Cloudflare write because Wrangler's JSON project inventory uses `Project Name`; v0.26.6 corrects the repeat-deployment lookup.
 - Guarded v0.26.4 R2 recheck run `29639154619` still returned account-level code `10042`; all mutation and deployment steps were skipped and both R2 variables were removed again.
 - `demoapi.linketry.com` is the preferred public API name because `linketry.com` is the project site and Demo namespace, while production uses `admin.uukk.de` and `go.uukk.de`.
 - Direct cross-account CNAME routing to `workers.dev` is not used. v0.26.5 implements a Pages Function in the Demo account with a Service Binding to `linketry-demo-worker`; the `linketry.com` zone supplies only the public CNAME.
