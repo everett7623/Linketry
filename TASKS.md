@@ -11,6 +11,18 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed - Release Readiness Diagnostics (v0.26.4)
+
+- [x] Share one update result across the toolbar, update banner, and Settings page
+- [x] Preserve the actual successful check timestamp and surface optional check failures
+- [x] Show installed and latest GitHub versions in Settings
+- [x] Show one-click, manual, invalid, and unavailable upgrade capability states
+- [x] Refresh GitHub metadata and Worker upgrade readiness together on demand
+- [x] Keep all credential values protected and preserve existing deployment gates
+- [x] Pass deployment, Worker, Admin, site, type-check, browser, and build regression
+
+---
+
 ## ✅ Completed - Brand Cache And Update Discovery (v0.26.3)
 
 - [x] Verify the production Admin Logo content matches the canonical project Logo

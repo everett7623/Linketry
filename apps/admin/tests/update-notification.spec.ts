@@ -156,6 +156,78 @@ test('manual update check bypasses a fresh cache and reveals the latest GitHub v
   expect(githubRequests).toBe(1);
 });
 
+test('Settings reports release readiness and refreshes the shared update state', async ({
+  page,
+}) => {
+  let githubRequests = 0;
+  await page.addInitScript(() => {
+    localStorage.setItem('linketry_token', 'test-token');
+    localStorage.setItem('linketry.locale', 'en');
+    localStorage.setItem('linketry_theme', 'dark');
+  });
+  await page.route('https://api.github.com/**', async (route) => {
+    githubRequests += 1;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/vnd.github.raw+json',
+      body: JSON.stringify({
+        name: 'linketry',
+        version: githubRequests === 1 ? LINKETRY_VERSION : latestVersion,
+      }),
+    });
+  });
+  await page.route('**/api/v1/**', async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === '/api/v1/auth/me') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '{"success":true}',
+      });
+      return;
+    }
+    if (path === '/api/v1/settings') {
+      await route.fulfill(
+        apiResponse({ default_domain: 'go.example.com', admin_hidden_modules: '[]' })
+      );
+      return;
+    }
+    if (path === '/api/v1/system/upgrade') {
+      await route.fulfill(
+        apiResponse({
+          enabled: false,
+          repositoryUrl: 'https://github.com/everett7623/Linketry',
+          workflowUrl: 'https://github.com/everett7623/Linketry/actions/workflows/deploy.yml',
+          branch: 'main',
+          reason: 'not_configured',
+        })
+      );
+      return;
+    }
+    await route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"mock"}' });
+  });
+
+  await page.goto('/settings');
+  const releasePanel = page.getByRole('region', { name: messages.en.releaseStatus });
+  await expect(releasePanel).toBeVisible();
+  await expect(releasePanel.getByText(messages.en.upToDate, { exact: true })).toBeVisible();
+  await expect(
+    releasePanel.getByText(messages.en.manualDeploymentRequired, { exact: true })
+  ).toBeVisible();
+  await expect(releasePanel.getByText('LINKETRY_GITHUB_UPDATE_TOKEN')).toBeVisible();
+  await expect(releasePanel.getByText(`v${LINKETRY_VERSION}`, { exact: true })).toHaveCount(2);
+
+  await releasePanel.getByRole('button', { name: messages.en.checkNow }).click();
+  await expect(releasePanel.getByText(messages.en.updateAvailable, { exact: true })).toBeVisible();
+  await expect(releasePanel.getByText(`v${latestVersion}`, { exact: true })).toBeVisible();
+  await expect(
+    page
+      .getByRole('status')
+      .getByText(messages.en.updateAvailableTitle.replace('{version}', latestVersion))
+  ).toBeVisible();
+  expect(githubRequests).toBe(2);
+});
+
 test('automatic upgrade confirms deployment, verifies runtime, and reloads the Admin', async ({
   page,
 }) => {

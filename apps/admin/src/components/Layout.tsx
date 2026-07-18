@@ -10,15 +10,23 @@ import { NAV_GROUPS } from './sidebar/sidebarNavigation';
 import { SidebarUtilityActions } from './sidebar/SidebarUtilityActions';
 import { AdminModeControl, DemoReadOnlyStatus } from './AdminShellControls';
 import { UpdateCheckButton } from './UpdateCheckButton';
-import { useUpdateCheck } from '../hooks/useUpdateCheck';
+import { UpdateCheckProvider, useUpdateCheckContext } from '../contexts/UpdateCheckContext';
 
 export function Layout() {
+  return (
+    <UpdateCheckProvider>
+      <LayoutContent />
+    </UpdateCheckProvider>
+  );
+}
+
+function LayoutContent() {
   const { sidebarCollapsed, sidebarDensity, tableDensity, setSidebarCollapsed } =
     useDisplayPreferences();
   const { t } = useLocale();
   const location = useLocation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const updateCheck = useUpdateCheck();
+  const updateCheck = useUpdateCheckContext();
   const pageLabel = resolvePageLabel(location.pathname);
 
   useEffect(() => {

@@ -13,6 +13,30 @@ _(none)_
 
 ---
 
+## [0.26.4] - 2026-07-18
+
+### Added
+
+- Added a Settings release-status panel with installed/latest versions, the last successful check time, and protected upgrade readiness.
+- Added explicit one-click, manual, invalid-configuration, and unavailable capability states without exposing credential values.
+
+### Changed
+
+- Toolbar checks, update banners, and Settings diagnostics now consume one shared update state.
+- Manual release checks refresh GitHub metadata and the Worker upgrade capability together.
+
+### Fixed
+
+- Cached version checks retain their real timestamp so visibility-based refresh decisions are not delayed by a later page mount.
+- Concurrent update checks no longer clear the loading indicator while another check remains active.
+
+### Security
+
+- Upgrade diagnostics expose only capability state; `LINKETRY_GITHUB_UPDATE_TOKEN` remains a protected Worker/repository secret.
+- Redirect handlers, analytics scheduling, D1/KV behavior, migrations, API contracts, and production data are unchanged.
+
+---
+
 ## [0.26.3] - 2026-07-18
 
 ### Added

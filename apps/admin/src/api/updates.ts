@@ -44,6 +44,7 @@ export interface UpdateCheckResult {
   currentVersion: string;
   latestVersion: string;
   updateAvailable: boolean;
+  checkedAt: number;
   branch: string;
   repositoryUrl: string;
   changelogUrl: string;
@@ -96,12 +97,13 @@ export async function checkForUpdates(options: CheckForUpdatesOptions): Promise<
   const now = options.now ?? Date.now();
   const storage = options.storage ?? window.localStorage;
   let latestVersion: string | null = null;
+  let checkedAt = now;
 
   if (!options.forceRefresh) {
     try {
-      latestVersion =
-        readVersionCheckCache(readBrowserSetting('updateCheck', storage), now)?.latestVersion ??
-        null;
+      const cached = readVersionCheckCache(readBrowserSetting('updateCheck', storage), now);
+      latestVersion = cached?.latestVersion ?? null;
+      checkedAt = cached?.checkedAt ?? now;
     } catch {
       // Storage restrictions must not prevent the live check.
     }
@@ -124,6 +126,7 @@ export async function checkForUpdates(options: CheckForUpdatesOptions): Promise<
     currentVersion,
     latestVersion,
     updateAvailable: isNewerVersion(latestVersion, currentVersion),
+    checkedAt,
     branch: GITHUB_UPDATE_BRANCH,
     repositoryUrl: GITHUB_REPOSITORY_URL,
     changelogUrl: GITHUB_CHANGELOG_URL,

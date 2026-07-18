@@ -17,9 +17,22 @@ Last updated: 2026-07-18
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.26.3 live         | Production and isolated Demo Worker/Admin deployments report the same release and versioned BrandMark assets                |
+| Current version            | 🟡 0.26.4 ready        | Release diagnostics are implemented; production and isolated Demo remain live on verified v0.26.3                          |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.26.4 Release Readiness Diagnostics
+
+| Area                       | Status       | Notes                                                                                                  |
+| -------------------------- | ------------ | ------------------------------------------------------------------------------------------------------ |
+| Shared update state        | ✅ Complete  | Toolbar, banner, and Settings consume one check result, error state, and timestamp                     |
+| Release status             | ✅ Complete  | Settings shows installed/latest versions, last check time, and whether an update is available          |
+| Upgrade readiness          | ✅ Complete  | One-click, manual, invalid, and unavailable Worker capability states are visible without secret values |
+| Refresh accuracy           | ✅ Fixed     | Cached checks retain their original timestamp; overlapping checks retain an accurate busy state        |
+| Verification               | ✅ Complete  | 53 deployment, 81 Worker, 48 Admin unit, 20 Admin browser, and 4 site tests passed; builds passed      |
+| Redirect-path impact       | ✅ None      | Redirect handlers, analytics scheduling, D1/KV data, migrations, and production resources are unchanged |
 
 ---
 

@@ -68,6 +68,7 @@ test('forced update checks bypass a fresh cached version', async () => {
   assert.equal(fetchCount, 1);
   assert.equal(result.updateAvailable, true);
   assert.equal(result.latestVersion, '0.20.0');
+  assert.equal(result.checkedAt, 21_000);
 });
 
 test('GitHub package metadata is validated and fetched without an Admin token', async () => {
@@ -108,6 +109,7 @@ test('successful update checks are cached and newer versions remain detectable',
 
   assert.equal(first.updateAvailable, true);
   assert.equal(first.latestVersion, '0.20.0');
+  assert.equal(first.checkedAt, 20_000);
   assert.equal(first.branch, 'main');
   assert.equal(
     first.changelogUrl,

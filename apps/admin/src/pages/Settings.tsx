@@ -14,6 +14,7 @@ import { useToast } from '../components/ui/Toast';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import { useLocale } from '../contexts/LocaleContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { ReleaseStatusPanel } from '../components/settings/ReleaseStatusPanel';
 
 export function Settings() {
   const { success, error } = useToast();
@@ -205,6 +206,8 @@ export function Settings() {
       )}
 
       {isAdvanced && <ResetSettingsPanel />}
+
+      <ReleaseStatusPanel />
 
       <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-900 p-6">
         <h2 className="border-b border-slate-800 pb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">

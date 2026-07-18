@@ -180,6 +180,18 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
+    if (path === '/api/v1/system/upgrade' && request.method() === 'GET') {
+      await route.fulfill(
+        apiResponse({
+          enabled: false,
+          repositoryUrl: 'https://github.com/everett7623/Linketry',
+          workflowUrl: 'https://github.com/everett7623/Linketry/actions/workflows/deploy.yml',
+          branch: 'main',
+          reason: 'not_configured',
+        })
+      );
+      return;
+    }
     if (path === '/api/v1/health-checks/batch' && request.method() === 'POST') {
       await route.fulfill(apiResponse({ items: [], total: 0, healthy: 0, warning: 0, broken: 0 }));
       return;
@@ -445,6 +457,7 @@ test('English core workflow renders overview, links, create link, and settings',
   await page.getByRole('button', { name: messages.en.saveSettings }).click();
   await expect(page.getByText(messages.en.settingsSaved)).toBeVisible();
   await expect(page.getByRole('heading', { name: messages.en.notificationChannels })).toBeVisible();
+  await expect(page.getByRole('heading', { name: messages.en.releaseStatus })).toBeVisible();
 
   await page.getByRole('navigation').getByRole('link', { name: messages.en.healthChecks }).click();
   await expect(
@@ -496,6 +509,7 @@ test('Simplified Chinese core workflow renders localized navigation and forms', 
   await expect(
     page.getByRole('main').getByLabel(messages['zh-CN'].language, { exact: true })
   ).toHaveValue('zh-CN');
+  await expect(page.getByRole('heading', { name: messages['zh-CN'].releaseStatus })).toBeVisible();
   await page.evaluate(() => window.__assertNoBrowserErrors());
 });
 
