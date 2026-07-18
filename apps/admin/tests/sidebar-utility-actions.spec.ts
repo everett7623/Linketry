@@ -44,7 +44,9 @@ async function mockDashboardApi(page: Page) {
   });
 }
 
-test('Desktop toolbar groups language, theme, and active coffee support actions', async ({ page }) => {
+test('Desktop toolbar groups language, theme, and active coffee support actions', async ({
+  page,
+}) => {
   await page.addInitScript((version) => {
     localStorage.setItem('linketry_token', 'test-token');
     localStorage.setItem('linketry.locale', 'en');
@@ -61,7 +63,13 @@ test('Desktop toolbar groups language, theme, and active coffee support actions'
   const toolbar = page.getByTestId('desktop-toolbar');
   const actions = toolbar.getByRole('group', { name: messages.en.quickActions });
   await expect(actions.locator('button, a')).toHaveCount(3);
-  await expect(page.locator('aside').getByRole('group', { name: messages.en.quickActions })).toHaveCount(0);
+  await expect(toolbar.getByRole('button', { name: messages.en.checkForUpdates })).toBeVisible();
+  await expect(
+    page.locator('aside').getByRole('group', { name: messages.en.quickActions })
+  ).toHaveCount(0);
+
+  const brandMark = page.getByTestId('sidebar-brand').getByTestId('brand-mark');
+  await expect(brandMark).toHaveAttribute('src', `/favicon.svg?v=${LINKETRY_VERSION}`);
 
   const support = actions.getByRole('link', { name: messages.en.supportEverettlabs });
   await expect(support).toHaveAttribute('href', EVERETTLABS_SUPPORT_URL);
@@ -71,6 +79,7 @@ test('Desktop toolbar groups language, theme, and active coffee support actions'
   const lightLabel = messages.en.switchTheme.replace('{theme}', messages.en.lightTheme);
   await actions.getByRole('button', { name: lightLabel }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(brandMark).toHaveAttribute('src', `/favicon-light.svg?v=${LINKETRY_VERSION}`);
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem('linketry_theme')))
     .toBe('light');
@@ -114,7 +123,7 @@ test('Update notice exposes a safe repository upgrade workflow without mobile ov
     'href',
     'https://github.com/everett7623/Linketry/blob/main/CHANGELOG.md'
   );
-  await expect(notice.getByRole('link', { name: messages.en.upgradeOnline })).toHaveAttribute(
+  await expect(notice.getByRole('link', { name: messages.en.openDeployment })).toHaveAttribute(
     'href',
     'https://github.com/everett7623/Linketry/actions/workflows/deploy.yml'
   );

@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { verifyDemoLiveParity } from './demo-live-smoke.mjs';
 
-const version = '0.26.2';
+const version = '0.26.3';
 const adminOrigin = 'https://demo.linketry.com';
 const apiOrigin = 'https://linketry-demo-worker.example.workers.dev';
 const darkLogo = readFileSync(new URL('../apps/admin/public/favicon.svg', import.meta.url));
@@ -54,8 +54,11 @@ test('Admin and project site use identical canonical dark and light brand assets
   );
 
   const index = readFileSync(new URL('../apps/admin/index.html', import.meta.url), 'utf8');
-  assert.match(index, /href="\/favicon\.svg"/);
-  assert.match(index, /href="\/favicon-light\.svg"/);
+  assert.match(index, new RegExp(`href="/favicon\\.svg\\?v=${version.replaceAll('.', '\\.')}"`));
+  assert.match(
+    index,
+    new RegExp(`href="/favicon-light\\.svg\\?v=${version.replaceAll('.', '\\.')}"`)
+  );
   assert.match(index, /preference = stored === 'light' \|\| stored === 'dark' \? stored : 'dark'/);
 });
 

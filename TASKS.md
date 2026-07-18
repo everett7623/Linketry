@@ -11,6 +11,19 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed - Brand Cache And Update Discovery (v0.26.3)
+
+- [x] Verify the production Admin Logo content matches the canonical project Logo
+- [x] Version BrandMark and Admin browser favicon URLs to prevent stale asset reuse
+- [x] Reduce the GitHub version cache from six hours to 15 minutes
+- [x] Poll for releases in visible long-running Admin sessions
+- [x] Add desktop/mobile manual check controls that bypass cached results
+- [x] Resurface a dismissed release when the operator explicitly checks again
+- [x] Distinguish automatic Online upgrade from the manual Open deployment fallback
+- [x] Keep GitHub metadata checks anonymous and preserve redirect/data behavior
+
+---
+
 ## ✅ Completed - GitHub Actions Node.js 24 Runtime (v0.26.2)
 
 - [x] Upgrade production and isolated Demo workflows from `actions/checkout@v4` to `@v6`

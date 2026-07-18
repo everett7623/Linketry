@@ -7,6 +7,7 @@ import {
   normalizeVersion,
   readVersionCheckCache,
   serializeVersionCheckCache,
+  UPDATE_CHECK_CACHE_TTL_MS,
 } from './versionCheck.ts';
 
 function memoryStorage(): StorageLike {
@@ -36,6 +37,7 @@ test('semantic version comparison detects only newer valid versions', () => {
 });
 
 test('version check cache accepts fresh data and rejects stale or malformed data', () => {
+  assert.equal(UPDATE_CHECK_CACHE_TTL_MS, 15 * 60 * 1000);
   const now = 10_000;
   const serialized = serializeVersionCheckCache({ latestVersion: 'v0.19.0', checkedAt: now });
   assert.deepEqual(readVersionCheckCache(serialized, now + 1_000, 2_000), {
@@ -45,6 +47,27 @@ test('version check cache accepts fresh data and rejects stale or malformed data
   assert.equal(readVersionCheckCache(serialized, now + 2_001, 2_000), null);
   assert.equal(readVersionCheckCache(serialized, now - 1, 2_000), null);
   assert.equal(readVersionCheckCache('{"latestVersion":"latest"}', now), null);
+});
+
+test('forced update checks bypass a fresh cached version', async () => {
+  const storage = memoryStorage();
+  writeCachedVersion(storage, '0.19.0', 20_000);
+  let fetchCount = 0;
+
+  const result = await checkForUpdates({
+    currentVersion: '0.19.0',
+    now: 21_000,
+    storage,
+    forceRefresh: true,
+    fetcher: async () => {
+      fetchCount += 1;
+      return Response.json({ name: 'linketry', version: '0.20.0' });
+    },
+  });
+
+  assert.equal(fetchCount, 1);
+  assert.equal(result.updateAvailable, true);
+  assert.equal(result.latestVersion, '0.20.0');
 });
 
 test('GitHub package metadata is validated and fetched without an Admin token', async () => {
@@ -97,3 +120,10 @@ test('successful update checks are cached and newer versions remain detectable',
   assert.deepEqual(cached, first);
   assert.equal(fetchCount, 1);
 });
+
+function writeCachedVersion(storage: StorageLike, latestVersion: string, checkedAt: number) {
+  storage.setItem(
+    'linketry_update_check',
+    serializeVersionCheckCache({ latestVersion, checkedAt })
+  );
+}

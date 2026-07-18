@@ -13,6 +13,31 @@ _(none)_
 
 ---
 
+## [0.26.3] - 2026-07-18
+
+### Added
+
+- Added desktop and mobile toolbar controls that perform an immediate GitHub version check and bypass cached results.
+- Added visible success/failure feedback for manual checks and a notification dot when a newer version is available.
+- Added 15-minute foreground update polling so long-running Admin sessions can discover releases without a reload.
+
+### Changed
+
+- Manual GitHub Actions fallback is labeled “Open deployment”; “Upgrade online” is reserved for instances with the protected Worker upgrade capability.
+- Admin BrandMark and browser favicon URLs now include the running Linketry version so browsers and Cloudflare do not retain a stale Logo across releases.
+
+### Fixed
+
+- A cached “current version” result can no longer hide a newly published GitHub version for up to six hours.
+- Manually checking for updates resurfaces a previously dismissed current release when it is still newer than the running instance.
+
+### Security
+
+- GitHub package metadata checks remain anonymous and never include Admin or GitHub credentials.
+- Redirect handlers, D1/KV behavior, migrations, API contracts, and production data were not changed.
+
+---
+
 ## [0.26.2] - 2026-07-18
 
 ### Changed

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
-import { LINKETRY_VERSION } from '@linketry/shared';
-import { checkForUpdates, type UpdateCheckResult } from '../api/updates';
+import type { UpdateCheckResult } from '../api/updates';
 import {
   fetchRuntimeVersion,
   getOnlineUpgradeCapability,
@@ -10,16 +9,20 @@ import {
   type OnlineUpgradeCapability,
 } from '../api/onlineUpgrade';
 import { useLocale } from '../contexts/LocaleContext';
-import { readBrowserSetting, writeBrowserSetting } from '../utils/browserStorage';
 import { waitForOnlineUpgrade, type OnlineUpgradePhase } from '../utils/onlineUpgrade';
 import { UpgradeConfirmDialog } from './UpgradeConfirmDialog';
 import { UpdateBannerActions } from './UpdateBannerActions';
 
 type BannerPhase = 'idle' | 'starting' | OnlineUpgradePhase | 'success' | 'failed';
 
-export function UpdateBanner() {
+export function UpdateBanner({
+  update,
+  onDismiss,
+}: {
+  update: UpdateCheckResult | null;
+  onDismiss: () => void;
+}) {
   const { t } = useLocale();
-  const [update, setUpdate] = useState<UpdateCheckResult | null>(null);
   const [capability, setCapability] = useState<OnlineUpgradeCapability | null | undefined>();
   const [phase, setPhase] = useState<BannerPhase>('idle');
   const [runUrl, setRunUrl] = useState<string | null>(null);
@@ -29,29 +32,16 @@ export function UpdateBanner() {
   const reloadTimerRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
 
   useEffect(() => {
-    let active = true;
-    checkForUpdates({ currentVersion: LINKETRY_VERSION })
-      .then((result) => {
-        if (!active || !result.updateAvailable) return;
-        let dismissedVersion: string | null = null;
-        try {
-          dismissedVersion = readBrowserSetting('dismissedUpdateVersion');
-        } catch {
-          // The notice can still be shown when browser storage is unavailable.
-        }
-        if (dismissedVersion !== result.latestVersion) setUpdate(result);
-      })
-      .catch(() => {
-        // Update checks are optional and must never block the Admin shell.
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
+    setPhase('idle');
+    setRunUrl(null);
+    setError(null);
+    setConfirmOpen(false);
+  }, [update?.latestVersion]);
 
   useEffect(() => {
     if (!update) return;
     let active = true;
+    setCapability(undefined);
     getOnlineUpgradeCapability()
       .then((result) => {
         if (active) setCapability(result);
@@ -85,12 +75,7 @@ export function UpdateBanner() {
 
   const dismiss = () => {
     if (phase !== 'idle' && phase !== 'failed') return;
-    setUpdate(null);
-    try {
-      writeBrowserSetting('dismissedUpdateVersion', update.latestVersion);
-    } catch {
-      // Dismiss for the current render even when persistence is unavailable.
-    }
+    onDismiss();
   };
 
   const startUpgrade = async () => {

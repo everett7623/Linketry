@@ -9,6 +9,8 @@ import { useLocale } from '../contexts/LocaleContext';
 import { NAV_GROUPS } from './sidebar/sidebarNavigation';
 import { SidebarUtilityActions } from './sidebar/SidebarUtilityActions';
 import { AdminModeControl, DemoReadOnlyStatus } from './AdminShellControls';
+import { UpdateCheckButton } from './UpdateCheckButton';
+import { useUpdateCheck } from '../hooks/useUpdateCheck';
 
 export function Layout() {
   const { sidebarCollapsed, sidebarDensity, tableDensity, setSidebarCollapsed } =
@@ -16,6 +18,7 @@ export function Layout() {
   const { t } = useLocale();
   const location = useLocation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const updateCheck = useUpdateCheck();
   const pageLabel = resolvePageLabel(location.pathname);
 
   useEffect(() => {
@@ -77,6 +80,11 @@ export function Layout() {
             </span>
           </div>
           <div className="ml-auto flex shrink-0 items-center gap-2">
+            <UpdateCheckButton
+              checking={updateCheck.checking}
+              updateAvailable={Boolean(updateCheck.update)}
+              onCheck={() => updateCheck.checkNow({ forceRefresh: true, revealDismissed: true })}
+            />
             <AdminModeControl />
             <SidebarUtilityActions placement="toolbar" />
             <DemoReadOnlyStatus compact />
@@ -93,9 +101,16 @@ export function Layout() {
             <Menu size={20} aria-hidden="true" />
           </button>
           <span className="truncate text-sm font-semibold text-slate-100">Linketry</span>
+          <div className="ml-auto">
+            <UpdateCheckButton
+              checking={updateCheck.checking}
+              updateAvailable={Boolean(updateCheck.update)}
+              onCheck={() => updateCheck.checkNow({ forceRefresh: true, revealDismissed: true })}
+            />
+          </div>
         </div>
         <DemoModeBanner />
-        <UpdateBanner />
+        <UpdateBanner update={updateCheck.update} onDismiss={updateCheck.dismiss} />
         <div className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 sm:py-8">
           <Outlet />
         </div>

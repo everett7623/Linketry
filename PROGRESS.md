@@ -17,9 +17,24 @@ Last updated: 2026-07-18
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.26.2 live         | Production and isolated Demo Worker/Admin deployments now report the same Linketry version                                  |
+| Current version            | 🟡 0.26.3 ready        | Brand cache and update discovery fixes are ready; production and isolated Demo remain live on verified v0.26.2              |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.26.3 Brand Cache And Update Discovery
+
+| Area                     | Status       | Notes                                                                                                   |
+| ------------------------ | ------------ | ------------------------------------------------------------------------------------------------------- |
+| Canonical Logo           | ✅ Verified  | Production Admin, project site, and repository dark Logo files have identical SHA256 content           |
+| Logo cache refresh       | ✅ Fixed     | BrandMark and Admin browser favicon URLs include the exact running version                              |
+| Automatic discovery      | ✅ Improved  | Visible Admin sessions refresh GitHub metadata every 15 minutes instead of caching for six hours        |
+| Manual discovery         | ✅ Complete  | Desktop and mobile toolbars can force an immediate check and show current/new/error feedback            |
+| Upgrade action clarity   | ✅ Corrected | Automatic capability shows Online upgrade; otherwise the protected manual fallback says Open deployment |
+| Credential boundary      | ✅ Preserved | Anonymous version checks never send Admin or GitHub credentials                                        |
+| Verification             | ✅ Complete  | 53 deployment, 81 Worker, 48 Admin unit, 19 Admin browser, and 4 site tests passed; builds passed       |
+| Redirect-path impact     | ✅ None      | Redirects, Worker routes, D1/KV data, migrations, and production resources were not changed             |
 
 ---
 

@@ -1,4 +1,4 @@
-export const UPDATE_CHECK_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+export const UPDATE_CHECK_CACHE_TTL_MS = 15 * 60 * 1000;
 
 interface ParsedVersion {
   normalized: string;

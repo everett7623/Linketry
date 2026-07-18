@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { LINKETRY_VERSION } from '@linketry/shared';
 import { useTheme } from '../contexts/ThemeContext';
 
 type BrandMarkSize = 'sm' | 'md' | 'lg';
@@ -17,10 +18,12 @@ const sizeClasses: Record<BrandMarkSize, string> = {
 
 export function BrandMark({ size = 'md', decorative = true, className }: BrandMarkProps) {
   const { resolvedTheme } = useTheme();
-  const src = resolvedTheme === 'light' ? '/favicon-light.svg' : '/favicon.svg';
+  const asset = resolvedTheme === 'light' ? 'favicon-light.svg' : 'favicon.svg';
+  const src = `/${asset}?v=${encodeURIComponent(LINKETRY_VERSION)}`;
 
   return (
     <img
+      data-testid="brand-mark"
       src={src}
       alt={decorative ? '' : 'Linketry'}
       aria-hidden={decorative ? 'true' : undefined}

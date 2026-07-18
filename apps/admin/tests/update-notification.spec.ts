@@ -89,6 +89,73 @@ test('authenticated Admin opening shows and dismisses a cached GitHub update not
   expect(githubRequests).toBe(1);
 });
 
+test('manual update check bypasses a fresh cache and reveals the latest GitHub version', async ({
+  page,
+}) => {
+  let githubRequests = 0;
+  await page.addInitScript((version) => {
+    localStorage.setItem('linketry_token', 'test-token');
+    localStorage.setItem('linketry.locale', 'en');
+    localStorage.setItem('linketry_theme', 'dark');
+    localStorage.setItem(
+      'linketry_update_check',
+      JSON.stringify({ latestVersion: version, checkedAt: Date.now() })
+    );
+  }, LINKETRY_VERSION);
+  await page.route('https://api.github.com/**', async (route) => {
+    githubRequests += 1;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/vnd.github.raw+json',
+      body: JSON.stringify({ name: 'linketry', version: latestVersion }),
+    });
+  });
+  await page.route('**/api/v1/**', async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === '/api/v1/auth/me') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '{"success":true}',
+      });
+      return;
+    }
+    if (path === '/api/v1/settings') {
+      await route.fulfill(
+        apiResponse({ default_domain: 'go.example.com', admin_hidden_modules: '[]' })
+      );
+      return;
+    }
+    if (path === '/api/v1/overview') {
+      await route.fulfill(
+        apiResponse({
+          totalLinks: 0,
+          totalClicks: 0,
+          todayClicks: 0,
+          recentLinks: [],
+          topLinks: [],
+        })
+      );
+      return;
+    }
+    await route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"mock"}' });
+  });
+
+  await page.goto('/overview');
+  expect(githubRequests).toBe(0);
+  await page
+    .getByTestId('desktop-toolbar')
+    .getByRole('button', { name: messages.en.checkForUpdates })
+    .click();
+
+  await expect(
+    page
+      .getByRole('status')
+      .getByText(messages.en.updateAvailableTitle.replace('{version}', latestVersion))
+  ).toBeVisible();
+  expect(githubRequests).toBe(1);
+});
+
 test('automatic upgrade confirms deployment, verifies runtime, and reloads the Admin', async ({
   page,
 }) => {

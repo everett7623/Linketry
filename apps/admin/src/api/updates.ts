@@ -37,6 +37,7 @@ interface CheckForUpdatesOptions {
   now?: number;
   storage?: StorageLike;
   fetcher?: Fetcher;
+  forceRefresh?: boolean;
 }
 
 export interface UpdateCheckResult {
@@ -96,11 +97,14 @@ export async function checkForUpdates(options: CheckForUpdatesOptions): Promise<
   const storage = options.storage ?? window.localStorage;
   let latestVersion: string | null = null;
 
-  try {
-    latestVersion =
-      readVersionCheckCache(readBrowserSetting('updateCheck', storage), now)?.latestVersion ?? null;
-  } catch {
-    // Storage restrictions must not prevent the live check.
+  if (!options.forceRefresh) {
+    try {
+      latestVersion =
+        readVersionCheckCache(readBrowserSetting('updateCheck', storage), now)?.latestVersion ??
+        null;
+    } catch {
+      // Storage restrictions must not prevent the live check.
+    }
   }
 
   if (!latestVersion) {
