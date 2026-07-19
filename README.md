@@ -103,6 +103,7 @@ linketry/
 - [Import adapters](docs/IMPORT_ADAPTERS.md) — adapter contract, supported sources, and candidate integrations
 - [Analytics](docs/ANALYTICS.md) — tracking, privacy, reporting, and future analysis
 - [Roadmap](docs/ROADMAP.md) — completed scope and future product direction
+- [Product gap audit](docs/PRODUCT_GAP_AUDIT.md) — pre-1.0 priorities and deliberate non-goals
 
 ## Local Development
 

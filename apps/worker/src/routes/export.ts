@@ -2,7 +2,8 @@ import { Hono } from 'hono';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { getAllLinks, getAllVisits } from '../db/index';
-import { getAnalyticsSummary, parseAnalyticsFilters, type AnalyticsSummary } from '../db/analytics';
+import { getAnalyticsSummary, parseAnalyticsFilters } from '../db/analytics';
+import { analyticsCsv } from '../export/analyticsCsv';
 import { buildBackupPayload } from '../backups/index';
 import type { Link, Visit } from '@linketry/shared';
 
@@ -16,24 +17,27 @@ exportRoutes.use('*', async (c, next) => {
 
 exportRoutes.get('/links.csv', async (c) => {
   const links = await getAllLinks(c.env);
-  const header = 'id,slug,long_url,short_url,title,tags,status,clicks,redirect_type,source,created_at,updated_at,last_clicked_at,expires_at,max_clicks\r\n';
-  const rows = links.map((l: Link) => [
-    csv(l.id),
-    csv(l.slug),
-    csv(l.long_url),
-    csv(l.short_url ?? ''),
-    csv(l.title ?? ''),
-    csv(l.tags ?? ''),
-    csv(l.status),
-    l.clicks,
-    l.redirect_type,
-    csv(l.source ?? ''),
-    csv(l.created_at),
-    csv(l.updated_at),
-    csv(l.last_clicked_at ?? ''),
-    csv(l.expires_at ?? ''),
-    l.max_clicks ?? '',
-  ].join(','));
+  const header =
+    'id,slug,long_url,short_url,title,tags,status,clicks,redirect_type,source,created_at,updated_at,last_clicked_at,expires_at,max_clicks\r\n';
+  const rows = links.map((l: Link) =>
+    [
+      csv(l.id),
+      csv(l.slug),
+      csv(l.long_url),
+      csv(l.short_url ?? ''),
+      csv(l.title ?? ''),
+      csv(l.tags ?? ''),
+      csv(l.status),
+      l.clicks,
+      l.redirect_type,
+      csv(l.source ?? ''),
+      csv(l.created_at),
+      csv(l.updated_at),
+      csv(l.last_clicked_at ?? ''),
+      csv(l.expires_at ?? ''),
+      l.max_clicks ?? '',
+    ].join(',')
+  );
 
   const today = new Date().toISOString().slice(0, 10);
   return new Response(header + rows.join('\r\n'), {
@@ -57,22 +61,25 @@ exportRoutes.get('/links.json', async (c) => {
 
 exportRoutes.get('/visits.csv', async (c) => {
   const visits = await getAllVisits(c.env);
-  const header = 'id,link_id,slug,domain,referer,country,user_agent,browser,os,device_type,ip_hash,is_bot,created_at\r\n';
-  const rows = visits.map((v: Visit) => [
-    csv(v.id),
-    csv(v.link_id),
-    csv(v.slug),
-    csv(v.domain),
-    csv(v.referer),
-    csv(v.country),
-    csv(v.user_agent),
-    csv(v.browser),
-    csv(v.os),
-    csv(v.device_type),
-    csv(v.ip_hash),
-    csv(v.is_bot),
-    csv(v.created_at),
-  ].join(','));
+  const header =
+    'id,link_id,slug,domain,referer,country,user_agent,browser,os,device_type,ip_hash,is_bot,created_at\r\n';
+  const rows = visits.map((v: Visit) =>
+    [
+      csv(v.id),
+      csv(v.link_id),
+      csv(v.slug),
+      csv(v.domain),
+      csv(v.referer),
+      csv(v.country),
+      csv(v.user_agent),
+      csv(v.browser),
+      csv(v.os),
+      csv(v.device_type),
+      csv(v.ip_hash),
+      csv(v.is_bot),
+      csv(v.created_at),
+    ].join(',')
+  );
 
   const today = new Date().toISOString().slice(0, 10);
   return new Response(header + rows.join('\r\n'), {
@@ -84,7 +91,10 @@ exportRoutes.get('/visits.csv', async (c) => {
 });
 
 exportRoutes.get('/analytics.csv', async (c) => {
-  const summary = await getAnalyticsSummary(c.env, parseAnalyticsFilters((key) => c.req.query(key)));
+  const summary = await getAnalyticsSummary(
+    c.env,
+    parseAnalyticsFilters((key) => c.req.query(key))
+  );
   const today = new Date().toISOString().slice(0, 10);
   return new Response(analyticsCsv(summary), {
     headers: {
@@ -111,50 +121,6 @@ function csv(value: string | number | null | undefined): string {
     return `"${text.replace(/"/g, '""')}"`;
   }
   return text;
-}
-
-export function analyticsCsv(summary: AnalyticsSummary): string {
-  const rows: Array<Array<string | number | null | undefined>> = [
-    ['section', 'label', 'value', 'extra'],
-    ['summary', 'days', summary.days, ''],
-    ['summary', 'total_clicks', summary.totalClicks, ''],
-    ['summary', 'unique_visitors', summary.uniqueVisitors, ''],
-    ['summary', 'unique_links', summary.uniqueLinks, ''],
-    ['summary', 'bot_clicks', summary.botClicks, ''],
-    ['summary', 'eligible_human_clicks', summary.eligibleClicks, ''],
-    ['summary', 'conversions_total', summary.conversionsTotal, ''],
-    ['summary', 'conversion_rate_percent', summary.conversionRate, ''],
-    [
-      'summary',
-      'conversion_attribution_available',
-      String(summary.conversionAttributionAvailable),
-      '',
-    ],
-  ];
-
-  for (const item of summary.daily) rows.push(['daily', item.date, item.clicks, 'clicks']);
-  for (const item of summary.topLinks) rows.push(['top_links', item.slug, item.clicks, item.title ?? item.domain ?? '']);
-  for (const item of summary.topCountries) rows.push(['top_countries', item.country, item.clicks, 'clicks']);
-  for (const item of summary.topReferrers) rows.push(['top_referrers', item.referer, item.clicks, 'clicks']);
-  for (const item of summary.topBrowsers) rows.push(['top_browsers', item.browser, item.clicks, 'clicks']);
-  for (const item of summary.topDevices) rows.push(['top_devices', item.device_type, item.clicks, 'clicks']);
-  for (const item of summary.topOperatingSystems) rows.push(['top_operating_systems', item.os, item.clicks, 'clicks']);
-  for (const item of summary.topUtmSources) rows.push(['utm_source', item.value, item.clicks, 'clicks']);
-  for (const item of summary.topUtmMediums) rows.push(['utm_medium', item.value, item.clicks, 'clicks']);
-  for (const item of summary.topUtmCampaigns) rows.push(['utm_campaign', item.value, item.clicks, 'clicks']);
-  for (const item of summary.topUtmTerms) rows.push(['utm_term', item.value, item.clicks, 'clicks']);
-  for (const item of summary.topUtmContents) rows.push(['utm_content', item.value, item.clicks, 'clicks']);
-  for (const item of summary.topTargets) rows.push(['redirect_targets', item.target_url, item.clicks, item.redirect_rule_type ?? 'default']);
-  for (const item of summary.topConversionEvents) {
-    rows.push([
-      'conversion_events',
-      item.event_name,
-      item.conversions,
-      item.currency ? `${item.currency}:${item.value_total}` : item.value_total,
-    ]);
-  }
-
-  return rows.map((row) => row.map(csv).join(',')).join('\r\n');
 }
 
 export default exportRoutes;

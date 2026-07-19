@@ -1,7 +1,7 @@
 import type { Env } from '../types';
 import { getSettings, setSetting } from '../db/index';
 import { getAnalyticsSummary, type AnalyticsFilters } from '../db/analytics';
-import { analyticsCsv } from '../routes/export';
+import { analyticsCsv } from '../export/analyticsCsv';
 import { now } from '../utils/id';
 import { listSavedAnalyticsViews } from './savedViews';
 import { parseReportConfig, parseReportRecords, type AnalyticsReportConfig, type AnalyticsReportRecord } from './scheduledReportPolicy';

@@ -66,7 +66,7 @@ export function TrafficAnomalyPanel() {
 
   if (!status) {
     return (
-      <section className="border border-slate-800 bg-slate-900 p-5">
+      <section className="rounded-lg border border-slate-800 bg-slate-900 p-5">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
       </section>
     );
@@ -83,7 +83,7 @@ export function TrafficAnomalyPanel() {
   });
 
   return (
-    <section className="space-y-4 border border-slate-800 bg-slate-900 p-5">
+    <section className="space-y-4 rounded-lg border border-slate-800 bg-slate-900 p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-100">

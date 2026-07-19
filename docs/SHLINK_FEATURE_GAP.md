@@ -2,9 +2,9 @@
 
 Linketry 的核心定位是**自托管短链接管理、访问分析与健康监控平台**，目前已覆盖创建、重定向、统计、导入导出、备份恢复与实例重置等核心能力。Shlink 作为成熟竞品，有一些 Linketry 尚未实现的高级能力。本文档列出差距、影响和建议版本。
 
-> 来源：Shlink 官方文档 `https://shlink.io/features` 与 REST API 规范。
-> 生成时间：2026-07-13
-> 对应 Linketry 版本：0.9.11
+> 来源：Shlink 官方功能、API key roles 与 advanced redirect 文档。
+> 最近复核：2026-07-19
+> 对应 Linketry 版本：0.27.0
 
 ---
 
@@ -14,7 +14,7 @@ Linketry 的核心定位是**自托管短链接管理、访问分析与健康监
 |------|-------------|------|
 | 短链创建/编辑/删除 | ✅ | `/api/v1/links` 完整 CRUD |
 | 自定义 slug | ✅ | 支持单段 slug |
-| 多域名 | 🟡 | `links.domain` 已保留原 Shlink 域名；`domains` 表在 schema 中，但 V1 未启用管理 UI |
+| 多域名 | ✅ | 域名目录、默认域名、启停与迁移 UI 已实现 |
 | 301/302 重定向 | ✅ | `redirect_type` 支持 301 和 302 |
 | 访问统计 | ✅ | `visits` 表记录国家、浏览器、设备、referer、UA 等 |
 | 机器人标记 | ✅ | `visits.is_bot` + `analytics/botDetection.ts` |
@@ -23,10 +23,10 @@ Linketry 的核心定位是**自托管短链接管理、访问分析与健康监
 | QR 码 | ✅ | Admin 列表支持生成并下载 PNG |
 | 导入/导出 | ✅ | Shlink、Generic CSV/JSON/JSONL、Linketry backup |
 | 重定向规则 | ✅ | country/device/browser/language/referer/weighted |
-| Webhook | ✅ | import.completed 等事件 |
-| API Token | 🟡 | `api_tokens` 表与 `tokens` 路由存在，但 V1 未启用细粒度 scopes |
+| Webhook | ✅ | 导入、健康和运维事件已支持；`link.clicked` 仍列为异步增强项 |
+| API Token | ✅ | 已支持 read/write/admin scopes、哈希存储、撤销与最后使用时间 |
 | 密码保护 | ✅ | `links.password_hash` |
-| 过期/点击上限 | 🟡 | `expires_at`、`max_clicks` 在 schema 中，V1 未启用 UI |
+| 过期/点击上限 | ✅ | Create/Edit/List/redirect 状态均已支持；自动清理仍未实现 |
 
 ---
 
@@ -64,12 +64,12 @@ Linketry 的核心定位是**自托管短链接管理、访问分析与健康监
 - **植入版本**：v0.9.12
 - **实现位置**：`apps/worker/src/utils/pageTitle.ts`、`apps/worker/src/routes/links.ts`
 
-### 5. API Token 细粒度角色（API key roles / scopes）
+### 5. API Token 域名/所有权角色（API key roles）
 
 - **Shlink 行为**：可限制 API key 只能访问特定域名或自己创建的短链。
-- **Linketry 现状**：`api_tokens.scopes` 字段已存在，但 V1 未实现权限校验。
-- **影响**：多管理员/自动化场景安全性不足。
-- **建议版本**：V3
+- **Linketry 现状**：read/write/admin scopes 已完成校验；尚不能限制 token 只能访问特定域名或自己创建的短链。
+- **影响**：最小权限自动化仍只能按读写能力隔离，不能按业务域或所有权隔离。
+- **建议版本**：Pre-1.0 P1
 - **实现位置**：`apps/worker/src/auth/index.ts` + `apps/worker/src/routes/tokens.ts`
 
 ### 6. 实时事件推送（Mercure / RabbitMQ / SSE）
@@ -91,7 +91,7 @@ Linketry 的核心定位是**自托管短链接管理、访问分析与健康监
 ### 8. 过期链接自动清理（Remove expired links）
 
 - **Shlink 行为**：提供 `short-url:delete-expired` 命令批量删除过期短链。
-- **Linketry 现状**：`expires_at` 在 schema 中，V1 未启用 UI 和清理任务。
+- **Linketry 现状**：过期时间和点击上限 UI/重定向行为已完成，但没有自动清理任务。
 - **影响**：长期运行后过期数据堆积。
 - **建议版本**：V2
 - **实现位置**：新增 Cron 触发器 + `apps/worker/src/maintenance/expiredLinks.ts`
@@ -120,7 +120,7 @@ Linketry 的核心定位是**自托管短链接管理、访问分析与健康监
 | 🔴 高 | 标题自动解析 | 已实现于 v0.9.12 |
 | 🟡 中 | 多段 slug / 额外路径转发 | 品牌Campaign需要，但涉及路由匹配改动 |
 | 🟡 中 | 过期链接自动清理 | 运维需要，可与现有 Cron 框架结合 |
-| 🟡 中 | API Token scopes | 安全增强，schema 已就绪 |
+| 🟡 中 | API Token 域名/所有权角色 | 基础 scopes 已完成，继续收紧自动化最小权限 |
 | 🟢 低 | 实时事件推送 | 集成增强，可用 Webhook 先替代 |
 | 🟢 低 | 邮件追踪 |  niche 场景，V4+ 再考虑 |
 

@@ -24,7 +24,9 @@ async function prepareAnalytics(page: Page) {
   }, LINKETRY_VERSION);
 }
 
-test('Analytics supports manual refresh and persistent near-real-time controls', async ({ page }) => {
+test('Analytics supports manual refresh and persistent near-real-time controls', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await prepareAnalytics(page);
   let analyticsRequests = 0;
@@ -36,7 +38,9 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
       return;
     }
     if (path === '/api/v1/settings') {
-      await route.fulfill(apiResponse({ default_domain: 'go.example.com', admin_hidden_modules: '[]' }));
+      await route.fulfill(
+        apiResponse({ default_domain: 'go.example.com', admin_hidden_modules: '[]' })
+      );
       return;
     }
     if (path === '/api/v1/analytics') {
@@ -48,9 +52,9 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
           botClicks: 0,
           uniqueVisitors: analyticsRequests,
           uniqueLinks: 1,
-          eligibleClicks: analyticsRequests,
-          conversionsTotal: 0,
-          conversionRate: 0,
+          eligibleClicks: 25,
+          conversionsTotal: 4,
+          conversionRate: 16,
           conversionAttributionAvailable: true,
           daily: [],
           topLinks: [],
@@ -71,7 +75,14 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
               clicks: 12,
             },
           ],
-          topConversionEvents: [],
+          topConversionEvents: [
+            {
+              event_name: 'signup',
+              currency: 'USD',
+              conversions: 4,
+              value_total: 54,
+            },
+          ],
           recentVisits: [],
         })
       );
@@ -92,18 +103,45 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
       return;
     }
     if (path === '/api/v1/analytics-alerts') {
-      await route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"mock"}' });
+      await route.fulfill({
+        status: 404,
+        contentType: 'application/json',
+        body: '{"error":"mock"}',
+      });
       return;
     }
     await route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"mock"}' });
   });
 
   await page.goto('/analytics');
-  await expect(page.getByRole('heading', { name: messages.en.analytics, exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: messages.en.analytics, exact: true })
+  ).toBeVisible();
   await expect.poll(() => analyticsRequests).toBeGreaterThan(0);
   await expect
     .poll(() => page.locator('main').evaluate((main) => main.scrollWidth === main.clientWidth))
     .toBe(true);
+  await expect(page.getByLabel(messages.en.country)).toHaveCount(0);
+  const advancedFilters = page.getByRole('button', {
+    name: messages.en.advancedAnalyticsFilters,
+  });
+  await expect(advancedFilters).toHaveAttribute('aria-expanded', 'false');
+  await advancedFilters.click();
+  await expect(page.getByLabel(messages.en.country)).toBeVisible();
+  await expect(advancedFilters).toHaveAttribute('aria-expanded', 'true');
+  await expect
+    .poll(() => page.locator('main').evaluate((main) => main.scrollWidth === main.clientWidth))
+    .toBe(true);
+
+  const conversionInsights = page.getByTestId('conversion-insights');
+  await expect(
+    conversionInsights.getByText(messages.en.humanClicks, { exact: true })
+  ).toBeVisible();
+  await expect(conversionInsights.getByText('25', { exact: true })).toBeVisible();
+  await expect(
+    conversionInsights.getByTestId('conversion-values').getByText('$54.00', { exact: true })
+  ).toBeVisible();
+  await expect(conversionInsights.getByText('signup', { exact: true })).toBeVisible();
   const requestsBeforeManualRefresh = analyticsRequests;
 
   await page.getByRole('button', { name: messages.en.refreshAnalyticsNow }).click();

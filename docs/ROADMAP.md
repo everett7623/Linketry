@@ -144,6 +144,18 @@ Future optional enhancements:
 - Session or visitor-level conversion attribution
 - Done in v0.22.0: scheduled privacy-safe volume and bot-rate anomaly detection with minimum samples, explainable thresholds, suppression, and recovery
 
+## 0.27: Analytics Usability And Admin Performance
+
+Status: complete.
+
+- Progressive Analytics filters keep the date range visible and move attribution dimensions behind an explicit Advanced control
+- Conversion Overview shows eligible human clicks, conversion events, Event Rate, goal breakdown, and currency-separated values
+- Event Rate wording makes clear that event counts are not session/user conversion attribution and can exceed 100%
+- Analytics CSV exports include currency-separated conversion value summaries
+- Authenticated Admin pages load as route-level chunks while the shell remains stable during navigation
+- The production entry chunk is reduced from about 573.7 KB to 298.0 KB before gzip
+- Remaining pre-1.0 and optional product work is prioritized in `docs/PRODUCT_GAP_AUDIT.md`
+
 ## Long-Term Product Principles
 
 Linketry is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.

@@ -1,6 +1,6 @@
 # Linketry And Sink Feature Comparison
 
-Updated: 2026-07-15
+Updated: 2026-07-19
 
 This comparison uses Sink's official repository and website as the baseline. It is a product-priority document, not a claim that every similarly named feature has identical behavior.
 
@@ -10,20 +10,19 @@ Linketry already covers the core self-hosted short-link workflow and goes furthe
 
 The recommended product direction remains: make the basic edition deployable with one Worker domain and the default Pages domain, then expose optional infrastructure and operator tooling through Advanced mode.
 
-The comparison was refreshed after Sink v0.2.11. Linketry now has the required first-run wizard, broad English/Simplified Chinese Admin coverage, OpenGraph destination previews, public statistics sharing, saved analytics views, scheduled reports, and stronger health-monitoring notifications. The table below contains the remaining gaps rather than already completed work.
+The comparison was refreshed after Sink v0.2.11. Linketry now has the required first-run wizard, English/Simplified Chinese Admin coverage, OpenAPI/Swagger, duplicate-destination warnings, OpenGraph destination previews, table/card link views, public statistics sharing, saved analytics views, scheduled reports, and an isolated public Demo. The table below contains remaining gaps only; the wider prioritization is in `docs/PRODUCT_GAP_AUDIT.md`.
 
 ## Gaps Compared With Sink
 
 | Priority | Gap                                                             | Linketry direction                                                                                                                                                                                                                              |
 | -------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P0       | OpenAPI specification and authenticated API docs                | Publish the machine-readable contract and Scalar or Swagger UI first; use schema checks to prevent drift and make this the foundation for external clients.                                                                                     |
-| P0       | Duplicate destination detection                                 | Warn during create/edit when the normalized destination already exists, show matching links, and continue to allow intentional duplicates.                                                                                                     |
 | P0       | Beginner resource provisioning                                  | Extend the existing first-run Admin wizard with idempotent D1/KV provisioning guidance or automation, permission preflight, clearer manual/Actions paths, and a fresh-account rehearsal.                                                        |
+| P0       | Accessibility and large-data release baselines                  | Add automated accessibility checks plus repeatable D1/import/Analytics scale fixtures and response-time budgets before 1.0.                                                                                                                     |
 | P1       | Optional Cloudflare Access authentication                       | Add Access only as an optional authenticated path with JWT, CSRF, logout, and recovery behavior defined; keep bearer-token access available.                                                                                                    |
 | P1       | Asynchronous click webhook                                      | Add an opt-in signed `link.clicked` event through the current webhook conventions, always outside the redirect response path.                                                                                                                  |
 | P1       | Per-link social preview customization and image storage         | The destination preview exists; add explicit title, description, and image controls with optional R2 storage without placing metadata work in redirects.                                                                                       |
-| P1       | Official project site and safe Demo                             | Use a Linketry project domain, isolated resources, synthetic data, read-only or scheduled-reset behavior, rate limits, and a separate Demo redirect host.                                                                                       |
-| P2       | Optional link card/grid view                                    | Theme preferences are complete; evaluate a card view while preserving accessibility and the existing compact operational workflows.                                                                                                            |
+| P1       | Privacy-safe click-to-conversion attribution                    | Add opaque click IDs, bounded attribution windows, first/last-click rules, and safe public ingestion without exposing Admin/write tokens.                                                                                                      |
+| P1       | Domain/ownership-scoped API tokens                              | Extend existing read/write/admin scopes with domain-specific and authored-link restrictions for least-privilege automation.                                                                                                                    |
 | P2       | Broader community-driven internationalization                   | Preserve complete EN/ZH support, then make additional locale contributions sustainable instead of blocking basic deployment on many built-in languages.                                                                                       |
 | P2       | Real-time analytics stream and live globe                       | Useful for visual monitoring, but lower priority than deployment simplicity, API correctness, and Demo safety.                                                                                                                                |
 | P2       | Workers AI-assisted slug and metadata                           | Existing local suggestions remain the default; an optional AI binding can be considered in Advanced mode.                                                                                                                                      |
@@ -64,12 +63,12 @@ The following Sink ideas are accepted into Linketry's development direction. The
 ## Delivery Order
 
 1. Done in v0.9.24: bulk UTM append and normalization with preview and change records.
-2. Publish the OpenAPI contract and authenticated API documentation.
-3. Add non-blocking duplicate destination detection.
+2. Done in v0.13.0: publish the OpenAPI contract and authenticated API documentation.
+3. Done in v0.13.1: add non-blocking duplicate destination detection.
 4. Complete beginner D1/KV provisioning and fresh-account deployment validation.
-5. Launch the official Linketry project site and isolated Demo after the owner supplies the domain.
+5. Done in v0.24.0-v0.26.6: launch the official Linketry project site, isolated Demo, and branded Demo API.
 6. Add optional Cloudflare Access and asynchronous signed click webhooks.
-7. Done in v0.16.0-v0.17.0: Admin display and theme preferences; follow with card view and social preview customization.
+7. Done in v0.16.0-v0.19.0: Admin display/theme preferences and Links card view; follow with social preview customization.
 8. Consider broader locales, real-time views, optional Workers AI, and external clients after the foundations are stable.
 
 ## Deliberate Non-goals For The Basic Edition

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Sidebar } from './Sidebar';
@@ -10,6 +10,7 @@ import { NAV_GROUPS } from './sidebar/sidebarNavigation';
 import { SidebarUtilityActions } from './sidebar/SidebarUtilityActions';
 import { AdminModeControl, DemoReadOnlyStatus } from './AdminShellControls';
 import { UpdateCheckProvider, useUpdateCheckContext } from '../contexts/UpdateCheckContext';
+import { PageLoading } from './ui/PageLoading';
 
 export function Layout() {
   return (
@@ -107,7 +108,9 @@ function LayoutContent() {
         <DemoModeBanner />
         <UpdateBanner update={updateCheck.update} onDismiss={updateCheck.dismiss} />
         <div className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 sm:py-8">
-          <Outlet />
+          <Suspense fallback={<PageLoading />}>
+            <Outlet />
+          </Suspense>
         </div>
       </main>
     </div>

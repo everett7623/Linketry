@@ -1,36 +1,64 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
-import { Overview } from './pages/Overview';
-import { Links } from './pages/Links';
-import { CreateLink } from './pages/CreateLink';
-import { BulkCreateLinks } from './pages/BulkCreateLinks';
-import { EditLink } from './pages/EditLink';
-import { ImportExport } from './pages/ImportExport';
-import { Tags } from './pages/Tags';
-import { Settings } from './pages/Settings';
-import { AuditLogs } from './pages/AuditLogs';
-import { Analytics } from './pages/Analytics';
-import { LinkAnalytics } from './pages/LinkAnalytics';
-import { Backups } from './pages/Backups';
-import { ApiTokens } from './pages/ApiTokens';
-import { Domains } from './pages/Domains';
-import { RedirectRules } from './pages/RedirectRules';
-import { Groups } from './pages/Groups';
-import { HealthChecks } from './pages/HealthChecks';
-import { Setup } from './pages/Setup';
-import { Operations } from './pages/Operations';
+import { PageLoading } from './components/ui/PageLoading';
+
+const Overview = lazy(() =>
+  import('./pages/Overview').then((module) => ({ default: module.Overview }))
+);
+const Links = lazy(() => import('./pages/Links').then((module) => ({ default: module.Links })));
+const CreateLink = lazy(() =>
+  import('./pages/CreateLink').then((module) => ({ default: module.CreateLink }))
+);
+const BulkCreateLinks = lazy(() =>
+  import('./pages/BulkCreateLinks').then((module) => ({ default: module.BulkCreateLinks }))
+);
+const EditLink = lazy(() =>
+  import('./pages/EditLink').then((module) => ({ default: module.EditLink }))
+);
+const ImportExport = lazy(() =>
+  import('./pages/ImportExport').then((module) => ({ default: module.ImportExport }))
+);
+const Tags = lazy(() => import('./pages/Tags').then((module) => ({ default: module.Tags })));
+const Settings = lazy(() =>
+  import('./pages/Settings').then((module) => ({ default: module.Settings }))
+);
+const AuditLogs = lazy(() =>
+  import('./pages/AuditLogs').then((module) => ({ default: module.AuditLogs }))
+);
+const Analytics = lazy(() =>
+  import('./pages/Analytics').then((module) => ({ default: module.Analytics }))
+);
+const LinkAnalytics = lazy(() =>
+  import('./pages/LinkAnalytics').then((module) => ({ default: module.LinkAnalytics }))
+);
+const Backups = lazy(() =>
+  import('./pages/Backups').then((module) => ({ default: module.Backups }))
+);
+const ApiTokens = lazy(() =>
+  import('./pages/ApiTokens').then((module) => ({ default: module.ApiTokens }))
+);
+const Domains = lazy(() =>
+  import('./pages/Domains').then((module) => ({ default: module.Domains }))
+);
+const RedirectRules = lazy(() =>
+  import('./pages/RedirectRules').then((module) => ({ default: module.RedirectRules }))
+);
+const Groups = lazy(() => import('./pages/Groups').then((module) => ({ default: module.Groups })));
+const HealthChecks = lazy(() =>
+  import('./pages/HealthChecks').then((module) => ({ default: module.HealthChecks }))
+);
+const Setup = lazy(() => import('./pages/Setup').then((module) => ({ default: module.Setup })));
+const Operations = lazy(() =>
+  import('./pages/Operations').then((module) => ({ default: module.Operations }))
+);
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { authenticated, loading } = useAuth();
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-950">
-        <div className="animate-spin w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full" />
-      </div>
-    );
+    return <PageLoading fullScreen />;
   }
   return authenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }

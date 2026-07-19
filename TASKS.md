@@ -7,7 +7,31 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🔴 In Progress
 
-- [ ] External release prerequisites: activate R2 in the isolated Demo account and configure the fine-grained `LINKETRY_GITHUB_UPDATE_TOKEN`
+- [ ] Complete v0.27.0 full regression and synchronized production/Demo rollout
+
+---
+
+## External Prerequisites
+
+- [ ] Activate/configure optional R2 bindings in the isolated Demo account
+- [ ] Configure the fine-grained `LINKETRY_GITHUB_UPDATE_TOKEN` for one-click upgrades
+
+---
+
+## ✅ Completed - Product Quality And Conversion UX (v0.27.0)
+
+- [x] Audit all maintained roadmap/gap documents and key Admin routes
+- [x] Verify production/Demo layouts at 1440x900 and 390x844 without horizontal overflow
+- [x] Move fourteen attribution filters behind a saved-view-aware Advanced control
+- [x] Fix Reset so it responds to unapplied draft filters
+- [x] Add aggregate and per-link Conversion Overview with human clicks, events, Event Rate, goals, and values
+- [x] Keep unlike currencies separate in API responses, Admin presentation, and CSV exports
+- [x] Add a rolling-deployment fallback when the new currency summary field is absent
+- [x] Split authenticated Admin pages into route-level chunks and reduce the entry bundle by about 48%
+- [x] Record pre-1.0, core, optional, and deliberate non-goal product gaps
+- [x] Confirm zero known production dependency vulnerabilities through the official npm registry
+- [x] Pass 63 deployment, 82 Worker, 48 Admin unit, 20 Admin browser, 6 Demo API, and 4 site tests plus all builds
+- [x] Preserve redirect stability, asynchronous analytics, migrations, D1/KV ownership, and Demo isolation
 
 ---
 

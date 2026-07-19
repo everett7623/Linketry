@@ -31,7 +31,13 @@ export interface AnalyticsSummary {
   conversionRate: number | null;
   conversionAttributionAvailable: boolean;
   daily: Array<{ date: string; clicks: number }>;
-  topLinks: Array<{ id?: string | null; slug: string; domain?: string | null; title?: string | null; clicks: number }>;
+  topLinks: Array<{
+    id?: string | null;
+    slug: string;
+    domain?: string | null;
+    title?: string | null;
+    clicks: number;
+  }>;
   topCountries: Array<{ country: string; clicks: number }>;
   topReferrers: Array<{ referer: string; clicks: number }>;
   topBrowsers: Array<{ browser: string; clicks: number }>;
@@ -42,9 +48,19 @@ export interface AnalyticsSummary {
   topUtmCampaigns: Array<{ value: string; clicks: number }>;
   topUtmTerms: Array<{ value: string; clicks: number }>;
   topUtmContents: Array<{ value: string; clicks: number }>;
-  topTargets: Array<{ target_url: string; redirect_rule_id?: string | null; redirect_rule_type?: string | null; clicks: number }>;
+  topTargets: Array<{
+    target_url: string;
+    redirect_rule_id?: string | null;
+    redirect_rule_type?: string | null;
+    clicks: number;
+  }>;
   topConversionEvents: Array<{
     event_name: string;
+    currency: string | null;
+    conversions: number;
+    value_total: number;
+  }>;
+  conversionValues: Array<{
     currency: string | null;
     conversions: number;
     value_total: number;
@@ -66,23 +82,63 @@ export interface PublicStatsConfig {
   token?: string;
 }
 
-export interface SavedAnalyticsView { id: string; name: string; filters: AnalyticsFilters; created_at: string; }
-export function getSavedAnalyticsViews(): Promise<{ items: SavedAnalyticsView[] }> { return apiGet('/api/v1/analytics-views'); }
-export function saveAnalyticsView(name: string, filters: AnalyticsFilters): Promise<SavedAnalyticsView> { return apiPost('/api/v1/analytics-views', { name, filters }); }
-export function deleteAnalyticsView(id: string): Promise<{ deleted: boolean }> { return apiDelete(`/api/v1/analytics-views/${id}`); }
+export interface SavedAnalyticsView {
+  id: string;
+  name: string;
+  filters: AnalyticsFilters;
+  created_at: string;
+}
+export function getSavedAnalyticsViews(): Promise<{ items: SavedAnalyticsView[] }> {
+  return apiGet('/api/v1/analytics-views');
+}
+export function saveAnalyticsView(
+  name: string,
+  filters: AnalyticsFilters
+): Promise<SavedAnalyticsView> {
+  return apiPost('/api/v1/analytics-views', { name, filters });
+}
+export function deleteAnalyticsView(id: string): Promise<{ deleted: boolean }> {
+  return apiDelete(`/api/v1/analytics-views/${id}`);
+}
 
-export interface AnalyticsReportRecord { key: string; created_at: string; status: 'completed' | 'failed'; size: number | null; error?: string; }
-export interface AnalyticsReportState { config: { enabled: boolean; days: number; saved_view_id: string | null }; records: AnalyticsReportRecord[]; r2Configured: boolean; }
-export function getAnalyticsReportState(): Promise<AnalyticsReportState> { return apiGet('/api/v1/analytics-reports'); }
-export function saveAnalyticsReportConfig(payload: AnalyticsReportState['config']): Promise<AnalyticsReportState['config']> { return apiPut('/api/v1/analytics-reports/config', payload); }
-export function runAnalyticsReport(): Promise<AnalyticsReportRecord> { return apiPost('/api/v1/analytics-reports/run'); }
-export function downloadScheduledAnalyticsReport(record: AnalyticsReportRecord): Promise<void> { return downloadFile(`/api/v1/analytics-reports/download?key=${encodeURIComponent(record.key)}`, record.key.split('/').pop() ?? 'linketry-analytics.csv'); }
+export interface AnalyticsReportRecord {
+  key: string;
+  created_at: string;
+  status: 'completed' | 'failed';
+  size: number | null;
+  error?: string;
+}
+export interface AnalyticsReportState {
+  config: { enabled: boolean; days: number; saved_view_id: string | null };
+  records: AnalyticsReportRecord[];
+  r2Configured: boolean;
+}
+export function getAnalyticsReportState(): Promise<AnalyticsReportState> {
+  return apiGet('/api/v1/analytics-reports');
+}
+export function saveAnalyticsReportConfig(
+  payload: AnalyticsReportState['config']
+): Promise<AnalyticsReportState['config']> {
+  return apiPut('/api/v1/analytics-reports/config', payload);
+}
+export function runAnalyticsReport(): Promise<AnalyticsReportRecord> {
+  return apiPost('/api/v1/analytics-reports/run');
+}
+export function downloadScheduledAnalyticsReport(record: AnalyticsReportRecord): Promise<void> {
+  return downloadFile(
+    `/api/v1/analytics-reports/download?key=${encodeURIComponent(record.key)}`,
+    record.key.split('/').pop() ?? 'linketry-analytics.csv'
+  );
+}
 
 export function getPublicStatsConfig(id: string): Promise<PublicStatsConfig> {
   return apiGet(`/api/v1/public-stats/links/${id}`);
 }
 
-export function createPublicStatsShare(id: string, payload: { days: number; show_countries: boolean; show_referrers: boolean }): Promise<PublicStatsConfig> {
+export function createPublicStatsShare(
+  id: string,
+  payload: { days: number; show_countries: boolean; show_referrers: boolean }
+): Promise<PublicStatsConfig> {
   return apiPost(`/api/v1/public-stats/links/${id}`, payload);
 }
 
@@ -106,7 +162,10 @@ export function getAnalytics(filters: AnalyticsFilters = {}): Promise<AnalyticsS
   return apiGet(`/api/v1/analytics?${q.toString()}`);
 }
 
-export function getLinkAnalytics(id: string, filters: AnalyticsFilters = {}): Promise<LinkAnalyticsResponse> {
+export function getLinkAnalytics(
+  id: string,
+  filters: AnalyticsFilters = {}
+): Promise<LinkAnalyticsResponse> {
   const q = analyticsQuery(filters);
   return apiGet(`/api/v1/analytics/links/${id}?${q.toString()}`);
 }
@@ -120,7 +179,10 @@ export function createConversion(
 export function downloadAnalyticsReport(filters: AnalyticsFilters = {}): Promise<void> {
   const q = analyticsQuery(filters);
   const suffix = new Date().toISOString().slice(0, 10);
-  return downloadFile(`/api/v1/export/analytics.csv?${q.toString()}`, `linketry-analytics-${suffix}.csv`);
+  return downloadFile(
+    `/api/v1/export/analytics.csv?${q.toString()}`,
+    `linketry-analytics-${suffix}.csv`
+  );
 }
 
 function analyticsQuery(filters: AnalyticsFilters): URLSearchParams {

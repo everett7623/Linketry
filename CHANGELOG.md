@@ -13,6 +13,32 @@ _(none)_
 
 ---
 
+## [0.27.0] - 2026-07-19
+
+### Added
+
+- Added a shared Conversion Overview for aggregate and per-link Analytics with eligible human clicks, event totals, Event Rate, goal breakdowns, and currency-separated values.
+- Added currency value summaries to Analytics API responses and CSV exports, plus a compatibility fallback for Admin/Worker rolling deployments.
+- Added a maintained product-gap audit covering pre-1.0 release requirements, core short-link enhancements, optional work, and deliberate non-goals.
+
+### Changed
+
+- Analytics keeps the date range visible and moves fourteen attribution filters behind an explicit Advanced filters control that saved views can reopen.
+- Authenticated Admin pages now load as route-level chunks; the production entry bundle decreased from about 573.7 KB to 298.0 KB before gzip.
+- Conversion wording now distinguishes Event Rate from user/session conversion attribution and explains why multiple events can exceed 100% of human clicks.
+
+### Fixed
+
+- Reset now responds to unapplied draft filters instead of only the last applied filter state.
+- Mobile Analytics uses compact saved-view actions, two-column summary metrics, bounded panels, and an advanced-filter layout without horizontal overflow.
+
+### Security
+
+- The official npm registry reports no known production dependency vulnerabilities for this release.
+- Redirect handlers, asynchronous visit scheduling, D1/KV ownership, migrations, production data, and Demo isolation are unchanged.
+
+---
+
 ## [0.26.7] - 2026-07-19
 
 ### Changed
