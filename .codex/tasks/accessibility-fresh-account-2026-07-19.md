@@ -28,7 +28,9 @@ Close the maintained pre-1.0 accessibility baseline and make the first isolated 
 - Passed 64 deployment, 82 Worker, 48 Admin unit, 20 Admin browser, 6 Demo API, and 4 site tests.
 - Passed Worker type-check, Admin/site production builds, Demo Pages Function compilation, and a full official-registry npm audit with zero vulnerabilities.
 - The Admin entry bundle is 315.06 KB before gzip, about 45% below the pre-route-splitting baseline.
-- Guarded production/Demo rollout evidence is recorded in `PROGRESS.md` after completion.
+- Production run `29692860714` and isolated Demo run `29692906598` deployed v0.27.1 successfully.
+- Production, branded Demo API, and Demo Worker fallback health origins report v0.27.1; both Admin assets expose the same version key.
+- The project site retains the Demo and coffee links, production rejects an unauthenticated API read with 401, and Demo rejects a write with 403.
 
 ## Safety
 

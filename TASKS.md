@@ -7,7 +7,7 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🔴 In Progress
 
-- [ ] Complete the v0.27.1 guarded production and isolated Demo rollout
+_(none)_
 
 ---
 
@@ -28,6 +28,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Publish one fresh-account checklist for scoped Cloudflare credentials, bootstrap, GitHub environments, DNS, R2, first use, upgrade, and rollback
 - [x] Add a deployment-document contract test for repository scoping, DNS-only CNAMEs, and both optional R2 bindings
 - [x] Pass 64 deployment, 82 Worker, 48 Admin unit, 20 Admin browser, 6 Demo API, and 4 site tests plus all builds
+- [x] Deploy production run `29692860714` and isolated Demo run `29692906598`
+- [x] Verify three health origins, two Admin version assets, the project-site links, production `401`, and Demo write `403`
 - [x] Preserve redirect stability, asynchronous analytics, migrations, D1/KV ownership, production data, and Demo isolation
 
 ---

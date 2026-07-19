@@ -10,14 +10,14 @@ Last updated: 2026-07-19
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.27.0 live         | Production and isolated Demo Workers remain healthy while the 0.27.1 Admin/documentation release is ready |
-| Admin frontend             | 🟡 0.27.1 ready        | Accessibility, keyboard, contrast, reduced-motion, responsive, and existing workflow regression checks pass locally                                          |
+| Worker backend             | ✅ 0.27.1 live         | Production and isolated Demo Workers are healthy; branded Demo API and Worker fallback report the same release |
+| Admin frontend             | ✅ 0.27.1 live         | Accessibility, keyboard, contrast, reduced-motion, responsive, and existing workflow regression checks pass locally and live                                          |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | 🟡 0.27.1 ready        | Production and isolated Demo remain synchronized on 0.27.0 until the guarded 0.27.1 rollout completes |
+| Current version            | ✅ 0.27.1 live         | Production and isolated Demo Worker/Admin releases are synchronized and independently verified |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
@@ -37,7 +37,8 @@ Last updated: 2026-07-19
 | Admin performance            | ✅ Preserved | The Vite 6 entry is 315.06 KB before gzip, about 45% below the 573.7 KB pre-route-splitting baseline                   |
 | Test verification            | ✅ Complete  | 64 deployment, 82 Worker, 48 Admin unit, 20 Admin browser, 6 Demo API, and 4 site tests pass; all builds pass          |
 | Redirect-path impact         | ✅ None      | Redirect handlers, async analytics, D1/KV behavior, migrations, production domains, and Demo isolation are unchanged   |
-| Live rollout                 | 🟡 Pending   | Guarded production and isolated Demo deployment will follow the complete local regression                              |
+| Live rollout                 | ✅ Complete  | Production run `29692860714` and isolated Demo run `29692906598` deployed v0.27.1 successfully                         |
+| Live parity                  | ✅ Verified  | Three health origins report v0.27.1, both Admin assets carry the v0.27.1 key, production rejects unauthenticated reads, and Demo rejects writes |
 
 ---
 

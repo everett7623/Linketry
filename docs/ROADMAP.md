@@ -158,7 +158,7 @@ Status: complete.
 
 ## 0.27.1: Accessibility And Fresh-account UX
 
-Status: complete locally; guarded production and isolated Demo rollout pending.
+Status: complete and deployed to production and the isolated Demo.
 
 - Core Admin routes, conversion controls, authenticated dialogs, themes, and mobile navigation have automated Axe regression coverage
 - Shared modals and the mobile drawer support initial focus, contained Tab navigation, Escape dismissal, focus return, and background scroll containment
