@@ -1,6 +1,6 @@
 {
   "name": "@linketry/site",
-  "version": "0.27.0",
+  "version": "0.27.1",
   "author": "everettlabs",
   "license": "GPL-3.0-only",
   "private": true,
@@ -13,6 +13,6 @@
   },
   "devDependencies": {
     "typescript": "^5.4.5",
-    "vite": "^5.3.4"
+    "vite": "^6.4.3"
   }
 }

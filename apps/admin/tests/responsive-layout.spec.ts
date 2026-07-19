@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
 import { messages } from '../src/i18n/messages';
+import { expectNoSeriousAccessibilityViolations } from './accessibility';
 
 function apiResponse(data: unknown) {
   return {
@@ -12,6 +13,7 @@ function apiResponse(data: unknown) {
 
 test('Mobile Admin uses a drawer without shrinking the page content', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript((version) => {
     localStorage.setItem('linketry_token', 'test-token');
     localStorage.setItem('linketry.locale', 'en');
@@ -53,6 +55,10 @@ test('Mobile Admin uses a drawer without shrinking the page content', async ({ p
 
   const openNavigation = page.getByRole('button', { name: messages.en.openNavigation });
   await expect(openNavigation).toBeVisible();
+  const reducedTransitionSeconds = await openNavigation.evaluate((element) =>
+    Number.parseFloat(window.getComputedStyle(element).transitionDuration)
+  );
+  expect(reducedTransitionSeconds).toBeLessThanOrEqual(0.001);
   await expect(page.getByRole('link', { name: messages.en.analytics })).toHaveCount(0);
 
   const layout = await page.locator('main').evaluate((element) => ({
@@ -65,16 +71,28 @@ test('Mobile Admin uses a drawer without shrinking the page content', async ({ p
 
   await openNavigation.click();
   await expect(page.getByRole('link', { name: messages.en.analytics })).toBeVisible();
+  const navigationDialog = page.getByRole('dialog', { name: messages.en.navigationMenu });
+  await expect(navigationDialog).toBeVisible();
 
   const versionStatus = page.locator('aside:visible').getByTestId('sidebar-version');
   await expect(versionStatus).toBeVisible();
   await expect(versionStatus).toHaveAccessibleName(messages.en.checkForUpdates);
   await expect(versionStatus.getByText(`v${LINKETRY_VERSION}`, { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: messages.en.closeNavigation })).toHaveCount(2);
+  await expect(page.getByRole('button', { name: messages.en.closeNavigation })).toHaveCount(1);
+  const closeNavigation = page.getByRole('button', { name: messages.en.closeNavigation });
+  await expect(closeNavigation).toBeFocused();
+  const lastNavigationControl = navigationDialog
+    .locator('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled])')
+    .last();
+  await page.keyboard.press('Shift+Tab');
+  await expect(lastNavigationControl).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(closeNavigation).toBeFocused();
+  await expectNoSeriousAccessibilityViolations(page);
 
   await page.keyboard.press('Escape');
   await expect(page.getByRole('link', { name: messages.en.analytics })).toHaveCount(0);
-  await expect(openNavigation).toBeVisible();
+  await expect(openNavigation).toBeFocused();
 });
 
 test('Desktop Admin can collapse navigation and use the wider workspace', async ({ page }) => {

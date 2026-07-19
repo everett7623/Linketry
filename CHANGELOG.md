@@ -13,6 +13,32 @@ _(none)_
 
 ---
 
+## [0.27.1] - 2026-07-19
+
+### Added
+
+- Added automated Axe checks for the main Admin routes, authenticated dialogs, conversion controls, light theme, and the mobile navigation drawer.
+- Added a fresh-account rehearsal guide with scoped-token, repository, resource, DNS, R2, first-login, redirect, upgrade, and rollback checks plus a deployment-document contract test.
+
+### Changed
+
+- Modal dialogs and the mobile drawer now move focus inside, contain keyboard focus, close with Escape, restore focus to the trigger, and prevent background scrolling.
+- Form errors, loading controls, notifications, filters, icon actions, and back navigation now expose localized accessible state and names.
+- Reduced-motion preferences now suppress nonessential Admin animation, and shared muted text/primary-action colors meet the tested dark/light contrast baseline.
+- Admin and project-site builds now use Vite 6.4.3 while retaining the existing Node.js 24 deployment runtime.
+
+### Fixed
+
+- Corrected duplicate form-control IDs, unassociated hints and validation errors, unnamed overview/filter/template controls, and default-language confirmation actions.
+- Corrected toast and dialog semantics so assistive technologies receive status, alert, label, and focus changes without ambiguous landmarks.
+
+### Security
+
+- The official npm registry reports no known vulnerabilities across production and development dependencies for this release.
+- Redirect handlers, asynchronous visit scheduling, D1/KV ownership, migrations, production data, and Demo isolation are unchanged.
+
+---
+
 ## [0.27.0] - 2026-07-19
 
 ### Added

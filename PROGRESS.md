@@ -10,16 +10,34 @@ Last updated: 2026-07-19
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.27.0 live         | Production and isolated Demo Workers are healthy; branded Demo API and Worker fallback are both active |
-| Admin frontend             | ✅ 0.27.0 live         | Progressive Analytics filters, Conversion Overview, route-level loading, EN/ZH, themes, updates, and traffic-alert controls are browser tested                                          |
+| Worker backend             | ✅ 0.27.0 live         | Production and isolated Demo Workers remain healthy while the 0.27.1 Admin/documentation release is ready |
+| Admin frontend             | 🟡 0.27.1 ready        | Accessibility, keyboard, contrast, reduced-motion, responsive, and existing workflow regression checks pass locally                                          |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                              |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.27.0 live         | Production and isolated Demo Worker/Admin releases are synchronized and independently verified |
+| Current version            | 🟡 0.27.1 ready        | Production and isolated Demo remain synchronized on 0.27.0 until the guarded 0.27.1 rollout completes |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.27.1 Accessibility And Fresh-account UX
+
+| Area                         | Status       | Notes                                                                                                                   |
+| ---------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Automated accessibility      | ✅ Complete  | Axe covers Login, Overview, Links, Create/Edit, Analytics, Settings, dialogs, light theme, and mobile navigation       |
+| Keyboard and focus           | ✅ Complete  | Modals and the mobile drawer enter, trap, dismiss, and restore focus; background scrolling is contained                |
+| Forms and controls           | ✅ Complete  | Errors, hints, busy state, notifications, icon actions, filters, and template controls expose localized semantics      |
+| Motion and contrast          | ✅ Verified  | Reduced-motion preferences suppress nonessential transitions and tested dark/light surfaces meet the contrast baseline |
+| Fresh-account owner path     | ✅ Documented | One exact checklist covers scoped credentials, bootstrap, GitHub environments, DNS-only CNAMEs, R2, smoke, and rollback |
+| Deployment contract          | ✅ Complete  | Automated checks keep repository-scoped GitHub commands, both Demo domains, DNS mode, and both optional R2 bindings     |
+| Toolchain security           | ✅ Clean     | Admin/site use Vite 6.4.3 and the official npm registry reports zero full-tree vulnerabilities                          |
+| Admin performance            | ✅ Preserved | The Vite 6 entry is 315.06 KB before gzip, about 45% below the 573.7 KB pre-route-splitting baseline                   |
+| Test verification            | ✅ Complete  | 64 deployment, 82 Worker, 48 Admin unit, 20 Admin browser, 6 Demo API, and 4 site tests pass; all builds pass          |
+| Redirect-path impact         | ✅ None      | Redirect handlers, async analytics, D1/KV behavior, migrations, production domains, and Demo isolation are unchanged   |
+| Live rollout                 | 🟡 Pending   | Guarded production and isolated Demo deployment will follow the complete local regression                              |
 
 ---
 

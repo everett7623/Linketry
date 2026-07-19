@@ -66,18 +66,23 @@ function LinkRow({ link, defaultDomain }: { link: LinkType; defaultDomain: strin
       </div>
       <div className="flex gap-1 shrink-0">
         <button
+          type="button"
           onClick={copy}
+          aria-label={t('copyShortLinkAria', { slug: link.slug })}
+          title={t('copyShortLinkAria', { slug: link.slug })}
           className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors"
         >
-          <Copy size={14} />
+          <Copy size={14} aria-hidden="true" />
         </button>
         <a
           href={shortUrl}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label={t('openShortLinkAria', { slug: link.slug })}
+          title={t('openShortLinkAria', { slug: link.slug })}
           className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors"
         >
-          <ExternalLink size={14} />
+          <ExternalLink size={14} aria-hidden="true" />
         </a>
       </div>
     </div>
@@ -124,7 +129,7 @@ export function Overview() {
         </div>
         <Link
           to="/links/create"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition-colors"
         >
           <Plus size={16} /> {t('createLink')}
         </Link>
@@ -164,7 +169,10 @@ export function Overview() {
           {stats?.recentLinks.length === 0 ? (
             <p className="text-sm text-slate-500 py-4 text-center">
               {t('noLinksYet')}{' '}
-              <Link to="/links/create" className="text-brand-400">
+              <Link
+                to="/links/create"
+                className="text-brand-400 underline decoration-current underline-offset-2"
+              >
                 {t('createOne')}
               </Link>
             </p>

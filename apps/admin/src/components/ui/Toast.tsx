@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { CheckCircle, XCircle, AlertCircle, X } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useLocale } from '../../contexts/LocaleContext';
 
 type ToastType = 'success' | 'error' | 'warning';
 
@@ -26,11 +27,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const toast = useCallback((type: ToastType, message: string) => {
-    const id = Math.random().toString(36).slice(2);
-    setToasts((prev) => [...prev, { id, type, message }]);
-    setTimeout(() => remove(id), 4000);
-  }, [remove]);
+  const toast = useCallback(
+    (type: ToastType, message: string) => {
+      const id = Math.random().toString(36).slice(2);
+      setToasts((prev) => [...prev, { id, type, message }]);
+      setTimeout(() => remove(id), 4000);
+    },
+    [remove]
+  );
 
   const success = useCallback((msg: string) => toast('success', msg), [toast]);
   const error = useCallback((msg: string) => toast('error', msg), [toast]);
@@ -49,10 +53,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 }
 
 function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: (id: string) => void }) {
+  const { t: translate } = useLocale();
   const icons: Record<ToastType, React.ReactNode> = {
-    success: <CheckCircle size={16} className="text-emerald-400 shrink-0" />,
-    error: <XCircle size={16} className="text-red-400 shrink-0" />,
-    warning: <AlertCircle size={16} className="text-yellow-400 shrink-0" />,
+    success: <CheckCircle size={16} className="text-emerald-400 shrink-0" aria-hidden="true" />,
+    error: <XCircle size={16} className="text-red-400 shrink-0" aria-hidden="true" />,
+    warning: <AlertCircle size={16} className="text-yellow-400 shrink-0" aria-hidden="true" />,
   };
   const bg: Record<ToastType, string> = {
     success: 'border-emerald-500/30 bg-emerald-950/90',
@@ -62,6 +67,8 @@ function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: (id: string
 
   return (
     <div
+      role={t.type === 'error' ? 'alert' : 'status'}
+      aria-live={t.type === 'error' ? 'assertive' : 'polite'}
       className={clsx(
         'pointer-events-auto flex items-center gap-3 rounded-lg border px-4 py-3 shadow-xl backdrop-blur-sm min-w-64 max-w-sm',
         bg[t.type]
@@ -69,8 +76,14 @@ function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: (id: string
     >
       {icons[t.type]}
       <span className="text-sm text-slate-200 flex-1">{t.message}</span>
-      <button onClick={() => onRemove(t.id)} className="text-slate-500 hover:text-slate-300 transition-colors">
-        <X size={14} />
+      <button
+        type="button"
+        onClick={() => onRemove(t.id)}
+        aria-label={translate('dismissNotification')}
+        title={translate('dismissNotification')}
+        className="text-slate-500 hover:text-slate-300 transition-colors"
+      >
+        <X size={14} aria-hidden="true" />
       </button>
     </div>
   );

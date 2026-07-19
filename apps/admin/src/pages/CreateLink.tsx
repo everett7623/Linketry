@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, RefreshCw, Sparkles } from 'lucide-react';
 import { createLink } from '../api/links';
 import { listDomains } from '../api/domains';
-import { fetchLinkSuggestions, fetchPagePreview, fetchPageTitle, type PagePreviewResult } from '../api/metadata';
+import {
+  fetchLinkSuggestions,
+  fetchPagePreview,
+  fetchPageTitle,
+  type PagePreviewResult,
+} from '../api/metadata';
 import { PagePreviewCard } from '../components/PagePreviewCard';
 import { listTags } from '../api/tags';
 import { LinkSuggestionsPanel } from '../components/LinkSuggestionsPanel';
@@ -134,7 +139,13 @@ export function CreateLink() {
       setSuggestionLoading(false);
     }
   };
-  const handlePreview = async () => { try { setPreview(await fetchPagePreview(form.long_url)); } catch (e) { error(String(e)); } };
+  const handlePreview = async () => {
+    try {
+      setPreview(await fetchPagePreview(form.long_url));
+    } catch (e) {
+      error(String(e));
+    }
+  };
 
   const mergeTags = (incoming: string[]) => {
     const current = form.tags
@@ -201,10 +212,13 @@ export function CreateLink() {
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-8">
         <button
+          type="button"
           onClick={() => navigate(-1)}
+          aria-label={t('back')}
+          title={t('back')}
           className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={18} aria-hidden="true" />
         </button>
         <div>
           <h1 className="text-2xl font-bold text-slate-100">{t('createLink')}</h1>
@@ -241,7 +255,13 @@ export function CreateLink() {
             </Button>
           </div>
         )}
-        {isAdvanced && <div className="flex justify-end"><Button type="button" variant="secondary" onClick={handlePreview} disabled={loading}>{t('previewOpenGraph')}</Button></div>}
+        {isAdvanced && (
+          <div className="flex justify-end">
+            <Button type="button" variant="secondary" onClick={handlePreview} disabled={loading}>
+              {t('previewOpenGraph')}
+            </Button>
+          </div>
+        )}
         {isAdvanced && <PagePreviewCard preview={preview} />}
 
         {isAdvanced && (

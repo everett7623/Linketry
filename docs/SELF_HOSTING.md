@@ -6,6 +6,8 @@ This guide is for people who fork or clone Linketry and want to deploy it to the
 
 This document is the **fresh beginner self-hosting** track. It creates new resources in your own Cloudflare account and never uses the Linketry maintainer's production or Demo resource IDs, domains, tokens, or data. If you already run an installation older than 0.10, stop here and follow [Upgrading pre-0.10 installations](UPGRADING_PRE_0_10.md) instead.
 
+Use [Fresh Cloudflare Account Rehearsal](FRESH_ACCOUNT_REHEARSAL.md) as the final owner checklist. Its GitHub CLI examples always include `--repo`, so they also work when PowerShell was opened outside the clone.
+
 Linketry keeps three deployment tracks separate:
 
 | Track | Purpose | Resource rule |
@@ -181,7 +183,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.27.0"}}
+{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.27.1"}}
 ```
 
 ## 7. Build and Deploy Admin
@@ -244,7 +246,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.27.0
+LINKETRY_APPROVED_RELEASE=0.27.1
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
@@ -270,7 +272,7 @@ Leave these unset for the basic deployment; enable them later from the Admin Adv
 
 ```txt
 LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKETRY_VERSION=0.27.0
+LINKETRY_VERSION=0.27.1
 LINKETRY_COMPATIBILITY_DATE=2026-07-08
 LINKETRY_WORKER_DOMAINS=go.example.com,s.example.com
 LINKETRY_R2_BUCKET=linketry-backups

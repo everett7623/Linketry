@@ -426,6 +426,7 @@ export function Analytics() {
               {t('enableDailyReports')}
             </label>
             <Select
+              aria-label={`${t('scheduledReports')} - ${t('range')}`}
               value={String(reports.config.days)}
               onChange={(e) =>
                 setReports({
@@ -440,6 +441,7 @@ export function Analytics() {
               <option value="365">{t('last365')}</option>
             </Select>
             <Select
+              aria-label={`${t('scheduledReports')} - ${t('savedViews')}`}
               value={reports.config.saved_view_id ?? ''}
               onChange={(e) =>
                 setReports({

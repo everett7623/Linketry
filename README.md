@@ -104,6 +104,7 @@ linketry/
 - [Analytics](docs/ANALYTICS.md) — tracking, privacy, reporting, and future analysis
 - [Roadmap](docs/ROADMAP.md) — completed scope and future product direction
 - [Product gap audit](docs/PRODUCT_GAP_AUDIT.md) — pre-1.0 priorities and deliberate non-goals
+- [Fresh-account rehearsal](docs/FRESH_ACCOUNT_REHEARSAL.md) — owner checklist for credentials, resources, DNS, first login, and upgrades
 
 ## Local Development
 

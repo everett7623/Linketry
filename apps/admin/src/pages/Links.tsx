@@ -88,7 +88,8 @@ export function Links() {
   const [domainMigrationOpen, setDomainMigrationOpen] = useState(false);
   const [sourceDomain, setSourceDomain] = useState('');
   const [targetDomain, setTargetDomain] = useState('');
-  const [domainMigrationPreview, setDomainMigrationPreview] = useState<DomainMigrationPreview | null>(null);
+  const [domainMigrationPreview, setDomainMigrationPreview] =
+    useState<DomainMigrationPreview | null>(null);
   const [linkView, setLinkView] = useState<LinkView>(readLinkViewPreference);
   const { success, error } = useToast();
   const { isAdvanced } = useAdminMode();
@@ -364,8 +365,39 @@ export function Links() {
       setActionLoading(false);
     }
   };
-  const runUrlPreview = async () => { setActionLoading(true); try { const result=await previewBulkUrlReplace([...selectedIds],findText,replaceText);setReplacePreview(result.items); } catch(e){error(String(e));} finally{setActionLoading(false);} };
-  const confirmUrlReplace = async () => { setActionLoading(true); try { const result=await confirmBulkUrlReplace(replacePreview); const blob=new Blob([result.rollback_csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`linketry-url-rollback-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(url);success(t('bulkUrlsUpdated',{count:result.changed}));setReplaceOpen(false);setReplacePreview([]);setSelectedIds(new Set());await load(); } catch(e){error(String(e));} finally{setActionLoading(false);} };
+  const runUrlPreview = async () => {
+    setActionLoading(true);
+    try {
+      const result = await previewBulkUrlReplace([...selectedIds], findText, replaceText);
+      setReplacePreview(result.items);
+    } catch (e) {
+      error(String(e));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+  const confirmUrlReplace = async () => {
+    setActionLoading(true);
+    try {
+      const result = await confirmBulkUrlReplace(replacePreview);
+      const blob = new Blob([result.rollback_csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `linketry-url-rollback-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      success(t('bulkUrlsUpdated', { count: result.changed }));
+      setReplaceOpen(false);
+      setReplacePreview([]);
+      setSelectedIds(new Set());
+      await load();
+    } catch (e) {
+      error(String(e));
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const openDomainMigration = () => {
     setSourceDomain(domain);
@@ -429,6 +461,7 @@ export function Links() {
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
+            aria-label={t('searchLinks')}
             placeholder={t('searchLinks')}
             value={keyword}
             onChange={(e) => setParam('keyword', e.target.value)}
@@ -436,6 +469,7 @@ export function Links() {
           />
         </div>
         <select
+          aria-label={t('statusFilter')}
           value={status}
           onChange={(e) => setParam('status', e.target.value)}
           className="px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -447,6 +481,7 @@ export function Links() {
           <option value="archived">{t('archivedStatus')}</option>
         </select>
         <select
+          aria-label={t('sortLinks')}
           value={sort}
           onChange={(e) => setParam('sort', e.target.value)}
           className="px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -473,7 +508,10 @@ export function Links() {
                 selectedIds={[...selectedIds]}
                 filteredCount={result?.total ?? 0}
                 searchParams={searchParams}
-                onCompleted={async () => { setSelectedIds(new Set()); await load(); }}
+                onCompleted={async () => {
+                  setSelectedIds(new Set());
+                  await load();
+                }}
               />
               <button
                 type="button"
@@ -495,6 +533,7 @@ export function Links() {
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
             <input
               type="text"
+              aria-label={t('tag')}
               placeholder={t('tag')}
               value={tag}
               onChange={(e) => setParam('tag', e.target.value)}
@@ -502,6 +541,7 @@ export function Links() {
             />
             <input
               type="text"
+              aria-label={t('sourcePlaceholder')}
               placeholder={t('sourcePlaceholder')}
               value={source}
               onChange={(e) => setParam('source', e.target.value)}
@@ -509,12 +549,14 @@ export function Links() {
             />
             <input
               type="text"
+              aria-label={t('domain')}
               placeholder={t('domain')}
               value={domain}
               onChange={(e) => setParam('domain', e.target.value)}
               className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
             <select
+              aria-label={t('anyPassword')}
               value={hasPassword}
               onChange={(e) => setParam('hasPassword', e.target.value)}
               className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -524,6 +566,7 @@ export function Links() {
               <option value="no">{t('noPassword')}</option>
             </select>
             <select
+              aria-label={t('anyWarning')}
               value={warning}
               onChange={(e) => setParam('warning', e.target.value)}
               className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -533,6 +576,7 @@ export function Links() {
               <option value="no">{t('warningDisabled')}</option>
             </select>
             <select
+              aria-label={t('anyLimits')}
               value={limits}
               onChange={(e) => setParam('limits', e.target.value)}
               className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -543,12 +587,14 @@ export function Links() {
             </select>
             <input
               type="date"
+              aria-label={t('createdFrom')}
               value={createdFrom}
               onChange={(e) => setParam('createdFrom', e.target.value)}
               className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
             <input
               type="date"
+              aria-label={t('createdTo')}
               value={createdTo}
               onChange={(e) => setParam('createdTo', e.target.value)}
               className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -608,7 +654,15 @@ export function Links() {
             >
               {t('tags')}
             </Button>
-            <Button size="sm" variant="secondary" icon={<Replace size={14}/>} onClick={()=>setReplaceOpen(true)} loading={actionLoading}>{t('replaceUrls')}</Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={<Replace size={14} />}
+              onClick={() => setReplaceOpen(true)}
+              loading={actionLoading}
+            >
+              {t('replaceUrls')}
+            </Button>
             <Button
               size="sm"
               variant="danger"
@@ -1006,7 +1060,78 @@ export function Links() {
           </div>
         </Modal>
       )}
-      {isAdvanced && <Modal open={replaceOpen} onClose={()=>setReplaceOpen(false)} title={t('replaceUrls')} size="xl"><div className="space-y-4"><div className="grid gap-3 sm:grid-cols-2"><Input label={t('findText')} value={findText} onChange={(e)=>{setFindText(e.target.value);setReplacePreview([])}}/><Input label={t('replaceWith')} value={replaceText} onChange={(e)=>{setReplaceText(e.target.value);setReplacePreview([])}}/></div><p className="text-xs text-yellow-300">{t('replaceUrlGuidance')}</p>{replacePreview.length>0&&<div className="max-h-72 overflow-auto border border-slate-800"><table className="w-full text-xs"><tbody className="divide-y divide-slate-800">{replacePreview.map((item)=><tr key={item.id}><td className="px-3 py-2 font-mono text-slate-400">/{item.slug}</td><td className="max-w-xs truncate px-3 py-2 text-slate-500">{item.next_url}</td><td className="px-3 py-2 text-right">{t(item.status==='ready'?'readyStatus':item.status==='invalid'?'invalidStatus':'unchangedStatus')}</td></tr>)}</tbody></table></div>}<div className="flex justify-end gap-2"><Button variant="secondary" onClick={runUrlPreview} disabled={!findText} loading={actionLoading}>{t('previewChanges')}</Button><Button onClick={confirmUrlReplace} disabled={!replacePreview.some((item)=>item.status==='ready')} loading={actionLoading}>{t('confirmReplace')}</Button></div></div></Modal>}
+      {isAdvanced && (
+        <Modal
+          open={replaceOpen}
+          onClose={() => setReplaceOpen(false)}
+          title={t('replaceUrls')}
+          size="xl"
+        >
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Input
+                label={t('findText')}
+                value={findText}
+                onChange={(e) => {
+                  setFindText(e.target.value);
+                  setReplacePreview([]);
+                }}
+              />
+              <Input
+                label={t('replaceWith')}
+                value={replaceText}
+                onChange={(e) => {
+                  setReplaceText(e.target.value);
+                  setReplacePreview([]);
+                }}
+              />
+            </div>
+            <p className="text-xs text-yellow-300">{t('replaceUrlGuidance')}</p>
+            {replacePreview.length > 0 && (
+              <div className="max-h-72 overflow-auto border border-slate-800">
+                <table className="w-full text-xs">
+                  <tbody className="divide-y divide-slate-800">
+                    {replacePreview.map((item) => (
+                      <tr key={item.id}>
+                        <td className="px-3 py-2 font-mono text-slate-400">/{item.slug}</td>
+                        <td className="max-w-xs truncate px-3 py-2 text-slate-500">
+                          {item.next_url}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          {t(
+                            item.status === 'ready'
+                              ? 'readyStatus'
+                              : item.status === 'invalid'
+                                ? 'invalidStatus'
+                                : 'unchangedStatus'
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="secondary"
+                onClick={runUrlPreview}
+                disabled={!findText}
+                loading={actionLoading}
+              >
+                {t('previewChanges')}
+              </Button>
+              <Button
+                onClick={confirmUrlReplace}
+                disabled={!replacePreview.some((item) => item.status === 'ready')}
+                loading={actionLoading}
+              >
+                {t('confirmReplace')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {isAdvanced && (
         <Modal
@@ -1021,13 +1146,19 @@ export function Links() {
                 label={t('sourceShortDomain')}
                 value={sourceDomain}
                 placeholder="s.y8o.de"
-                onChange={(event) => { setSourceDomain(event.target.value); setDomainMigrationPreview(null); }}
+                onChange={(event) => {
+                  setSourceDomain(event.target.value);
+                  setDomainMigrationPreview(null);
+                }}
               />
               <Input
                 label={t('targetShortDomain')}
                 value={targetDomain}
                 placeholder="go.uukk.de"
-                onChange={(event) => { setTargetDomain(event.target.value); setDomainMigrationPreview(null); }}
+                onChange={(event) => {
+                  setTargetDomain(event.target.value);
+                  setDomainMigrationPreview(null);
+                }}
               />
             </div>
             <p className="text-xs text-yellow-300">{t('domainMigrationGuidance')}</p>
@@ -1046,7 +1177,9 @@ export function Links() {
                         {domainMigrationPreview.items.map((item) => (
                           <tr key={item.id}>
                             <td className="px-3 py-2 font-mono text-slate-400">/{item.slug}</td>
-                            <td className="max-w-sm truncate px-3 py-2 text-slate-500">{item.next_short_url}</td>
+                            <td className="max-w-sm truncate px-3 py-2 text-slate-500">
+                              {item.next_short_url}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -1085,7 +1218,11 @@ export function Links() {
         {qr && (
           <div className="space-y-4">
             <div className="rounded-lg bg-white p-4">
-              <img src={qr.dataUrl} alt={t('qrCodeFor', { url: qr.url })} className="h-auto w-full" />
+              <img
+                src={qr.dataUrl}
+                alt={t('qrCodeFor', { url: qr.url })}
+                className="h-auto w-full"
+              />
             </div>
             <p className="break-all font-mono text-xs text-slate-400">{qr.url}</p>
             <div className="flex justify-end gap-3">

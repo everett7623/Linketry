@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
 import { messages, type Locale } from '../src/i18n/messages';
+import { expectNoSeriousAccessibilityViolations } from './accessibility';
 
 const link = {
   id: 'link_smoke_1',
@@ -407,6 +408,7 @@ test('login page switches between English and Simplified Chinese', async ({ page
   ).toBeVisible();
   await expect(page.getByText(messages.en.tokenHowToTitle)).toBeVisible();
   await expect(page.getByRole('button', { name: messages.en.showAdminToken })).toBeVisible();
+  await expectNoSeriousAccessibilityViolations(page);
 
   await page.getByLabel(messages.en.language).selectOption('zh-CN');
 
@@ -429,6 +431,7 @@ test('English core workflow renders overview, links, create link, and settings',
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.getByRole('heading', { name: messages.en.overview })).toBeVisible();
   await expect(page.getByText(messages.en.totalLinks)).toBeVisible();
+  await expectNoSeriousAccessibilityViolations(page);
 
   await page
     .getByRole('navigation')
@@ -436,18 +439,44 @@ test('English core workflow renders overview, links, create link, and settings',
     .click();
   await expect(page.getByRole('heading', { name: messages.en.links })).toBeVisible();
   await expect(page.getByText('/docs', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: messages.en.migrateShortDomain }).click();
+  await expectNoSeriousAccessibilityViolations(page);
+  const migrationTrigger = page.getByRole('button', { name: messages.en.migrateShortDomain });
+  await migrationTrigger.click();
+  const migrationDialog = page.getByRole('dialog', { name: messages.en.migrateShortDomain });
+  await expect(migrationDialog).toBeVisible();
+  await expect(
+    migrationDialog.getByRole('button', { name: messages.en.closeDialog })
+  ).toBeFocused();
+  const lastMigrationControl = migrationDialog
+    .locator('button:not([disabled]), input:not([disabled]), select:not([disabled])')
+    .last();
+  await page.keyboard.press('Shift+Tab');
+  await expect(lastMigrationControl).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(
+    migrationDialog.getByRole('button', { name: messages.en.closeDialog })
+  ).toBeFocused();
   await page.getByLabel(messages.en.sourceShortDomain).fill('s.y8o.de');
   await page.getByRole('button', { name: messages.en.previewMigration }).click();
   await expect(
     page.getByText(messages.en.domainMigrationCount.replace('{count}', '195'))
   ).toBeVisible();
+  await expectNoSeriousAccessibilityViolations(page);
   await page.keyboard.press('Escape');
+  await expect(migrationTrigger).toBeFocused();
 
   await page.getByRole('main').getByRole('link', { name: messages.en.createLink }).click();
   await expect(page.getByRole('heading', { name: messages.en.createLink })).toBeVisible();
   await expect(page.getByLabel(messages.en.fallbackUrlOptional)).toBeVisible();
-  await page.getByLabel(messages.en.destinationUrl).fill('https://example.com/new');
+  await expectNoSeriousAccessibilityViolations(page);
+  const destinationInput = page.getByLabel(messages.en.destinationUrl);
+  await destinationInput.fill('not-a-url');
+  await page.getByRole('button', { name: messages.en.createLink }).click();
+  await expect(destinationInput).toHaveAttribute('aria-invalid', 'true');
+  await expect(
+    page.getByRole('alert').filter({ hasText: messages.en.invalidHttpUrl })
+  ).toBeVisible();
+  await destinationInput.fill('https://example.com/new');
   await page.getByLabel(messages.en.customSlug).fill('new-docs');
   await page.getByRole('button', { name: messages.en.createLink }).click();
   await expect(page).toHaveURL(/\/links$/);
@@ -458,6 +487,7 @@ test('English core workflow renders overview, links, create link, and settings',
   await expect(page.getByText(messages.en.settingsSaved)).toBeVisible();
   await expect(page.getByRole('heading', { name: messages.en.notificationChannels })).toBeVisible();
   await expect(page.getByRole('heading', { name: messages.en.releaseStatus })).toBeVisible();
+  await expectNoSeriousAccessibilityViolations(page);
 
   await page.getByRole('navigation').getByRole('link', { name: messages.en.healthChecks }).click();
   await expect(
@@ -590,6 +620,7 @@ test('theme preference switches color tokens and persists across reloads', async
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(248, 250, 252)');
   await expect(page.locator('body')).toHaveCSS('color', 'rgb(15, 23, 42)');
   await expect(page.getByRole('link', { name: 'GitHub' })).toHaveCSS('color', 'rgb(67, 56, 202)');
+  await expectNoSeriousAccessibilityViolations(page);
   await expect
     .poll(() => page.evaluate(() => window.localStorage.getItem('linketry_theme')))
     .toBe('light');
@@ -622,6 +653,7 @@ test('duplicate destinations warn without blocking create and edit excludes the 
   await expect(page.getByLabel(messages.en.destinationUrl)).toHaveValue(link.long_url);
   await page.waitForTimeout(500);
   await expect(page.getByText(/already used by/)).toHaveCount(0);
+  await expectNoSeriousAccessibilityViolations(page);
   await page.evaluate(() => window.__assertNoBrowserErrors());
 });
 

@@ -100,10 +100,13 @@ export function BulkCreateLinks() {
     <div className="max-w-4xl space-y-6">
       <div className="flex items-center gap-3">
         <button
+          type="button"
           onClick={() => navigate(-1)}
+          aria-label={t('back')}
+          title={t('back')}
           className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={18} aria-hidden="true" />
         </button>
         <div>
           <h1 className="text-2xl font-bold text-slate-100">{t('bulkCreateLinks')}</h1>

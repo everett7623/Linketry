@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
 import { messages } from '../src/i18n/messages';
+import { expectNoSeriousAccessibilityViolations } from './accessibility';
 
 function apiResponse(data: unknown) {
   return {
@@ -142,6 +143,7 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
     conversionInsights.getByTestId('conversion-values').getByText('$54.00', { exact: true })
   ).toBeVisible();
   await expect(conversionInsights.getByText('signup', { exact: true })).toBeVisible();
+  await expectNoSeriousAccessibilityViolations(page);
   const requestsBeforeManualRefresh = analyticsRequests;
 
   await page.getByRole('button', { name: messages.en.refreshAnalyticsNow }).click();

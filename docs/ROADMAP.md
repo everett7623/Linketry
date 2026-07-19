@@ -156,6 +156,18 @@ Status: complete.
 - The production entry chunk is reduced from about 573.7 KB to 298.0 KB before gzip
 - Remaining pre-1.0 and optional product work is prioritized in `docs/PRODUCT_GAP_AUDIT.md`
 
+## 0.27.1: Accessibility And Fresh-account UX
+
+Status: complete locally; guarded production and isolated Demo rollout pending.
+
+- Core Admin routes, conversion controls, authenticated dialogs, themes, and mobile navigation have automated Axe regression coverage
+- Shared modals and the mobile drawer support initial focus, contained Tab navigation, Escape dismissal, focus return, and background scroll containment
+- Form errors/hints, notifications, loading controls, icon actions, filters, and template controls expose localized accessible semantics
+- Reduced-motion preferences suppress nonessential transitions, and the tested dark/light UI meets the maintained contrast baseline
+- A fresh-account owner checklist covers scoped Cloudflare credentials, idempotent bootstrap, GitHub environments, DNS-only Demo domains, optional R2, first-use smoke, upgrades, and rollback
+- Admin and site use Vite 6.4.3, and the complete npm dependency tree reports no known vulnerabilities through the official registry
+- Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
+
 ## Long-Term Product Principles
 
 Linketry is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.

@@ -3,7 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, RefreshCw, Sparkles } from 'lucide-react';
 import { getLink, updateLink } from '../api/links';
 import { listDomains } from '../api/domains';
-import { fetchLinkSuggestions, fetchPagePreview, fetchPageTitle, type PagePreviewResult } from '../api/metadata';
+import {
+  fetchLinkSuggestions,
+  fetchPagePreview,
+  fetchPageTitle,
+  type PagePreviewResult,
+} from '../api/metadata';
 import { PagePreviewCard } from '../components/PagePreviewCard';
 import { listTags } from '../api/tags';
 import { LinkSuggestionsPanel } from '../components/LinkSuggestionsPanel';
@@ -90,9 +95,26 @@ export function EditLink() {
       .catch(() => error(t('linkLoadFailed')))
       .finally(() => setLoading(false));
   }, [id]);
-  useEffect(() => { if (id) getLinkNote(id).then((result) => setNote(result.note)).catch(() => undefined); }, [id]);
+  useEffect(() => {
+    if (id)
+      getLinkNote(id)
+        .then((result) => setNote(result.note))
+        .catch(() => undefined);
+  }, [id]);
 
-  const handleSaveNote = async () => { if (!id) return; setNoteSaving(true); try { const result = await saveLinkNote(id, note); setNote(result.note); success(t('noteSaved')); } catch (e) { error(String(e)); } finally { setNoteSaving(false); } };
+  const handleSaveNote = async () => {
+    if (!id) return;
+    setNoteSaving(true);
+    try {
+      const result = await saveLinkNote(id, note);
+      setNote(result.note);
+      success(t('noteSaved'));
+    } catch (e) {
+      error(String(e));
+    } finally {
+      setNoteSaving(false);
+    }
+  };
 
   useEffect(() => {
     listTags()
@@ -178,7 +200,13 @@ export function EditLink() {
       setSuggestionLoading(false);
     }
   };
-  const handlePreview = async () => { try { setPreview(await fetchPagePreview(form.long_url)); } catch (e) { error(String(e)); } };
+  const handlePreview = async () => {
+    try {
+      setPreview(await fetchPagePreview(form.long_url));
+    } catch (e) {
+      error(String(e));
+    }
+  };
 
   const mergeTags = (incoming: string[]) => {
     const current = form.tags
@@ -280,10 +308,13 @@ export function EditLink() {
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-8">
         <button
+          type="button"
           onClick={() => navigate(-1)}
+          aria-label={t('back')}
+          title={t('back')}
           className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={18} aria-hidden="true" />
         </button>
         <div>
           <h1 className="text-2xl font-bold text-slate-100">{t('editLink')}</h1>
@@ -317,7 +348,13 @@ export function EditLink() {
             </Button>
           </div>
         )}
-        {isAdvanced && <div className="flex justify-end"><Button type="button" variant="secondary" onClick={handlePreview} disabled={saving}>{t('previewOpenGraph')}</Button></div>}
+        {isAdvanced && (
+          <div className="flex justify-end">
+            <Button type="button" variant="secondary" onClick={handlePreview} disabled={saving}>
+              {t('previewOpenGraph')}
+            </Button>
+          </div>
+        )}
         {isAdvanced && <PagePreviewCard preview={preview} />}
         {isAdvanced && (
           <LinkSuggestionsPanel
@@ -477,7 +514,31 @@ export function EditLink() {
             disabled={saving}
           />
         )}
-        {isAdvanced && <div className="space-y-3 border-t border-slate-800 pt-5"><div><h2 className="text-sm font-semibold text-slate-200">{t('internalNote')}</h2><p className="text-xs text-slate-500">{t('internalNoteHint')}</p></div><Textarea maxLength={2000} rows={5} value={note} onChange={(e)=>setNote(e.target.value)} placeholder={t('internalNotePlaceholder')} /><div className="flex justify-end"><Button type="button" variant="secondary" loading={noteSaving} onClick={handleSaveNote}>{t('saveNote')}</Button></div></div>}
+        {isAdvanced && (
+          <div className="space-y-3 border-t border-slate-800 pt-5">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-200">{t('internalNote')}</h2>
+              <p className="text-xs text-slate-500">{t('internalNoteHint')}</p>
+            </div>
+            <Textarea
+              maxLength={2000}
+              rows={5}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder={t('internalNotePlaceholder')}
+            />
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="secondary"
+                loading={noteSaving}
+                onClick={handleSaveNote}
+              >
+                {t('saveNote')}
+              </Button>
+            </div>
+          </div>
+        )}
         <Select
           label={t('status')}
           value={form.status}

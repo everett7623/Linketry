@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Sidebar } from './Sidebar';
@@ -11,6 +11,7 @@ import { SidebarUtilityActions } from './sidebar/SidebarUtilityActions';
 import { AdminModeControl, DemoReadOnlyStatus } from './AdminShellControls';
 import { UpdateCheckProvider, useUpdateCheckContext } from '../contexts/UpdateCheckContext';
 import { PageLoading } from './ui/PageLoading';
+import { focusFirst, trapTabKey } from '../utils/focusTrap';
 
 export function Layout() {
   return (
@@ -26,16 +27,31 @@ function LayoutContent() {
   const { t } = useLocale();
   const location = useLocation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const mobileDialogRef = useRef<HTMLDivElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const updateCheck = useUpdateCheckContext();
   const pageLabel = resolvePageLabel(location.pathname);
 
   useEffect(() => {
     if (!mobileSidebarOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusFrame = window.requestAnimationFrame(() => focusFirst(mobileDialogRef.current));
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMobileSidebarOpen(false);
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setMobileSidebarOpen(false);
+        return;
+      }
+      trapTabKey(event, mobileDialogRef.current);
     };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      window.requestAnimationFrame(() => mobileMenuButtonRef.current?.focus());
+    };
   }, [mobileSidebarOpen]);
 
   return (
@@ -49,11 +65,17 @@ function LayoutContent() {
       </div>
 
       {mobileSidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <button
-            type="button"
+        <div
+          ref={mobileDialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('navigationMenu')}
+          tabIndex={-1}
+          className="fixed inset-0 z-40 lg:hidden"
+        >
+          <div
             className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm"
-            aria-label={t('closeNavigation')}
+            aria-hidden="true"
             onClick={() => setMobileSidebarOpen(false)}
           />
           <Sidebar
@@ -95,6 +117,7 @@ function LayoutContent() {
         </div>
         <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur lg:hidden">
           <button
+            ref={mobileMenuButtonRef}
             type="button"
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-slate-800 hover:text-slate-100"
             aria-label={t('openNavigation')}

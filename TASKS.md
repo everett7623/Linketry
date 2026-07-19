@@ -7,7 +7,7 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🔴 In Progress
 
-- [ ] Pre-1.0 accessibility baseline and fresh-account deployment rehearsal
+- [ ] Complete the v0.27.1 guarded production and isolated Demo rollout
 
 ---
 
@@ -15,6 +15,20 @@ One item in "In Progress" at a time whenever possible.
 
 - [ ] Activate/configure optional R2 bindings in the isolated Demo account
 - [ ] Configure the fine-grained `LINKETRY_GITHUB_UPDATE_TOKEN` for one-click upgrades
+
+---
+
+## ✅ Completed - Accessibility And Fresh-account UX (v0.27.1)
+
+- [x] Add automated Axe checks for all core Admin routes, conversion controls, dialogs, themes, and the mobile drawer
+- [x] Trap and restore keyboard focus in shared modals and mobile navigation while preserving Escape dismissal
+- [x] Associate form hints/errors, expose invalid and busy state, and label icon/filter/template controls in English and Chinese
+- [x] Honor reduced-motion preferences and correct tested dark/light muted-text and primary-action contrast
+- [x] Upgrade Admin/site Vite to 6.4.3 and confirm zero known full-tree npm vulnerabilities
+- [x] Publish one fresh-account checklist for scoped Cloudflare credentials, bootstrap, GitHub environments, DNS, R2, first use, upgrade, and rollback
+- [x] Add a deployment-document contract test for repository scoping, DNS-only CNAMEs, and both optional R2 bindings
+- [x] Pass 64 deployment, 82 Worker, 48 Admin unit, 20 Admin browser, 6 Demo API, and 4 site tests plus all builds
+- [x] Preserve redirect stability, asynchronous analytics, migrations, D1/KV ownership, production data, and Demo isolation
 
 ---
 

@@ -15,7 +15,18 @@ The review covered:
 - Production dependency advisories through the official npm registry
 - Current official Shlink, Dub, and Kutt documentation for product comparison
 
-The production dependency audit reported no known vulnerabilities. Major framework upgrades remain separate work because React, Vite, Tailwind, and React Router major releases need dedicated migration testing.
+The complete dependency audit reports no known vulnerabilities. Vite is updated to the supported 6.4 line; React, Tailwind, and React Router major releases remain separate work because they need dedicated migration testing.
+
+## Completed In 0.27.1
+
+| Area | Result |
+| ---- | ------ |
+| Accessibility automation | Axe regression covers Login, Overview, Links, Create/Edit, Analytics, Settings, authenticated dialogs, light theme, and mobile navigation without disabling serious/critical rules. |
+| Keyboard workflows | Shared modals and the mobile drawer move, contain, dismiss, and restore focus; controls expose names, errors, hints, busy state, and live status. |
+| Visual accessibility | Reduced-motion preferences suppress nonessential animation, and maintained dark/light muted text and primary actions pass the tested contrast baseline. |
+| Fresh-account guidance | One owner checklist covers scoped credentials, repository configuration, idempotent Cloudflare bootstrap, DNS-only Demo CNAMEs, optional R2 bindings, first use, upgrades, and rollback. |
+| Deployment documentation contract | Automated checks keep GitHub commands repository-scoped and prevent the Demo DNS/R2 instructions from drifting. |
+| Dependency security | Admin/site use Vite 6.4.3 and the official npm registry reports zero known production or development dependency vulnerabilities. |
 
 ## Completed In 0.27.0
 
@@ -32,11 +43,11 @@ The production dependency audit reported no known vulnerabilities. Major framewo
 
 ### Fresh-account deployment rehearsal
 
-Run the complete beginner path in a new owner-controlled Cloudflare account: repository fork, scoped token, D1/KV creation, first deployment, first login, first domain, first redirect, backup, and upgrade. The automation is implemented; this final external rehearsal remains the strongest release-confidence gap.
+The maintained owner checklist and automation now cover repository setup, scoped credentials, D1/KV creation, first deployment, first login, first domain, first redirect, optional R2 backup, upgrade, and rollback. Before 1.0, repeat the exact checklist in an independent owner-controlled fork/account and retain the evidence; this external validation remains the strongest deployment-confidence gap.
 
-### Accessibility baseline
+### Independent assistive-technology audit
 
-Add automated accessibility checks for Login, Overview, Links, Create/Edit, Analytics, Settings, dialogs, and the mobile navigation drawer. Include keyboard-only navigation, focus return, accessible names, error association, reduced motion, and dark/light contrast checks.
+The automated baseline now covers the core routes, dialogs, mobile navigation, keyboard focus, names, errors, reduced motion, and dark/light contrast. Before 1.0, perform a manual screen-reader and keyboard audit on the remaining advanced routes and publish any browser/assistive-technology limitations.
 
 ### Large-data operating envelope
 

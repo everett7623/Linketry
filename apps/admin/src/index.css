@@ -73,8 +73,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body {
-    transition: none;
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
@@ -111,6 +116,11 @@
 
 [data-theme='light'] .text-purple-400 {
   color: #7e22ce;
+}
+
+[data-theme] .text-slate-500,
+[data-theme] .text-slate-600 {
+  color: rgb(var(--color-slate-400));
 }
 
 [data-theme='light'] .text-sky-400 {

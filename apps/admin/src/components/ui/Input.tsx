@@ -8,7 +8,14 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export function Input({ label, error, hint, className, id, ...props }: InputProps) {
-  const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
+  const generatedId = React.useId().replace(/:/g, '');
+  const inputId = id ?? `input-${generatedId}`;
+  const errorId = `${inputId}-error`;
+  const hintId = `${inputId}-hint`;
+  const describedBy =
+    [props['aria-describedby'], error ? errorId : hint ? hintId : undefined]
+      .filter(Boolean)
+      .join(' ') || undefined;
   return (
     <div className="flex flex-col gap-1">
       {label && (
@@ -19,17 +26,25 @@ export function Input({ label, error, hint, className, id, ...props }: InputProp
       <input
         id={inputId}
         {...props}
+        aria-describedby={describedBy}
+        aria-invalid={error ? true : props['aria-invalid']}
         className={clsx(
           'w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 transition-colors',
           'focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent',
-          error
-            ? 'border-red-500 focus:ring-red-500'
-            : 'border-slate-700 hover:border-slate-600',
+          error ? 'border-red-500 focus:ring-red-500' : 'border-slate-700 hover:border-slate-600',
           className
         )}
       />
-      {error && <p className="text-xs text-red-400">{error}</p>}
-      {hint && !error && <p className="text-xs text-slate-500">{hint}</p>}
+      {error && (
+        <p id={errorId} role="alert" className="text-xs text-red-400">
+          {error}
+        </p>
+      )}
+      {hint && !error && (
+        <p id={hintId} className="text-xs text-slate-500">
+          {hint}
+        </p>
+      )}
     </div>
   );
 }
@@ -40,7 +55,11 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export function Select({ label, error, className, id, children, ...props }: SelectProps) {
-  const selectId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
+  const generatedId = React.useId().replace(/:/g, '');
+  const selectId = id ?? `select-${generatedId}`;
+  const errorId = `${selectId}-error`;
+  const describedBy =
+    [props['aria-describedby'], error ? errorId : undefined].filter(Boolean).join(' ') || undefined;
   return (
     <div className="flex flex-col gap-1">
       {label && (
@@ -51,6 +70,8 @@ export function Select({ label, error, className, id, children, ...props }: Sele
       <select
         id={selectId}
         {...props}
+        aria-describedby={describedBy}
+        aria-invalid={error ? true : props['aria-invalid']}
         className={clsx(
           'w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-slate-100 transition-colors',
           'focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent',
@@ -60,7 +81,11 @@ export function Select({ label, error, className, id, children, ...props }: Sele
       >
         {children}
       </select>
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && (
+        <p id={errorId} role="alert" className="text-xs text-red-400">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -72,7 +97,14 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 }
 
 export function Textarea({ label, error, hint, className, id, ...props }: TextareaProps) {
-  const taId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
+  const generatedId = React.useId().replace(/:/g, '');
+  const taId = id ?? `textarea-${generatedId}`;
+  const errorId = `${taId}-error`;
+  const hintId = `${taId}-hint`;
+  const describedBy =
+    [props['aria-describedby'], error ? errorId : hint ? hintId : undefined]
+      .filter(Boolean)
+      .join(' ') || undefined;
   return (
     <div className="flex flex-col gap-1">
       {label && (
@@ -83,6 +115,8 @@ export function Textarea({ label, error, hint, className, id, ...props }: Textar
       <textarea
         id={taId}
         {...props}
+        aria-describedby={describedBy}
+        aria-invalid={error ? true : props['aria-invalid']}
         className={clsx(
           'w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 transition-colors resize-none',
           'focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent',
@@ -90,8 +124,16 @@ export function Textarea({ label, error, hint, className, id, ...props }: Textar
           className
         )}
       />
-      {error && <p className="text-xs text-red-400">{error}</p>}
-      {hint && !error && <p className="text-xs text-slate-500">{hint}</p>}
+      {error && (
+        <p id={errorId} role="alert" className="text-xs text-red-400">
+          {error}
+        </p>
+      )}
+      {hint && !error && (
+        <p id={hintId} className="text-xs text-slate-500">
+          {hint}
+        </p>
+      )}
     </div>
   );
 }

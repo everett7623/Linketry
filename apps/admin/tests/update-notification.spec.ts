@@ -176,6 +176,7 @@ test('manual update check bypasses a fresh cache and reveals the latest GitHub v
 
   await expect(
     page
+      .getByRole('main')
       .getByRole('status')
       .getByText(messages.en.updateAvailableTitle.replace('{version}', latestVersion))
   ).toBeVisible();
@@ -248,6 +249,7 @@ test('Settings reports release readiness and refreshes the shared update state',
   await expect(releasePanel.getByText(`v${latestVersion}`, { exact: true })).toBeVisible();
   await expect(
     page
+      .getByRole('main')
       .getByRole('status')
       .getByText(messages.en.updateAvailableTitle.replace('{version}', latestVersion))
   ).toBeVisible();
