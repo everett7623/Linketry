@@ -6,6 +6,8 @@
 - Do not commit real `LINKETRY_ADMIN_TOKEN` values.
 - Use `wrangler secret put LINKETRY_ADMIN_TOKEN` for production.
 - Store the optional `LINKETRY_GITHUB_UPDATE_TOKEN` only as a GitHub repository secret and Worker secret. Restrict it to one repository with `Actions: write`; never expose it through `VITE_*` variables.
+- Fresh self-hosting Cloudflare API tokens also need Workers Routes Edit scoped to the selected custom-domain zone; keep R2 and Queues permissions disabled unless those bindings are enabled.
+- The manual-only **Sync Online Upgrade Secret** workflow validates the protected account and Worker inventory before writing that one Worker secret; it cannot deploy code or apply migrations.
 - Keep migration tokens and Shlink API keys out of source control.
 
 ## Admin API

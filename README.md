@@ -218,16 +218,16 @@ wrangler secret put LINKETRY_ADMIN_TOKEN
 
 See `.env.example`, `apps/worker/.dev.vars.example`, and `apps/admin/.env.example` for all required variables.
 
-| Variable                | Description                       |
-| ----------------------- | --------------------------------- |
-| `LINKETRY_ADMIN_TOKEN`         | Bearer token for admin API auth                       |
-| `LINKETRY_GITHUB_UPDATE_TOKEN` | Optional Worker secret for in-app GitHub deployment   |
-| `LINKETRY_UPDATE_REPOSITORY`   | Fixed `owner/repository` online-upgrade target        |
-| `LINKETRY_UPDATE_BRANCH`       | Fixed online-upgrade branch, normally `main`          |
-| `LINKETRY_VERSION`             | Current version string (optional)                     |
-| `VITE_LINKETRY_API_URL`        | API base URL for admin frontend                       |
-| `VITE_LINKETRY_UPDATE_BRANCH`  | Admin version-check branch; must match Worker config  |
-| `VITE_LINKETRY_DEMO_ACCESS_CODE` | Public UX gate for the isolated read-only Demo      |
+| Variable                         | Description                                          |
+| -------------------------------- | ---------------------------------------------------- |
+| `LINKETRY_ADMIN_TOKEN`           | Bearer token for admin API auth                      |
+| `LINKETRY_GITHUB_UPDATE_TOKEN`   | Optional Worker secret for in-app GitHub deployment  |
+| `LINKETRY_UPDATE_REPOSITORY`     | Fixed `owner/repository` online-upgrade target       |
+| `LINKETRY_UPDATE_BRANCH`         | Fixed online-upgrade branch, normally `main`         |
+| `LINKETRY_VERSION`               | Current version string (optional)                    |
+| `VITE_LINKETRY_API_URL`          | API base URL for admin frontend                      |
+| `VITE_LINKETRY_UPDATE_BRANCH`    | Admin version-check branch; must match Worker config |
+| `VITE_LINKETRY_DEMO_ACCESS_CODE` | Public UX gate for the isolated read-only Demo       |
 
 ## Deploy
 
@@ -244,34 +244,24 @@ go.example.com          Worker API + short links (the only custom hostname)
 
 The basic profile requires Worker, D1, KV, Pages, and only the `go.example.com` custom hostname. The first deployment automatically generates `LINKETRY_ADMIN_TOKEN`; a branded Admin domain, R2 backups, Queues, Cron, and a separate public short-link domain remain optional advanced features.
 
-For a reusable open-source setup, configure these GitHub repository values:
+The maintained beginner path is:
 
-Secrets:
-
-```txt
-CLOUDFLARE_API_TOKEN
-CLOUDFLARE_ACCOUNT_ID
+```powershell
+npm ci
+npx wrangler login
+npm run deploy:bootstrap -- --prefix linketry-alice --domain go.example.com --account-id <account-id>
+# Review the dry-run, then repeat it with --apply --confirm <printed-phrase>.
+$repo = 'OWNER/REPOSITORY'
+gh secret set CLOUDFLARE_API_TOKEN --repo $repo
+gh api --method PUT "repos/$repo/environments/production"
+npm run deploy:configure -- --repo $repo --prefix linketry-alice --domain go.example.com --account-id <account-id>
+# Review the dry-run, then repeat it with --apply --confirm <printed-phrase>.
+gh workflow run deploy.yml --repo $repo --ref main --field confirm_release=true
 ```
 
-Variables:
+`deploy:bootstrap` creates or reuses only the required D1 and KV resources. `deploy:configure` safely writes the account secret and complete minimum repository variables, including the exact release, commit, and migration approvals. The deployment workflow creates the Pages project when missing, uploads first-deploy Worker secrets with the Worker, applies migrations, and deploys both services.
 
-```txt
-LINKETRY_API_URL=https://go.example.com
-LINKETRY_PAGES_PROJECT=linketry-admin
-LINKETRY_WORKER_NAME=linketry-worker
-LINKETRY_SHORT_DOMAIN=go.example.com
-LINKETRY_D1_DATABASE_NAME=linketry
-LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
-LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
-LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.15.0
-LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
-LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
-LINKETRY_FRESH_INSTALL_CONFIRMED=true
-```
-
-After the first deploy, open the automatic `https://linketry-admin.pages.dev` URL shown in the workflow summary. The same summary points to the automatically generated token in the **Ensure LINKETRY_ADMIN_TOKEN secret** step. A branded `admin.example.com` domain can be added later, but is not part of the beginner flow.
+After the first deploy, open the automatic `https://linketry-alice-admin.pages.dev` URL shown in the workflow summary. The same summary points to the automatically generated token in the **Prepare Worker secrets** step. Existing installations can use **Sync Online Upgrade Secret** to enable in-app upgrades without deploying a new release. A branded `admin.example.com` domain can be added later, but is not part of the beginner flow.
 
 For the advanced profile, optionally add `LINKETRY_WORKER_DOMAINS`, R2 bucket variables, and `LINKETRY_VISITS_QUEUE` as described in [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
 

@@ -8,6 +8,7 @@ Use this checklist after reading [Self-hosting](SELF_HOSTING.md). It captures th
 
 - Use an account-owned Cloudflare API token, never the Global API Key.
 - Restrict the token to the selected account and grant only Workers Scripts Edit, Workers KV Storage Edit, D1 Edit, and Cloudflare Pages Edit for the basic profile.
+- Grant Workers Routes Edit only for the DNS zone that owns the selected Worker custom domain.
 - Add Workers R2 Storage Edit and Queues Edit only when those optional resources are configured.
 - Never reuse production credentials for a Demo or test account.
 - Never paste a token into an issue, commit, command argument, or chat transcript.
@@ -43,30 +44,27 @@ Rerun the dry-run. It must report the same D1 and KV resources as reusable and m
 
 ## 3. Configure GitHub Without Directory Assumptions
 
-Set the repository once. Each mutation below includes `--repo`, so it works even when PowerShell is opened in the user home directory:
+Set the repository once. The explicit `--repo` boundary keeps commands pointed at the fork even when PowerShell was opened in the user home directory:
 
 ```powershell
 $repo = 'OWNER/REPOSITORY'
 gh secret set CLOUDFLARE_API_TOKEN --repo $repo
-gh secret set CLOUDFLARE_ACCOUNT_ID --repo $repo
 gh api --method PUT "repos/$repo/environments/production"
 ```
 
-`gh secret set` prompts for the value without placing it in shell history. The environment command creates the deployment-history target used by the production workflow; review its branch and approval protection in the repository settings before deployment. Configure the exact release approval values:
+`gh secret set` prompts for the value without placing it in shell history. The environment command creates the deployment-history target used by the production workflow; review its branch and approval protection in the repository settings before deployment. Dry-run the idempotent repository configuration next:
 
 ```powershell
-$repo = 'OWNER/REPOSITORY'
-$release = node -p "require('./package.json').version"
-$commit = git rev-parse HEAD
-$digest = npm run --silent deploy:migration-digest
-gh variable set LINKETRY_APPROVED_RELEASE --body $release --repo $repo
-gh variable set LINKETRY_APPROVED_COMMIT --body $commit --repo $repo
-gh variable set LINKETRY_APPROVED_MIGRATIONS_SHA256 --body $digest --repo $repo
-gh variable set LINKETRY_DEPLOYMENT_TRACK --body fresh --repo $repo
-gh variable set LINKETRY_FRESH_INSTALL_CONFIRMED --body true --repo $repo
+npm run deploy:configure -- --repo $repo --prefix linketry-alice --domain go.example.com --account-id <account-id>
 ```
 
-Add the resource variables printed by the bootstrap through the repository UI or the same `gh variable set ... --repo $repo` form. Do not copy IDs from another Linketry installation.
+Review the masked account, resource IDs, release, commit, migration digest, and confirmation. Apply only with that exact phrase:
+
+```powershell
+npm run deploy:configure -- --repo $repo --prefix linketry-alice --domain go.example.com --account-id <account-id> --apply --confirm <phrase-from-dry-run>
+```
+
+The command verifies the repository, the existing `CLOUDFLARE_API_TOKEN`, and that the reviewed commit is already on the fork's `main` branch. It sends `CLOUDFLARE_ACCOUNT_ID` through standard input and creates the complete minimum variable set. It refuses a dirty worktree and never reads or prints token values. Do not copy IDs from another Linketry installation.
 
 ## 4. Verify Before Deployment
 
@@ -81,7 +79,13 @@ The preflight must identify the intended account, D1 database, and KV namespace 
 
 ## 5. Deploy And Complete First Login
 
-Push the approved commit or manually run **Deploy Linketry**. Verify all of the following:
+Start **Deploy Linketry** with an explicit first-release confirmation:
+
+```powershell
+gh workflow run deploy.yml --repo $repo --ref main --field confirm_release=true
+```
+
+Verify all of the following:
 
 - The workflow run and deployment history both identify the `production` environment.
 - `GET /health` reports the package version.
@@ -92,7 +96,7 @@ Push the approved commit or manually run **Deploy Linketry**. Verify all of the 
 - A disabled link returns the disabled page instead of redirecting.
 - An unauthenticated Admin API request returns 401.
 
-Save the generated Admin token in a password manager before closing the first deployment log.
+Save the generated Admin token from **Prepare Worker secrets** in a password manager before closing the first deployment log.
 
 ## 6. Configure Cross-account Pages DNS
 
@@ -100,10 +104,10 @@ A DNS zone and a Pages project do not have to live in the same Cloudflare accoun
 
 For the official isolated Demo, the zone owner adds DNS-only records:
 
-| Name | Type | Target | Proxy |
-| ---- | ---- | ------ | ----- |
-| `demo` | CNAME | `linketry-demo-admin.pages.dev` | DNS only |
-| `demoapi` | CNAME | `linketry-demo-api.pages.dev` | DNS only |
+| Name      | Type  | Target                          | Proxy    |
+| --------- | ----- | ------------------------------- | -------- |
+| `demo`    | CNAME | `linketry-demo-admin.pages.dev` | DNS only |
+| `demoapi` | CNAME | `linketry-demo-api.pages.dev`   | DNS only |
 
 Then use **Check DNS records** in the Pages project and wait for **Domain activated**. Do not transfer the `linketry.com` zone into the Demo account and do not point either hostname at a production Worker.
 

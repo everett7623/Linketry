@@ -87,7 +87,7 @@ export const messages = {
     tokenExistingHint:
       'The first deployment automatically generates LINKETRY_ADMIN_TOKEN in the Worker; no manual token setup is required.',
     tokenGeneratedHint:
-      'Open GitHub Actions → the first successful “Deploy Linketry” run → “Ensure LINKETRY_ADMIN_TOKEN secret”, then copy the generated token from that one-time log.',
+      'Open GitHub Actions → the first successful “Deploy Linketry” run → “Prepare Worker secrets”, then copy the generated token from that one-time log.',
     tokenSaveHint:
       'Save it in a password manager. Later deployments preserve the Worker token; use a LINKETRY_ADMIN_TOKEN repository secret only to replace a lost token.',
     openTokenGuide: 'Open the first-login guide',
@@ -220,7 +220,7 @@ export const messages = {
     tokenHowToTitle: '如何获取 LINKETRY_ADMIN_TOKEN',
     tokenExistingHint: '首次部署会在 Worker 中自动生成 LINKETRY_ADMIN_TOKEN，无需手动设置令牌。',
     tokenGeneratedHint:
-      '打开 GitHub Actions → 第一次成功的“Deploy Linketry”运行 → “Ensure LINKETRY_ADMIN_TOKEN secret”，从一次性日志中复制令牌。',
+      '打开 GitHub Actions → 第一次成功的“Deploy Linketry”运行 → “Prepare Worker secrets”，从一次性日志中复制令牌。',
     tokenSaveHint:
       '把令牌保存到密码管理器。后续部署会保留 Worker 中的令牌；只有丢失令牌时才需要用 LINKETRY_ADMIN_TOKEN 仓库密钥替换。',
     openTokenGuide: '打开首次登录指南',

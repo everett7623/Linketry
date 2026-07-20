@@ -10,10 +10,10 @@ The official Linketry Demo is a third isolated environment with synthetic data a
 
 The recommended beginner deployment requires one custom Worker hostname; Cloudflare Pages provides the Admin URL automatically:
 
-| Domain type | Purpose | Example |
-|-------------|---------|---------|
-| Admin URL | React admin panel | `linketry-admin.pages.dev` |
-| Worker domain | Short links and `/api/v1/*` | `go.example.com` |
+| Domain type   | Purpose                     | Example                    |
+| ------------- | --------------------------- | -------------------------- |
+| Admin URL     | React admin panel           | `linketry-admin.pages.dev` |
+| Worker domain | Short links and `/api/v1/*` | `go.example.com`           |
 
 Advanced deployments may add `admin.example.com` as a branded Admin domain or split the Worker into `go.example.com` for API access and `s.example.com` for public short links.
 
@@ -154,7 +154,7 @@ routes = [
 ]
 
 [vars]
-LINKETRY_VERSION = "0.15.0"
+LINKETRY_VERSION = "0.27.8"
 
 [[d1_databases]]
 binding = "DB"
@@ -195,7 +195,7 @@ curl https://go.example.com/health
 Expected response:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.15.0"}}
+{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.27.8" } }
 ```
 
 ---
@@ -280,11 +280,11 @@ In the Admin panel, open **Settings**.
 
 Set:
 
-| Setting | Value |
-|---------|-------|
-| Site Name | `Linketry` or your own name |
-| Default Domain | `s.example.com` |
-| Default Redirect Type | `302` |
+| Setting               | Value                       |
+| --------------------- | --------------------------- |
+| Site Name             | `Linketry` or your own name |
+| Default Domain        | `s.example.com`             |
+| Default Redirect Type | `302`                       |
 
 `Default Domain` is used by the Admin UI to copy/open short links. It does not overwrite imported `short_url` values in the database.
 
@@ -299,35 +299,35 @@ For a Shlink migration:
 
 ### Worker Secrets
 
-| Name | Where | Example |
-|------|-------|---------|
+| Name                   | Where                                                        | Example            |
+| ---------------------- | ------------------------------------------------------------ | ------------------ |
 | `LINKETRY_ADMIN_TOKEN` | `wrangler secret put LINKETRY_ADMIN_TOKEN --cwd apps/worker` | long random string |
 
 ### Worker Variables
 
 Defined in `apps/worker/wrangler.toml`:
 
-| Name | Example |
-|------|---------|
-| `LINKETRY_VERSION` | `0.15.0` |
-| `LINKETRY_DAILY_CRON` | `0 18 * * *` |
-| `LINKETRY_HEALTH_CRON` | `0 * * * *` |
+| Name                   | Example      |
+| ---------------------- | ------------ |
+| `LINKETRY_VERSION`     | `0.27.8`     |
+| `LINKETRY_DAILY_CRON`  | `0 18 * * *` |
+| `LINKETRY_HEALTH_CRON` | `0 * * * *`  |
 
 ### Worker Bindings
 
 Defined in `apps/worker/wrangler.toml`:
 
-| Binding | Cloudflare product | Purpose |
-|---------|--------------------|---------|
-| `DB` | D1 | Source of truth |
-| `KV` | KV | Redirect cache |
-| `BACKUPS` | R2 | Backup snapshot storage |
-| `VISITS_QUEUE` | Queues | Asynchronous visit statistics |
+| Binding        | Cloudflare product | Purpose                       |
+| -------------- | ------------------ | ----------------------------- |
+| `DB`           | D1                 | Source of truth               |
+| `KV`           | KV                 | Redirect cache                |
+| `BACKUPS`      | R2                 | Backup snapshot storage       |
+| `VISITS_QUEUE` | Queues             | Asynchronous visit statistics |
 
 ### Admin Build Variable
 
-| Name | Where | Example |
-|------|-------|---------|
+| Name                    | Where                 | Example                  |
+| ----------------------- | --------------------- | ------------------------ |
 | `VITE_LINKETRY_API_URL` | Build env / Pages env | `https://go.example.com` |
 
 ### GitHub Actions Secrets And Variables
@@ -336,40 +336,40 @@ The `.github/workflows/deploy.yml` workflow always installs dependencies, type-c
 
 It applies D1 migrations and deploys the Worker only when these repository secrets are configured:
 
-| Name | Purpose |
-|------|---------|
-| `CLOUDFLARE_API_TOKEN` | Authenticates Wrangler in GitHub Actions |
+| Name                       | Purpose                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`     | Authenticates Wrangler in GitHub Actions                                      |
 | `CLOUDFLARE_DNS_API_TOKEN` | Optional; Zone Read and DNS Write token for automatic Admin CNAME maintenance |
-| `CLOUDFLARE_ACCOUNT_ID` | Selects the Cloudflare account for Worker and Pages deploys |
+| `CLOUDFLARE_ACCOUNT_ID`    | Selects the Cloudflare account for Worker and Pages deploys                   |
 
 It deploys Admin only when the Cloudflare secrets and these repository variables are configured:
 
-| Name | Example | Purpose |
-|------|---------|---------|
-| `LINKETRY_ADMIN_URL` | `https://admin.example.com` | Optional: overrides the automatic Pages URL in the deployment summary after adding a branded Admin domain |
-| `LINKETRY_API_URL` | `https://go.example.com` | Builds Admin with the stable Worker API origin |
-| `LINKETRY_PAGES_PROJECT` | `linketry-admin` | Selects the Cloudflare Pages project |
-| `LINKETRY_WORKER_NAME` | `linketry-worker` | Generates the Worker config name |
-| `LINKETRY_WORKER_DOMAINS` | `go.example.com,s.example.com` | Generates one or more Worker custom domain routes |
-| `LINKETRY_SHORT_DOMAIN` | `go.example.com` | Legacy single-domain fallback when `LINKETRY_WORKER_DOMAINS` is not set |
-| `LINKETRY_D1_DATABASE_NAME` | `linketry` | Generates the D1 binding database name |
-| `LINKETRY_D1_DATABASE_ID` | `<id>` | Generates the D1 binding database ID |
-| `LINKETRY_KV_NAMESPACE_ID` | `<id>` | Generates the production KV binding ID |
-| `LINKETRY_KV_PREVIEW_ID` | `<id>` | Generates the preview KV binding ID |
-| `LINKETRY_R2_BUCKET` | `linketry-backups` | Optional: generates the R2 backup bucket binding |
-| `LINKETRY_R2_PREVIEW_BUCKET` | `linketry-backups-dev` | Optional: generates the preview R2 bucket binding |
-| `LINKETRY_VISITS_QUEUE` | `linketry-visits` | Optional: generates queue producer and consumer bindings |
-| `LINKETRY_SITE_PROJECT` | `linketry-site` | Optional maintainer Pages project for the official product site |
-| `LINKETRY_SITE_URL` | `https://linketry.com` | Optional canonical project-site URL shown in deployment summaries |
+| Name                         | Example                        | Purpose                                                                                                   |
+| ---------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `LINKETRY_ADMIN_URL`         | `https://admin.example.com`    | Optional: overrides the automatic Pages URL in the deployment summary after adding a branded Admin domain |
+| `LINKETRY_API_URL`           | `https://go.example.com`       | Builds Admin with the stable Worker API origin                                                            |
+| `LINKETRY_PAGES_PROJECT`     | `linketry-admin`               | Selects the Cloudflare Pages project                                                                      |
+| `LINKETRY_WORKER_NAME`       | `linketry-worker`              | Generates the Worker config name                                                                          |
+| `LINKETRY_WORKER_DOMAINS`    | `go.example.com,s.example.com` | Generates one or more Worker custom domain routes                                                         |
+| `LINKETRY_SHORT_DOMAIN`      | `go.example.com`               | Legacy single-domain fallback when `LINKETRY_WORKER_DOMAINS` is not set                                   |
+| `LINKETRY_D1_DATABASE_NAME`  | `linketry`                     | Generates the D1 binding database name                                                                    |
+| `LINKETRY_D1_DATABASE_ID`    | `<id>`                         | Generates the D1 binding database ID                                                                      |
+| `LINKETRY_KV_NAMESPACE_ID`   | `<id>`                         | Generates the production KV binding ID                                                                    |
+| `LINKETRY_KV_PREVIEW_ID`     | `<id>`                         | Generates the preview KV binding ID                                                                       |
+| `LINKETRY_R2_BUCKET`         | `linketry-backups`             | Optional: generates the R2 backup bucket binding                                                          |
+| `LINKETRY_R2_PREVIEW_BUCKET` | `linketry-backups-dev`         | Optional: generates the preview R2 bucket binding                                                         |
+| `LINKETRY_VISITS_QUEUE`      | `linketry-visits`              | Optional: generates queue producer and consumer bindings                                                  |
+| `LINKETRY_SITE_PROJECT`      | `linketry-site`                | Optional maintainer Pages project for the official product site                                           |
+| `LINKETRY_SITE_URL`          | `https://linketry.com`         | Optional canonical project-site URL shown in deployment summaries                                         |
 
 Every Cloudflare-enabled workflow run also requires exact deployment approvals:
 
-| Name | Example | Purpose |
-|------|---------|---------|
-| `LINKETRY_DEPLOYMENT_TRACK` | `upgrade` | Allows only the reviewed `fresh` or `upgrade` path; Demo is rejected here |
-| `LINKETRY_APPROVED_RELEASE` | `0.15.0` | Must match the root package version |
-| `LINKETRY_APPROVED_COMMIT` | `<40-character SHA>` | Must match the commit being deployed |
-| `LINKETRY_APPROVED_MIGRATIONS_SHA256` | `<digest>` | Must match `npm run deploy:migration-digest` |
+| Name                                  | Example              | Purpose                                                                   |
+| ------------------------------------- | -------------------- | ------------------------------------------------------------------------- |
+| `LINKETRY_DEPLOYMENT_TRACK`           | `upgrade`            | Allows only the reviewed `fresh` or `upgrade` path; Demo is rejected here |
+| `LINKETRY_APPROVED_RELEASE`           | `0.27.8`             | Must match the root package version                                       |
+| `LINKETRY_APPROVED_COMMIT`            | `<40-character SHA>` | Must match the commit being deployed                                      |
+| `LINKETRY_APPROVED_MIGRATIONS_SHA256` | `<digest>`           | Must match `npm run deploy:migration-digest`                              |
 
 Fresh installs additionally set `LINKETRY_FRESH_INSTALL_CONFIRMED=true`. Existing installs set the backup, migration-review, and target-confirmation variables documented in [Deployment Preflight](docs/DEPLOYMENT_PREFLIGHT.md). The gate runs before Worker-secret, D1 migration, Worker deploy, or Pages deploy writes.
 
@@ -377,7 +377,7 @@ If either Cloudflare secret is missing, the workflow skips all Cloudflare migrat
 If either Admin variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.
 If any core Worker variable is missing, the workflow skips Worker deploy instead of relying on a committed production `wrangler.toml`. Missing R2 and Queue variables only disable those advanced bindings.
 
-On the first successful deployment, the workflow automatically creates `LINKETRY_ADMIN_TOKEN` as a Worker secret and prints it once in the **Ensure LINKETRY_ADMIN_TOKEN secret** step. Later deployments preserve the existing Worker secret. If the token is lost, set a replacement GitHub repository secret named `LINKETRY_ADMIN_TOKEN` and rerun deployment once.
+On the first successful deployment, the workflow generates `LINKETRY_ADMIN_TOKEN` and uploads it alongside the first Worker deployment, then prints it once in the **Prepare Worker secrets** step. Later deployments preserve the existing Worker secret. If the token is lost, set a replacement GitHub repository secret named `LINKETRY_ADMIN_TOKEN` and rerun deployment once.
 
 ### Official Project Site
 

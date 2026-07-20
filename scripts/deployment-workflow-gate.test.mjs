@@ -188,16 +188,16 @@ test('production workflow runs the safety gate before every Cloudflare write', (
     'utf8'
   );
   const gate = workflow.indexOf('- name: Enforce deployment safety gate');
-  const secret = workflow.indexOf('- name: Ensure LINKETRY_ADMIN_TOKEN secret');
-  const updateSecret = workflow.indexOf('- name: Configure optional online-upgrade secret');
+  const pagesProject = workflow.indexOf('- name: Ensure Admin Pages project');
+  const secrets = workflow.indexOf('- name: Prepare Worker secrets');
   const migrations = workflow.indexOf('- name: Apply D1 migrations');
   const deploy = workflow.indexOf('- name: Deploy Worker');
   const siteDeploy = workflow.indexOf('- name: Deploy project site');
 
   assert.ok(gate > -1);
-  assert.ok(gate < secret);
-  assert.ok(secret < updateSecret);
-  assert.ok(updateSecret < migrations);
+  assert.ok(gate < pagesProject);
+  assert.ok(pagesProject < secrets);
+  assert.ok(secrets < migrations);
   assert.ok(migrations < deploy);
   assert.ok(deploy < siteDeploy);
   for (const name of [
@@ -226,5 +226,36 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   );
   assert.match(workflow, /LINKETRY_UPDATE_REPOSITORY: \$\{\{ github\.repository \}\}/);
   assert.match(workflow, /LINKETRY_UPDATE_BRANCH: \$\{\{ github\.ref_name \}\}/);
+  assert.match(workflow, /node scripts\/pages-project-inventory\.mjs --has/);
+  assert.match(workflow, /inventory_status=\$\?/);
+  assert.match(workflow, /inventory_status" -ne 1/);
+  assert.match(workflow, /wrangler pages project create/);
+  assert.match(workflow, /wrangler deploy --secrets-file/);
+  assert.match(workflow, /secrets\.LINKETRY_ADMIN_TOKEN/);
+  assert.match(workflow, /secrets\.LINKETRY_GITHUB_UPDATE_TOKEN/);
+  assert.doesNotMatch(workflow, /wrangler secret put LINKETRY_ADMIN_TOKEN/);
+  assert.doesNotMatch(workflow, /VITE_[A-Z0-9_]*GITHUB_UPDATE_TOKEN/);
+});
+
+test('online-upgrade secret sync cannot deploy code or target an unprotected Worker', () => {
+  const workflow = readFileSync(
+    new URL('../.github/workflows/sync-online-upgrade-secret.yml', import.meta.url),
+    'utf8'
+  );
+  const validation = workflow.indexOf('- name: Validate protected Worker target');
+  const secretWrite = workflow.indexOf('- name: Sync Worker online-upgrade secret');
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\n\s*push:/);
+  assert.ok(validation > -1);
+  assert.ok(validation < secretWrite);
+  assert.match(workflow, /LINKETRY_PROTECTED_ACCOUNT_IDS/);
+  assert.match(workflow, /LINKETRY_PROTECTED_RESOURCE_NAMES/);
+  assert.match(workflow, /LINKETRY_CONFIRMED_WORKER\.trim\(\) !== workerName/);
+  assert.match(
+    workflow,
+    /wrangler secret put LINKETRY_GITHUB_UPDATE_TOKEN --name "\$LINKETRY_WORKER_NAME"/
+  );
+  assert.doesNotMatch(workflow, /wrangler (?:deploy|d1 migrations apply|pages deploy)/);
   assert.doesNotMatch(workflow, /VITE_[A-Z0-9_]*GITHUB_UPDATE_TOKEN/);
 });

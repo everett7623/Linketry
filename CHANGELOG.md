@@ -13,6 +13,39 @@ _(none)_
 
 ---
 
+## [0.27.8] - 2026-07-20
+
+### Added
+
+- Added an idempotent `deploy:configure` dry-run/apply command that discovers the exact bootstrap resources, validates clean release metadata, and configures the minimum GitHub Actions secrets and variables for a fresh fork.
+- Added a manual-only **Sync Online Upgrade Secret** workflow that can update the protected production Worker capability without deploying code, applying migrations, or changing the running version.
+- Added deployment contract coverage for beginner documentation, repository boundaries, first-deploy Pages creation, Worker secrets-file deployment, and protected online-upgrade secret synchronization.
+
+### Changed
+
+- The production workflow now creates a missing Admin Pages project after the deployment safety gate and uploads generated or configured Worker secrets alongside the first Worker deployment.
+- README, self-hosting, deployment, and fresh-account rehearsal guides now use one recommended beginner path and label local Wrangler deployment as an advanced alternative.
+- Cloudflare token guidance now includes zone-scoped Workers Routes Edit for the selected custom domain and keeps R2/Queues permissions optional.
+
+### Fixed
+
+- Removed stale release and required KV preview examples that could block or misdirect a first-time installation.
+- Corrected first-login guidance to point to the renamed **Prepare Worker secrets** workflow step and to the prefix-derived Pages URL.
+- Pages project inventory failures now stop safely instead of being treated as a missing project.
+
+### Security
+
+- GitHub repository identity, protected Cloudflare account/resource inventories, clean commits, and exact confirmation phrases are verified before the new commands can write.
+- Cloudflare and GitHub token values remain outside command arguments, logs, Admin builds, and committed files.
+- Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, production data, and Demo isolation are unchanged.
+
+### Tests
+
+- Passed 72 deployment, 84 Worker, 58 Admin unit, 25 Admin browser, 6 Demo API, and 4 project-site tests.
+- Passed Worker type-check, Admin/Site production builds, and the full official npm registry audit with zero known vulnerabilities.
+
+---
+
 ## [0.27.7] - 2026-07-20
 
 ### Fixed

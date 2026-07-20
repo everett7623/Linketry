@@ -21,7 +21,27 @@ Advanced optional hostnames:
 
 Do not cut over an existing production short domain until imported links have been tested while the stable Linketry API domain remains reachable.
 
-## Worker
+## Recommended Fresh Install
+
+Use the guarded beginner path from a clean clone of your fork:
+
+```powershell
+npm ci
+npx wrangler login
+npm run deploy:bootstrap -- --prefix linketry-alice --domain go.example.com --account-id <account-id>
+# Review, then repeat with --apply --confirm <printed-phrase>.
+$repo = 'OWNER/REPOSITORY'
+gh secret set CLOUDFLARE_API_TOKEN --repo $repo
+npm run deploy:configure -- --repo $repo --prefix linketry-alice --domain go.example.com --account-id <account-id>
+# Review, then repeat with --apply --confirm <printed-phrase>.
+gh workflow run deploy.yml --repo $repo --ref main --field confirm_release=true
+```
+
+The Cloudflare token needs Workers Scripts Edit, Workers KV Storage Edit, D1 Edit, Cloudflare Pages Edit, and Workers Routes Edit restricted to the custom-domain zone. The workflow creates a missing Admin Pages project and uploads first-deploy secrets alongside the Worker; no manual Pages project or Worker-secret pre-creation is required.
+
+See [SELF_HOSTING.md](SELF_HOSTING.md) for the exact apply commands, token boundaries, first-login token, optional resources, and smoke test.
+
+## Manual Worker Alternative
 
 ```bash
 npm install
@@ -42,7 +62,7 @@ wrangler secret put LINKETRY_ADMIN_TOKEN
 
 Never commit `.dev.vars` or real tokens.
 
-## Admin
+## Manual Admin Alternative
 
 Build the Admin with the Worker domain as API base:
 
@@ -59,11 +79,12 @@ The repository includes `.github/workflows/deploy.yml`. On every push to `main`,
 1. install dependencies
 2. type-check the Worker
 3. build Admin with `VITE_LINKETRY_API_URL` from the `LINKETRY_API_URL` repository variable
-4. deploy the Worker, only when Cloudflare repository secrets are configured
-5. deploy Admin to the Pages project named by `LINKETRY_PAGES_PROJECT`, only when Cloudflare repository secrets and variables are configured
+4. create the Admin Pages project when it does not exist
+5. deploy the Worker with first-deploy or preserved secrets, only when Cloudflare repository secrets are configured
+6. deploy Admin to the Pages project named by `LINKETRY_PAGES_PROJECT`, only when Cloudflare repository secrets and variables are configured
+7. optionally deploy the official project site when `LINKETRY_SITE_PROJECT` is configured
 
 The `deploy` job is bound to the GitHub environment named `production`. Create and review that environment before the first production run so GitHub records production deployment history separately from the protected `linketry-demo` environment. Repository-level variables and secrets remain available to the job; they do not need to be copied merely to enable deployment tracking.
-6. optionally deploy the official project site when `LINKETRY_SITE_PROJECT` is configured
 
 Add these GitHub repository secrets before relying on automatic deployment:
 
@@ -72,9 +93,9 @@ CLOUDFLARE_API_TOKEN
 CLOUDFLARE_ACCOUNT_ID
 ```
 
-Optional in-app upgrades use `LINKETRY_GITHUB_UPDATE_TOKEN`, a fine-grained token restricted to this repository with **Actions: write**. The workflow stores it as a Worker secret; the Admin browser never receives it. Leave it unset to retain the manual Actions upgrade flow.
+Optional in-app upgrades use `LINKETRY_GITHUB_UPDATE_TOKEN`, a fine-grained token restricted to this repository with **Actions: write**. The deploy workflow stores it as a Worker secret; the Admin browser never receives it. Existing installations can run the manual-only **Sync Online Upgrade Secret** workflow to update only that secret without deploying code or running migrations. Leave it unset to retain the manual Actions upgrade flow.
 
-Add these GitHub repository variables:
+Run `npm run deploy:configure` as documented above to create and verify these minimum repository variables:
 
 ```txt
 LINKETRY_API_URL=https://go.example.com
@@ -84,21 +105,18 @@ LINKETRY_SHORT_DOMAIN=go.example.com
 LINKETRY_D1_DATABASE_NAME=linketry
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
-LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.27.7
+LINKETRY_APPROVED_RELEASE=0.27.8
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<output-of-npm-run-deploy:migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
-LINKETRY_SITE_PROJECT=linketry-site
-LINKETRY_SITE_URL=https://linketry.com
 ```
 
 The workflow validates these exact approvals and the selected account/resources before any Cloudflare write. For later releases, switch the track to `upgrade` and configure the verified-backup gates in [DEPLOYMENT_PREFLIGHT.md](DEPLOYMENT_PREFLIGHT.md).
 
-Optional advanced variables: `LINKETRY_WORKER_DOMAINS`, `LINKETRY_R2_BUCKET`, `LINKETRY_R2_PREVIEW_BUCKET`, and `LINKETRY_VISITS_QUEUE`.
+Optional advanced variables: `LINKETRY_KV_PREVIEW_ID`, `LINKETRY_WORKER_DOMAINS`, `LINKETRY_R2_BUCKET`, `LINKETRY_R2_PREVIEW_BUCKET`, and `LINKETRY_VISITS_QUEUE`. `LINKETRY_SITE_PROJECT` and `LINKETRY_SITE_URL` are official-project maintainer settings, not self-hosting requirements.
 
-The basic Cloudflare API token needs Workers, D1, KV, and Pages deployment permissions. Add R2 and Queues permissions only when those advanced resources are configured.
+The basic Cloudflare API token needs Workers Scripts, D1, KV, Pages, and zone-scoped Workers Routes permissions. Add R2 and Queues permissions only when those advanced resources are configured.
 
 If either secret is missing, the workflow intentionally skips Cloudflare deployment after the type-check and Admin build pass. Use manual Wrangler deploys until the secrets are configured.
 If an Admin variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.

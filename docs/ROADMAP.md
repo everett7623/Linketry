@@ -169,6 +169,17 @@ Status: complete and deployed to production and the isolated Demo.
 - Admin and site use Vite 6.4.3, and the complete npm dependency tree reports no known vulnerabilities through the official registry
 - Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
 
+## 0.27.8: Beginner Deployment Automation
+
+Status: complete in the repository; production intentionally remains on 0.27.7 for the owner-controlled upgrade rehearsal.
+
+- One dry-run/apply command configures the exact GitHub repository, Cloudflare account secret, core resource variables, and release approvals
+- The production workflow creates a missing Admin Pages project and includes Worker secrets in the first code deployment
+- A protected manual-only workflow can sync the optional GitHub update capability without deploying code or migrations
+- Beginner documentation uses one recommended path and includes the required zone-scoped Workers Routes permission
+- Deployment contracts cover command safety, workflow ordering, inventory failures, documentation drift, and protected secret synchronization
+- Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
+
 ## Long-Term Product Principles
 
 Linketry is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.

@@ -187,6 +187,7 @@ npm run test:deployment
 npm run build:admin
 npm run build:site
 npm run type-check --workspace=apps/worker
+node scripts/deployment-github-config.mjs --help
 git diff --check
 ```
 
@@ -208,7 +209,7 @@ Run the read-only preflight before deployment:
 npm run deploy:preflight -- --track <fresh|upgrade|demo> --check-cloudflare
 ```
 
-Fresh provisioning starts with deploy:bootstrap dry-run. Production and Demo workflows must pass their safety gate before any Cloudflare write.
+Fresh provisioning starts with `deploy:bootstrap` dry-run and continues with `deploy:configure` dry-run/apply once the exact fork commit is on `main`. Production and Demo workflows must pass their safety gate before any Cloudflare write. The manual-only **Sync Online Upgrade Secret** workflow changes only the protected Worker's update capability; it never deploys code or runs migrations.
 
 ## Release Hygiene
 

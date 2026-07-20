@@ -52,7 +52,7 @@ LINKETRY_KV_NAMESPACE_ID
 
 `LINKETRY_KV_PREVIEW_ID`, both R2 bucket variables, the Queue, branded Admin URL, extra Worker domains, and advanced Cron settings remain optional. Configure `LINKETRY_R2_BUCKET` and `LINKETRY_R2_PREVIEW_BUCKET` together.
 
-Do not put real tokens in a committed environment file. Set them in the current shell, a password manager, or GitHub Actions secrets. A manual local run may omit `CLOUDFLARE_API_TOKEN` when Wrangler is already authenticated; `--check-cloudflare` then verifies that login directly.
+Do not put real tokens in a committed environment file. Set them in the current shell, a password manager, or GitHub Actions secrets. Fresh CI tokens need Workers Scripts Edit, Workers KV Storage Edit, D1 Edit, Cloudflare Pages Edit, and Workers Routes Edit scoped to the selected custom-domain zone. A manual local run may omit `CLOUDFLARE_API_TOKEN` when Wrangler is already authenticated; `--check-cloudflare` then verifies that login directly.
 
 ## Fresh Self-Hosting
 

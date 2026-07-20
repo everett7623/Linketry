@@ -17,33 +17,47 @@ The review covered:
 
 The complete dependency audit reports no known vulnerabilities. Vite is updated to the supported 6.4 line; React, Tailwind, and React Router major releases remain separate work because they need dedicated migration testing.
 
+## Completed In 0.27.8
+
+| Area                   | Result                                                                                                                                                            |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Beginner configuration | One idempotent command derives and verifies the minimum GitHub secret/variable plan from the exact Cloudflare bootstrap resources and clean release metadata.     |
+| First deployment       | The guarded workflow creates a missing Pages project and uploads the generated Admin token with the first Worker deployment.                                      |
+| Credential boundaries  | The Cloudflare token permission list includes the required zone-scoped Workers Routes permission; token values remain outside arguments, logs, builds, and files. |
+| Upgrade rehearsal      | An existing protected Worker can receive the optional online-upgrade secret without deploying code or applying migrations.                                        |
+| Documentation contract | README, self-hosting, deployment, and fresh-account guidance are tested as one recommended beginner path.                                                         |
+
 ## Completed In 0.27.1
 
-| Area | Result |
-| ---- | ------ |
-| Accessibility automation | Axe regression covers Login, Overview, Links, Create/Edit, Analytics, Settings, authenticated dialogs, light theme, and mobile navigation without disabling serious/critical rules. |
-| Keyboard workflows | Shared modals and the mobile drawer move, contain, dismiss, and restore focus; controls expose names, errors, hints, busy state, and live status. |
-| Visual accessibility | Reduced-motion preferences suppress nonessential animation, and maintained dark/light muted text and primary actions pass the tested contrast baseline. |
-| Fresh-account guidance | One owner checklist covers scoped credentials, repository configuration, idempotent Cloudflare bootstrap, DNS-only Demo CNAMEs, optional R2 bindings, first use, upgrades, and rollback. |
-| Deployment documentation contract | Automated checks keep GitHub commands repository-scoped and prevent the Demo DNS/R2 instructions from drifting. |
-| Dependency security | Admin/site use Vite 6.4.3 and the official npm registry reports zero known production or development dependency vulnerabilities. |
+| Area                              | Result                                                                                                                                                                                   |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Accessibility automation          | Axe regression covers Login, Overview, Links, Create/Edit, Analytics, Settings, authenticated dialogs, light theme, and mobile navigation without disabling serious/critical rules.      |
+| Keyboard workflows                | Shared modals and the mobile drawer move, contain, dismiss, and restore focus; controls expose names, errors, hints, busy state, and live status.                                        |
+| Visual accessibility              | Reduced-motion preferences suppress nonessential animation, and maintained dark/light muted text and primary actions pass the tested contrast baseline.                                  |
+| Fresh-account guidance            | One owner checklist covers scoped credentials, repository configuration, idempotent Cloudflare bootstrap, DNS-only Demo CNAMEs, optional R2 bindings, first use, upgrades, and rollback. |
+| Deployment documentation contract | Automated checks keep GitHub commands repository-scoped and prevent the Demo DNS/R2 instructions from drifting.                                                                          |
+| Dependency security               | Admin/site use Vite 6.4.3 and the official npm registry reports zero known production or development dependency vulnerabilities.                                                         |
 
 ## Completed In 0.27.0
 
-| Area | Result |
-| ---- | ------ |
-| Analytics filters | The date range stays visible while the fourteen attribution fields move behind an explicit Advanced filters control. Saved views reopen advanced fields when needed. |
-| Conversion semantics | The Admin now calls the metric Event Rate and shows the human-click denominator, avoiding the impression that it is a session/user conversion rate. |
-| Conversion value | Currency-separated totals already stored by the API are now summarized in Analytics, per-link Analytics, and CSV exports. |
-| Mobile Analytics | The first viewport is no longer dominated by the complete filter form, and expanded filters retain zero horizontal overflow. |
-| Admin loading | Authenticated pages are route-split. The production entry chunk decreased from about 573.7 KB to 298.0 KB before gzip. |
-| Visual consistency | Analytics operational panels use the same bounded border radius and section treatment. |
+| Area                 | Result                                                                                                                                                               |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Analytics filters    | The date range stays visible while the fourteen attribution fields move behind an explicit Advanced filters control. Saved views reopen advanced fields when needed. |
+| Conversion semantics | The Admin now calls the metric Event Rate and shows the human-click denominator, avoiding the impression that it is a session/user conversion rate.                  |
+| Conversion value     | Currency-separated totals already stored by the API are now summarized in Analytics, per-link Analytics, and CSV exports.                                            |
+| Mobile Analytics     | The first viewport is no longer dominated by the complete filter form, and expanded filters retain zero horizontal overflow.                                         |
+| Admin loading        | Authenticated pages are route-split. The production entry chunk decreased from about 573.7 KB to 298.0 KB before gzip.                                               |
+| Visual consistency   | Analytics operational panels use the same bounded border radius and section treatment.                                                                               |
 
 ## P0 Before 1.0
 
 ### Fresh-account deployment rehearsal
 
-The maintained owner checklist and automation now cover repository setup, scoped credentials, D1/KV creation, first deployment, first login, first domain, first redirect, optional R2 backup, upgrade, and rollback. Before 1.0, repeat the exact checklist in an independent owner-controlled fork/account and retain the evidence; this external validation remains the strongest deployment-confidence gap.
+The maintained owner checklist and automation now cover repository setup, scoped credentials, D1/KV creation, first deployment, first login, first domain, first redirect, optional R2 backup, upgrade, and rollback. Before 1.0, repeat the exact checklist in an independent owner-controlled fork/account and retain the evidence; local automation and contract tests do not replace this external validation.
+
+### Public Demo redirect-domain reachability
+
+The Admin and API have branded Pages domains, but seeded short links still use the isolated account's `workers.dev` origin. Before 1.0, add and verify an isolated branded redirect hostname so public Demo redirects do not depend on regional `workers.dev` reachability; never reuse production routes or data.
 
 ### Independent assistive-technology audit
 

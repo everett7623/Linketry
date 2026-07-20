@@ -4,29 +4,29 @@ Linketry 的核心定位是**自托管短链接管理、访问分析与健康监
 
 > 来源：Shlink 官方功能、API key roles 与 advanced redirect 文档。
 > 最近复核：2026-07-19
-> 对应 Linketry 版本：0.27.1
+> 对应 Linketry 版本：0.27.8
 
 ---
 
 ## 已对齐的核心能力
 
-| 能力 | Linketry 状态 | 备注 |
-|------|-------------|------|
-| 短链创建/编辑/删除 | ✅ | `/api/v1/links` 完整 CRUD |
-| 自定义 slug | ✅ | 支持单段 slug |
-| 多域名 | ✅ | 域名目录、默认域名、启停与迁移 UI 已实现 |
-| 301/302 重定向 | ✅ | `redirect_type` 支持 301 和 302 |
-| 访问统计 | ✅ | `visits` 表记录国家、浏览器、设备、referer、UA 等 |
-| 机器人标记 | ✅ | `visits.is_bot` + `analytics/botDetection.ts` |
-| 标签 | ✅ | 标签 CRUD 与导入导出 |
-| 公开统计页 | ✅ | `publicStats` 模块 |
-| QR 码 | ✅ | Admin 列表支持生成并下载 PNG |
-| 导入/导出 | ✅ | Shlink、Generic CSV/JSON/JSONL、Linketry backup |
-| 重定向规则 | ✅ | country/device/browser/language/referer/weighted |
-| Webhook | ✅ | 导入、健康和运维事件已支持；`link.clicked` 仍列为异步增强项 |
-| API Token | ✅ | 已支持 read/write/admin scopes、哈希存储、撤销与最后使用时间 |
-| 密码保护 | ✅ | `links.password_hash` |
-| 过期/点击上限 | ✅ | Create/Edit/List/redirect 状态均已支持；自动清理仍未实现 |
+| 能力               | Linketry 状态 | 备注                                                         |
+| ------------------ | ------------- | ------------------------------------------------------------ |
+| 短链创建/编辑/删除 | ✅            | `/api/v1/links` 完整 CRUD                                    |
+| 自定义 slug        | ✅            | 支持单段 slug                                                |
+| 多域名             | ✅            | 域名目录、默认域名、启停与迁移 UI 已实现                     |
+| 301/302 重定向     | ✅            | `redirect_type` 支持 301 和 302                              |
+| 访问统计           | ✅            | `visits` 表记录国家、浏览器、设备、referer、UA 等            |
+| 机器人标记         | ✅            | `visits.is_bot` + `analytics/botDetection.ts`                |
+| 标签               | ✅            | 标签 CRUD 与导入导出                                         |
+| 公开统计页         | ✅            | `publicStats` 模块                                           |
+| QR 码              | ✅            | Admin 列表支持生成并下载 PNG                                 |
+| 导入/导出          | ✅            | Shlink、Generic CSV/JSON/JSONL、Linketry backup              |
+| 重定向规则         | ✅            | country/device/browser/language/referer/weighted             |
+| Webhook            | ✅            | 导入、健康和运维事件已支持；`link.clicked` 仍列为异步增强项  |
+| API Token          | ✅            | 已支持 read/write/admin scopes、哈希存储、撤销与最后使用时间 |
+| 密码保护           | ✅            | `links.password_hash`                                        |
+| 过期/点击上限      | ✅            | Create/Edit/List/redirect 状态均已支持；自动清理仍未实现     |
 
 ---
 
@@ -114,15 +114,15 @@ Linketry 的核心定位是**自托管短链接管理、访问分析与健康监
 
 ## 优先级建议
 
-| 优先级 | 能力 | 理由 |
-|--------|------|------|
-| 🔴 高 | 查询参数 forwarding | 已实现于 v0.9.12 |
-| 🔴 高 | 标题自动解析 | 已实现于 v0.9.12 |
-| 🟡 中 | 多段 slug / 额外路径转发 | 品牌Campaign需要，但涉及路由匹配改动 |
-| 🟡 中 | 过期链接自动清理 | 运维需要，可与现有 Cron 框架结合 |
-| 🟡 中 | API Token 域名/所有权角色 | 基础 scopes 已完成，继续收紧自动化最小权限 |
-| 🟢 低 | 实时事件推送 | 集成增强，可用 Webhook 先替代 |
-| 🟢 低 | 邮件追踪 |  niche 场景，V4+ 再考虑 |
+| 优先级 | 能力                      | 理由                                       |
+| ------ | ------------------------- | ------------------------------------------ |
+| 🔴 高  | 查询参数 forwarding       | 已实现于 v0.9.12                           |
+| 🔴 高  | 标题自动解析              | 已实现于 v0.9.12                           |
+| 🟡 中  | 多段 slug / 额外路径转发  | 品牌Campaign需要，但涉及路由匹配改动       |
+| 🟡 中  | 过期链接自动清理          | 运维需要，可与现有 Cron 框架结合           |
+| 🟡 中  | API Token 域名/所有权角色 | 基础 scopes 已完成，继续收紧自动化最小权限 |
+| 🟢 低  | 实时事件推送              | 集成增强，可用 Webhook 先替代              |
+| 🟢 低  | 邮件追踪                  | niche 场景，V4+ 再考虑                     |
 
 ---
 

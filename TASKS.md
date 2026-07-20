@@ -113,6 +113,21 @@ Task record: `.codex/tasks/mainstream-import-adapters-2026-07-20.md`
 
 ---
 
+## ✅ Completed - Beginner Deployment Automation (v0.27.8)
+
+- [x] Add idempotent dry-run/apply GitHub repository configuration with exact confirmation and repository verification
+- [x] Configure the account secret through standard input and derive all required variables from bootstrap and clean Git metadata
+- [x] Create a missing Admin Pages project only after the production deployment safety gate
+- [x] Deploy generated/configured Worker secrets alongside the first Worker deployment instead of requiring Worker pre-creation
+- [x] Fail closed when Pages inventory cannot be parsed safely
+- [x] Add a protected manual-only online-upgrade secret sync that cannot deploy code or run migrations
+- [x] Rewrite the beginner path, Cloudflare permission list, first-login step, Pages URL, and optional KV/R2/Queue boundaries
+- [x] Pass 72 deployment contract tests and formatting checks
+- [x] Publish v0.27.8 to `main` with `[skip ci]` while production Worker/Admin remain on v0.27.7
+- [x] Preserve redirect stability, asynchronous analytics, migrations, D1/KV ownership, production data, and Demo isolation
+
+---
+
 ## ✅ Completed - Accessibility And Fresh-account UX (v0.27.1)
 
 - [x] Add automated Axe checks for all core Admin routes, conversion controls, dialogs, themes, and the mobile drawer

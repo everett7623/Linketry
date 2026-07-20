@@ -177,7 +177,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.27.7'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.27.8'}"`,
             `LINKETRY_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
             `LINKETRY_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             `LINKETRY_UPDATE_REPOSITORY = ${JSON.stringify(env.LINKETRY_UPDATE_REPOSITORY)}`,
@@ -201,13 +201,31 @@ jobs:
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
         run: npm run deploy:gate
 
-      - name: Ensure LINKETRY_ADMIN_TOKEN secret
+      - name: Ensure Admin Pages project
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_PAGES_PROJECT != ''
+        run: |
+          inventory="$(npx wrangler pages project list --json)"
+          if printf '%s' "$inventory" |
+            node scripts/pages-project-inventory.mjs --has "$LINKETRY_PAGES_PROJECT"; then
+            echo "Reusing existing Pages project: $LINKETRY_PAGES_PROJECT"
+          else
+            inventory_status=$?
+            if [ "$inventory_status" -ne 1 ]; then
+              echo "Could not safely inspect the Pages project inventory."
+              exit "$inventory_status"
+            fi
+            npx wrangler pages project create "$LINKETRY_PAGES_PROJECT" --production-branch main
+          fi
+
+      - name: Prepare Worker secrets
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_WORKER_NAME != ''
         run: |
+          SECRETS_FILE="$RUNNER_TEMP/linketry-worker-secrets.json"
+          ADMIN_TOKEN_VALUE=""
           if [ -n "$LINKETRY_ADMIN_TOKEN_OVERRIDE" ]; then
             echo "Using LINKETRY_ADMIN_TOKEN from the optional recovery override in GitHub repository secrets."
             echo "LINKETRY_ADMIN_TOKEN_SOURCE=configured" >> "$GITHUB_ENV"
-            printf '%s' "$LINKETRY_ADMIN_TOKEN_OVERRIDE" | npx wrangler secret put LINKETRY_ADMIN_TOKEN
+            ADMIN_TOKEN_VALUE="$LINKETRY_ADMIN_TOKEN_OVERRIDE"
           else
             EXISTING_SECRETS="$(npx wrangler secret list --name "$LINKETRY_WORKER_NAME" --format json 2>/dev/null || true)"
             if printf '%s' "$EXISTING_SECRETS" | grep -q '"name"[[:space:]]*:[[:space:]]*"LINKETRY_ADMIN_TOKEN"'; then
@@ -217,7 +235,7 @@ jobs:
               echo "No Worker admin token found; generating one for the first deployment."
               GENERATED_TOKEN="linketry_$(openssl rand -hex 32)"
               echo "LINKETRY_ADMIN_TOKEN_SOURCE=generated" >> "$GITHUB_ENV"
-              printf '%s' "$GENERATED_TOKEN" | npx wrangler secret put LINKETRY_ADMIN_TOKEN
+              ADMIN_TOKEN_VALUE="$GENERATED_TOKEN"
               echo ""
               echo "============================================================"
               echo "Generated LINKETRY_ADMIN_TOKEN: $GENERATED_TOKEN"
@@ -227,17 +245,29 @@ jobs:
               echo ""
             fi
           fi
-        working-directory: apps/worker
-
-      - name: Configure optional online-upgrade secret
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_WORKER_NAME != ''
-        run: |
+          export ADMIN_TOKEN_VALUE
+          node <<'NODE'
+          const fs = require('node:fs');
+          const secrets = {};
+          if (process.env.ADMIN_TOKEN_VALUE) {
+            secrets.LINKETRY_ADMIN_TOKEN = process.env.ADMIN_TOKEN_VALUE;
+          }
+          if (process.env.LINKETRY_GITHUB_UPDATE_TOKEN_OVERRIDE) {
+            secrets.LINKETRY_GITHUB_UPDATE_TOKEN =
+              process.env.LINKETRY_GITHUB_UPDATE_TOKEN_OVERRIDE;
+          }
+          fs.writeFileSync(process.env.SECRETS_FILE, `${JSON.stringify(secrets)}\n`, {
+            mode: 0o600,
+          });
+          NODE
+          echo "LINKETRY_WORKER_SECRETS_FILE=$SECRETS_FILE" >> "$GITHUB_ENV"
           if [ -n "$LINKETRY_GITHUB_UPDATE_TOKEN_OVERRIDE" ]; then
-            printf '%s' "$LINKETRY_GITHUB_UPDATE_TOKEN_OVERRIDE" | npx wrangler secret put LINKETRY_GITHUB_UPDATE_TOKEN
-            echo "Configured the optional Worker online-upgrade secret."
+            echo "Prepared the optional Worker online-upgrade secret."
           else
             echo "LINKETRY_GITHUB_UPDATE_TOKEN is not configured; preserving any existing Worker secret and the manual Actions fallback."
           fi
+        env:
+          SECRETS_FILE: ${{ runner.temp }}/linketry-worker-secrets.json
         working-directory: apps/worker
 
       - name: Apply D1 migrations
@@ -247,7 +277,7 @@ jobs:
 
       - name: Deploy Worker
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_WORKER_NAME != '' && env.RESOLVED_WORKER_DOMAINS != '' && env.LINKETRY_D1_DATABASE_NAME != '' && env.LINKETRY_D1_DATABASE_ID != '' && env.LINKETRY_KV_NAMESPACE_ID != ''
-        run: npx wrangler deploy
+        run: npx wrangler deploy --secrets-file "$LINKETRY_WORKER_SECRETS_FILE"
         working-directory: apps/worker
 
       - name: Deploy Admin
@@ -350,7 +380,7 @@ jobs:
             echo ""
             echo "### LINKETRY_ADMIN_TOKEN"
             if [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "generated" ]; then
-              echo "A token was generated automatically during this first deployment. Open the **Ensure LINKETRY_ADMIN_TOKEN secret** step log, copy the one-time token, and save it in a password manager. Later deployments preserve the existing Worker secret."
+              echo "A token was generated automatically during this first deployment. Open the **Prepare Worker secrets** step log, copy the one-time token, and save it in a password manager. Later deployments preserve the existing Worker secret."
             elif [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "preserved" ]; then
               echo "The existing automatically generated Worker token was preserved. Use the value saved from the first deployment. If it was lost, set a new repository secret named **LINKETRY_ADMIN_TOKEN** and rerun deployment once to replace it."
             elif [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "configured" ]; then

@@ -10,79 +10,96 @@ Last updated: 2026-07-20
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.27.6 live         | Production health reports v0.27.6 after online-upgrade run `29728335970`                                                                                                                                  |
-| Admin frontend             | ✅ 0.27.6 live         | Cache-bypassed production Admin HTML reports v0.27.6; v0.27.7 bridges source builds that predate upgrade feedback                                                                                          |
+| Worker backend             | ✅ 0.27.7 live         | Production health reports v0.27.7; redirect, analytics, D1, and KV behavior remain unchanged                                                                                                            |
+| Admin frontend             | ✅ 0.27.7 live         | Cache-bypassed production Admin HTML reports v0.27.7; v0.27.8 is the next owner-controlled update target                                                                                                |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
-| Documentation              | ✅ Complete            | README, architecture/development guides, self-hosting, API, analytics, backup/reset, runbooks, and long-term roadmap                                                                                    |
+| Documentation              | ✅ 0.27.8 updated      | README and self-hosting now present one guarded beginner path; manual deployment is an explicit advanced alternative                                                                                    |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                             |
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.27.6 live         | Production Worker/Admin are synchronized on v0.27.6 and deployment `5518928695` is recorded under `production`                                                                                            |
-| Repository update target   | ✅ 0.27.7 published    | v0.27.7 is published to `main` with `[skip ci]`; production remains on v0.27.6 until the owner confirms the in-app upgrade                                                                                |
-| Next planned work          | 🟡 0.28.0 imports     | Bitly and Short.io fixture-backed CSV adapters first; Rebrandly JSON/API follows after payload and pagination verification                                                                              |
+| Current version            | ✅ 0.27.7 live         | Production Worker/Admin are synchronized on v0.27.7 before the v0.27.8 discovery-only publication                                                                                                       |
+| Repository update target   | ✅ 0.27.8 published    | v0.27.8 contains beginner deployment automation and is published with `[skip ci]`; production remains on v0.27.7 until the owner confirms the in-app upgrade                                            |
+| Next planned work          | 🟡 0.28.0 imports      | Bitly and Short.io fixture-backed CSV adapters first; Rebrandly JSON/API follows after payload and pagination verification                                                                              |
+| Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
+| Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
 ---
 
+## Linketry 0.27.8 Beginner Deployment Automation
+
+| Area                         | Status       | Notes                                                                                                                            |
+| ---------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Cloudflare bootstrap         | ✅ Complete  | Existing idempotent D1/KV dry-run/apply path remains the only required resource-creation step                                    |
+| GitHub configuration         | ✅ Complete  | `deploy:configure` derives, writes, and verifies the complete minimum repository plan with no token values in arguments/logs     |
+| First deployment             | ✅ Complete  | The guarded workflow creates a missing Pages project and uploads generated Worker secrets with the first Worker deployment       |
+| Existing-instance capability | ✅ Complete  | A manual-only workflow syncs the protected online-upgrade secret without code deployment or migrations                           |
+| Beginner documentation       | ✅ Complete  | README, self-hosting, deployment, and fresh-account rehearsal use one recommended path and correct Cloudflare token permissions  |
+| Deployment regression        | ✅ Complete  | 72 deployment tests pass, including workflow ordering, fail-closed inventories, repository boundaries, and documentation         |
+| Live rollout                 | ✅ Published | GitHub publishes 0.27.8 with CI deployment skipped; production Worker/Admin stay on 0.27.7 for the owner-controlled upgrade test |
+| Redirect-path impact         | ✅ None      | Redirect handlers, asynchronous analytics, D1/KV behavior, migrations, production data, and Demo isolation are unchanged         |
+
+---
+
 ## Linketry 0.27.7 Online Upgrade Bootstrap Continuity
 
-| Area                     | Status       | Notes                                                                                                                          |
-| ------------------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| Production evidence      | ✅ Verified  | Run `29728335970`, deployment `5518928695`, Worker health, and cache-bypassed Admin HTML confirm v0.27.6                      |
-| Source/target boundary   | ✅ Confirmed | v0.27.5 could not execute session-feedback code first introduced by the v0.27.6 target build                                  |
-| Loaded-build tracking    | ✅ Complete  | Admin records only the last loaded semantic version and never stores credentials                                               |
-| Bootstrap fallback       | ✅ Complete  | A real reload plus a fresh exact target cache can infer completion when the explicit session marker is unavailable             |
-| False-positive boundary  | ✅ Complete  | Fresh navigation, fresh installs, unchanged builds, and ordinary update checks do not display upgrade completion               |
-| Regression verification  | ✅ Complete  | 58 Admin unit, 25 browser, 84 Worker, 64 deployment, 6 Demo API, and 4 site tests pass; affected builds pass                  |
-| Redirect/data impact     | ✅ None      | Redirects, analytics, D1, KV, migrations, secrets, deployment gates, and production data are unchanged                         |
-| Release status           | ✅ Published | v0.27.7 is published to `main` with `[skip ci]`; production remains on v0.27.6 for the owner-controlled upgrade test            |
+| Area                    | Status       | Notes                                                                                                                |
+| ----------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------- |
+| Production evidence     | ✅ Verified  | Run `29728335970`, deployment `5518928695`, Worker health, and cache-bypassed Admin HTML confirm v0.27.6             |
+| Source/target boundary  | ✅ Confirmed | v0.27.5 could not execute session-feedback code first introduced by the v0.27.6 target build                         |
+| Loaded-build tracking   | ✅ Complete  | Admin records only the last loaded semantic version and never stores credentials                                     |
+| Bootstrap fallback      | ✅ Complete  | A real reload plus a fresh exact target cache can infer completion when the explicit session marker is unavailable   |
+| False-positive boundary | ✅ Complete  | Fresh navigation, fresh installs, unchanged builds, and ordinary update checks do not display upgrade completion     |
+| Regression verification | ✅ Complete  | 58 Admin unit, 25 browser, 84 Worker, 64 deployment, 6 Demo API, and 4 site tests pass; affected builds pass         |
+| Redirect/data impact    | ✅ None      | Redirects, analytics, D1, KV, migrations, secrets, deployment gates, and production data are unchanged               |
+| Release status          | ✅ Published | v0.27.7 is published to `main` with `[skip ci]`; production remains on v0.27.6 for the owner-controlled upgrade test |
 
 ---
 
 ## Linketry 0.27.6 Online Upgrade Refresh Feedback
 
-| Area                     | Status       | Notes                                                                                                                          |
-| ------------------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| Production evidence      | ✅ Verified  | Run `29728335970`, deployment `5518928695`, Worker health, and fresh Admin assets confirm v0.27.6                              |
-| Root cause               | ✅ Confirmed | Upgrade phase existed only in component memory and was lost when a stale Pages response reloaded the previous Admin build      |
-| Tab-scoped feedback      | ✅ Complete  | A validated 30-minute `sessionStorage` record retains only target version, timestamp, and bounded-refresh state                |
-| Propagation handling     | ✅ Complete  | A stale build suppresses duplicate deployment, explains propagation, and receives one follow-up refresh                       |
-| Completion confirmation  | ✅ Complete  | The target build displays a dismissible upgrade-complete notice and clears the tab-scoped record on dismissal                 |
-| Regression verification  | ✅ Complete  | 54 Admin unit, 24 browser, 84 Worker, 64 deployment, 6 Demo API, and 4 site tests pass; affected builds pass                  |
-| Redirect/data impact     | ✅ None      | Redirects, analytics, D1, KV, migrations, secrets, deployment gates, and production data are unchanged                         |
-| Release status           | ✅ Deployed  | v0.27.6 is live after owner-controlled run `29728335970`; deployment `5518928695` is recorded under `production`              |
+| Area                    | Status       | Notes                                                                                                                     |
+| ----------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| Production evidence     | ✅ Verified  | Run `29728335970`, deployment `5518928695`, Worker health, and fresh Admin assets confirm v0.27.6                         |
+| Root cause              | ✅ Confirmed | Upgrade phase existed only in component memory and was lost when a stale Pages response reloaded the previous Admin build |
+| Tab-scoped feedback     | ✅ Complete  | A validated 30-minute `sessionStorage` record retains only target version, timestamp, and bounded-refresh state           |
+| Propagation handling    | ✅ Complete  | A stale build suppresses duplicate deployment, explains propagation, and receives one follow-up refresh                   |
+| Completion confirmation | ✅ Complete  | The target build displays a dismissible upgrade-complete notice and clears the tab-scoped record on dismissal             |
+| Regression verification | ✅ Complete  | 54 Admin unit, 24 browser, 84 Worker, 64 deployment, 6 Demo API, and 4 site tests pass; affected builds pass              |
+| Redirect/data impact    | ✅ None      | Redirects, analytics, D1, KV, migrations, secrets, deployment gates, and production data are unchanged                    |
+| Release status          | ✅ Deployed  | v0.27.6 is live after owner-controlled run `29728335970`; deployment `5518928695` is recorded under `production`          |
 
 ---
 
 ## Linketry 0.27.5 Cross-Origin Upgrade Verification
 
-| Area                     | Status       | Notes                                                                                                                        |
-| ------------------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| Production evidence      | ✅ Verified  | Run `29723961805`, deployment `5518104020`, Worker health, and Admin HTML all confirm v0.27.4                                |
-| Browser evidence         | ✅ Verified  | The still-open v0.27.3 SPA remained stale while production was already v0.27.4                                               |
-| Root cause               | ✅ Confirmed | `/api/*` allowed CORS but the cross-origin `/health` version endpoint did not return `Access-Control-Allow-Origin`           |
-| Public health CORS       | ✅ Complete  | `/health` permits credential-free GET/OPTIONS reads for separately hosted Admin instances                                   |
-| Failure semantics        | ✅ Complete  | Runtime verification failure is distinct from workflow failure and workflow timeout                                         |
-| Reload behavior          | ✅ Preserved | Exact version matches use the fast reload; finalizing retains the bounded fallback reload                                    |
-| Regression verification  | ✅ Complete  | 50 Admin unit, 22 browser, 84 Worker, 64 deployment, 6 Demo API, and 4 site tests pass; affected builds pass                |
-| Redirect/data impact     | ✅ None      | Redirects, analytics, D1, KV, migrations, secrets, deployment gates, and production data are unchanged                       |
-| Release status           | ✅ Deployed  | v0.27.5 is live after owner-controlled run `29725992523`; deployment `5518487300` is recorded under `production`              |
+| Area                    | Status       | Notes                                                                                                              |
+| ----------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Production evidence     | ✅ Verified  | Run `29723961805`, deployment `5518104020`, Worker health, and Admin HTML all confirm v0.27.4                      |
+| Browser evidence        | ✅ Verified  | The still-open v0.27.3 SPA remained stale while production was already v0.27.4                                     |
+| Root cause              | ✅ Confirmed | `/api/*` allowed CORS but the cross-origin `/health` version endpoint did not return `Access-Control-Allow-Origin` |
+| Public health CORS      | ✅ Complete  | `/health` permits credential-free GET/OPTIONS reads for separately hosted Admin instances                          |
+| Failure semantics       | ✅ Complete  | Runtime verification failure is distinct from workflow failure and workflow timeout                                |
+| Reload behavior         | ✅ Preserved | Exact version matches use the fast reload; finalizing retains the bounded fallback reload                          |
+| Regression verification | ✅ Complete  | 50 Admin unit, 22 browser, 84 Worker, 64 deployment, 6 Demo API, and 4 site tests pass; affected builds pass       |
+| Redirect/data impact    | ✅ None      | Redirects, analytics, D1, KV, migrations, secrets, deployment gates, and production data are unchanged             |
+| Release status          | ✅ Deployed  | v0.27.5 is live after owner-controlled run `29725992523`; deployment `5518487300` is recorded under `production`   |
 
 ---
 
 ## Linketry 0.27.4 Online Upgrade Auto Reload
 
-| Area                  | Status       | Notes                                                                                                        |
-| --------------------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
-| Live upgrade evidence | ✅ Verified  | Run `29718967204`, deployment `5517191479`, Worker health, and a new Admin page all confirm v0.27.3         |
-| Stale-page root cause | ✅ Confirmed | The old SPA depended exclusively on its in-memory runtime poll and had no bounded finalizing reload fallback |
-| Runtime verification  | ✅ Preserved | Exact `/health` version matching still performs the normal fast success reload                               |
-| Finalizing fallback   | ✅ Complete  | A replaceable 10-second timer refreshes an old page and restarts normal version discovery                    |
-| Failure boundary      | ✅ Preserved | Failed workflows never enter finalizing and therefore never schedule the fallback                           |
-| Version placement     | ✅ Complete  | Version and update status now sit below the Logo instead of between footer preferences and logout           |
-| Regression verification | ✅ Complete | 48 Admin unit, 21 browser, 82 Worker, 64 deployment, 6 Demo API, and 4 site tests pass; affected builds pass |
-| Release status          | ✅ Deployed | v0.27.4 is live after owner-controlled run `29723961805`; deployment `5518104020` is recorded under `production` |
+| Area                    | Status       | Notes                                                                                                            |
+| ----------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Live upgrade evidence   | ✅ Verified  | Run `29718967204`, deployment `5517191479`, Worker health, and a new Admin page all confirm v0.27.3              |
+| Stale-page root cause   | ✅ Confirmed | The old SPA depended exclusively on its in-memory runtime poll and had no bounded finalizing reload fallback     |
+| Runtime verification    | ✅ Preserved | Exact `/health` version matching still performs the normal fast success reload                                   |
+| Finalizing fallback     | ✅ Complete  | A replaceable 10-second timer refreshes an old page and restarts normal version discovery                        |
+| Failure boundary        | ✅ Preserved | Failed workflows never enter finalizing and therefore never schedule the fallback                                |
+| Version placement       | ✅ Complete  | Version and update status now sit below the Logo instead of between footer preferences and logout                |
+| Regression verification | ✅ Complete  | 48 Admin unit, 21 browser, 82 Worker, 64 deployment, 6 Demo API, and 4 site tests pass; affected builds pass     |
+| Release status          | ✅ Deployed  | v0.27.4 is live after owner-controlled run `29723961805`; deployment `5518104020` is recorded under `production` |
 
 ---
 
@@ -97,7 +114,7 @@ Last updated: 2026-07-20
 | Production environment  | ✅ Live       | Run `29718967204` produced deployment `5517191479` under the GitHub `production` environment                              |
 | Regression verification | ✅ Complete   | 48 Admin unit, 20 browser, 82 Worker, 64 deployment, 6 Demo API, and 4 site tests pass; affected builds pass              |
 | Redirect/data impact    | ✅ None       | Redirect handlers, analytics scheduling, D1/KV behavior, migrations, production data, and Demo isolation are unchanged    |
-| Release status          | ✅ Deployed   | v0.27.3 is live after the owner-controlled production online-upgrade test                                                  |
+| Release status          | ✅ Deployed   | v0.27.3 is live after the owner-controlled production online-upgrade test                                                 |
 
 ---
 
@@ -107,11 +124,11 @@ Last updated: 2026-07-20
 | ---------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | Repository secret      | ✅ Configured  | Fine-grained token is limited to `everett7623/Linketry` with Actions read and write only                                        |
 | Worker secret delivery | ✅ Complete    | Production workflow run `29715930612` completed successfully and configured the optional online-upgrade Worker secret           |
-| Current production     | ✅ 0.27.2 live | Online-upgrade workflow run `29717446925` deployed Worker and Admin successfully; `/health` reports v0.27.2                      |
+| Current production     | ✅ 0.27.2 live | Online-upgrade workflow run `29717446925` deployed Worker and Admin successfully; `/health` reports v0.27.2                     |
 | Discovery target       | ✅ Published   | Repository metadata exposes v0.27.2 through a `[skip ci]` commit, so no push deployment is triggered                            |
 | Admin discovery        | ✅ Verified    | Authenticated production Admin shows running v0.27.1, available v0.27.2, release details, and the enabled online-upgrade action |
 | Owner confirmation     | ✅ Complete    | The owner confirmed the in-app upgrade; the workflow completed and the production Admin now reports v0.27.2                     |
-| Deployment tracking    | ✅ Live        | Online-upgrade run `29718967204` is recorded under the GitHub `production` environment                                        |
+| Deployment tracking    | ✅ Live        | Online-upgrade run `29718967204` is recorded under the GitHub `production` environment                                          |
 | Credential exposure    | ✅ None        | The GitHub token is not returned by APIs, embedded in Admin assets, logged, or committed                                        |
 | Redirect/data impact   | ✅ None        | Redirect handlers, D1 records, KV cache behavior, migrations, production domains, and Demo isolation are unchanged              |
 

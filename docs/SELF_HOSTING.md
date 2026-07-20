@@ -33,17 +33,27 @@ Use your own domains everywhere below. Do not copy another deployment's domains,
 
 - Node.js 24 recommended
 - npm 10+
+- GitHub CLI (`gh`) authenticated to the account that owns your fork
 - A Cloudflare account
 - A domain managed by Cloudflare DNS
 - Wrangler 4 and a completed login
 
 ```bash
 npm install
+gh auth status
 npx wrangler --version
 npx wrangler login
 ```
 
 The repository pins Wrangler 4. If the version command does not report `4.x`, run `npm install` again before continuing.
+
+Create a Cloudflare API token, never a Global API Key. Restrict it to the selected account and zone with:
+
+- Account: **Workers Scripts Edit**, **Workers KV Storage Edit**, **D1 Edit**, and **Cloudflare Pages Edit**
+- Zone: **Workers Routes Edit** for the zone that will host `go.example.com`
+- Optional only: **Workers R2 Storage Edit** and **Queues Edit** when you enable those resources
+
+The Zone permission is required because the Worker deployment registers a custom domain. Keep the token in your password manager; the command below prompts for it and does not put it in shell history.
 
 ## 2. Choose Names
 
@@ -90,13 +100,7 @@ Apply mode creates only missing D1/KV resources, reads them back, and prints the
 
 The script does not apply migrations, deploy Worker/Admin code, write secrets, change DNS, or create optional infrastructure. If an apply is interrupted after one resource succeeds, rerun the dry-run; the completed resource is reused and only the missing resource is planned.
 
-After apply, load the printed variables into the current shell, set `LINKETRY_FRESH_INSTALL_CONFIRMED=true`, and run the full read-only deployment preflight:
-
-```bash
-npm run deploy:preflight -- --track fresh --check-cloudflare
-```
-
-See [Deployment Preflight](DEPLOYMENT_PREFLIGHT.md) for the complete variable list and redaction guarantees.
+After apply, rerun the dry-run. It should reuse the same D1 and KV IDs and plan no replacements. See [Deployment Preflight](DEPLOYMENT_PREFLIGHT.md) for the complete validation and redaction guarantees.
 
 Optional: create a separate KV preview namespace manually and add its ID later:
 
@@ -117,7 +121,44 @@ Advanced optional: create the visit queue for asynchronous analytics:
 npx wrangler queues create linketry-visits --message-retention-period-secs 60
 ```
 
-## 4. Configure the Worker
+## 4. Configure GitHub And Deploy (Recommended)
+
+Set your fork once in PowerShell, then add the Cloudflare API token through GitHub CLI's hidden prompt:
+
+```powershell
+$repo = 'OWNER/REPOSITORY'
+gh secret set CLOUDFLARE_API_TOKEN --repo $repo
+gh api --method PUT "repos/$repo/environments/production"
+```
+
+Run the repository configuration in dry-run mode. It reads the exact D1/KV resources created above, verifies the clean local release metadata, and prints the complete GitHub plan without changing the repository:
+
+```powershell
+npm run deploy:configure -- --repo $repo --prefix linketry-alice --domain go.example.com --account-id <account-id>
+```
+
+Review the masked account, domain, Pages/Worker/D1/KV names, release, commit, and migration digest. Then repeat it with the exact confirmation phrase printed by the dry-run:
+
+```powershell
+npm run deploy:configure -- --repo $repo --prefix linketry-alice --domain go.example.com --account-id <account-id> --apply --confirm <phrase-from-dry-run>
+```
+
+Apply mode verifies `gh` authentication, the target repository, and that the reviewed local commit is already on that fork's `main` branch before writing. It sends the account ID through standard input and creates the complete minimum repository-variable set; it never reads or prints either token. Rerunning the same command is safe and verifies the resulting values.
+
+Start the guarded first deployment:
+
+```powershell
+gh workflow run deploy.yml --repo $repo --ref main --field confirm_release=true
+gh run watch --repo $repo
+```
+
+The workflow runs the deployment tests and safety gate before Cloudflare writes. It creates the Admin Pages project only when missing, generates the first Admin token when needed, deploys Worker secrets alongside the first Worker deployment, applies D1 migrations, and deploys Admin. Continue at [First Login](#first-login) after it succeeds.
+
+## Advanced Manual Deployment
+
+Use this alternative only when you intentionally do not want GitHub Actions. Do not mix its local `wrangler.toml` and secret steps into the recommended workflow above.
+
+### Configure the Worker
 
 Copy the template. If `apps/worker/wrangler.toml` already exists from another deployment, replace it with your own values before deploying.
 
@@ -153,7 +194,7 @@ Do not deploy with someone else's Cloudflare resource IDs.
 
 Do not repeat this manual token step when using the GitHub Actions first-deployment path below: that path generates the Worker secret once and reports it in the deployment log. A GitHub repository secret named `LINKETRY_ADMIN_TOKEN` is only a recovery or intentional-rotation override.
 
-## 5. Apply D1 Migrations
+### Apply D1 Migrations
 
 ```bash
 npm run db:migrate:remote --workspace=apps/worker
@@ -167,7 +208,7 @@ For local development:
 npm run db:migrate:local --workspace=apps/worker
 ```
 
-## 6. Deploy the Worker
+### Deploy the Worker
 
 ```bash
 npm run type-check --workspace=apps/worker
@@ -183,10 +224,10 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.27.7" } }
+{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.27.8" } }
 ```
 
-## 7. Build and Deploy Admin
+### Build and Deploy Admin
 
 Build Admin with your stable API domain:
 
@@ -210,18 +251,20 @@ npx wrangler pages deploy apps/admin/dist --project-name linketry-admin --branch
 
 Open the automatically created `https://linketry-admin.pages.dev` URL. Adding `admin.example.com` under the Pages project's **Custom domains** is optional and can be done later.
 
-## 8. GitHub Actions Auto Deploy
+## GitHub Actions Details
 
-The included workflow can apply D1 migrations and deploy on pushes to `main`. This is the recommended path for new users because it keeps your Cloudflare resource IDs out of the repository.
+The included workflow can apply D1 migrations and deploy on pushes to `main`. The recommended setup above keeps Cloudflare resource IDs out of the repository and removes the need to enter repository variables one by one.
 
 ### Required for any deployment
 
-Add the required repository secrets:
+The basic deployment uses two repository secrets:
 
 ```txt
 CLOUDFLARE_API_TOKEN
 CLOUDFLARE_ACCOUNT_ID
 ```
+
+Enter `CLOUDFLARE_API_TOKEN` through the hidden `gh secret set` prompt. `deploy:configure --apply` writes `CLOUDFLARE_ACCOUNT_ID` through standard input after verifying the exact repository.
 
 `LINKETRY_ADMIN_TOKEN` does not need to be created manually. On the first deployment, the workflow generates it as a Worker secret and prints it once in the deployment log. A repository secret with the same name is only an optional recovery override if the generated value is lost.
 
@@ -231,12 +274,12 @@ For in-app one-click upgrades, add the optional repository secret `LINKETRY_GITH
 2. Grant repository permission **Actions: Read and write**; do not grant organization or unrelated repository access.
    For unattended upgrades, choose **No expiration** when the account policy allows it. If an expiry is mandatory, rotate the token and rerun the deployment before that date.
 3. In the Linketry repository, open **Settings → Secrets and variables → Actions → Secrets** and create `LINKETRY_GITHUB_UPDATE_TOKEN`.
-4. Run **Deploy Linketry** once manually. The workflow copies the token into the Worker secret store without printing it.
+4. For a fresh install, run **Deploy Linketry** once; it copies the token into the Worker secret store without printing it. For an existing installation that must stay on its current version, manually run **Sync Online Upgrade Secret**, entering the exact protected Worker name.
 5. Confirm the next update from the Admin banner. Rotate the repository secret and rerun deployment before the token expires.
 
 To let GitHub Actions maintain a custom Admin-domain CNAME automatically, add an optional `CLOUDFLARE_DNS_API_TOKEN` secret restricted to Zone Read and DNS Write for your zone. Without it, deployment still succeeds and reports the CNAME target for manual setup.
 
-Add repository variables:
+`deploy:configure --apply` creates and verifies these basic repository variables:
 
 ```txt
 LINKETRY_API_URL=https://go.example.com
@@ -247,25 +290,25 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.27.7
+LINKETRY_APPROVED_RELEASE=0.27.8
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
 ```
 
-Use `git rev-parse HEAD` for the exact commit and `npm run deploy:migration-digest` for the reviewed migration digest. The workflow checks these approvals before its first Cloudflare write. After the first successful deployment, switch `LINKETRY_DEPLOYMENT_TRACK` to `upgrade` and set the verified-backup and migration-review variables in [Deployment Preflight](DEPLOYMENT_PREFLIGHT.md) before later releases.
+The configuration command reads the exact commit and `npm run deploy:migration-digest` result for you, and refuses to approve a dirty worktree. The workflow checks these approvals before its first Cloudflare write. After the first successful deployment, switch `LINKETRY_DEPLOYMENT_TRACK` to `upgrade` and set the verified-backup and migration-review variables in [Deployment Preflight](DEPLOYMENT_PREFLIGHT.md) before later releases.
 
-Push the approved commit to `main` and the workflow will type-check, build, enforce the deployment gate, migrate D1, set the `LINKETRY_ADMIN_TOKEN` secret, deploy the Worker, and deploy the Admin.
+Push the approved commit to `main` or start the confirmed manual run. The workflow will type-check, build, enforce the deployment gate, create the Pages project when missing, migrate D1, deploy the Worker with its secrets, and deploy Admin.
 
 After the first deployment, the Admin update banner provides **Online upgrade**. When `LINKETRY_GITHUB_UPDATE_TOKEN` is configured, the primary instance Admin token can trigger this repository's fixed `deploy.yml` and branch directly. The banner follows the GitHub run, waits for a successful conclusion, verifies that the Worker's public cross-origin `/health` endpoint reports the expected version, and then reloads the Admin. Keep credential-free GET/OPTIONS CORS enabled on `/health` when Admin Pages and the Worker use separate origins. It cannot accept a repository, branch, commit, workflow, or target from the browser.
 
 The confirmation approves only the configured branch's exact package version and commit; the migration digest, verified backup reference, migration review, target confirmation, and remote-resource checks still have to pass. Scoped Linketry API tokens cannot trigger an upgrade. When the GitHub secret is absent, invalid, or expired, use the banner's manual Actions fallback, rotate the repository secret if needed, and rerun deployment once to update the Worker secret.
 
-Normal `push` deployments remain bound to `LINKETRY_APPROVED_RELEASE` and `LINKETRY_APPROVED_COMMIT`. The online path is an explicit repository-owner action, not an automatic background update.
+Normal `push` deployments remain bound to `LINKETRY_APPROVED_RELEASE` and `LINKETRY_APPROVED_COMMIT`. **Sync Online Upgrade Secret** changes only the named protected Worker's secret and does not deploy code or run migrations. The online path is an explicit repository-owner action, not an automatic background update.
 
 The completed workflow includes a **Linketry access** summary with the Admin and API URLs.
 
-> On the first deployment, the workflow automatically generates `LINKETRY_ADMIN_TOKEN`. Open GitHub **Actions** → the first successful **Deploy Linketry** run → **Ensure LINKETRY_ADMIN_TOKEN secret**, copy the one-time token from that step log, and save it to your password manager. Later deployments detect and preserve the existing Worker secret instead of rotating it. If the value is lost, create a new repository secret named `LINKETRY_ADMIN_TOKEN` and rerun deployment once to replace the Worker token.
+> On the first deployment, the workflow automatically generates `LINKETRY_ADMIN_TOKEN`. Open GitHub **Actions** → the first successful **Deploy Linketry** run → **Prepare Worker secrets**, copy the one-time token from that step log, and save it to your password manager. Later deployments detect and preserve the existing Worker secret instead of rotating it. If the value is lost, create a new repository secret named `LINKETRY_ADMIN_TOKEN` and rerun deployment once to replace the Worker token.
 
 ### Optional advanced variables
 
@@ -273,7 +316,7 @@ Leave these unset for the basic deployment; enable them later from the Admin Adv
 
 ```txt
 LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKETRY_VERSION=0.27.7
+LINKETRY_VERSION=0.27.8
 LINKETRY_COMPATIBILITY_DATE=2026-07-08
 LINKETRY_WORKER_DOMAINS=go.example.com,s.example.com
 LINKETRY_R2_BUCKET=linketry-backups
@@ -298,19 +341,19 @@ This operation updates only the stored short-link `domain` and generated `short_
 
 The workflow still type-checks and builds when Cloudflare secrets are missing, but Cloudflare migration and deployment are skipped. Worker deployment uses these variables to generate `apps/worker/wrangler.toml` during CI.
 
-## 9. First Login
+## First Login
 
 Open the automatic Pages Admin URL shown in the deployment summary:
 
 ```txt
-https://linketry-admin.pages.dev
+https://linketry-alice-admin.pages.dev
 ```
 
 To find the token after an automatic deployment:
 
 1. Open the forked repository on GitHub.
 2. Select **Actions**, then the latest successful **Deploy Linketry** run.
-3. Open the **Ensure LINKETRY_ADMIN_TOKEN secret** step.
+3. Open the **Prepare Worker secrets** step.
 4. Copy the generated `linketry_...` value from the one-time log.
 5. Save it in a password manager. Later deployments preserve it automatically.
 
@@ -321,7 +364,7 @@ Log in with `LINKETRY_ADMIN_TOKEN`, then open Settings and set:
 | Setting               | Value             |
 | --------------------- | ----------------- |
 | Site Name             | Your project name |
-| Default Domain        | `s.example.com`   |
+| Default Domain        | `go.example.com`  |
 | Default Redirect Type | `302`             |
 
 Then open **Setup** in the sidebar. It summarizes whether the Admin can reach the API, whether a default short domain is configured, whether the domain catalog has an active default, whether R2 backups are available, and whether the first link has been created.
@@ -355,7 +398,7 @@ In **Advanced mode**, open **Analytics → Traffic Anomaly Alerts** to enable a 
 
 Use **Check now** after saving to inspect the current aggregate evidence. Alerts and recovery notices use the same notification channels configured for target monitoring. Only aggregate visit/bot counts and rates are stored; no new visitor, IP, or session identifiers are collected. Detection and delivery run outside the redirect path.
 
-## 10. Smoke Test
+## Smoke Test
 
 Run these after every first deployment:
 
@@ -380,7 +423,7 @@ Then use Admin to verify:
 - Open Overview and confirm the dashboard counters load
 - Open Analytics and confirm the selected date range loads, even if it is empty
 
-## 11. Local Development Check
+## Local Development Check
 
 For local development from a fresh clone:
 
@@ -407,7 +450,7 @@ npm run db:migrate:local --workspace=apps/worker
 npm run dev --workspace=apps/worker
 ```
 
-## 12. Migration Notes
+## Migration Notes
 
 Linketry can import from Shlink, Sink, YOURLS, Dub, Linketry backup JSON, and generic CSV/JSON.
 
@@ -419,7 +462,7 @@ For a Shlink migration:
 4. Cut over the old short domain only after testing.
 5. Keep Shlink available for rollback for 1-2 weeks.
 
-## 13. Troubleshooting
+## Troubleshooting
 
 | Issue                                     | Check                                                                 |
 | ----------------------------------------- | --------------------------------------------------------------------- |
