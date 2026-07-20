@@ -282,6 +282,8 @@ Generic CSV / JSON import preview and confirm requests can include `fieldMapping
 }
 ```
 
+Import `content` is limited to 10 MiB after UTF-8 encoding, and one preview or confirmation job can normalize at most 50,000 items. Preview and confirm reject oversized content with HTTP `413`; an asynchronous confirm job that exceeds the item limit finishes as `failed` before any D1 link write. The Shlink API pull endpoint has a lower 5,000-item and 100-page operating limit because it performs sequential external requests; it returns HTTP `413` instead of silently truncating larger pagination results. Use reviewed file-import batches for larger migrations.
+
 ## Export
 
 | Method | Path |

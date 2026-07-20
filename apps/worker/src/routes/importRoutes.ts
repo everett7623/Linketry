@@ -39,6 +39,17 @@ import {
   summarizeImportPreview,
   type ConflictStrategy,
 } from '../importers/importPolicy';
+import {
+  formatImportContentLimit,
+  formatImportItemLimit,
+  isImportContentWithinLimit,
+  isImportItemCountWithinLimit,
+} from '@linketry/shared';
+import {
+  SHLINK_API_FETCH_MAX_PAGES,
+  isShlinkApiPageComplete,
+  shlinkApiFetchLimitError,
+} from '../importers/shlinkApiPolicy';
 import type {
   ImportFieldMapping,
   Link,
@@ -49,6 +60,20 @@ import type {
 } from '@linketry/shared';
 
 const importRoutes = new Hono<{ Bindings: Env }>();
+
+class ImportLimitError extends Error {}
+
+function importContentError(content: string): string | undefined {
+  return !isImportContentWithinLimit(content)
+    ? `Import content exceeds the ${formatImportContentLimit()} limit.`
+    : undefined;
+}
+
+function importItemCountError(count: number): string | undefined {
+  return !isImportItemCountWithinLimit(count)
+    ? `Import contains more than ${formatImportItemLimit()} items.`
+    : undefined;
+}
 
 importRoutes.use('*', async (c, next) => {
   const authError = await requireAuth(c);
@@ -323,8 +348,9 @@ async function fetchShlinkApiItems(baseUrl: string, apiKey: string): Promise<unk
   const endpoint = shlinkShortUrlsEndpoint(baseUrl);
   const items: unknown[] = [];
   const pageSize = 100;
+  let completed = false;
 
-  for (let page = 1; page <= 100; page++) {
+  for (let page = 1; page <= SHLINK_API_FETCH_MAX_PAGES; page++) {
     const url = new URL(endpoint);
     url.searchParams.set('page', String(page));
     url.searchParams.set('itemsPerPage', String(pageSize));
@@ -342,14 +368,35 @@ async function fetchShlinkApiItems(baseUrl: string, apiKey: string): Promise<unk
 
     const payload = await response.json();
     const { items: pageItems, pagination } = extractShlinkShortUrls(payload);
+    const totalItems = Number(pagination?.totalItems);
+    const reportedTotalItems = Number.isFinite(totalItems) ? totalItems : undefined;
+    const reportedLimitError = shlinkApiFetchLimitError(items.length, reportedTotalItems);
+    if (reportedLimitError) throw new ImportLimitError(reportedLimitError);
+
     items.push(...pageItems);
+    const fetchedLimitError = shlinkApiFetchLimitError(items.length, reportedTotalItems);
+    if (fetchedLimitError) throw new ImportLimitError(fetchedLimitError);
 
     const pagesTotal = shlinkPagesTotal(pagination);
-    if (pageItems.length === 0) break;
-    if (pagesTotal && page >= pagesTotal) break;
-    if (!pagesTotal && pageItems.length < pageSize) break;
-    if (pagination?.totalItems && items.length >= pagination.totalItems) break;
-    if (items.length >= 5000) break;
+    if (
+      isShlinkApiPageComplete({
+        page,
+        pageItemCount: pageItems.length,
+        pageSize,
+        fetchedCount: items.length,
+        pagesTotal,
+        totalItems: reportedTotalItems,
+      })
+    ) {
+      completed = true;
+      break;
+    }
+  }
+
+  if (!completed) {
+    throw new ImportLimitError(
+      `Shlink API export could not be verified within ${SHLINK_API_FETCH_MAX_PAGES.toLocaleString('en-US')} pages; export a file and import it in reviewed batches.`
+    );
   }
 
   return items;
@@ -377,6 +424,8 @@ importRoutes.post('/shlink-api/fetch', async (c) => {
   try {
     const items = await fetchShlinkApiItems(baseUrl, apiKey);
     const content = JSON.stringify({ data: { shortUrls: { data: items } } }, null, 2);
+    const contentError = importContentError(content);
+    if (contentError) return jsonError(contentError, 413);
     await recordAudit(c.env, c.req.raw, 'import.shlink_api.fetch', 'import', undefined, {
       baseUrl,
       total: items.length,
@@ -388,7 +437,8 @@ importRoutes.post('/shlink-api/fetch', async (c) => {
       filename: `shlink-api-${new Date().toISOString().slice(0, 10)}.json`,
     });
   } catch (err) {
-    return jsonError(String(err), 502);
+    const message = err instanceof Error ? err.message : String(err);
+    return jsonError(message, err instanceof ImportLimitError ? 413 : 502);
   }
 });
 
@@ -403,6 +453,8 @@ importRoutes.post('/preview', async (c) => {
 
   const { content, source } = body;
   if (!content) return jsonError('content is required', 400);
+  const contentError = importContentError(content);
+  if (contentError) return jsonError(contentError, 413);
 
   let parsedInput: unknown = content;
   try {
@@ -417,6 +469,8 @@ importRoutes.post('/preview', async (c) => {
 
   const fieldMapping = parseFieldMapping(body.fieldMapping);
   const items = await adapter.parse(inputForAdapter(parsedInput, adapter, fieldMapping));
+  const itemCountError = importItemCountError(items.length);
+  if (itemCountError) return jsonError(itemCountError, 413);
   const result = await previewItems(c.env, items, adapter);
 
   return jsonOk({ source: adapter.source, ...result });
@@ -686,6 +740,8 @@ async function runQueuedImportJob(
 
         const fieldMapping = parseFieldMapping(rawFieldMapping);
         const items = await adapter.parse(inputForAdapter(parsedInput, adapter, fieldMapping));
+        const itemCountError = importItemCountError(items.length);
+        if (itemCountError) throw new Error(itemCountError);
         await updateImportJob(env, jobId, {
           source: adapter.source,
           total_count: items.length,
@@ -738,6 +794,8 @@ importRoutes.post('/confirm', async (c) => {
   const { content, source, filename } = body;
   const conflictStrategy = parseConflictStrategy(body.conflictStrategy);
   if (!content) return jsonError('content is required', 400);
+  const contentError = importContentError(content);
+  if (contentError) return jsonError(contentError, 413);
 
   const domain = new URL(c.req.url).hostname;
 

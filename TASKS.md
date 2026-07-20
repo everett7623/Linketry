@@ -18,6 +18,20 @@ _(none)_
 
 ---
 
+## ✅ Completed - Import Operating Envelope (v0.28.1)
+
+- [x] Define one shared 10 MiB UTF-8 content limit and 50,000-item normalization limit
+- [x] Enforce content limits before preview parsing, confirm job creation, and Shlink API export responses
+- [x] Make Shlink API pulls over the lower 5,000-item/100-page boundary fail explicitly instead of silently truncating
+- [x] Fail asynchronous jobs before D1 writes when normalized item count exceeds the limit
+- [x] Display the limit in Admin, reject oversized files before reading, and clear stale import state
+- [x] Add localized errors plus UTF-8 boundary and browser regressions
+- [x] Preserve redirect, analytics, D1/KV, migration, production, and Demo boundaries
+
+Task record: `.codex/tasks/import-operating-envelope-2026-07-21.md`
+
+---
+
 ## ✅ Completed - Mainstream File Import Adapters (v0.28.0)
 
 - [x] Verify the current official Bitly, Short.io, and Rebrandly export/API contracts
@@ -362,7 +376,7 @@ Task record: `.codex/tasks/mainstream-import-adapters-2026-07-20.md`
 - [x] Demo follow-up: rotate the exposed old token, verify isolated Queue access, and rerun the guarded core deployment
 - [ ] Demo follow-up: activate the account R2 subscription, resolve error `10042`, restore the two R2 variables, rerun deployment, and verify artifact downloads
 - [x] Demo follow-up: implement `demoapi.linketry.com` through a Demo-account Pages Function and Service Binding, retaining `workers.dev` as the fallback origin
-- [ ] Production follow-up: add a repository-scoped Actions-write token as `LINKETRY_GITHUB_UPDATE_TOKEN`, redeploy, and verify one-click readiness
+- [x] Production follow-up: add a repository-scoped Actions-write token as `LINKETRY_GITHUB_UPDATE_TOKEN`, redeploy, and verify one-click readiness
 - [ ] V9+: Integrate next high-value Shlink capabilities into Linketry (multi-segment slugs, extra-path forwarding, expired-link cleanup)
 
 - [x] V7: Add configurable backup retention, starting with a 30-day default
@@ -1131,7 +1145,7 @@ Deployment experience:
 - [x] Scheduled privacy-safe traffic anomaly alerts with explainable thresholds and suppression
 - [ ] Evaluate opt-in fallback_url failover using previously recorded health state, without synchronous redirect-path probes
 - [ ] Long-idle auto-archive rules with review queue and dry-run mode
-- [ ] Deliver the fixture-backed mainstream import plan tracked for v0.28.0: Bitly and Short.io first, then Rebrandly JSON/API; keep other sources on Generic import until verified
+- [x] Deliver the fixture-backed mainstream import plan tracked for v0.28.0: Bitly and Short.io first; keep Rebrandly and other sources fixture-gated until verified
 
 ## 🔵 Backlog — V10 Collaboration And Governance
 

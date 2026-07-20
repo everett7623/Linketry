@@ -74,7 +74,7 @@ The automated baseline now covers the core routes, dialogs, mobile navigation, k
 
 ### Large-data operating envelope
 
-Document and test realistic limits for links, visits, import files, audit rows, health history, and Analytics filters. Existing APIs use bounded lists and pagination in key places, but a release-grade project needs repeatable fixtures and response-time budgets at representative D1 sizes.
+Import files now have a tested 10 MiB UTF-8 content limit, a 50,000-item normalization limit, Admin preflight rejection, Worker HTTP 413 enforcement, and bounded asynchronous D1 writes. Sequential Shlink API pulls use a lower explicit 5,000-item/100-page boundary and direct larger migrations to reviewed file batches. Links, visits, audit rows, health history, and Analytics still need repeatable representative D1 fixtures and response-time budgets before 1.0.
 
 ### Release and support policy
 

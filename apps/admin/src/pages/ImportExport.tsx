@@ -25,6 +25,11 @@ import { Button } from '../components/ui/Button';
 import { Textarea } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
 import type { ImportFieldMapping, ImportJob } from '@linketry/shared';
+import {
+  IMPORT_CONTENT_MAX_BYTES,
+  formatImportContentLimit,
+  isImportContentWithinLimit,
+} from '@linketry/shared';
 import type { ImportConflictStrategy } from '../api/importExport';
 import { useLocale } from '../contexts/LocaleContext';
 
@@ -82,9 +87,38 @@ export function ImportExport() {
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > IMPORT_CONTENT_MAX_BYTES) {
+      setContent('');
+      setFilename('');
+      setPreview(null);
+      setShowPreview(false);
+      error(t('importFileTooLarge', { max: formatImportContentLimit() }));
+      e.target.value = '';
+      return;
+    }
     setFilename(file.name);
     const reader = new FileReader();
-    reader.onload = (ev) => setContent((ev.target?.result as string) ?? '');
+    reader.onload = (ev) => {
+      const loadedContent = (ev.target?.result as string) ?? '';
+      if (!isImportContentWithinLimit(loadedContent)) {
+        setContent('');
+        setFilename('');
+        setPreview(null);
+        setShowPreview(false);
+        if (fileRef.current) fileRef.current.value = '';
+        error(t('importFileTooLarge', { max: formatImportContentLimit() }));
+        return;
+      }
+      setContent(loadedContent);
+    };
+    reader.onerror = () => {
+      setContent('');
+      setFilename('');
+      setPreview(null);
+      setShowPreview(false);
+      if (fileRef.current) fileRef.current.value = '';
+      error(t('importFileReadFailed'));
+    };
     reader.readAsText(file);
     setPreview(null);
   };
@@ -98,6 +132,14 @@ export function ImportExport() {
     setShlinkFetching(true);
     try {
       const result = await fetchShlinkApi(shlinkBaseUrl.trim(), shlinkApiKey.trim());
+      if (!isImportContentWithinLimit(result.content)) {
+        setContent('');
+        setFilename('');
+        setPreview(null);
+        setShowPreview(false);
+        error(t('importFileTooLarge', { max: formatImportContentLimit() }));
+        return;
+      }
       setContent(result.content);
       setFilename(result.filename);
       setSource(result.source);
@@ -342,7 +384,9 @@ export function ImportExport() {
             <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:border-brand-500 transition-colors bg-slate-950">
               <div className="flex flex-col items-center gap-2 text-slate-500">
                 <FileText size={24} />
-                <span className="text-sm">{filename || t('uploadHint')}</span>
+                <span className="text-sm">
+                  {filename || t('uploadHint', { max: formatImportContentLimit() })}
+                </span>
               </div>
               <input
                 ref={fileRef}

@@ -1,5 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
+import {
+  IMPORT_CONTENT_MAX_BYTES,
+  formatImportContentLimit,
+} from '../../../packages/shared/src/importLimits';
 import { messages, type Locale } from '../src/i18n/messages';
 import { expectNoSeriousAccessibilityViolations } from './accessibility';
 
@@ -714,7 +718,21 @@ test('completed import exits the importing state and clears the finished input',
   await sourceSelect.selectOption('bitly-csv');
   await expect(page.getByLabel(messages.en.shlinkUrl)).toHaveCount(0);
 
-  await page.locator('input[type="file"]').setInputFiles({
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.setInputFiles({
+    name: 'oversized.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.alloc(IMPORT_CONTENT_MAX_BYTES + 1, 'a'),
+  });
+  await expect(
+    page.getByRole('alert').filter({
+      hasText: messages.en.importFileTooLarge.replace('{max}', formatImportContentLimit()),
+    })
+  ).toBeVisible();
+  expect(await fileInput.evaluate((input: HTMLInputElement) => input.files?.length)).toBe(0);
+  await expect(page.getByRole('button', { name: messages.en.preview, exact: true })).toBeDisabled();
+
+  await fileInput.setInputFiles({
     name: 'links.csv',
     mimeType: 'text/csv',
     buffer: Buffer.from('slug,long_url\nimported,https://example.com/imported\n'),

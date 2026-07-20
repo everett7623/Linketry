@@ -13,6 +13,31 @@ _(none)_
 
 ---
 
+## [0.28.1] - 2026-07-21
+
+### Added
+
+- Added a shared import operating envelope of 10 MiB UTF-8 content and 50,000 normalized items.
+- Added Admin preflight feedback that displays the file limit, rejects oversized files, and clears stale import state.
+
+### Changed
+
+- Preview, confirmation, and Worker-generated Shlink exports now use explicit content and item limits; Shlink API pulls over 5,000 items or 100 pages fail with HTTP `413` instead of being silently truncated.
+- Asynchronous confirmation jobs fail before D1 writes when normalization exceeds the item-count limit.
+
+### Security
+
+- Oversized import content is rejected before import-format JSON/CSV parsing or import-job creation, reducing avoidable memory pressure from authenticated input.
+- Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, production data, and Demo isolation are unchanged.
+
+### Tests
+
+- Added exact-boundary coverage for UTF-8 byte size and normalized item count plus a browser regression for accessible oversized-file rejection.
+- Passed 72 deployment, 95 Worker, 58 Admin unit, 25 Admin browser, 6 Demo API, and 4 project-site tests.
+- Passed Worker type-check, Admin/Site production builds, and the official npm registry audit with zero known vulnerabilities.
+
+---
+
 ## [0.28.0] - 2026-07-21
 
 ### Added

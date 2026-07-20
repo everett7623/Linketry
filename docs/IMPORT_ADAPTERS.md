@@ -92,6 +92,15 @@ Adapter acceptance also requires:
 - bounded asynchronous confirmation for large files;
 - downloadable failure reporting.
 
+## Operating Envelope
+
+- Import content is limited to 10 MiB measured as UTF-8 bytes.
+- One preview or confirmation job can normalize at most 50,000 items.
+- Shlink API pull has a lower 5,000-item and 100-page operating limit because it performs sequential external requests. It reports an explicit error instead of silently truncating a larger pagination result; use reviewed file-import batches for larger migrations.
+- Admin rejects oversized files before reading them; Worker preview and confirm enforce the same shared content contract independently.
+- Confirmation remains asynchronous and uses 25-link D1 batches, but inputs beyond the documented envelope fail before link writes.
+- These are safety limits, not a claim that every 50,000-item dataset meets a production response-time budget; representative D1 scale benchmarks remain pre-1.0 work.
+
 ## Conflict Rules
 
 - Default slug conflict strategy is `skip`.

@@ -192,6 +192,17 @@ Status: complete in the repository; production remains owner-controlled.
 - Rebrandly remains fixture-gated until a redacted current response and pagination contract are verified
 - Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
 
+## 0.28.1: Import Operating Envelope
+
+Status: complete in the repository; production remains owner-controlled.
+
+- Shared Admin/Worker contract limits import content to 10 MiB UTF-8 and 50,000 normalized items
+- Admin rejects oversized files before reading and clears stale import state after failure
+- Preview, confirm, and generated Shlink API exports reject oversized content consistently
+- Asynchronous confirmation stops before D1 writes when the item limit is exceeded
+- Remaining pre-1.0 scale work covers representative D1 fixtures and response-time budgets outside imports
+- Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
+
 ## Long-Term Product Principles
 
 Linketry is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.
