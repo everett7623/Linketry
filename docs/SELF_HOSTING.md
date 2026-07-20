@@ -10,20 +10,20 @@ Use [Fresh Cloudflare Account Rehearsal](FRESH_ACCOUNT_REHEARSAL.md) as the fina
 
 Linketry keeps three deployment tracks separate:
 
-| Track | Purpose | Resource rule |
-|-------|---------|---------------|
-| Fresh self-hosting | A new user installs Linketry | Create new resources in the user's own Cloudflare account |
+| Track                       | Purpose                                       | Resource rule                                                                                                        |
+| --------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Fresh self-hosting          | A new user installs Linketry                  | Create new resources in the user's own Cloudflare account                                                            |
 | Existing production upgrade | Upgrade an already deployed Linketry instance | Reuse that instance's bindings only after a verified backup; apply incremental migrations without reset or Demo data |
-| Official Demo | Public Linketry demonstration | Use isolated Demo resources and synthetic data; never share production bindings |
+| Official Demo               | Public Linketry demonstration                 | Use isolated Demo resources and synthetic data; never share production bindings                                      |
 
 Do not use the official Demo workflow to upgrade an existing deployment. Do not use an existing production database as the target for this fresh-install guide.
 
 Linketry is free and open source first. The recommended basic setup requires only one custom hostname:
 
-| Hostname | Purpose | Example |
-|----------|---------|---------|
-| Admin URL | React Admin dashboard, created automatically by Pages | `linketry-admin.pages.dev` |
-| Worker domain | Short-link redirects and `/api/v1/*` | `go.example.com` |
+| Hostname      | Purpose                                               | Example                    |
+| ------------- | ----------------------------------------------------- | -------------------------- |
+| Admin URL     | React Admin dashboard, created automatically by Pages | `linketry-admin.pages.dev` |
+| Worker domain | Short-link redirects and `/api/v1/*`                  | `go.example.com`           |
 
 Advanced deployments can optionally add `admin.example.com` as a branded Admin domain or `s.example.com` as a separate public short-link domain.
 
@@ -133,12 +133,12 @@ Copy-Item apps/worker/wrangler.toml.example apps/worker/wrangler.toml -Force
 
 Edit `apps/worker/wrangler.toml` and replace:
 
-| Placeholder | Value |
-|-------------|-------|
-| `<your-short-domain>` | Your short-link and API hostname, for example `go.example.com` |
-| `<your-d1-database-id>` | The D1 ID printed by `deploy:bootstrap --apply` |
-| `<your-kv-namespace-id>` | The KV ID printed by `deploy:bootstrap --apply` |
-| `<your-kv-preview-id>` | Optional preview KV namespace ID; remove the `preview_id` line when omitted |
+| Placeholder              | Value                                                                       |
+| ------------------------ | --------------------------------------------------------------------------- |
+| `<your-short-domain>`    | Your short-link and API hostname, for example `go.example.com`              |
+| `<your-d1-database-id>`  | The D1 ID printed by `deploy:bootstrap --apply`                             |
+| `<your-kv-namespace-id>` | The KV ID printed by `deploy:bootstrap --apply`                             |
+| `<your-kv-preview-id>`   | Optional preview KV namespace ID; remove the `preview_id` line when omitted |
 
 For a manual Wrangler deployment, set the production admin token:
 
@@ -183,7 +183,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{"success":true,"data":{"status":"ok","name":"Linketry","version":"0.27.1"}}
+{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.27.2" } }
 ```
 
 ## 7. Build and Deploy Admin
@@ -229,6 +229,7 @@ For in-app one-click upgrades, add the optional repository secret `LINKETRY_GITH
 
 1. In GitHub account settings, create a fine-grained personal access token for only this Linketry repository.
 2. Grant repository permission **Actions: Read and write**; do not grant organization or unrelated repository access.
+   For unattended upgrades, choose **No expiration** when the account policy allows it. If an expiry is mandatory, rotate the token and rerun the deployment before that date.
 3. In the Linketry repository, open **Settings → Secrets and variables → Actions → Secrets** and create `LINKETRY_GITHUB_UPDATE_TOKEN`.
 4. Run **Deploy Linketry** once manually. The workflow copies the token into the Worker secret store without printing it.
 5. Confirm the next update from the Admin banner. Rotate the repository secret and rerun deployment before the token expires.
@@ -246,7 +247,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.27.1
+LINKETRY_APPROVED_RELEASE=0.27.2
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
@@ -272,7 +273,7 @@ Leave these unset for the basic deployment; enable them later from the Admin Adv
 
 ```txt
 LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKETRY_VERSION=0.27.1
+LINKETRY_VERSION=0.27.2
 LINKETRY_COMPATIBILITY_DATE=2026-07-08
 LINKETRY_WORKER_DOMAINS=go.example.com,s.example.com
 LINKETRY_R2_BUCKET=linketry-backups
@@ -317,11 +318,11 @@ If the generated value is lost, add a new value under **Settings → Secrets and
 
 Log in with `LINKETRY_ADMIN_TOKEN`, then open Settings and set:
 
-| Setting | Value |
-|---------|-------|
-| Site Name | Your project name |
-| Default Domain | `s.example.com` |
-| Default Redirect Type | `302` |
+| Setting               | Value             |
+| --------------------- | ----------------- |
+| Site Name             | Your project name |
+| Default Domain        | `s.example.com`   |
+| Default Redirect Type | `302`             |
 
 Then open **Setup** in the sidebar. It summarizes whether the Admin can reach the API, whether a default short domain is configured, whether the domain catalog has an active default, whether R2 backups are available, and whether the first link has been created.
 
@@ -420,12 +421,12 @@ For a Shlink migration:
 
 ## 13. Troubleshooting
 
-| Issue | Check |
-|-------|-------|
-| Admin cannot call API | Confirm `VITE_LINKETRY_API_URL` was set before building Admin |
-| Worker cannot read D1/KV/R2 | Confirm binding names and resource IDs in `apps/worker/wrangler.toml` |
-| Login fails | Confirm `LINKETRY_ADMIN_TOKEN` was set with `wrangler secret put` |
-| GitHub Actions builds but does not deploy | Confirm Cloudflare secrets are set |
-| Pages deploys to the wrong project | Confirm `LINKETRY_PAGES_PROJECT` repository variable |
-| Short links use the wrong copied domain | Update Admin Settings -> Default Domain |
-| Local Worker starts without bindings | Confirm `apps/worker/wrangler.toml` was copied from the example |
+| Issue                                     | Check                                                                 |
+| ----------------------------------------- | --------------------------------------------------------------------- |
+| Admin cannot call API                     | Confirm `VITE_LINKETRY_API_URL` was set before building Admin         |
+| Worker cannot read D1/KV/R2               | Confirm binding names and resource IDs in `apps/worker/wrangler.toml` |
+| Login fails                               | Confirm `LINKETRY_ADMIN_TOKEN` was set with `wrangler secret put`     |
+| GitHub Actions builds but does not deploy | Confirm Cloudflare secrets are set                                    |
+| Pages deploys to the wrong project        | Confirm `LINKETRY_PAGES_PROJECT` repository variable                  |
+| Short links use the wrong copied domain   | Update Admin Settings -> Default Domain                               |
+| Local Worker starts without bindings      | Confirm `apps/worker/wrangler.toml` was copied from the example       |

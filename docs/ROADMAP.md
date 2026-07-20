@@ -117,6 +117,7 @@ Completed in the first V5 pass:
 - GitHub Actions variables for reusable Admin builds and Pages deploys
 - Admin Setup page for first-run deployment checks
 - Generated Worker deploy config from repository variables instead of a tracked production `wrangler.toml`
+- Protected in-app online upgrades through a fixed repository, branch, and workflow with an owner-controlled confirmation
 - GPL-3.0-only license and public repository readiness cleanup
 - Analytics documentation for the current dashboard and next tracking gaps
 

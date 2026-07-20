@@ -13,6 +13,25 @@ _(none)_
 
 ---
 
+## [0.27.2] - 2026-07-20
+
+### Changed
+
+- Documented non-expiring fine-grained token configuration for uninterrupted owner-controlled online upgrades when the GitHub account policy permits it.
+- Published a discovery-only repository release target while keeping the deployed production version unchanged until explicit Admin confirmation.
+
+### Security
+
+- The optional GitHub token remains restricted to one repository with Actions read and write only and is never exposed to browser code, logs, or tracked files.
+- The v0.27.2 discovery commit uses `[skip ci]`; it does not apply migrations, modify D1/KV data, or automatically deploy production.
+
+### Tests
+
+- Re-deployed production v0.27.1 through workflow run `29715930612` and confirmed the optional online-upgrade secret, safety gate, migrations, Worker, Admin, and project-site steps completed successfully.
+- Passed Worker type-check and 82 tests, 64 deployment safety tests, 48 Admin unit tests and production build, 6 Demo API tests, and 4 project-site tests plus its production build.
+
+---
+
 ## [0.27.1] - 2026-07-19
 
 ### Added
