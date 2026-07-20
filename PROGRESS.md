@@ -11,17 +11,30 @@ Last updated: 2026-07-21
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker backend             | ✅ 0.27.7 live         | Production health reports v0.27.7; redirect, analytics, D1, and KV behavior remain unchanged                                                                                                            |
-| Admin frontend             | ✅ 0.27.7 live         | Cache-bypassed production Admin HTML reports v0.27.7; v0.28.1 is the next owner-controlled update target                                                                                                |
+| Admin frontend             | ✅ 0.27.7 live         | Cache-bypassed production Admin HTML reports v0.27.7; v0.28.2 is the next owner-controlled update target                                                                                                |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
-| Documentation              | ✅ 0.28.1 updated      | Import limits, API behavior, self-hosting guidance, release notes, progress, and task records are synchronized                                                                                           |
+| Documentation              | ✅ 0.28.2 updated      | Scale contracts, API pagination, release notes, progress, and task records are synchronized                                                                                                              |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                             |
-| End-to-end test            | ✅ Full regression     | 72 deployment, 95 Worker, 58 Admin unit, 25 Admin browser, 6 Demo API, and 4 site tests pass; Worker/Admin/Site builds pass                                                                              |
+| End-to-end test            | ✅ Full regression     | 72 deployment, 98 Worker, 58 Admin unit, 25 Admin browser, 6 Demo API, and 4 site tests pass; Worker/Admin/Site builds pass                                                                              |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
 | Current version            | ✅ 0.27.7 live         | Production Worker/Admin remain synchronized on v0.27.7; repository changes do not claim a production rollout                                                                                           |
-| Repository update target   | ✅ 0.28.1 ready        | v0.28.1 adds an explicit import operating envelope; production remains owner-controlled                                                                                                                  |
+| Repository update target   | ✅ 0.28.2 ready        | v0.28.2 adds deterministic pagination and an executable data-scale contract; production remains owner-controlled                                                                                        |
 | Next planned work          | 🟡 Pre-1.0 validation | Rebrandly remains fixture-gated; independent fresh-account, real-export, large-data, and assistive-technology validation remain                                                                         |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.28.2 Data Scale Contract
+
+| Area                     | Status      | Notes                                                                                                                    |
+| ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Stable pagination        | ✅ Complete | Links and Audit use ID tie-breakers when timestamps, clicks, or other primary sort values match                          |
+| Input boundaries         | ✅ Complete | Shared policy accepts only positive integers, caps pages at 100,000 and page sizes at 100, and preserves safe defaults   |
+| Scale fixtures           | ✅ Complete | Maintained migrations seed 20k Links, 100k Visits, 20k Audit rows, and 10k raw Health History entries in memory          |
+| Response budgets         | ✅ Complete | Executable budgets cover Links/Audit pages, representative Analytics queries, and Health History parsing                 |
+| Remote D1 validation     | 🟡 External | Owner-controlled remote rehearsal is still required to measure network and platform variance                            |
+| Redirect/data impact     | ✅ None     | Redirects, analytics ingestion, D1/KV semantics, migrations, production data, and Demo isolation are unchanged          |
 
 ---
 
@@ -33,7 +46,7 @@ Last updated: 2026-07-21
 | Worker enforcement      | ✅ Complete | Preview/confirm reject oversized content before parsing/job creation; queued jobs stop before D1 writes on item excess |
 | Shlink API fetch        | ✅ Complete | Worker-generated exports use the content boundary; API pulls fail explicitly above 5,000 items or 100 pages           |
 | Admin UX                | ✅ Complete | Upload control shows the limit, rejects before reading, reports accessibly, and clears stale state                    |
-| Remaining scale work    | 🟡 Tracked  | Links, visits, Analytics, audit, and health-history D1 fixtures/response budgets remain pre-1.0                       |
+| Remaining scale work    | ✅ Advanced | Local D1-compatible fixtures and response budgets are delivered in v0.28.2; remote D1 rehearsal remains external     |
 | Redirect/data impact    | ✅ None     | Redirects, analytics, D1/KV semantics, migrations, production data, and Demo isolation are unchanged                 |
 
 ---

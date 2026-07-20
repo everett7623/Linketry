@@ -203,6 +203,17 @@ Status: complete in the repository; production remains owner-controlled.
 - Remaining pre-1.0 scale work covers representative D1 fixtures and response-time budgets outside imports
 - Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
 
+## 0.28.2: Data Scale Contract
+
+Status: complete in the repository; production remains owner-controlled.
+
+- Links and Audit pagination use deterministic ID tie-breakers when timestamps or primary sort values match
+- Malformed, negative, fractional, and oversized page inputs normalize through one bounded policy
+- A Node 24 in-memory SQLite profile applies the maintained migrations and generates 20,000 Links, 100,000 Visits, and 20,000 Audit rows
+- Executable budgets cover paginated list reads, representative Analytics aggregation, and a 10,000-row raw Health History payload capped to 200 stored items
+- Remote D1 network latency remains an owner-controlled environment rehearsal, not a local-test claim
+- Redirect handlers, asynchronous analytics ingestion, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
+
 ## Long-Term Product Principles
 
 Linketry is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.

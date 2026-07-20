@@ -231,7 +231,7 @@ Configuration fields are `enabled`, `minimumVisits` (10-100000), `volumeMultipli
 | `POST` | `/api/v1/links/migrate-domain/preview` |
 | `POST` | `/api/v1/links/migrate-domain/confirm` |
 
-`GET /api/v1/links` supports search, pagination, status, tag, source, domain, created date range, password, warning, limits, and sort query parameters.
+`GET /api/v1/links` supports search, pagination, status, tag, source, domain, created date range, password, warning, limits, and sort query parameters. `page` is a positive integer capped at 100,000; `pageSize` is capped at 100. Invalid values fall back to the documented defaults. Every sort uses the link ID as a deterministic tie-breaker so equal timestamps or click counts cannot move unpredictably between pages.
 
 `POST /api/v1/links` and `PUT /api/v1/links/:id` accept `domain` to set the short-link domain. If omitted, the Worker request host is used.
 
@@ -439,6 +439,8 @@ Or:
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/api/v1/audit` | List admin action and import audit events |
+
+Audit pagination uses the same bounded `page` and `pageSize` contract as Links, with a default page size of 50 and deterministic `created_at DESC, id DESC` ordering.
 
 ## Analytics
 

@@ -125,6 +125,18 @@ When approved:
 
 KV must not become a replacement database.
 
+## Scale Regression
+
+The Worker test suite includes a Node 24 in-memory SQLite profile that applies the maintained migrations and generates representative Links, Visits, Audit, and Health History data.
+
+Run it alone while changing authenticated list or analytics reads:
+
+```bash
+node --experimental-strip-types --test apps/worker/src/db/listingScale.test.mjs
+```
+
+The test enforces deterministic pagination, bounded result shapes, and conservative response-time budgets. Treat local timings as regression gates, not remote D1 latency guarantees. Do not loosen a budget or reduce a dataset merely to hide a query regression.
+
 ## Import Changes
 
 All adapters implement the shared ImportAdapter contract.

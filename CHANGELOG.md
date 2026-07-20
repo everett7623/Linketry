@@ -13,6 +13,27 @@ _(none)_
 
 ---
 
+## [0.28.2] - 2026-07-21
+
+### Added
+
+- Added a repeatable Node 24 in-memory SQLite scale profile with 20,000 Links, 100,000 Visits, 20,000 Audit rows, and 10,000 raw Health History entries.
+- Added conservative response-time budgets for paginated Links/Audit reads, representative Analytics aggregation, and bounded Health History parsing.
+
+### Changed
+
+- Links pagination now adds a deterministic ID tie-breaker to every supported sort, preventing duplicate or missing rows when primary sort values match.
+- Audit pagination now orders by timestamp and ID, and both list routes share strict positive-integer page and page-size normalization.
+
+### Tests
+
+- Worker scale coverage verifies bounded page, Top-N, recent-visit, and Health History result sizes against the existing migration schema.
+- Passed 72 deployment, 98 Worker, 58 Admin unit, 25 Admin browser, 6 Demo API, and 4 project-site tests.
+- Passed Worker type-check, Admin/Site production builds, and the official npm registry audit with zero known vulnerabilities.
+- Redirect handlers, asynchronous analytics ingestion, D1/KV ownership, migrations, production data, and Demo isolation are unchanged.
+
+---
+
 ## [0.28.1] - 2026-07-21
 
 ### Added

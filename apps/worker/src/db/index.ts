@@ -1,5 +1,6 @@
 import type { ApiToken, ApiTokenScope, AuditLog, Backup, Domain, Link, RedirectRule, Tag, ImportJob, Setting, Visit } from '@linketry/shared';
 import type { Env } from '../types';
+import { AUDIT_ORDER_BY, linkOrderBy } from './listingPolicy';
 
 export interface ApiTokenRecord {
   id: string;
@@ -255,17 +256,7 @@ export async function listLinks(
 
   const where = conditions.join(' AND ');
 
-  const sortMap: Record<string, string> = {
-    created_at_desc: 'created_at DESC',
-    created_at_asc: 'created_at ASC',
-    clicks_desc: 'clicks DESC',
-    clicks_asc: 'clicks ASC',
-    last_clicked_at_desc: 'last_clicked_at DESC NULLS LAST',
-    last_clicked_at_asc: 'last_clicked_at ASC NULLS LAST',
-    updated_at_desc: 'updated_at DESC',
-    updated_at_asc: 'updated_at ASC',
-  };
-  const orderBy = sortMap[sort] ?? 'created_at DESC';
+  const orderBy = linkOrderBy(sort);
 
   const offset = (page - 1) * pageSize;
 
@@ -957,7 +948,7 @@ export async function listAuditLogs(
   const total = countResult?.count ?? 0;
 
   const result = await env.DB.prepare(
-    `SELECT * FROM audit_logs WHERE ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+    `SELECT * FROM audit_logs WHERE ${where} ORDER BY ${AUDIT_ORDER_BY} LIMIT ? OFFSET ?`
   )
     .bind(...params, pageSize, offset)
     .all<AuditLog>();

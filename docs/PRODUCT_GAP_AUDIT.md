@@ -17,6 +17,14 @@ The review covered:
 
 The complete dependency audit reports no known vulnerabilities. Vite is updated to the supported 6.4 line; React, Tailwind, and React Router major releases remain separate work because they need dedicated migration testing.
 
+## Completed In 0.28.2
+
+| Area                     | Result                                                                                                                                                                            |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stable pagination        | Links and Audit add deterministic ID tie-breakers, preventing equal timestamps or click counts from drifting between pages.                                                      |
+| Input boundaries         | Shared strict normalization bounds page numbers at 100,000 and page sizes at 100 while preserving route-specific defaults.                                                       |
+| Repeatable scale profile | Node 24 in-memory SQLite applies the maintained migrations and tests 20,000 Links, 100,000 Visits, 20,000 Audit rows, and 10,000 raw Health History entries against response budgets. |
+
 ## Completed In 0.28.0
 
 | Area                    | Result                                                                                                                                                                      |
@@ -24,7 +32,7 @@ The complete dependency audit reports no known vulnerabilities. Vite is updated 
 | Bitly migration         | CSV detection and normalization preserve custom domains, case-sensitive slugs, destinations, titles, engagement totals, creation dates, source IDs, and verified status. |
 | Short.io migration      | CSV detection and normalization preserve source IDs, short domains, paths, destinations, titles, tags, click totals, timestamps, and expiry.                              |
 | Import safety           | Named detection is conservative; preview counts and `skip`/`rename`/explicit `overwrite` behavior share tested policy while confirmation remains bounded and asynchronous. |
-| CSV compatibility       | Generic and named imports now tolerate quoted commas, escaped quotes, CRLF, and multiline quoted fields.                                                                    |
+| CSV compatibility       | Generic and named imports now tolerate quoted commas, escaped quotes, CRLF input, and multiline quoted fields.                                                              |
 
 ## Completed In 0.27.8
 
@@ -74,7 +82,7 @@ The automated baseline now covers the core routes, dialogs, mobile navigation, k
 
 ### Large-data operating envelope
 
-Import files now have a tested 10 MiB UTF-8 content limit, a 50,000-item normalization limit, Admin preflight rejection, Worker HTTP 413 enforcement, and bounded asynchronous D1 writes. Sequential Shlink API pulls use a lower explicit 5,000-item/100-page boundary and direct larger migrations to reviewed file batches. Links, visits, audit rows, health history, and Analytics still need repeatable representative D1 fixtures and response-time budgets before 1.0.
+Import files have a tested 10 MiB UTF-8 content limit, a 50,000-item normalization limit, Admin preflight rejection, Worker HTTP 413 enforcement, and bounded asynchronous D1 writes. Sequential Shlink API pulls use a lower explicit 5,000-item/100-page boundary and direct larger migrations to reviewed file batches. The v0.28.2 local D1-compatible scale profile now covers Links, Visits/Analytics, Audit, and Health History correctness plus conservative response-time budgets. Before 1.0, repeat the profile against an owner-controlled remote D1 instance to capture network and platform variance; local timings are not presented as remote latency guarantees.
 
 ### Release and support policy
 

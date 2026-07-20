@@ -28,6 +28,12 @@ import { normalizeFallbackUrl } from '../links/fallbackUrl';
 import { domainMigrationSample, migratedShortUrl } from '../links/domainMigration';
 import { resolvePageTitle } from '../utils/pageTitle';
 import { normalizeDestinationUrl } from '../links/duplicateDestination';
+import {
+  DEFAULT_LINK_PAGE_SIZE,
+  normalizeBoundedPositiveInteger,
+  normalizeListPage,
+  normalizeListPageSize,
+} from '../db/listingPolicy';
 
 const links = new Hono<{ Bindings: Env }>();
 
@@ -58,12 +64,6 @@ function parseRedirectType(value: unknown): { value?: Link['redirect_type']; err
   if (value === 301 || value === '301') return { value: 301 };
   if (value === 302 || value === '302') return { value: 302 };
   return { error: 'redirect_type must be 301 or 302' };
-}
-
-function parsePaginationNumber(value: string | undefined, fallback: number, max?: number): number {
-  const parsed = Number.parseInt(value ?? '', 10);
-  if (!Number.isFinite(parsed) || parsed < 1) return fallback;
-  return max === undefined ? parsed : Math.min(parsed, max);
 }
 
 async function ensureTagRecords(env: Env, tags: string[], ts = now()): Promise<void> {
@@ -375,8 +375,8 @@ links.get('/', async (c) => {
   const warning = c.req.query('warning');
   const limits = c.req.query('limits');
   const sort = c.req.query('sort');
-  const page = parsePaginationNumber(c.req.query('page'), 1);
-  const pageSize = parsePaginationNumber(c.req.query('pageSize'), 20, 100);
+  const page = normalizeListPage(c.req.query('page'));
+  const pageSize = normalizeListPageSize(c.req.query('pageSize'), DEFAULT_LINK_PAGE_SIZE);
 
   const { items, total } = await listLinks(c.env, {
     keyword,
@@ -685,7 +685,7 @@ links.get('/duplicates', async (c) => {
   const destination = normalizeDestinationUrl(rawUrl);
   if (!destination) return jsonError('url must be a valid http or https URL', 400);
   const excludeId = c.req.query('excludeId')?.trim() || undefined;
-  const limit = parsePaginationNumber(c.req.query('limit'), 5, 20);
+  const limit = normalizeBoundedPositiveInteger(c.req.query('limit'), 5, 20);
   const candidates = await getDuplicateDestinationCandidates(
     c.env,
     destination.originPrefix,

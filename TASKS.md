@@ -11,6 +11,17 @@ _(none)_
 
 ---
 
+## ✅ Completed - Data Scale Contract (v0.28.2)
+
+- [x] Stabilize Links and Audit pagination with deterministic ID tie-breakers
+- [x] Normalize malformed page and page-size inputs through one bounded policy
+- [x] Add representative SQLite fixtures and response-time budgets
+- [x] Run the complete regression and synchronize release metadata
+
+Task record: `.codex/tasks/data-scale-contract-2026-07-21.md`
+
+---
+
 ## External Prerequisites
 
 - [ ] Activate/configure optional R2 bindings in the isolated Demo account
