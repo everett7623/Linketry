@@ -128,28 +128,31 @@ export function ImportExport() {
     }
   };
 
-  const finishImport = useCallback((job: ImportJob) => {
-    setImportJobId(null);
-    setConfirming(false);
-    if (job.status === 'failed') {
-      error(t('importFailed'));
+  const finishImport = useCallback(
+    (job: ImportJob) => {
+      setImportJobId(null);
+      setConfirming(false);
+      if (job.status === 'failed') {
+        error(t('importFailed'));
+        loadJobs();
+        return;
+      }
+      success(
+        t('importComplete', {
+          success: job.success_count,
+          skipped: job.skipped_count,
+          failed: job.failed_count,
+        })
+      );
+      setPreview(null);
+      setShowPreview(false);
+      setContent('');
+      setFilename('');
+      if (fileRef.current) fileRef.current.value = '';
       loadJobs();
-      return;
-    }
-    success(
-      t('importComplete', {
-        success: job.success_count,
-        skipped: job.skipped_count,
-        failed: job.failed_count,
-      })
-    );
-    setPreview(null);
-    setShowPreview(false);
-    setContent('');
-    setFilename('');
-    if (fileRef.current) fileRef.current.value = '';
-    loadJobs();
-  }, [error, loadJobs, success, t]);
+    },
+    [error, loadJobs, success, t]
+  );
 
   useEffect(() => {
     if (!importJobId) return;
@@ -236,10 +239,14 @@ export function ImportExport() {
           </h2>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label
+              htmlFor="import-source"
+              className="block text-sm font-medium text-slate-300 mb-1.5"
+            >
               {t('sourceFormat')}
             </label>
             <select
+              id="import-source"
               value={source}
               onChange={(e) => setSource(e.target.value)}
               className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -249,45 +256,57 @@ export function ImportExport() {
               <option value="sink">Sink (JSON / JSONL)</option>
               <option value="yourls">YOURLS (JSON / JSONL)</option>
               <option value="dub">Dub (JSON / JSONL)</option>
+              <option value="bitly-csv">{t('bitlyCsvFormat')}</option>
+              <option value="shortio-csv">{t('shortIoCsvFormat')}</option>
               <option value="linketry-backup">{t('linketryBackupFormat')}</option>
               <option value="generic-csv">{t('genericCsvFormat')}</option>
               <option value="generic-json">{t('genericJsonFormat')}</option>
             </select>
           </div>
 
-          <div className="grid gap-3 border-t border-slate-800 pt-5 md:grid-cols-[1fr_1fr_auto] md:items-end">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
-                {t('shlinkUrl')}
-              </label>
-              <input
-                value={shlinkBaseUrl}
-                onChange={(e) => setShlinkBaseUrl(e.target.value)}
-                placeholder="https://s.example.com"
-                className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
-              />
+          {source === 'shlink' && (
+            <div className="grid gap-3 border-t border-slate-800 pt-5 md:grid-cols-[1fr_1fr_auto] md:items-end">
+              <div>
+                <label
+                  htmlFor="shlink-url"
+                  className="block text-sm font-medium text-slate-300 mb-1.5"
+                >
+                  {t('shlinkUrl')}
+                </label>
+                <input
+                  id="shlink-url"
+                  value={shlinkBaseUrl}
+                  onChange={(e) => setShlinkBaseUrl(e.target.value)}
+                  placeholder="https://s.example.com"
+                  className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="shlink-api-key"
+                  className="block text-sm font-medium text-slate-300 mb-1.5"
+                >
+                  {t('shlinkApiKey')}
+                </label>
+                <input
+                  id="shlink-api-key"
+                  value={shlinkApiKey}
+                  onChange={(e) => setShlinkApiKey(e.target.value)}
+                  type="password"
+                  placeholder={t('temporaryApiKey')}
+                  className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleFetchShlink}
+                loading={shlinkFetching}
+              >
+                {t('fetchShlink')}
+              </Button>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
-                {t('shlinkApiKey')}
-              </label>
-              <input
-                value={shlinkApiKey}
-                onChange={(e) => setShlinkApiKey(e.target.value)}
-                type="password"
-                placeholder={t('temporaryApiKey')}
-                className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
-              />
-            </div>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleFetchShlink}
-              loading={shlinkFetching}
-            >
-              {t('fetchShlink')}
-            </Button>
-          </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">
@@ -354,7 +373,11 @@ export function ImportExport() {
               {t('preview')}
             </Button>
             {preview && (
-              <Button onClick={handleConfirm} loading={confirming} disabled={!hasImportableLinks || importJobId !== null}>
+              <Button
+                onClick={handleConfirm}
+                loading={confirming}
+                disabled={!hasImportableLinks || importJobId !== null}
+              >
                 {importJobId
                   ? t('importProcessing')
                   : hasImportableLinks

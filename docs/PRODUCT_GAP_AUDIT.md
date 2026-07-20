@@ -1,6 +1,6 @@
 # Product Gap Audit
 
-Updated: 2026-07-19
+Updated: 2026-07-21
 
 This document tracks what Linketry still needs as a practical open-source, self-hosted short-link platform. It complements `ROADMAP.md`, `SHLINK_FEATURE_GAP.md`, and `SINK_COMPARISON.md` without weakening redirect stability.
 
@@ -16,6 +16,15 @@ The review covered:
 - Current official Shlink, Dub, and Kutt documentation for product comparison
 
 The complete dependency audit reports no known vulnerabilities. Vite is updated to the supported 6.4 line; React, Tailwind, and React Router major releases remain separate work because they need dedicated migration testing.
+
+## Completed In 0.28.0
+
+| Area                    | Result                                                                                                                                                                      |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bitly migration         | CSV detection and normalization preserve custom domains, case-sensitive slugs, destinations, titles, engagement totals, creation dates, source IDs, and verified status. |
+| Short.io migration      | CSV detection and normalization preserve source IDs, short domains, paths, destinations, titles, tags, click totals, timestamps, and expiry.                              |
+| Import safety           | Named detection is conservative; preview counts and `skip`/`rename`/explicit `overwrite` behavior share tested policy while confirmation remains bounded and asynchronous. |
+| CSV compatibility       | Generic and named imports now tolerate quoted commas, escaped quotes, CRLF, and multiline quoted fields.                                                                    |
 
 ## Completed In 0.27.8
 
@@ -99,7 +108,7 @@ Expiry and click limits are implemented. Add an opt-in dry-run queue for long-id
 
 ### Additional import adapters
 
-Add Bitly, Rebrandly, and TinyURL only when real export fixtures and conflict behavior are available. Every adapter must preserve preview, `skip` defaults, bounded batches, and original source identifiers.
+Bitly and Short.io CSV are complete in v0.28.0. Add Rebrandly and TinyURL only when real redacted payloads, pagination/export contracts, and conflict behavior are available. Every adapter must preserve preview, `skip` defaults, bounded batches, and original source identifiers.
 
 ## P2 Optional Enhancements
 

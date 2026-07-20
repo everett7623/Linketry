@@ -21,6 +21,7 @@ import { jsonOk, jsonError } from '../utils/response';
 import { generateId, now } from '../utils/id';
 import { ShlinkAdapter } from '../importers/shlink';
 import { GenericCsvAdapter, GenericJsonAdapter } from '../importers/generic';
+import { BitlyCsvAdapter, ShortIoCsvAdapter } from '../importers/mainstream';
 import {
   DubAdapter,
   extractLinketryBackupRedirectRules,
@@ -32,7 +33,20 @@ import {
 import { normalizeDomain } from '../importers/domain';
 import { runAfterImportQueueBoundary } from '../importers/queue';
 import { chunkImportItems } from '../importers/batching';
-import type { ImportFieldMapping, Link, NormalizedImportItem, ImportAdapter, KVCacheEntry, RedirectRule } from '@linketry/shared';
+import {
+  makeUniqueSlug,
+  parseConflictStrategy,
+  summarizeImportPreview,
+  type ConflictStrategy,
+} from '../importers/importPolicy';
+import type {
+  ImportFieldMapping,
+  Link,
+  NormalizedImportItem,
+  ImportAdapter,
+  KVCacheEntry,
+  RedirectRule,
+} from '@linketry/shared';
 
 const importRoutes = new Hono<{ Bindings: Env }>();
 
@@ -48,10 +62,11 @@ const ADAPTERS: ImportAdapter[] = [
   YourlsAdapter,
   DubAdapter,
   LinketryBackupAdapter,
+  BitlyCsvAdapter,
+  ShortIoCsvAdapter,
   GenericCsvAdapter,
   GenericJsonAdapter,
 ];
-type ConflictStrategy = 'skip' | 'rename' | 'overwrite';
 type ShlinkApiPagination = {
   currentPage?: number;
   pagesTotal?: number;
@@ -69,10 +84,6 @@ function detectAdapter(input: unknown, hint?: string): ImportAdapter | null {
   return ADAPTERS.find((a) => a.detect(input)) ?? null;
 }
 
-function parseConflictStrategy(value: unknown): ConflictStrategy {
-  return value === 'rename' || value === 'overwrite' ? value : 'skip';
-}
-
 function parseFieldMapping(value: unknown): ImportFieldMapping | undefined {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return undefined;
   const mapping: ImportFieldMapping = {};
@@ -86,19 +97,13 @@ function parseFieldMapping(value: unknown): ImportFieldMapping | undefined {
   return Object.keys(mapping).length > 0 ? mapping : undefined;
 }
 
-function inputForAdapter(input: unknown, adapter: ImportAdapter, fieldMapping?: ImportFieldMapping): unknown {
+function inputForAdapter(
+  input: unknown,
+  adapter: ImportAdapter,
+  fieldMapping?: ImportFieldMapping
+): unknown {
   if (!fieldMapping || !adapter.source.startsWith('generic-')) return input;
   return { input, fieldMapping };
-}
-
-function makeUniqueSlug(slug: string, existingSlugs: Set<string>): string {
-  if (!existingSlugs.has(slug)) return slug;
-  const base = slug.slice(0, 94);
-  for (let i = 2; i < 10000; i++) {
-    const candidate = `${base}-${i}`;
-    if (!existingSlugs.has(candidate)) return candidate;
-  }
-  return `${base}-${Date.now()}`;
 }
 
 function itemTags(item: NormalizedImportItem): string[] {
@@ -108,14 +113,17 @@ function itemTags(item: NormalizedImportItem): string[] {
 async function ensureImportedTags(env: Env, item: NormalizedImportItem, ts: string): Promise<void> {
   const tags = itemTags(item);
   if (tags.length === 0) return;
-  await createTagsIfMissing(env, tags.map((tag) => ({
-    id: generateId(),
-    name: tag,
-    color: null,
-    description: null,
-    created_at: ts,
-    updated_at: ts,
-  })));
+  await createTagsIfMissing(
+    env,
+    tags.map((tag) => ({
+      id: generateId(),
+      name: tag,
+      color: null,
+      description: null,
+      created_at: ts,
+      updated_at: ts,
+    }))
+  );
 }
 
 function cacheEntryFromLink(link: Link): KVCacheEntry {
@@ -135,15 +143,28 @@ function cacheEntryFromLink(link: Link): KVCacheEntry {
 async function syncImportCache(env: Env, domain: string, link: Link): Promise<void> {
   const cacheDomain = normalizeDomain(link.domain) ?? domain;
   const isExpired = !!link.expires_at && Date.parse(link.expires_at) < Date.now();
-  const reachedMaxClicks = link.max_clicks !== null && link.max_clicks !== undefined && link.clicks >= link.max_clicks;
-  if (link.status === 'active' && link.archived === 0 && !link.password_hash && !isExpired && !reachedMaxClicks) {
+  const reachedMaxClicks =
+    link.max_clicks !== null && link.max_clicks !== undefined && link.clicks >= link.max_clicks;
+  if (
+    link.status === 'active' &&
+    link.archived === 0 &&
+    !link.password_hash &&
+    !isExpired &&
+    !reachedMaxClicks
+  ) {
     await setCachedLink(env, cacheDomain, cacheEntryFromLink(link));
   } else {
     await deleteCachedLink(env, cacheDomain, link.slug);
   }
 }
 
-function linkFromImportItem(item: NormalizedImportItem, id: string, slug: string, domain: string, ts: string): Link {
+function linkFromImportItem(
+  item: NormalizedImportItem,
+  id: string,
+  slug: string,
+  domain: string,
+  ts: string
+): Link {
   const createdAt = item.createdAt ?? ts;
   const updatedAt = item.updatedAt ?? createdAt;
   const importedDomain = normalizeDomain(item.domain) ?? domain;
@@ -173,7 +194,11 @@ function linkFromImportItem(item: NormalizedImportItem, id: string, slug: string
   };
 }
 
-function overwriteFieldsFromImportItem(item: NormalizedImportItem, existing: Link, ts: string): Partial<Link> {
+function overwriteFieldsFromImportItem(
+  item: NormalizedImportItem,
+  existing: Link,
+  ts: string
+): Partial<Link> {
   return {
     domain: normalizeDomain(item.domain) ?? existing.domain,
     long_url: item.longUrl,
@@ -191,7 +216,8 @@ function overwriteFieldsFromImportItem(item: NormalizedImportItem, existing: Lin
     expires_at: item.expiresAt ?? existing.expires_at,
     max_clicks: item.maxClicks ?? existing.max_clicks,
     password_hash: item.passwordHash ?? existing.password_hash,
-    warning_enabled: item.warningEnabled === undefined ? existing.warning_enabled : item.warningEnabled ? 1 : 0,
+    warning_enabled:
+      item.warningEnabled === undefined ? existing.warning_enabled : item.warningEnabled ? 1 : 0,
     fallback_url: item.fallbackUrl ?? existing.fallback_url,
     archived: item.archived ?? existing.archived,
   };
@@ -254,32 +280,12 @@ async function previewItems(
   const validItems = validationResults
     .filter(({ validation }) => validation.valid)
     .map(({ item }) => item);
-  const existingSlugs = await getExistingSlugs(env, validItems.map((item) => item.slug));
+  const existingSlugs = await getExistingSlugs(
+    env,
+    validItems.map((item) => item.slug)
+  );
 
-  let invalid = 0;
-  let conflicts = 0;
-  const preview: Array<NormalizedImportItem & { _valid: boolean; _errors: string[]; _conflict: boolean }> = [];
-
-  for (let i = 0; i < validationResults.length; i++) {
-    const { item, validation } = validationResults[i];
-    const conflict = validation.valid && existingSlugs.has(item.slug);
-
-    if (!validation.valid) invalid++;
-    if (conflict) conflicts++;
-
-    if (i < 200) {
-      preview.push({
-        ...item,
-        _valid: validation.valid,
-        _errors: validation.errors,
-        _conflict: conflict,
-      });
-    }
-  }
-
-  const valid = validItems.length - conflicts;
-
-  return { total: items.length, valid, invalid, conflicts, preview };
+  return summarizeImportPreview<NormalizedImportItem>(validationResults, existingSlugs);
 }
 
 function shlinkShortUrlsEndpoint(baseUrl: string): string {
@@ -290,9 +296,13 @@ function shlinkShortUrlsEndpoint(baseUrl: string): string {
   return `${clean}/rest/v3/short-urls`;
 }
 
-function extractShlinkShortUrls(payload: unknown): { items: unknown[]; pagination?: ShlinkApiPagination } {
+function extractShlinkShortUrls(payload: unknown): {
+  items: unknown[];
+  pagination?: ShlinkApiPagination;
+} {
   const root = payload as Record<string, unknown>;
-  const data = root?.data && typeof root.data === 'object' ? root.data as Record<string, unknown> : root;
+  const data =
+    root?.data && typeof root.data === 'object' ? (root.data as Record<string, unknown>) : root;
   const shortUrls = data?.shortUrls as unknown;
 
   if (Array.isArray(shortUrls)) {
@@ -402,7 +412,8 @@ importRoutes.post('/preview', async (c) => {
   }
 
   const adapter = detectAdapter(parsedInput, source);
-  if (!adapter) return jsonError('Could not detect import format. Please specify source type.', 400);
+  if (!adapter)
+    return jsonError('Could not detect import format. Please specify source type.', 400);
 
   const fieldMapping = parseFieldMapping(body.fieldMapping);
   const items = await adapter.parse(inputForAdapter(parsedInput, adapter, fieldMapping));
@@ -433,9 +444,8 @@ async function runImportJob(
       if (backupTags.length > 0) await createTagsIfMissing(env, backupTags);
     }
 
-    const backupRedirectRules = adapter.source === 'linketry-backup'
-      ? extractLinketryBackupRedirectRules(parsedInput)
-      : [];
+    const backupRedirectRules =
+      adapter.source === 'linketry-backup' ? extractLinketryBackupRedirectRules(parsedInput) : [];
     const linkIdByBackupId = new Map<string, string>();
     const replaceRuleLinkIds = new Set<string>();
 
@@ -480,19 +490,25 @@ async function runImportJob(
       existingSlugs.add(slug);
     }
 
-    const importTagNames = [...new Set(
-      [...plannedCreates.map(({ item }) => item), ...plannedOverwrites]
-        .flatMap((item) => itemTags(item))
-    )];
+    const importTagNames = [
+      ...new Set(
+        [...plannedCreates.map(({ item }) => item), ...plannedOverwrites].flatMap((item) =>
+          itemTags(item)
+        )
+      ),
+    ];
     if (importTagNames.length > 0) {
-      await createTagsIfMissing(env, importTagNames.map((name) => ({
-        id: generateId(),
-        name,
-        color: null,
-        description: null,
-        created_at: ts,
-        updated_at: ts,
-      })));
+      await createTagsIfMissing(
+        env,
+        importTagNames.map((name) => ({
+          id: generateId(),
+          name,
+          color: null,
+          description: null,
+          created_at: ts,
+          updated_at: ts,
+        }))
+      );
     }
 
     const persistProgress = async (): Promise<void> => {
@@ -507,14 +523,19 @@ async function runImportJob(
 
     for (const batch of chunkImportItems(plannedCreates)) {
       try {
-        await createLinksBatch(env, batch.map(({ link }) => link));
+        await createLinksBatch(
+          env,
+          batch.map(({ link }) => link)
+        );
         for (const { item, link } of batch) {
           const backupLinkId = backupLinkIdFromItem(item);
           if (adapter.source === 'linketry-backup' && backupLinkId) {
             linkIdByBackupId.set(backupLinkId, link.id);
           }
           successCount++;
-          reportRows.push(link.slug === item.slug ? `${item.slug},success,` : `${item.slug},renamed,${link.slug}`);
+          reportRows.push(
+            link.slug === item.slug ? `${item.slug},success,` : `${item.slug},renamed,${link.slug}`
+          );
         }
       } catch (batchError) {
         console.warn('[import] D1 batch failed; retrying links individually', {
@@ -530,7 +551,11 @@ async function runImportJob(
               linkIdByBackupId.set(backupLinkId, link.id);
             }
             successCount++;
-            reportRows.push(link.slug === item.slug ? `${item.slug},success,` : `${item.slug},renamed,${link.slug}`);
+            reportRows.push(
+              link.slug === item.slug
+                ? `${item.slug},success,`
+                : `${item.slug},renamed,${link.slug}`
+            );
           } catch (error) {
             failedCount++;
             reportRows.push(`${item.slug},failed,"${String(error)}"`);
@@ -671,7 +696,11 @@ async function runQueuedImportJob(
           conflictStrategy,
         }).catch(() => {});
 
-        console.log('[import] queued job parsed', { jobId, source: adapter.source, total: items.length });
+        console.log('[import] queued job parsed', {
+          jobId,
+          source: adapter.source,
+          total: items.length,
+        });
         await runImportJob(env, jobId, adapter, items, parsedInput, domain, conflictStrategy, ts);
       }
     );
@@ -682,7 +711,10 @@ async function runQueuedImportJob(
       report: importFailureReport(error),
       completed_at: completedAt,
     }).catch((updateError) => {
-      console.error('[import] failed to persist queued job failure', { jobId, error: String(updateError) });
+      console.error('[import] failed to persist queued job failure', {
+        jobId,
+        error: String(updateError),
+      });
     });
     console.error('[import] queued job failed', { jobId, error: String(error) });
   }
@@ -690,7 +722,13 @@ async function runQueuedImportJob(
 
 // POST /api/v1/import/confirm
 importRoutes.post('/confirm', async (c) => {
-  let body: { content?: string; source?: string; filename?: string; conflictStrategy?: string; fieldMapping?: unknown };
+  let body: {
+    content?: string;
+    source?: string;
+    filename?: string;
+    conflictStrategy?: string;
+    fieldMapping?: unknown;
+  };
   try {
     body = await c.req.json();
   } catch {

@@ -18,18 +18,18 @@ _(none)_
 
 ---
 
-## 🟡 Next - Mainstream Import Adapters (v0.28.0)
+## ✅ Completed - Mainstream File Import Adapters (v0.28.0)
 
 - [x] Verify the current official Bitly, Short.io, and Rebrandly export/API contracts
-- [ ] Collect representative redacted Bitly and Short.io CSV fixtures
-- [ ] Add fixture-backed Bitly CSV detection, normalization, preview, and confirm coverage
-- [ ] Add fixture-backed Short.io CSV detection, normalization, preview, and confirm coverage
-- [ ] Preserve source slugs, short domains, titles, tags, click totals, timestamps, expiry, and verified status fields when supplied
-- [ ] Keep default conflicts on `skip` and cover `rename`, explicit `overwrite`, invalid rows, and downloadable failure reports
-- [ ] Add conservative source auto-detection and explicit Admin source choices without claiming unrelated Generic files
-- [ ] Evaluate Rebrandly JSON/API import as phase 2 after confirming a real redacted payload and pagination
-- [ ] Keep Kutt, TinyURL, BL.INK, and Cuttly behind Generic import until their current export contracts are fixture-backed
-- [ ] Preserve redirects, asynchronous analytics, D1/KV ownership, migrations, secrets, and production data
+- [x] Add representative redacted Bitly and Short.io CSV contract fixtures with reserved example data
+- [x] Add fixture-backed Bitly CSV detection, normalization, preview, and confirm-policy coverage
+- [x] Add fixture-backed Short.io CSV detection, normalization, preview, and confirm-policy coverage
+- [x] Preserve source slugs, short domains, titles, tags, click totals, timestamps, expiry, and verified status fields when supplied
+- [x] Keep default conflicts on `skip` and cover `rename`, explicit `overwrite`, invalid rows, and downloadable failure-report behavior
+- [x] Add conservative source auto-detection and explicit Admin source choices without claiming unrelated Generic files
+- [x] Keep Rebrandly JSON/API as phase 2 until a real redacted payload and cursor pagination are confirmed
+- [x] Keep Kutt, TinyURL, BL.INK, and Cuttly behind Generic import until their current export contracts are fixture-backed
+- [x] Preserve redirects, asynchronous analytics, D1/KV ownership, migrations, secrets, and production data
 
 Task record: `.codex/tasks/mainstream-import-adapters-2026-07-20.md`
 

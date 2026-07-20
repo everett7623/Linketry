@@ -16,6 +16,8 @@ export interface ImportAdapter {
 | Adapter         | File                                     | Formats                                           |
 | --------------- | ---------------------------------------- | ------------------------------------------------- |
 | Shlink          | `apps/worker/src/importers/shlink.ts`    | JSON, JSONL, CSV, API pull                        |
+| Bitly           | `apps/worker/src/importers/mainstream.ts` | CSV                                              |
+| Short.io        | `apps/worker/src/importers/mainstream.ts` | CSV                                              |
 | Sink            | `apps/worker/src/importers/platforms.ts` | JSON, JSONL                                       |
 | YOURLS          | `apps/worker/src/importers/platforms.ts` | JSON, JSONL                                       |
 | Dub             | `apps/worker/src/importers/platforms.ts` | JSON, JSONL                                       |
@@ -42,21 +44,30 @@ Example:
 
 The generic adapter still falls back to built-in aliases such as `code`, `alias`, `destination`, `url`, `labels`, and `categories`.
 
+## Bitly And Short.io Contracts
+
+The v0.28.0 adapters use the current official export contracts and conservative header detection before the Generic CSV fallback.
+
+- Bitly preserves the selected short URL, custom domain, case-sensitive back-half, destination, title, creation date, engagement total, and source link. Documented `Active` rows remain active; documented `Deleted` rows import archived and unavailable.
+- Short.io preserves its ID string, short URL and domain, original path, destination, title, click total, created/updated timestamps, expiry, and tags. The creator column is recognized during parsing but is not persisted or mapped to a Linketry ownership concept.
+- Both fixtures use reserved example domains and synthetic identifiers. They cover empty optional fields, quoted commas and quotes, multiline values, custom domains, and malformed rows.
+- Auto-detection requires several platform-specific headers. Partial or unrelated files continue to the Generic adapter instead of being claimed by a named source.
+
+The representative fixtures live in `apps/worker/src/importers/fixtures/`. A redacted real-account export should be added when available to detect future provider-side header drift without introducing private data.
+
 ## Candidate Adapters
 
-The v0.28.0 migration plan prioritizes platforms with a current official export contract. Bitly and Short.io are the first file-import targets; Rebrandly follows as a JSON/API target after its pagination and payload are verified against a redacted response.
+Rebrandly follows as a JSON/API target only after its pagination and payload are verified against a redacted response.
 
 | Candidate | Status                   | Requirement before implementation                                         |
 | --------- | ------------------------ | ------------------------------------------------------------------------- |
-| Bitly     | Planned for v0.28.0      | Redacted CSV fixture matching the current documented export columns       |
-| Short.io  | Planned for v0.28.0      | Redacted CSV fixture covering domain, path, tags, timestamps, and expiry  |
 | Rebrandly | Planned phase 2          | Redacted JSON/API fixture plus verified pagination and credential handling |
 | Kutt      | Fixture-gated            | Current official export or API payload contract                           |
 | TinyURL   | Deferred to Generic      | Current official export contract and representative account export       |
 | BL.INK    | Deferred to Generic      | Current official export contract and representative account export       |
 | Cuttly    | Deferred to Generic      | Current official export contract and representative account export       |
 
-Do not infer a production field contract from an old planning table or a platform name. Before implementation, collect representative current exports, record format/version details, confirm how custom domains and click totals are represented, and define fixtures that contain no credentials or personal data.
+Do not infer another production field contract from an old planning table or a platform name. Before implementation, collect representative current exports, record format/version details, confirm how custom domains and click totals are represented, and define fixtures that contain no credentials or personal data.
 
 Prioritize adapters based on user migration demand and maintainability. A platform-specific adapter should provide more reliable normalization than the Generic importer; otherwise, document a Generic field mapping instead.
 

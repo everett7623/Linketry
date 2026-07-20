@@ -1,0 +1,5 @@
+Link,Custom Link,Date created,Title,Destination URL,Engagements,Status
+https://bit.ly/AbC123,https://go.example.test/LaunchCase,2026-06-01T08:30:00Z,"Launch, ""Summer""",https://destination.example.test/products?campaign=summer,"1,234",Active
+https://bit.ly/OldLink,,2025-01-02T03:04:05Z,,https://destination.example.test/archive,9,Deleted
+https://bit.ly/bad/path,,2026-06-02T08:30:00Z,"Malformed
+row",not-a-url,unknown,Active

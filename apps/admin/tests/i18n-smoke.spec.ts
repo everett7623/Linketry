@@ -701,6 +701,19 @@ test('completed import exits the importing state and clears the finished input',
   await authenticate(page, 'en', 'advanced');
   await page.goto('/import-export');
 
+  const sourceSelect = page.getByLabel(messages.en.sourceFormat);
+  await expect(sourceSelect.locator('option[value="bitly-csv"]')).toHaveText(
+    messages.en.bitlyCsvFormat
+  );
+  await expect(sourceSelect.locator('option[value="shortio-csv"]')).toHaveText(
+    messages.en.shortIoCsvFormat
+  );
+  await expect(page.getByLabel(messages.en.shlinkUrl)).toHaveCount(0);
+  await sourceSelect.selectOption('shlink');
+  await expect(page.getByLabel(messages.en.shlinkUrl)).toBeVisible();
+  await sourceSelect.selectOption('bitly-csv');
+  await expect(page.getByLabel(messages.en.shlinkUrl)).toHaveCount(0);
+
   await page.locator('input[type="file"]').setInputFiles({
     name: 'links.csv',
     mimeType: 'text/csv',

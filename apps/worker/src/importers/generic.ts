@@ -1,6 +1,12 @@
-import type { ImportAdapter, ImportFieldMapping, NormalizedImportItem, ImportValidationResult } from '@linketry/shared';
+import type {
+  ImportAdapter,
+  ImportFieldMapping,
+  NormalizedImportItem,
+  ImportValidationResult,
+} from '@linketry/shared';
 import { validateSlug, validateLongUrl } from '@linketry/shared';
 import { domainFromUrl, normalizeDomain } from './domain';
+import { parseCsvRecords } from './mainstreamCore';
 
 interface GenericRow {
   slug?: string;
@@ -33,8 +39,29 @@ interface GenericWrappedInput {
 }
 
 const FIELD_ALIASES: Record<string, string[]> = {
-  slug: ['slug', 'short_code', 'shortCode', 'short code', 'code', 'key', 'keyword', 'alias', 'path'],
-  longUrl: ['long_url', 'longUrl', 'long url', 'url', 'target', 'target_url', 'destination', 'destination_url', 'original_url', 'link'],
+  slug: [
+    'slug',
+    'short_code',
+    'shortCode',
+    'short code',
+    'code',
+    'key',
+    'keyword',
+    'alias',
+    'path',
+  ],
+  longUrl: [
+    'long_url',
+    'longUrl',
+    'long url',
+    'url',
+    'target',
+    'target_url',
+    'destination',
+    'destination_url',
+    'original_url',
+    'link',
+  ],
   shortUrl: ['short_url', 'shortUrl', 'short url'],
   domain: ['domain', 'short_domain', 'shortDomain', 'host', 'hostname'],
   title: ['title', 'name', 'label'],
@@ -67,7 +94,10 @@ function unwrapGenericInput(input: unknown): GenericWrappedInput {
 }
 
 function normalizeHeader(value: string): string {
-  return value.toLowerCase().replace(/^\uFEFF/, '').replace(/[^a-z0-9]/g, '');
+  return value
+    .toLowerCase()
+    .replace(/^\uFEFF/, '')
+    .replace(/[^a-z0-9]/g, '');
 }
 
 function readMappedValue(row: GenericRow, field: string, mapping?: ImportFieldMapping): unknown {
@@ -112,8 +142,16 @@ function asBoolean(value: unknown): boolean | undefined {
 }
 
 function asTags(value: unknown): string[] {
-  if (Array.isArray(value)) return value.map(String).map((tag) => tag.trim()).filter(Boolean);
-  if (typeof value === 'string') return value.split(/[,|;]/).map((tag) => tag.trim()).filter(Boolean);
+  if (Array.isArray(value))
+    return value
+      .map(String)
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  if (typeof value === 'string')
+    return value
+      .split(/[,|;]/)
+      .map((tag) => tag.trim())
+      .filter(Boolean);
   return [];
 }
 
@@ -137,7 +175,9 @@ function normalizeGenericRow(row: GenericRow, mapping?: ImportFieldMapping): Nor
   return {
     slug,
     longUrl,
-    domain: normalizeDomain(readMappedValue(row, 'domain', mapping)) ?? domainFromUrl(readMappedValue(row, 'shortUrl', mapping)),
+    domain:
+      normalizeDomain(readMappedValue(row, 'domain', mapping)) ??
+      domainFromUrl(readMappedValue(row, 'shortUrl', mapping)),
     shortUrl: asString(readMappedValue(row, 'shortUrl', mapping)),
     title: asString(readMappedValue(row, 'title', mapping)),
     description: asString(readMappedValue(row, 'description', mapping)),
@@ -158,52 +198,8 @@ function normalizeGenericRow(row: GenericRow, mapping?: ImportFieldMapping): Nor
   };
 }
 
-function parseCsvLine(line: string): string[] {
-  const cols: string[] = [];
-  let current = '';
-  let quoted = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    const next = line[i + 1];
-    if (char === '"' && quoted && next === '"') {
-      current += '"';
-      i++;
-      continue;
-    }
-    if (char === '"') {
-      quoted = !quoted;
-      continue;
-    }
-    if (char === ',' && !quoted) {
-      cols.push(current.trim());
-      current = '';
-      continue;
-    }
-    current += char;
-  }
-
-  cols.push(current.trim());
-  return cols;
-}
-
 function parseGenericCsv(input: string, mapping?: ImportFieldMapping): NormalizedImportItem[] {
-  const lines = input.split('\n').filter((l) => l.trim().length > 0);
-  if (lines.length < 2) return [];
-
-  const headers = parseCsvLine(lines[0]).map((h) => h.replace(/^"|"$/g, ''));
-  const items: NormalizedImportItem[] = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const cols = parseCsvLine(lines[i]).map((c) => c.replace(/^"|"$/g, ''));
-    const row: GenericRow = {};
-    headers.forEach((h, idx) => {
-      (row as Record<string, unknown>)[h] = cols[idx] ?? '';
-    });
-    items.push(normalizeGenericRow(row, mapping));
-  }
-
-  return items;
+  return parseCsvRecords(input).map((row) => normalizeGenericRow(row, mapping));
 }
 
 export const GenericCsvAdapter: ImportAdapter = {
@@ -242,7 +238,12 @@ export const GenericJsonAdapter: ImportAdapter = {
     }
     if (typeof input === 'object' && input !== null) {
       const obj = input as Record<string, unknown>;
-      return Array.isArray(obj.data) || Array.isArray(obj.links) || Array.isArray(obj.items) || Array.isArray(obj.records);
+      return (
+        Array.isArray(obj.data) ||
+        Array.isArray(obj.links) ||
+        Array.isArray(obj.items) ||
+        Array.isArray(obj.records)
+      );
     }
     return false;
   },
@@ -262,7 +263,11 @@ export const GenericJsonAdapter: ImportAdapter = {
           else if (Array.isArray(obj.links)) items = obj.links as GenericRow[];
           else if (Array.isArray(obj.items)) items = obj.items as GenericRow[];
           else if (Array.isArray(obj.records)) items = obj.records as GenericRow[];
-          else if (obj.data && typeof obj.data === 'object' && Array.isArray((obj.data as Record<string, unknown>).items)) {
+          else if (
+            obj.data &&
+            typeof obj.data === 'object' &&
+            Array.isArray((obj.data as Record<string, unknown>).items)
+          ) {
             items = (obj.data as { items: GenericRow[] }).items;
           } else {
             items = [obj as GenericRow];
@@ -270,9 +275,15 @@ export const GenericJsonAdapter: ImportAdapter = {
         }
       } catch {
         const lines = trimmed.split('\n').filter((l) => l.trim().length > 0);
-        items = lines.map((l) => {
-          try { return JSON.parse(l) as GenericRow; } catch { return null; }
-        }).filter((x): x is GenericRow => x !== null);
+        items = lines
+          .map((l) => {
+            try {
+              return JSON.parse(l) as GenericRow;
+            } catch {
+              return null;
+            }
+          })
+          .filter((x): x is GenericRow => x !== null);
       }
     } else if (Array.isArray(rawInput)) {
       items = rawInput as GenericRow[];

@@ -59,7 +59,7 @@ For a first-time deployment, start with [docs/SELF_HOSTING.md](docs/SELF_HOSTING
 - Manual and scheduled health checks for active links' original destination/Aff URLs
 - Local smart suggestions for slug, title, description, and tags from page metadata
 - Telegram, Discord, Slack, Feishu, DingTalk, WeCom, and signed Webhook notifications for scheduled target failures and recoveries
-- 📥 Import from Shlink, Sink, YOURLS, Dub, Linketry backup, and generic CSV / JSON with field mapping
+- 📥 Import from Shlink, Bitly CSV, Short.io CSV, Sink, YOURLS, Dub, Linketry backup, and generic CSV / JSON with field mapping
 - 🧭 Import preview with skip, rename, or overwrite conflict handling
 - Password-protected links, safety warning pages, and UTM builder templates
 - Audit Logs page for admin actions and imports

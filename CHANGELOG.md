@@ -13,6 +13,33 @@ _(none)_
 
 ---
 
+## [0.28.0] - 2026-07-21
+
+### Added
+
+- Added explicit and auto-detected Bitly CSV imports for documented link, custom link, creation date, title, destination, engagement total, and status fields.
+- Added explicit and auto-detected Short.io CSV imports for documented source IDs, short URLs, paths, destinations, titles, click totals, timestamps, expiry, and tags; the creator column is recognized but is not mapped to Linketry ownership.
+- Added redacted contract fixtures plus normalization, conservative detection, preview, and conflict-policy regression coverage.
+
+### Changed
+
+- CSV parsing now supports quoted commas, escaped quotes, CRLF input, and multiline quoted values for both platform-specific and Generic CSV imports.
+- The Admin import source selector includes localized Bitly and Short.io choices, while Shlink API credentials appear only when Shlink is explicitly selected.
+- Preview statistics and conflict helpers now share one tested policy; `skip` remains the default and `overwrite` still requires explicit selection.
+
+### Security
+
+- Fixtures contain only reserved example domains and synthetic identifiers; no provider credentials, personal domains, private destinations, or account data are stored.
+- Redirect handlers, asynchronous analytics, D1 source-of-truth ownership, KV cache semantics, migrations, production data, and Demo isolation are unchanged.
+
+### Tests
+
+- Added contract coverage for custom domains, case-sensitive slugs, empty optional fields, quoted and multiline CSV values, malformed rows, source detection, preview counts, and conflict strategies.
+- Passed 72 deployment, 93 Worker, 58 Admin unit, 25 Admin browser, 6 Demo API, and 4 project-site tests.
+- Passed Worker type-check, Admin/Site production builds, and the official npm registry audit with zero known vulnerabilities.
+
+---
+
 ## [0.27.8] - 2026-07-20
 
 ### Added

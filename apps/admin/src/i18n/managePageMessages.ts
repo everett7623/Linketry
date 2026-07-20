@@ -18,10 +18,12 @@ export const managePageMessages = {
     maxClicks: 'Max Clicks (optional)',
     showWarning: 'Show safety warning before redirect',
     fallbackUrlOptional: 'Fallback URL (optional)',
-    fallbackUrlHint: 'Stored for health monitoring and future fallback workflows. It does not change redirect behavior.',
+    fallbackUrlHint:
+      'Stored for health monitoring and future fallback workflows. It does not change redirect behavior.',
     passwordOptional: 'Password (optional)',
     newPasswordOptional: 'New Password (optional)',
-    keepPasswordHint: 'Leave untouched to keep the current password. Edit back to empty to clear it.',
+    keepPasswordHint:
+      'Leave untouched to keep the current password. Edit back to empty to clear it.',
     passwordHint: 'Visitors must enter this password before opening the destination.',
     clearPassword: 'Clear existing password',
     tagsCount: '{count} tags',
@@ -48,6 +50,8 @@ export const managePageMessages = {
     exportData: 'Export Data',
     sourceFormat: 'Source Format (optional)',
     autoDetect: 'Auto-detect',
+    bitlyCsvFormat: 'Bitly CSV',
+    shortIoCsvFormat: 'Short.io CSV',
     linketryBackupFormat: 'Linketry backup.json',
     genericCsvFormat: 'Generic CSV',
     genericJsonFormat: 'Generic JSON / JSONL',
@@ -82,7 +86,8 @@ export const managePageMessages = {
     noImportable: 'No importable links found. Existing slugs are skipped by default.',
     importComplete:
       'Backup downloaded. Import complete: {success} imported, {skipped} skipped, {failed} failed',
-    importFailed: 'Backup downloaded, but the import failed. Check the import history report for details.',
+    importFailed:
+      'Backup downloaded, but the import failed. Check the import history report for details.',
     importProcessing: 'Importing…',
     charsLoaded: '{count} chars loaded from {source}',
     pastedInput: 'pasted input',
@@ -128,7 +133,8 @@ export const managePageMessages = {
     replaceUrls: 'Replace URLs',
     findText: 'Find text',
     replaceWith: 'Replace with',
-    replaceUrlGuidance: 'Preview first. Confirmation skips links changed since preview and downloads a rollback CSV.',
+    replaceUrlGuidance:
+      'Preview first. Confirmation skips links changed since preview and downloads a rollback CSV.',
     previewChanges: 'Preview changes',
     confirmReplace: 'Confirm replacement',
     readyStatus: 'ready',
@@ -138,9 +144,11 @@ export const managePageMessages = {
     migrateShortDomain: 'Migrate short-link domain',
     sourceShortDomain: 'Current short-link domain',
     targetShortDomain: 'New short-link domain',
-    domainMigrationGuidance: 'This changes the short-link domain only. Slugs and destination/Aff URLs stay unchanged. Make sure the new domain DNS and Worker route are active before confirming. A migration record CSV will download after completion.',
+    domainMigrationGuidance:
+      'This changes the short-link domain only. Slugs and destination/Aff URLs stay unchanged. Make sure the new domain DNS and Worker route are active before confirming. A migration record CSV will download after completion.',
     domainMigrationCount: '{count} matching links will be migrated',
-    targetDomainNotRegistered: 'The new domain is not active in Linketry’s domain catalog. You can continue only if its DNS and Worker route are already configured.',
+    targetDomainNotRegistered:
+      'The new domain is not active in Linketry’s domain catalog. You can continue only if its DNS and Worker route are already configured.',
     previewMigration: 'Preview migration',
     confirmDomainMigration: 'Confirm domain migration',
     domainMigrationComplete: 'Migrated the short-link domain for {count} links',
@@ -235,6 +243,8 @@ export const managePageMessages = {
     exportData: '导出数据',
     sourceFormat: '来源格式（可选）',
     autoDetect: '自动识别',
+    bitlyCsvFormat: 'Bitly CSV',
+    shortIoCsvFormat: 'Short.io CSV',
     linketryBackupFormat: 'Linketry 备份 backup.json',
     genericCsvFormat: '通用 CSV',
     genericJsonFormat: '通用 JSON / JSONL',
@@ -322,9 +332,11 @@ export const managePageMessages = {
     migrateShortDomain: '迁移短链域名',
     sourceShortDomain: '当前短链域名',
     targetShortDomain: '新短链域名',
-    domainMigrationGuidance: '此操作只修改短链域名，短码和目标/Aff 网址保持不变。确认前请确保新域名的 DNS 与 Worker 路由已经生效；完成后会下载迁移记录 CSV。',
+    domainMigrationGuidance:
+      '此操作只修改短链域名，短码和目标/Aff 网址保持不变。确认前请确保新域名的 DNS 与 Worker 路由已经生效；完成后会下载迁移记录 CSV。',
     domainMigrationCount: '将迁移 {count} 条匹配的短链',
-    targetDomainNotRegistered: '新域名尚未在 Linketry 域名目录中启用。仅当它的 DNS 和 Worker 路由已经配置好时才应继续。',
+    targetDomainNotRegistered:
+      '新域名尚未在 Linketry 域名目录中启用。仅当它的 DNS 和 Worker 路由已经配置好时才应继续。',
     previewMigration: '预览迁移',
     confirmDomainMigration: '确认迁移域名',
     domainMigrationComplete: '已迁移 {count} 条短链的域名',

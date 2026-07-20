@@ -224,7 +224,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.27.8" } }
+{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.28.0" } }
 ```
 
 ### Build and Deploy Admin
@@ -290,7 +290,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.27.8
+LINKETRY_APPROVED_RELEASE=0.28.0
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
@@ -316,7 +316,7 @@ Leave these unset for the basic deployment; enable them later from the Admin Adv
 
 ```txt
 LINKETRY_KV_PREVIEW_ID=<your-kv-preview-id>
-LINKETRY_VERSION=0.27.8
+LINKETRY_VERSION=0.28.0
 LINKETRY_COMPATIBILITY_DATE=2026-07-08
 LINKETRY_WORKER_DOMAINS=go.example.com,s.example.com
 LINKETRY_R2_BUCKET=linketry-backups
@@ -452,7 +452,7 @@ npm run dev --workspace=apps/worker
 
 ## Migration Notes
 
-Linketry can import from Shlink, Sink, YOURLS, Dub, Linketry backup JSON, and generic CSV/JSON.
+Linketry can import from Shlink, Bitly CSV, Short.io CSV, Sink, YOURLS, Dub, Linketry backup JSON, and generic CSV/JSON. Bitly and Short.io files can be auto-detected from their documented headers or selected explicitly in **Import / Export**. Always review the preview; existing slugs are skipped unless you deliberately select another conflict strategy.
 
 For a Shlink migration:
 

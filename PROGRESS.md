@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-07-20
+Last updated: 2026-07-21
 
 ---
 
@@ -11,19 +11,32 @@ Last updated: 2026-07-20
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker backend             | ✅ 0.27.7 live         | Production health reports v0.27.7; redirect, analytics, D1, and KV behavior remain unchanged                                                                                                            |
-| Admin frontend             | ✅ 0.27.7 live         | Cache-bypassed production Admin HTML reports v0.27.7; v0.27.8 is the next owner-controlled update target                                                                                                |
+| Admin frontend             | ✅ 0.27.7 live         | Cache-bypassed production Admin HTML reports v0.27.7; v0.28.0 is the next owner-controlled update target                                                                                                |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
-| Documentation              | ✅ 0.27.8 updated      | README and self-hosting now present one guarded beginner path; manual deployment is an explicit advanced alternative                                                                                    |
+| Documentation              | ✅ 0.28.0 updated      | Import contracts, supported sources, fixtures, release notes, progress, and task records are synchronized                                                                                               |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                             |
-| End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
+| End-to-end test            | ✅ Full regression     | 72 deployment, 93 Worker, 58 Admin unit, 25 Admin browser, 6 Demo API, and 4 site tests pass; Worker/Admin/Site builds pass                                                                              |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.27.7 live         | Production Worker/Admin are synchronized on v0.27.7 before the v0.27.8 discovery-only publication                                                                                                       |
-| Repository update target   | ✅ 0.27.8 published    | v0.27.8 contains beginner deployment automation and is published with `[skip ci]`; production remains on v0.27.7 until the owner confirms the in-app upgrade                                            |
-| Next planned work          | 🟡 0.28.0 imports      | Bitly and Short.io fixture-backed CSV adapters first; Rebrandly JSON/API follows after payload and pagination verification                                                                              |
+| Current version            | ✅ 0.27.7 live         | Production Worker/Admin remain synchronized on v0.27.7; repository changes do not claim a production rollout                                                                                           |
+| Repository update target   | ✅ 0.28.0 ready        | v0.28.0 adds Bitly and Short.io CSV migration paths; production remains owner-controlled                                                                                                                |
+| Next planned work          | 🟡 Pre-1.0 validation | Rebrandly remains fixture-gated; independent fresh-account, real-export, large-data, and assistive-technology validation remain                                                                         |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
-| Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
-| Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.28.0 Mainstream File Imports
+
+| Area                     | Status      | Notes                                                                                                                                       |
+| ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bitly CSV                | ✅ Complete | Preserves documented short/custom links, case-sensitive slugs, destinations, titles, engagements, creation dates, source IDs, and status |
+| Short.io CSV             | ✅ Complete | Preserves documented IDs, short domains/paths, destinations, titles, tags, clicks, timestamps, and expiry                                  |
+| Detection                | ✅ Complete | Requires multiple platform-specific headers before Generic CSV; unrelated partial files are not claimed                                   |
+| CSV parser               | ✅ Complete | Handles quoted commas, escaped quotes, CRLF, and multiline quoted values for named and Generic CSV imports                                 |
+| Preview/conflicts        | ✅ Complete | Shared tested policy keeps `skip` as default and `rename`/`overwrite` explicit                                                             |
+| Admin UX                 | ✅ Complete | Localized source choices are available and Shlink credential fields render only for explicit Shlink selection                             |
+| Phase 2                  | 🟡 Gated    | Rebrandly waits for a current redacted response and verified cursor pagination                                                            |
+| Redirect-path impact     | ✅ None     | Redirect handlers, async analytics, D1/KV semantics, migrations, production data, and Demo isolation are unchanged                        |
 
 ---
 

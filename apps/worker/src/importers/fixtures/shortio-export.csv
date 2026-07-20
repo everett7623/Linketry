@@ -1,0 +1,5 @@
+idString,shortURL,originalPath,originalURL,title,clicks,createdAt,updatedAt,expiresAt,createdBy,tags
+short_001,https://s.example.test/LaunchCase,LaunchCase,https://destination.example.test/launch,"Release, ""Wave 1""",245,2026-05-01T08:00:00Z,2026-05-03T09:30:00Z,2027-05-01T08:00:00Z,fixture-user,"marketing,launch"
+short_002,https://go.example.test/evergreen,evergreen,https://destination.example.test/evergreen,,0,2026-05-02T08:00:00Z,2026-05-02T08:00:00Z,,fixture-user,
+short_bad,https://s.example.test/bad/path,bad/path,invalid-url,"Malformed
+row",unknown,2026-05-04T08:00:00Z,,,fixture-user,invalid

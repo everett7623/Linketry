@@ -180,6 +180,18 @@ Status: complete in the repository; production intentionally remains on 0.27.7 f
 - Deployment contracts cover command safety, workflow ordering, inventory failures, documentation drift, and protected secret synchronization
 - Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
 
+## 0.28.0: Mainstream File Imports
+
+Status: complete in the repository; production remains owner-controlled.
+
+- Bitly CSV preserves documented custom links, destinations, titles, engagement totals, creation dates, source IDs, and active/deleted status
+- Short.io CSV preserves documented source IDs, short domains and paths, destinations, titles, tags, click totals, timestamps, and expiry
+- Conservative auto-detection runs before Generic CSV; partial unrelated files remain Generic
+- Preview and conflict policy coverage keeps `skip` as the default while `rename` and `overwrite` remain explicit
+- CSV parsing supports quoted commas, escaped quotes, CRLF, and multiline quoted values
+- Rebrandly remains fixture-gated until a redacted current response and pagination contract are verified
+- Redirect handlers, asynchronous analytics, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
+
 ## Long-Term Product Principles
 
 Linketry is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.
@@ -260,7 +272,7 @@ Planned:
 - Done in v0.22.0: scheduled volume and bot-rate anomaly alerts with bounded aggregate windows and no redirect-path work; source/country shifts remain deferred pending a minimum-volume privacy contract
 - Evaluate opt-in fallback_url failover from previously recorded health state; never probe a destination synchronously during redirect
 - Long-idle auto-archive rules with review queue and dry-run mode
-- Fixture-backed mainstream imports: Bitly and Short.io CSV first, Rebrandly JSON/API second, and other providers only after a current export contract is verified
+- Done in v0.28.0: fixture-backed Bitly and Short.io CSV imports; Rebrandly JSON/API remains second, and other providers wait for a current verified export contract
 
 ## Pre-1.0: Integration And Public Launch
 
