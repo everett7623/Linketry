@@ -29,6 +29,7 @@ _(none)_
 
 - Re-deployed production v0.27.1 through workflow run `29715930612` and confirmed the optional online-upgrade secret, safety gate, migrations, Worker, Admin, and project-site steps completed successfully.
 - Passed Worker type-check and 82 tests, 64 deployment safety tests, 48 Admin unit tests and production build, 6 Demo API tests, and 4 project-site tests plus its production build.
+- Verified the authenticated production Admin reports running v0.27.1, detects v0.27.2, and exposes the enabled online-upgrade action without applying it.
 
 ---
 

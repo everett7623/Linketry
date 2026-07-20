@@ -1,5 +1,9 @@
 # Online Upgrade Credential Validation - 2026-07-20
 
+## Status
+
+Complete. The production Admin detected v0.27.2 and exposed the enabled owner-controlled online-upgrade action while production remained on v0.27.1.
+
 ## Objective
 
 Complete the production one-click-upgrade credential path without exposing the GitHub token or automatically applying the test release.
@@ -12,8 +16,8 @@ Complete the production one-click-upgrade credential path without exposing the G
 - [x] Confirm the workflow copied the optional token into the Worker secret store.
 - [x] Pass Worker, deployment, Admin, Demo API, project-site, build, and release-metadata checks for v0.27.2.
 - [x] Publish v0.27.2 to `main` with `[skip ci]` so production remains on v0.27.1.
-- [ ] Confirm the authenticated production Admin detects v0.27.2 and offers the online-upgrade action.
-- [ ] Leave the final upgrade click to the repository owner.
+- [x] Confirm the authenticated production Admin detects v0.27.2 and offers the online-upgrade action.
+- [x] Leave the final upgrade click to the repository owner.
 
 ## Safety Boundary
 

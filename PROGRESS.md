@@ -18,7 +18,7 @@ Last updated: 2026-07-20
 | End-to-end test            | ✅ V1-V6 slices passed | Full V1-V3 regression passed; V4 and V6 production smoke passed; final V4 core regression passed                                                                                                        |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
 | Current version            | ✅ 0.27.1 live         | Production and isolated Demo Worker/Admin releases are synchronized and independently verified                                                                                                          |
-| Repository update target   | 🟡 0.27.2 available    | Discovery-only release uses `[skip ci]`; production remains on v0.27.1 until the owner explicitly confirms the in-app upgrade                                                                           |
+| Repository update target   | ✅ 0.27.2 detected     | Authenticated production Admin detects the discovery-only release; production remains on v0.27.1 until the owner explicitly confirms the in-app upgrade                                                 |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
 
@@ -26,15 +26,16 @@ Last updated: 2026-07-20
 
 ## Linketry 0.27.2 Online Upgrade Credential Validation
 
-| Area                   | Status         | Notes                                                                                                                 |
-| ---------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Repository secret      | ✅ Configured  | Fine-grained token is limited to `everett7623/Linketry` with Actions read and write only                              |
-| Worker secret delivery | ✅ Complete    | Production workflow run `29715930612` completed successfully and configured the optional online-upgrade Worker secret |
-| Current production     | ✅ 0.27.1 live | `/health` remains healthy at v0.27.1 after the credential-only redeployment                                           |
-| Discovery target       | ✅ Published   | Repository metadata exposes v0.27.2 through a `[skip ci]` commit, so no push deployment is triggered                  |
-| Owner confirmation     | ⏳ Pending     | Authenticated Admin detection and the owner-controlled upgrade button remain to be verified                           |
-| Credential exposure    | ✅ None        | The GitHub token is not returned by APIs, embedded in Admin assets, logged, or committed                              |
-| Redirect/data impact   | ✅ None        | Redirect handlers, D1 records, KV cache behavior, migrations, production domains, and Demo isolation are unchanged    |
+| Area                   | Status         | Notes                                                                                                                           |
+| ---------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Repository secret      | ✅ Configured  | Fine-grained token is limited to `everett7623/Linketry` with Actions read and write only                                        |
+| Worker secret delivery | ✅ Complete    | Production workflow run `29715930612` completed successfully and configured the optional online-upgrade Worker secret           |
+| Current production     | ✅ 0.27.1 live | `/health` remains healthy at v0.27.1 after the credential-only redeployment                                                     |
+| Discovery target       | ✅ Published   | Repository metadata exposes v0.27.2 through a `[skip ci]` commit, so no push deployment is triggered                            |
+| Admin discovery        | ✅ Verified    | Authenticated production Admin shows running v0.27.1, available v0.27.2, release details, and the enabled online-upgrade action |
+| Owner confirmation     | ✅ Preserved   | The online-upgrade action was verified without clicking it; production remains on v0.27.1 for the owner-controlled test         |
+| Credential exposure    | ✅ None        | The GitHub token is not returned by APIs, embedded in Admin assets, logged, or committed                                        |
+| Redirect/data impact   | ✅ None        | Redirect handlers, D1 records, KV cache behavior, migrations, production domains, and Demo isolation are unchanged              |
 
 ---
 

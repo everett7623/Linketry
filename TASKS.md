@@ -7,14 +7,7 @@ One item in "In Progress" at a time whenever possible.
 
 ## 🔴 In Progress
 
-### Online Upgrade Credential And Discovery Validation (v0.27.2)
-
-- [x] Configure the repository-scoped `LINKETRY_GITHUB_UPDATE_TOKEN` with Actions read and write only
-- [x] Redeploy production v0.27.1 and confirm workflow run `29715930612` copies the token into the Worker secret store
-- [x] Pass 82 Worker, 64 deployment, 48 Admin unit, 6 Demo API, and 4 project-site tests plus all affected builds
-- [x] Publish v0.27.2 to `main` with `[skip ci]` while production remains on v0.27.1
-- [ ] Confirm the authenticated production Admin detects v0.27.2 and exposes the online-upgrade action
-- [ ] Leave the final upgrade confirmation to the repository owner
+_(none)_
 
 ---
 
@@ -22,6 +15,17 @@ One item in "In Progress" at a time whenever possible.
 
 - [ ] Activate/configure optional R2 bindings in the isolated Demo account
 - [x] Configure the fine-grained `LINKETRY_GITHUB_UPDATE_TOKEN` for one-click upgrades
+
+---
+
+## ✅ Completed - Online Upgrade Credential And Discovery Validation (v0.27.2)
+
+- [x] Configure the repository-scoped `LINKETRY_GITHUB_UPDATE_TOKEN` with Actions read and write only
+- [x] Redeploy production v0.27.1 and confirm workflow run `29715930612` copies the token into the Worker secret store
+- [x] Pass 82 Worker, 64 deployment, 48 Admin unit, 6 Demo API, and 4 project-site tests plus all affected builds
+- [x] Publish v0.27.2 to `main` with `[skip ci]` while production remains on v0.27.1
+- [x] Confirm the authenticated production Admin detects v0.27.2 and exposes the online-upgrade action
+- [x] Leave the final upgrade confirmation to the repository owner
 
 ---
 
