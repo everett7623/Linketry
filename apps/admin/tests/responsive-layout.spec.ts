@@ -74,11 +74,17 @@ test('Mobile Admin uses a drawer without shrinking the page content', async ({ p
   const navigationDialog = page.getByRole('dialog', { name: messages.en.navigationMenu });
   await expect(navigationDialog).toBeVisible();
 
-  const versionStatus = page.locator('aside:visible').getByTestId('sidebar-version');
+  const mobileSidebar = page.locator('aside:visible');
+  const versionStatus = mobileSidebar.getByTestId('sidebar-version');
   await expect(versionStatus).toBeVisible();
+  await expect(
+    mobileSidebar.getByTestId('sidebar-header').getByTestId('sidebar-version')
+  ).toHaveCount(1);
+  await expect(
+    mobileSidebar.getByTestId('sidebar-footer').getByTestId('sidebar-version')
+  ).toHaveCount(0);
   await expect(versionStatus).toHaveAccessibleName(messages.en.checkForUpdates);
   await expect(versionStatus.getByText(`v${LINKETRY_VERSION}`, { exact: true })).toBeVisible();
-  const mobileSidebar = page.locator('aside:visible');
   await expect(
     mobileSidebar.getByRole('group', { name: messages.en.quickActions }).locator('button, a')
   ).toHaveCount(3);
@@ -176,10 +182,17 @@ test('Desktop Admin can collapse navigation and use the wider workspace', async 
 
   await collapseNavigation.click();
   await expect(page.getByRole('button', { name: messages.en.expandNavigation })).toBeVisible();
-  await expect(page.getByTestId('sidebar-version')).toHaveAccessibleName(
+  const collapsedVersion = page.getByTestId('sidebar-version');
+  await expect(collapsedVersion).toHaveAccessibleName(
     messages.en.checkForUpdates
   );
   const collapsedSidebar = page.locator('aside:visible');
+  await expect(
+    collapsedSidebar.getByTestId('sidebar-header').getByTestId('sidebar-version')
+  ).toHaveCount(1);
+  await expect(
+    collapsedSidebar.getByTestId('sidebar-footer').getByTestId('sidebar-version')
+  ).toHaveCount(0);
   await expect(
     collapsedSidebar.getByRole('group', { name: messages.en.quickActions }).locator('button, a')
   ).toHaveCount(3);

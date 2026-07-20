@@ -44,7 +44,7 @@ async function mockDashboardApi(page: Page) {
   });
 }
 
-test('Desktop sidebar footer groups preferences, support, version, and update status', async ({
+test('Desktop Sidebar keeps version below the Logo and preferences in the footer', async ({
   page,
 }) => {
   await page.addInitScript((version) => {
@@ -77,6 +77,12 @@ test('Desktop sidebar footer groups preferences, support, version, and update st
 
   const versionStatus = sidebar.getByTestId('sidebar-version');
   await expect(versionStatus).toBeVisible();
+  await expect(
+    sidebar.getByTestId('sidebar-header').getByTestId('sidebar-version')
+  ).toHaveCount(1);
+  await expect(
+    sidebar.getByTestId('sidebar-footer').getByTestId('sidebar-version')
+  ).toHaveCount(0);
   await expect(versionStatus).toHaveAccessibleName(messages.en.checkForUpdates);
   await expect(versionStatus.getByText(`v${LINKETRY_VERSION}`, { exact: true })).toBeVisible();
   await expect(versionStatus.getByText(messages.en.upToDate, { exact: true })).toBeVisible();

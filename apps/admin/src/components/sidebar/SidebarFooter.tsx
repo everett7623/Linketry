@@ -6,7 +6,6 @@ import { useLocale } from '../../contexts/LocaleContext';
 import { IS_PUBLIC_DEMO } from '../../config/demo';
 import { AdminModeControl, DemoReadOnlyStatus } from '../AdminShellControls';
 import { SidebarUtilityActions } from './SidebarUtilityActions';
-import { SidebarVersionStatus } from './SidebarVersionStatus';
 
 export function SidebarFooter({
   collapsed,
@@ -23,6 +22,7 @@ export function SidebarFooter({
 
   return (
     <div
+      data-testid="sidebar-footer"
       className={clsx(
         'border-t border-slate-800',
         collapsed ? 'px-2 py-3' : 'px-3',
@@ -33,7 +33,6 @@ export function SidebarFooter({
         <SidebarUtilityActions collapsed={footerCollapsed} />
       </div>
       <AdminModeControl compact={footerCollapsed} />
-      <SidebarVersionStatus collapsed={footerCollapsed} />
       {IS_PUBLIC_DEMO ? (
         <DemoReadOnlyStatus compact={footerCollapsed} />
       ) : (

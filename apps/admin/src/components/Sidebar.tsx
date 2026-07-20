@@ -7,6 +7,7 @@ import { isFeatureVisible } from '../utils/adminMode';
 import { useLocale } from '../contexts/LocaleContext';
 import { useDisplayPreferences } from '../contexts/DisplayPreferencesContext';
 import { SidebarFooter } from './sidebar/SidebarFooter';
+import { SidebarVersionStatus } from './sidebar/SidebarVersionStatus';
 import { NAV_GROUPS } from './sidebar/sidebarNavigation';
 import { BrandMark } from './BrandMark';
 
@@ -42,36 +43,43 @@ export function Sidebar({ collapsed = false, mobile = false, onClose, onNavigate
               : 'w-60'
       )}
     >
-      {/* Logo */}
-      <div
-        data-testid="sidebar-brand"
-        className={clsx(
-          'flex h-16 items-center gap-2.5 border-b border-slate-800',
-          collapsed && !mobile ? 'justify-center px-2' : compact ? 'px-4' : 'px-5'
-        )}
-      >
+      <div data-testid="sidebar-header" className="border-b border-slate-800">
         <div
+          data-testid="sidebar-brand"
           className={clsx(
-            'flex min-w-0 items-center gap-2.5',
-            collapsed && !mobile && 'justify-center'
+            'flex h-16 items-center gap-2.5',
+            collapsed && !mobile ? 'justify-center px-2' : compact ? 'px-4' : 'px-5'
           )}
         >
-          <BrandMark size="sm" />
-          {!collapsed && (
-            <span className="truncate text-lg font-bold leading-5 text-slate-100">Linketry</span>
+          <div
+            className={clsx(
+              'flex min-w-0 items-center gap-2.5',
+              collapsed && !mobile && 'justify-center'
+            )}
+          >
+            <BrandMark size="sm" />
+            {!collapsed && (
+              <span className="truncate text-lg font-bold leading-5 text-slate-100">Linketry</span>
+            )}
+          </div>
+          {mobile && (
+            <button
+              type="button"
+              className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100"
+              aria-label={t('closeNavigation')}
+              title={t('closeNavigation')}
+              onClick={onClose}
+            >
+              <X size={19} aria-hidden="true" />
+            </button>
           )}
         </div>
-        {mobile && (
-          <button
-            type="button"
-            className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100"
-            aria-label={t('closeNavigation')}
-            title={t('closeNavigation')}
-            onClick={onClose}
-          >
-            <X size={19} aria-hidden="true" />
-          </button>
-        )}
+        <div
+          data-testid="sidebar-version-slot"
+          className={clsx(collapsed && !mobile ? 'px-2 pb-3' : compact ? 'px-2 pb-2' : 'px-3 pb-3')}
+        >
+          <SidebarVersionStatus collapsed={collapsed && !mobile} />
+        </div>
       </div>
 
       {/* Nav */}

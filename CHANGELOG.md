@@ -13,6 +13,31 @@ _(none)_
 
 ---
 
+## [0.27.4] - 2026-07-20
+
+### Changed
+
+- Moved the Sidebar version and update-status control directly below the Linketry Logo, before the navigation groups.
+- Kept the Sidebar footer focused on language, theme, owner support, interface mode, Demo state, and logout.
+
+### Fixed
+
+- Added a bounded Admin reload fallback after a successful online-upgrade workflow enters finalizing, preventing an old page from remaining indefinitely on “verifying runtime version”.
+- Kept the existing exact `/health` version check and fast success reload; the fallback only refreshes the page so normal version discovery can determine the resulting state again.
+
+### Security
+
+- Failed workflows never enter finalizing and do not schedule the fallback reload.
+- Repository credentials, deployment approvals, migrations, Cloudflare resources, redirects, analytics, D1/KV ownership, and production data are unchanged.
+
+### Tests
+
+- Added a real-browser regression where the workflow succeeds while the old page continues to observe a stale runtime version.
+- Passed 48 Admin unit tests, 21 Admin browser tests, and the Admin production build.
+- Passed Worker type-check and 82 tests, 64 deployment safety tests, 6 Demo API tests, and 4 project-site tests plus its production build.
+
+---
+
 ## [0.27.3] - 2026-07-20
 
 ### Changed

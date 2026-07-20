@@ -18,6 +18,20 @@ _(none)_
 
 ---
 
+## ✅ Completed - Online Upgrade Auto Reload (v0.27.4)
+
+- [x] Confirm workflow run `29718967204`, deployment `5517191479`, and production Worker/Admin v0.27.3 state
+- [x] Preserve exact runtime-version verification and fast success reload
+- [x] Add a bounded 10-second finalizing reload fallback for stale old pages
+- [x] Add a real-browser regression for successful workflow plus stale runtime polling
+- [x] Move version and update status below the Sidebar Logo while keeping the footer focused on preferences and logout
+- [x] Add expanded, collapsed, and mobile Sidebar placement assertions
+- [x] Synchronize v0.27.4 package, runtime, workflow, example, changelog, progress, task, and deployment documentation
+- [x] Pass 48 Admin unit, 21 Admin browser, 82 Worker, 64 deployment, 6 Demo API, and 4 project-site tests plus affected builds
+- [x] Publish v0.27.4 to `main` with `[skip ci]` while production remains on v0.27.3 for the owner-controlled upgrade test
+
+---
+
 ## ✅ Completed - Sidebar Footer And Production Deployment Tracking (v0.27.3)
 
 - [x] Move interface mode, language, theme, and owner-support controls from the desktop content toolbar to the Sidebar footer

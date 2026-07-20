@@ -9,6 +9,11 @@ import {
   type OnlineUpgradeCapability,
 } from '../api/onlineUpgrade';
 import { useLocale } from '../contexts/LocaleContext';
+import {
+  FINALIZING_RELOAD_DELAY_MS,
+  SUCCESS_RELOAD_DELAY_MS,
+  useUpgradeReload,
+} from '../hooks/useUpgradeReload';
 import { waitForOnlineUpgrade, type OnlineUpgradePhase } from '../utils/onlineUpgrade';
 import { UpgradeConfirmDialog } from './UpgradeConfirmDialog';
 import { UpdateBannerActions } from './UpdateBannerActions';
@@ -29,7 +34,7 @@ export function UpdateBanner({
   const [error, setError] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const activeRef = useRef(true);
-  const reloadTimerRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
+  const scheduleReload = useUpgradeReload();
 
   useEffect(() => {
     setPhase('idle');
@@ -58,7 +63,6 @@ export function UpdateBanner({
     activeRef.current = true;
     return () => {
       activeRef.current = false;
-      if (reloadTimerRef.current !== null) globalThis.clearTimeout(reloadTimerRef.current);
     };
   }, []);
 
@@ -95,14 +99,18 @@ export function UpdateBanner({
         readRun: getOnlineUpgradeRun,
         readRuntimeVersion: fetchRuntimeVersion,
         onPhase: (nextPhase) => {
-          if (activeRef.current) setPhase(nextPhase);
+          if (!activeRef.current) return;
+          setPhase(nextPhase);
+          if (nextPhase === 'finalizing') {
+            scheduleReload(FINALIZING_RELOAD_DELAY_MS);
+          }
         },
         shouldContinue: () => activeRef.current,
       });
       if (!activeRef.current || result.outcome === 'cancelled') return;
       if (result.outcome === 'success') {
         setPhase('success');
-        reloadTimerRef.current = globalThis.setTimeout(() => window.location.reload(), 800);
+        scheduleReload(SUCCESS_RELOAD_DELAY_MS);
         return;
       }
       setPhase('failed');
