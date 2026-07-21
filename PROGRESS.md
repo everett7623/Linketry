@@ -10,18 +10,30 @@ Last updated: 2026-07-22
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ Runtime unchanged   | v0.29.2 changes Admin delivery and deployment validation only; redirect, API, analytics, D1, and KV behavior are unchanged                                                                                |
-| Admin frontend             | ✅ 0.29.2 hardened     | Versioned entry assets prevent stale custom-domain cache reuse; production still converges its Admin CNAME to DNS-only before readiness can pass                                                        |
+| Worker backend             | ✅ Runtime unchanged   | v0.29.3 changes deployment handling only; redirect, API, analytics, D1, and KV behavior are unchanged                                                                                                    |
+| Admin frontend             | ✅ 0.29.3 hardened     | Versioned entry assets prevent stale custom-domain cache reuse; readiness verifies the exact release cache key and executable MIME types                                                                |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
-| Documentation              | ✅ 0.29.2 updated      | Live version evidence, optional Demo R2 state, pre-1.0 gates, release notes, progress, roadmap, and task records are synchronized                                                                          |
-| Deployment                 | 🟡 v0.29.2 rollout     | The v0.29.2 push will synchronize the isolated Demo and run the owner-approved production recovery; final live verification remains                                                                      |
+| Documentation              | ✅ 0.29.3 updated      | Release notes, deployment guidance, progress, roadmap, and task records are synchronized                                                                                                                 |
+| Deployment                 | 🟡 v0.29.3 rollout     | DNS convergence is strict with a dedicated token and warning-only with a main-token fallback; final live verification remains                                                                           |
 | End-to-end test            | ✅ Full regression     | 81 deployment, 110 Worker, 64 Admin unit, 25 Admin browser, 6 Demo API, and 4 site tests pass; Worker type-check, Admin/Site builds, and npm audit pass                                                    |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | 🟡 0.29.2 prepared     | Repository targets v0.29.2; live Admin rollout remains gated on DNS-only convergence and canonical asset verification                                                                                     |
-| Repository update target   | ✅ 0.29.2 ready        | GitHub `main` package metadata remains the update-discovery source; older production versions can detect the newer repository version without a GitHub Release or tag                                   |
+| Current version            | 🟡 0.29.3 prepared     | Repository targets v0.29.3; production v0.29.2 already renders while the final workflow behavior is being verified                                                                                      |
+| Repository update target   | ✅ 0.29.3 ready        | GitHub `main` package metadata remains the update-discovery source; older production versions can detect the newer repository version without a GitHub Release or tag                                   |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, and private vulnerability reporting remain; a branded Demo redirect is intentionally unnecessary                         |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.29.3 Production Readiness Completion
+
+| Area                    | Status      | Notes                                                                                                                                        |
+| ----------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Release asset readiness | ✅ Complete | Initial JS/CSS must carry the exact release cache key and return executable MIME types; long cache lifetime is safe for that versioned key |
+| DNS permission handling | ✅ Complete | A dedicated DNS token remains strict; a main-token fallback without zone permission emits an actionable warning instead of hiding a valid deployment |
+| Live production         | ✅ Rendered | `admin.uukk.de` renders the v0.29.2 login page with versioned JS/CSS after the cache-key rollout                                            |
+| Final verification      | 🟡 Pending  | Push and owner-approved v0.29.3 workflow verification remain                                                                                |
+| Redirect/data impact    | ✅ None     | Redirect handlers, D1/KV ownership, migrations, analytics, and stored production data are unchanged                                       |
 
 ---
 

@@ -5,16 +5,18 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## In Progress - Production Admin Cache Recovery (v0.29.2)
+## In Progress - Production Admin Cache Recovery (v0.29.3)
 
 - [x] Reproduce the empty production Admin and isolate HTML, canonical asset, MIME, cache, and Pages-origin behavior
 - [x] Stop bypassing the user-facing asset cache key during deployment readiness checks
-- [x] Require DNS-only Pages Admin CNAMEs and reject unsafe long-term Admin asset caching
+- [x] Prefer DNS-only Pages Admin CNAMEs and require release-keyed executable Admin assets
 - [x] Preserve Admin security headers while moving the pre-paint theme initializer to a CSP-compatible external script
 - [x] Keep the isolated Demo Worker on `workers.dev` and remove a branded redirect hostname from the public 1.0 gates
 - [x] Add release-version cache keys to the Admin entry JavaScript and CSS assets
 - [x] Allow the production workflow to reuse the configured Cloudflare API token for DNS convergence when the dedicated DNS token is absent
-- [ ] Complete full regression, deploy v0.29.2, and verify the production Admin renders through its canonical URL
+- [x] Verify production v0.29.2 renders through `admin.uukk.de` with versioned JS/CSS assets
+- [x] Treat a missing Zone DNS scope on the main-token fallback as an actionable warning while retaining strict dedicated-token behavior
+- [ ] Complete deployment regression, deploy v0.29.3, and verify the production workflow and Admin canonical URL
 
 Task record: `.codex/tasks/production-admin-cache-recovery-2026-07-21.md`
 

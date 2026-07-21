@@ -10,7 +10,10 @@ Prevent `admin.uukk.de` from returning a blank Admin when a proxied custom-domai
 - [x] Keep MIME and unsafe-cache validation on the browser-facing asset URLs.
 - [x] Let production DNS convergence use the dedicated DNS token or the configured Cloudflare API token.
 - [x] Keep the isolated Demo redirect origin on `workers.dev`; do not add another branded redirect hostname.
-- [ ] Run full regression, push `v0.29.2`, deploy, and verify the production Admin through its canonical domain.
+- [x] Run full regression, push `v0.29.2`, deploy, and verify the production Admin through its canonical domain.
+- [x] Record that the main Cloudflare token lacks Zone DNS permission without exposing the credential.
+- [x] Make the main-token DNS fallback warning-only and require the exact versioned asset key during readiness.
+- [ ] Push `v0.29.3` and verify the final production workflow.
 
 ## Safety
 

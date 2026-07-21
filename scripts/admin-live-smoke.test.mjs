@@ -4,11 +4,11 @@ import test from 'node:test';
 import { collectInitialAssets, verifyAdminLive, waitForAdminLive } from './admin-live-smoke.mjs';
 
 const adminUrl = 'https://admin.example.com';
-const version = '0.29.2';
+const version = '0.29.3';
 const html = `
   <meta name="linketry-version" content="${version}">
-  <script type="module" crossorigin src="/assets/index-release.js"></script>
-  <link rel="stylesheet" href="/assets/index-release.css">
+  <script type="module" crossorigin src="/assets/index-release.js?v=${version}"></script>
+  <link rel="stylesheet" href="/assets/index-release.css?v=${version}">
 `;
 
 function response(body, contentType, cacheControl = 'public, max-age=0, must-revalidate') {
@@ -29,15 +29,18 @@ function healthyFetch(input) {
 
 test('collects only initial Vite module and stylesheet assets', () => {
   assert.deepEqual(collectInitialAssets(html), [
-    { path: '/assets/index-release.js', kind: 'script' },
-    { path: '/assets/index-release.css', kind: 'style' },
+    { path: '/assets/index-release.js?v=0.29.3', kind: 'script' },
+    { path: '/assets/index-release.css?v=0.29.3', kind: 'style' },
   ]);
 });
 
 test('accepts the current Admin HTML only when initial assets have executable MIME types', async () => {
   const report = await verifyAdminLive({ adminUrl, version, fetchImpl: healthyFetch });
   assert.equal(report.adminOrigin, adminUrl);
-  assert.deepEqual(report.assets, ['/assets/index-release.js', '/assets/index-release.css']);
+  assert.deepEqual(report.assets, [
+    '/assets/index-release.js?v=0.29.3',
+    '/assets/index-release.css?v=0.29.3',
+  ]);
 
   await assert.rejects(
     verifyAdminLive({
@@ -53,7 +56,7 @@ test('accepts the current Admin HTML only when initial assets have executable MI
   );
 });
 
-test('checks canonical asset cache keys and rejects unsafe long-term caching', async () => {
+test('checks exact release asset cache keys and accepts long caching only for versioned assets', async () => {
   const requests = [];
   await verifyAdminLive({
     adminUrl,
@@ -68,8 +71,20 @@ test('checks canonical asset cache keys and rejects unsafe long-term caching', a
   const assetRequests = requests.filter((request) => request.url.pathname.startsWith('/assets/'));
   assert.equal(htmlRequest?.headers.get('Cache-Control'), 'no-cache');
   assert.equal(assetRequests.length, 2);
-  assert.ok(assetRequests.every((request) => !request.url.search));
+  assert.ok(assetRequests.every((request) => request.url.search === '?v=0.29.3'));
   assert.ok(assetRequests.every((request) => !request.headers.has('Cache-Control')));
+
+  await verifyAdminLive({
+    adminUrl,
+    version,
+    fetchImpl: async (input) => {
+      const url = new URL(String(input));
+      if (url.pathname.endsWith('.js')) {
+        return response('export {};', 'application/javascript', 'public, max-age=31536000');
+      }
+      return healthyFetch(input);
+    },
+  });
 
   await assert.rejects(
     verifyAdminLive({
@@ -77,13 +92,11 @@ test('checks canonical asset cache keys and rejects unsafe long-term caching', a
       version,
       fetchImpl: async (input) => {
         const url = new URL(String(input));
-        if (url.pathname.endsWith('.js')) {
-          return response('export {};', 'application/javascript', 'public, max-age=31536000');
-        }
+        if (url.pathname === '/') return response(html.replaceAll(`?v=${version}`, ''), 'text/html');
         return healthyFetch(input);
       },
     }),
-    /unsafe long-term caching/
+    /missing the Linketry 0\.29\.3 cache key/
   );
 });
 

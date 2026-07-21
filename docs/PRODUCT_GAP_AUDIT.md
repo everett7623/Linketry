@@ -17,6 +17,14 @@ The review covered:
 
 The complete dependency audit reports no known vulnerabilities. Vite is updated to the supported 6.4 line; React, Tailwind, and React Router major releases remain separate work because they need dedicated migration testing.
 
+## Reconciled In 0.29.3
+
+| Area | Status | Notes |
+| --- | --- | --- |
+| Release readiness | Complete | Initial Admin assets require the exact release cache key and executable MIME types; versioned long-lived cache responses remain safe. |
+| DNS permission fallback | Complete | Missing Zone DNS scope on the main Cloudflare token is warning-only, while a dedicated DNS token remains strict. |
+| Production rendering | Verified | Production v0.29.2 renders its login page through `admin.uukk.de` with versioned entry JS/CSS. |
+
 ## Reconciled In 0.29.2
 
 | Area | Status | Notes |

@@ -301,6 +301,15 @@ Status: in progress; implementation is complete and the reviewed production roll
 - Canonical readiness continues to reject HTML fallbacks, wrong MIME types, and unsafe cache headers
 - Redirect logic, analytics, D1/KV ownership, migrations, and stored data remain unchanged
 
+## 0.29.3: Production Readiness Completion
+
+Status: in progress; production v0.29.2 renders and the final workflow behavior is being verified.
+
+- Readiness requires the exact release query key on initial Admin JavaScript and CSS and continues to reject HTML or incorrect MIME responses
+- Long-lived edge caching is accepted only for the release-versioned asset key
+- A dedicated DNS token remains strict; a main-token fallback without Zone DNS permission emits an actionable warning and allows live readiness to decide the deployment result
+- Redirect logic, analytics, D1/KV ownership, migrations, and stored data remain unchanged
+
 ## Long-Term Product Principles
 
 Linketry is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.

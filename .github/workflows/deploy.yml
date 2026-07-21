@@ -24,6 +24,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_DNS_API_TOKEN: ${{ secrets.CLOUDFLARE_DNS_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+      LINKETRY_DNS_TOKEN_SOURCE: ${{ secrets.CLOUDFLARE_DNS_API_TOKEN != '' && 'dedicated' || 'fallback' }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       LINKETRY_ADMIN_TOKEN_OVERRIDE: ${{ secrets.LINKETRY_ADMIN_TOKEN }}
       LINKETRY_GITHUB_UPDATE_TOKEN_OVERRIDE: ${{ secrets.LINKETRY_GITHUB_UPDATE_TOKEN }}
@@ -178,7 +179,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.29.2'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.29.3'}"`,
             `LINKETRY_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
             `LINKETRY_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             `LINKETRY_UPDATE_REPOSITORY = ${JSON.stringify(env.LINKETRY_UPDATE_REPOSITORY)}`,
@@ -320,36 +321,45 @@ jobs:
             return body.result;
           }
 
-          const zones = await cloudflare(`/zones?name=${encodeURIComponent(zoneName)}`);
-          if (zones.length !== 1) {
-            throw new Error(`Expected one Cloudflare zone named ${zoneName}, found ${zones.length}.`);
-          }
+          try {
+            const zones = await cloudflare(`/zones?name=${encodeURIComponent(zoneName)}`);
+            if (zones.length !== 1) {
+              throw new Error(`Expected one Cloudflare zone named ${zoneName}, found ${zones.length}.`);
+            }
 
-          const zoneId = zones[0].id;
-          const records = await cloudflare(
-            `/zones/${zoneId}/dns_records?name=${encodeURIComponent(hostname)}`
-          );
-          const existing = records.find((record) => record.name === hostname);
-          const payload = JSON.stringify({
-            type: 'CNAME',
-            name: hostname,
-            content: target,
-            ttl: 1,
-            proxied: false,
-          });
+            const zoneId = zones[0].id;
+            const records = await cloudflare(
+              `/zones/${zoneId}/dns_records?name=${encodeURIComponent(hostname)}`
+            );
+            const existing = records.find((record) => record.name === hostname);
+            const payload = JSON.stringify({
+              type: 'CNAME',
+              name: hostname,
+              content: target,
+              ttl: 1,
+              proxied: false,
+            });
 
-          if (existing) {
-            await cloudflare(`/zones/${zoneId}/dns_records/${existing.id}`, {
-              method: 'PUT',
-              body: payload,
-            });
-            console.log(`Updated ${hostname} to DNS-only CNAME ${target}.`);
-          } else {
-            await cloudflare(`/zones/${zoneId}/dns_records`, {
-              method: 'POST',
-              body: payload,
-            });
-            console.log(`Created DNS-only ${hostname} pointing to ${target}.`);
+            if (existing) {
+              await cloudflare(`/zones/${zoneId}/dns_records/${existing.id}`, {
+                method: 'PUT',
+                body: payload,
+              });
+              console.log(`Updated ${hostname} to DNS-only CNAME ${target}.`);
+            } else {
+              await cloudflare(`/zones/${zoneId}/dns_records`, {
+                method: 'POST',
+                body: payload,
+              });
+              console.log(`Created DNS-only ${hostname} pointing to ${target}.`);
+            }
+          } catch (error) {
+            if (process.env.LINKETRY_DNS_TOKEN_SOURCE !== 'fallback') throw error;
+            const message = error instanceof Error ? error.message : String(error);
+            console.warn(
+              `::warning::Admin DNS was not changed with CLOUDFLARE_API_TOKEN (${message}). ` +
+              `Keep ${hostname} as a DNS-only CNAME to ${target}; versioned Admin assets remain readiness-checked.`
+            );
           }
           NODE
 

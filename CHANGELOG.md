@@ -13,6 +13,16 @@ _(none)_
 
 ---
 
+## [0.29.3] - 2026-07-22
+
+### Fixed
+
+- Required the exact release-version cache key on Admin entry assets while continuing to reject HTML fallbacks and incorrect JavaScript/CSS MIME types.
+- Allowed safe long-lived caching only for release-versioned entry assets, matching the production custom-domain behavior without weakening executable-resource validation.
+- Kept dedicated DNS-token failures strict while turning a main Cloudflare token without Zone DNS permission into an actionable warning followed by live readiness verification.
+
+---
+
 ## [0.29.2] - 2026-07-22
 
 ### Fixed
