@@ -31,6 +31,7 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
   await page.setViewportSize({ width: 390, height: 844 });
   await prepareAnalytics(page);
   let analyticsRequests = 0;
+  let analyticsTimezoneOffset: string | null = null;
 
   await page.route('**/api/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
@@ -46,9 +47,13 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
     }
     if (path === '/api/v1/analytics') {
       analyticsRequests += 1;
+      analyticsTimezoneOffset = new URL(route.request().url()).searchParams.get('timezone_offset');
       await route.fulfill(
         apiResponse({
           days: 30,
+          timezoneOffsetMinutes: 480,
+          rangeStart: '2026-06-21T16:00:00.000Z',
+          rangeEnd: '2026-07-21T16:00:00.000Z',
           totalClicks: analyticsRequests,
           botClicks: 0,
           uniqueVisitors: analyticsRequests,
@@ -57,12 +62,38 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
           conversionsTotal: 4,
           conversionRate: 16,
           conversionAttributionAvailable: true,
-          daily: [],
+          daily: [
+            { date: '2026-07-17', clicks: 12, humanClicks: 11, botClicks: 1, uniqueVisitors: 9 },
+            { date: '2026-07-18', clicks: 18, humanClicks: 16, botClicks: 2, uniqueVisitors: 13 },
+            { date: '2026-07-19', clicks: 9, humanClicks: 9, botClicks: 0, uniqueVisitors: 7 },
+            { date: '2026-07-20', clicks: 21, humanClicks: 19, botClicks: 2, uniqueVisitors: 15 },
+            { date: '2026-07-21', clicks: 24, humanClicks: 22, botClicks: 2, uniqueVisitors: 17 },
+          ],
           topLinks: [],
-          topCountries: [],
+          topCountries: [
+            { country: 'US', clicks: 32 },
+            { country: 'DE', clicks: 18 },
+            { country: 'SG', clicks: 12 },
+          ],
+          geography: {
+            countries: [
+              { country: 'US', clicks: 32 },
+              { country: 'DE', clicks: 18 },
+              { country: 'SG', clicks: 12 },
+            ],
+            mappedClicks: 62,
+            unknownClicks: 2,
+          },
           topReferrers: [],
-          topBrowsers: [],
-          topDevices: [],
+          topBrowsers: [
+            { browser: 'Chrome', clicks: 46 },
+            { browser: 'Safari', clicks: 22 },
+          ],
+          topDevices: [
+            { device_type: 'desktop', clicks: 48 },
+            { device_type: 'mobile', clicks: 31 },
+            { device_type: 'bot', clicks: 5 },
+          ],
           topOperatingSystems: [],
           topUtmSources: [],
           topUtmMediums: [],
@@ -104,11 +135,16 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
       return;
     }
     if (path === '/api/v1/analytics-alerts') {
-      await route.fulfill({
-        status: 404,
-        contentType: 'application/json',
-        body: '{"error":"mock"}',
-      });
+      await route.fulfill(apiResponse({
+        config: {
+          enabled: false,
+          minimumVisits: 50,
+          volumeMultiplier: 2,
+          botRateDeltaPercentagePoints: 25,
+          suppressionMinutes: 1440,
+        },
+        state: { active: [] },
+      }));
       return;
     }
     await route.fulfill({ status: 404, contentType: 'application/json', body: '{"error":"mock"}' });
@@ -119,6 +155,13 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
     page.getByRole('heading', { name: messages.en.analytics, exact: true })
   ).toBeVisible();
   await expect.poll(() => analyticsRequests).toBeGreaterThan(0);
+  await expect.poll(() => analyticsTimezoneOffset).not.toBeNull();
+  await expect(page.getByTestId('traffic-trend-panel')).toBeVisible();
+  await expect(page.getByTestId('world-traffic-map')).toBeVisible();
+  await expect(page.getByTestId('audience-composition')).toBeVisible();
+  const areaChart = page.getByRole('button', { name: messages.en.areaChart });
+  await areaChart.click();
+  await expect(areaChart).toHaveAttribute('aria-pressed', 'true');
   await expect
     .poll(() => page.locator('main').evaluate((main) => main.scrollWidth === main.clientWidth))
     .toBe(true);

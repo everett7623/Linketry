@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { getOverviewStats } from '../db/index';
+import { parseTimezoneOffset } from '../analytics/timeRange';
 import { jsonOk } from '../utils/response';
 import analyticsReportRoutes from './analyticsReports';
 import analyticsRoutes from './analytics';
@@ -64,7 +65,9 @@ export function registerAdminApiRoutes(app: Hono<{ Bindings: Env }>): void {
     app.get(`${prefix}/overview`, async (c) => {
       const authError = await requireAuth(c);
       if (authError) return authError;
-      return jsonOk(await getOverviewStats(c.env));
+      return jsonOk(
+        await getOverviewStats(c.env, parseTimezoneOffset(c.req.query('timezone_offset')))
+      );
     });
   }
 }

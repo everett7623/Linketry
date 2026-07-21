@@ -13,6 +13,29 @@ _(none)_
 
 ---
 
+## [0.28.6] - 2026-07-21
+
+### Added
+
+- Added line, area, and stacked-bar traffic views with total, human, bot, and approximate unique-visitor series.
+- Added a locally bundled interactive world traffic map, complete bounded country distribution, country ranking, device donut, and browser composition chart.
+- Added explicit Analytics range metadata and richer CSV rows for every daily series and country.
+
+### Fixed
+
+- Fixed Overview "today" and Analytics daily buckets using the browser's explicit UTC offset instead of an implicit UTC day boundary.
+- Filled missing dates with zero-value rows so the current local day remains visible before its first visit.
+- Preserved unknown and non-map country values as explicit unmapped traffic instead of silently dropping them.
+
+### Tests
+
+- Added focused time-boundary, geography-normalization, real SQLite Analytics/Overview integration, 100k-visit query-budget, responsive chart/map, and accessibility coverage.
+- Verified the Analytics visual hierarchy at 390px and 1440px with Playwright screenshots.
+- Passed 109 Worker, 78 deployment, 58 Admin unit, 25 Admin browser, 6 Demo API, and 4 project-site tests; Worker/Admin/Site builds and the official npm registry audit pass.
+- Redirect handlers, asynchronous visit recording, D1/KV ownership, migrations, production data, and Demo isolation are unchanged.
+
+---
+
 ## [0.28.5] - 2026-07-21
 
 ### Fixed

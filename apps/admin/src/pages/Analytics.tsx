@@ -12,6 +12,8 @@ import {
   Save,
   Trash2,
   Clock3,
+  Activity,
+  UserCheck,
 } from 'lucide-react';
 import {
   downloadAnalyticsReport,
@@ -28,7 +30,10 @@ import {
   downloadScheduledAnalyticsReport,
   type AnalyticsReportState,
 } from '../api/analytics';
-import { BarList, DailyBars, Metric, RecentVisits } from '../components/analytics/AnalyticsBlocks';
+import { BarList, Metric, RecentVisits } from '../components/analytics/AnalyticsBlocks';
+import { TrafficTrendPanel } from '../components/analytics/TrafficTrendPanel';
+import { WorldTrafficMap } from '../components/analytics/WorldTrafficMap';
+import { AudienceComposition } from '../components/analytics/AudienceComposition';
 import { TrafficAnomalyPanel } from '../components/analytics/TrafficAnomalyPanel';
 import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
@@ -374,16 +379,26 @@ export function Analytics() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
         <Metric
           label={t('totalClicks')}
           value={data?.totalClicks ?? 0}
           icon={<MousePointerClick size={16} />}
         />
         <Metric
+          label={t('todayClicks')}
+          value={data?.daily[data.daily.length - 1]?.clicks ?? 0}
+          icon={<Activity size={16} />}
+        />
+        <Metric
           label={t('uniqueVisitors')}
           value={data?.uniqueVisitors ?? 0}
           icon={<Users size={16} />}
+        />
+        <Metric
+          label={t('humanClicks')}
+          value={data?.eligibleClicks ?? 0}
+          icon={<UserCheck size={16} />}
         />
         <Metric
           label={t('uniqueLinks')}
@@ -395,7 +410,11 @@ export function Analytics() {
 
       <ConversionInsights summary={data} />
 
-      <DailyBars items={data?.daily ?? []} />
+      <TrafficTrendPanel summary={data} />
+
+      <WorldTrafficMap summary={data} />
+
+      <AudienceComposition summary={data} />
 
       {reports && (
         <section className="rounded-lg border border-slate-800 bg-slate-900 p-5">
@@ -562,27 +581,6 @@ export function Analytics() {
           title={t('utmContents')}
           items={(data?.topUtmContents ?? []).map((item) => ({
             label: item.value,
-            value: item.clicks,
-          }))}
-        />
-        <BarList
-          title={t('countries')}
-          items={(data?.topCountries ?? []).map((item) => ({
-            label: item.country,
-            value: item.clicks,
-          }))}
-        />
-        <BarList
-          title={t('devices')}
-          items={(data?.topDevices ?? []).map((item) => ({
-            label: item.device_type,
-            value: item.clicks,
-          }))}
-        />
-        <BarList
-          title={t('browsers')}
-          items={(data?.topBrowsers ?? []).map((item) => ({
-            label: item.browser,
             value: item.clicks,
           }))}
         />

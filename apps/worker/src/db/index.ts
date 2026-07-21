@@ -1,5 +1,6 @@
 import type { ApiToken, ApiTokenScope, AuditLog, Backup, Domain, Link, RedirectRule, Tag, ImportJob, Setting, Visit } from '@linketry/shared';
 import type { Env } from '../types';
+import { createAnalyticsRange } from '../analytics/timeRange';
 import { AUDIT_ORDER_BY, linkOrderBy } from './listingPolicy';
 
 export interface ApiTokenRecord {
@@ -442,20 +443,24 @@ export async function upsertDailyStats(
     .run();
 }
 
-export async function getOverviewStats(env: Env): Promise<{
+export async function getOverviewStats(env: Env, timezoneOffsetMinutes = 0): Promise<{
   totalLinks: number;
   totalClicks: number;
   todayClicks: number;
   recentLinks: Link[];
   topLinks: Link[];
 }> {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = createAnalyticsRange(1, timezoneOffsetMinutes);
 
   const [totalLinksResult, totalClicksResult, todayClicksResult, recentLinksResult, topLinksResult] =
     await Promise.all([
       env.DB.prepare("SELECT COUNT(*) as count FROM links WHERE archived = 0").first<{ count: number }>(),
       env.DB.prepare("SELECT SUM(clicks) as total FROM links WHERE archived = 0").first<{ total: number }>(),
-      env.DB.prepare("SELECT COUNT(*) as count FROM visits WHERE created_at >= ?").bind(today).first<{ count: number }>(),
+      env.DB.prepare(
+        'SELECT COUNT(*) as count FROM visits WHERE created_at >= ? AND created_at < ?'
+      )
+        .bind(today.start, today.end)
+        .first<{ count: number }>(),
       env.DB.prepare("SELECT * FROM links WHERE archived = 0 ORDER BY created_at DESC LIMIT 5").all<Link>(),
       env.DB.prepare("SELECT * FROM links WHERE archived = 0 ORDER BY clicks DESC LIMIT 5").all<Link>(),
     ]);
@@ -466,127 +471,6 @@ export async function getOverviewStats(env: Env): Promise<{
     todayClicks: todayClicksResult?.count ?? 0,
     recentLinks: recentLinksResult.results ?? [],
     topLinks: topLinksResult.results ?? [],
-  };
-}
-
-export interface AnalyticsRangeOptions {
-  days?: number;
-}
-
-export async function getAnalyticsSummary(
-  env: Env,
-  options: AnalyticsRangeOptions = {}
-): Promise<{
-  days: number;
-  totalClicks: number;
-  botClicks: number;
-  uniqueVisitors: number;
-  uniqueLinks: number;
-  daily: Array<{ date: string; clicks: number }>;
-  topLinks: Array<{ slug: string; title?: string | null; clicks: number }>;
-  topCountries: Array<{ country: string; clicks: number }>;
-  topReferrers: Array<{ referer: string; clicks: number }>;
-  topBrowsers: Array<{ browser: string; clicks: number }>;
-  topDevices: Array<{ device_type: string; clicks: number }>;
-  topOperatingSystems: Array<{ os: string; clicks: number }>;
-  recentVisits: Visit[];
-}> {
-  const days = Math.max(1, Math.min(options.days ?? 30, 365));
-  const since = new Date(Date.now() - (days - 1) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-
-  const [
-    totalClicksResult,
-    botClicksResult,
-    uniqueVisitorsResult,
-    uniqueLinksResult,
-    dailyResult,
-    topLinksResult,
-    topCountriesResult,
-    topReferrersResult,
-    topBrowsersResult,
-    topDevicesResult,
-    topOperatingSystemsResult,
-    recentVisitsResult,
-  ] = await Promise.all([
-    env.DB.prepare('SELECT COUNT(*) as count FROM visits WHERE created_at >= ?').bind(since).first<{ count: number }>(),
-    env.DB.prepare('SELECT COUNT(*) as count FROM visits WHERE created_at >= ? AND is_bot = 1').bind(since).first<{ count: number }>(),
-    env.DB.prepare('SELECT COUNT(DISTINCT ip_hash) as count FROM visits WHERE created_at >= ? AND ip_hash IS NOT NULL AND ip_hash != ""').bind(since).first<{ count: number }>(),
-    env.DB.prepare('SELECT COUNT(DISTINCT slug) as count FROM visits WHERE created_at >= ?').bind(since).first<{ count: number }>(),
-    env.DB.prepare(
-      `SELECT substr(created_at, 1, 10) as date, COUNT(*) as clicks
-       FROM visits
-       WHERE created_at >= ?
-       GROUP BY substr(created_at, 1, 10)
-       ORDER BY date ASC`
-    ).bind(since).all<{ date: string; clicks: number }>(),
-    env.DB.prepare(
-      `SELECT v.slug, l.title, COUNT(*) as clicks
-       FROM visits v
-       LEFT JOIN links l ON l.slug = v.slug
-       WHERE v.created_at >= ?
-       GROUP BY v.slug, l.title
-       ORDER BY clicks DESC
-       LIMIT 10`
-    ).bind(since).all<{ slug: string; title?: string | null; clicks: number }>(),
-    env.DB.prepare(
-      `SELECT COALESCE(country, 'Unknown') as country, COUNT(*) as clicks
-       FROM visits
-       WHERE created_at >= ?
-       GROUP BY COALESCE(country, 'Unknown')
-       ORDER BY clicks DESC
-       LIMIT 10`
-    ).bind(since).all<{ country: string; clicks: number }>(),
-    env.DB.prepare(
-      `SELECT COALESCE(referer, 'Direct') as referer, COUNT(*) as clicks
-       FROM visits
-       WHERE created_at >= ?
-       GROUP BY COALESCE(referer, 'Direct')
-       ORDER BY clicks DESC
-       LIMIT 10`
-    ).bind(since).all<{ referer: string; clicks: number }>(),
-    env.DB.prepare(
-      `SELECT COALESCE(browser, 'Other') as browser, COUNT(*) as clicks
-       FROM visits
-       WHERE created_at >= ?
-       GROUP BY COALESCE(browser, 'Other')
-       ORDER BY clicks DESC
-       LIMIT 10`
-    ).bind(since).all<{ browser: string; clicks: number }>(),
-    env.DB.prepare(
-      `SELECT COALESCE(device_type, 'unknown') as device_type, COUNT(*) as clicks
-       FROM visits
-       WHERE created_at >= ?
-       GROUP BY COALESCE(device_type, 'unknown')
-       ORDER BY clicks DESC
-       LIMIT 10`
-    ).bind(since).all<{ device_type: string; clicks: number }>(),
-    env.DB.prepare(
-      `SELECT COALESCE(os, 'Other') as os, COUNT(*) as clicks
-       FROM visits
-       WHERE created_at >= ?
-       GROUP BY COALESCE(os, 'Other')
-       ORDER BY clicks DESC
-       LIMIT 10`
-    ).bind(since).all<{ os: string; clicks: number }>(),
-    env.DB.prepare(
-      'SELECT * FROM visits WHERE created_at >= ? ORDER BY created_at DESC LIMIT 20'
-    ).bind(since).all<Visit>(),
-  ]);
-
-  return {
-    days,
-    totalClicks: totalClicksResult?.count ?? 0,
-    botClicks: botClicksResult?.count ?? 0,
-    uniqueVisitors: uniqueVisitorsResult?.count ?? 0,
-    uniqueLinks: uniqueLinksResult?.count ?? 0,
-    daily: dailyResult.results ?? [],
-    topLinks: topLinksResult.results ?? [],
-    topCountries: topCountriesResult.results ?? [],
-    topReferrers: topReferrersResult.results ?? [],
-    topBrowsers: topBrowsersResult.results ?? [],
-    topDevices: topDevicesResult.results ?? [],
-    topOperatingSystems: topOperatingSystemsResult.results ?? [],
-    recentVisits: recentVisitsResult.results ?? [],
   };
 }
 

@@ -457,12 +457,13 @@ Audit pagination uses the same bounded `page` and `pageSize` contract as Links, 
 | `GET` | `/api/v1/analytics/links/:id` | Single-link analytics detail with the same summary shape |
 | `POST` | `/api/v1/conversions` | Record a conversion or goal event for a link |
 
-`GET /api/v1/analytics?days=30` limits the summary window. Supported ranges are clamped to 1-365 days.
+`GET /api/v1/analytics?days=30&timezone_offset=480` limits the summary window. Supported ranges are clamped to 1-365 days. `timezone_offset` is an integer number of minutes east of UTC from `-720` to `840`; invalid or omitted values use UTC.
 
 Supported analytics filters:
 
 ```txt
 days
+timezone_offset
 link_id
 slug
 domain
@@ -485,6 +486,7 @@ Campaign and project filters map to managed tags, for example `campaign:launch`.
 Response data includes:
 
 - `totalClicks`
+- `timezoneOffsetMinutes`, `rangeStart`, and `rangeEnd` — explicit local-day contract and UTC boundaries
 - `uniqueVisitors` — approximate, based on distinct hashed IPs
 - `uniqueLinks`
 - `botClicks`
@@ -492,9 +494,10 @@ Response data includes:
 - `conversionsTotal`
 - `conversionRate` — conversion events per eligible human click, as a percentage
 - `conversionAttributionAvailable`
-- `daily`
+- `daily` — zero-filled local dates with `clicks`, `humanClicks`, `botClicks`, and `uniqueVisitors`
 - `topLinks`
 - `topCountries`
+- `geography` — up to 250 ISO country rows plus mapped and unknown click totals
 - `topReferrers`
 - `topBrowsers`
 - `topDevices`

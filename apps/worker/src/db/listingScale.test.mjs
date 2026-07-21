@@ -87,6 +87,7 @@ test('100k Visits analytics and oversized health history remain bounded and with
   assert.ok(analytics.daily.length <= 30);
   assert.ok(analytics.topLinks.length <= 10);
   assert.ok(analytics.topCountries.length <= 10);
+  assert.ok(analytics.countryDistribution.length <= 250);
 
   const rawHistory = Array.from({ length: PROFILE.rawHealthHistory }, (_, index) => ({
     link_id: `link-${String(index % PROFILE.links).padStart(5, '0')}`,
@@ -148,7 +149,11 @@ function analyticsSummaryQueries(db) {
   );
   const daily = db
     .prepare(
-      `SELECT substr(created_at, 1, 10) AS date, COUNT(*) AS clicks
+      `SELECT substr(created_at, 1, 10) AS date,
+         COUNT(*) AS clicks,
+         SUM(CASE WHEN COALESCE(is_bot, 0) = 0 THEN 1 ELSE 0 END) AS human_clicks,
+         SUM(CASE WHEN is_bot = 1 THEN 1 ELSE 0 END) AS bot_clicks,
+         COUNT(DISTINCT CASE WHEN ip_hash IS NOT NULL AND ip_hash != '' THEN ip_hash END) AS unique_visitors
        FROM visits GROUP BY substr(created_at, 1, 10) ORDER BY date ASC`
     )
     .all();
@@ -172,6 +177,13 @@ function analyticsSummaryQueries(db) {
        FROM visits GROUP BY COALESCE(country, 'Unknown') ORDER BY clicks DESC LIMIT 10`
     )
     .all();
+  const countryDistribution = db
+    .prepare(
+      `SELECT UPPER(TRIM(COALESCE(country, ''))) AS country, COUNT(*) AS clicks
+       FROM visits GROUP BY UPPER(TRIM(COALESCE(country, '')))
+       ORDER BY clicks DESC LIMIT 250`
+    )
+    .all();
   const recentVisits = db
     .prepare('SELECT * FROM visits ORDER BY created_at DESC LIMIT 20')
     .all();
@@ -182,6 +194,7 @@ function analyticsSummaryQueries(db) {
     daily,
     topLinks,
     topCountries,
+    countryDistribution,
     recentVisits,
   };
 }

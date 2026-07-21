@@ -5,6 +5,9 @@ import { analyticsCsv } from '../export/analyticsCsv.ts';
 test('analytics CSV keeps the human-click basis and currency-separated conversion value', () => {
   const csv = analyticsCsv({
     days: 30,
+    timezoneOffsetMinutes: 480,
+    rangeStart: '2026-06-22T16:00:00.000Z',
+    rangeEnd: '2026-07-22T16:00:00.000Z',
     totalClicks: 84,
     botClicks: 4,
     uniqueVisitors: 27,
@@ -16,6 +19,7 @@ test('analytics CSV keeps the human-click basis and currency-separated conversio
     daily: [],
     topLinks: [],
     topCountries: [],
+    geography: { countries: [{ country: 'US', clicks: 50 }], mappedClicks: 80, unknownClicks: 4 },
     topReferrers: [],
     topBrowsers: [],
     topDevices: [],
@@ -34,6 +38,8 @@ test('analytics CSV keeps the human-click basis and currency-separated conversio
   });
 
   assert.match(csv, /summary,eligible_human_clicks,80,/);
+  assert.match(csv, /summary,timezone_offset_minutes,480,/);
+  assert.match(csv, /country_distribution,US,50,clicks/);
   assert.match(csv, /conversion_events,signup,4,USD:54/);
   assert.match(csv, /conversion_values,USD,54,4 events/);
 });

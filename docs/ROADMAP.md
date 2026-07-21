@@ -237,6 +237,17 @@ Status: complete in the repository; production remains owner-controlled.
 - Structured failure logs omit URL, secret, body, and visitor data
 - Redirect handlers, redirect decisions, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
 
+## 0.28.6: Analytics Visual Depth
+
+Status: complete in the repository; production and Demo rollout remain owner-controlled.
+
+- Overview and Analytics use an explicit browser UTC offset for the local "today" boundary
+- Daily Analytics rows are zero-filled and separate total, human, bot, and approximate unique-visitor counts
+- Analytics provides line, area, and stacked-bar trends, a local interactive world map, and audience composition charts
+- Country aggregation is capped at 250 ISO-code groups and preserves unknown traffic separately
+- CSV reports include the explicit range, complete country distribution, and all daily series
+- Redirect handlers, asynchronous visit recording, D1/KV ownership, migrations, production data, and Demo isolation are unchanged
+
 ## Long-Term Product Principles
 
 Linketry is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.

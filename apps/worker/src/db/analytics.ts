@@ -5,9 +5,24 @@ import {
   calculateConversionEventRate,
   conversionAttributionAvailable,
 } from '../analytics/conversionPolicy';
+import {
+  createAnalyticsRange,
+  fillDailyAnalytics,
+  localDateSql,
+  parseTimezoneOffset,
+  type AnalyticsRange,
+  type DailyAnalyticsPoint,
+} from '../analytics/timeRange';
+import {
+  legacyTopCountries,
+  normalizeGeography,
+  type CountryTraffic,
+  type GeographySummary,
+} from '../analytics/geography';
 
 export interface AnalyticsFilters {
   days?: number;
+  timezoneOffsetMinutes?: number;
   linkId?: string;
   slug?: string;
   domain?: string;
@@ -27,6 +42,9 @@ export interface AnalyticsFilters {
 
 export interface AnalyticsSummary {
   days: number;
+  timezoneOffsetMinutes: number;
+  rangeStart: string;
+  rangeEnd: string;
   totalClicks: number;
   botClicks: number;
   uniqueVisitors: number;
@@ -35,7 +53,7 @@ export interface AnalyticsSummary {
   conversionsTotal: number | null;
   conversionRate: number | null;
   conversionAttributionAvailable: boolean;
-  daily: Array<{ date: string; clicks: number }>;
+  daily: DailyAnalyticsPoint[];
   topLinks: Array<{
     id?: string | null;
     slug: string;
@@ -44,6 +62,7 @@ export interface AnalyticsSummary {
     clicks: number;
   }>;
   topCountries: Array<{ country: string; clicks: number }>;
+  geography: GeographySummary;
   topReferrers: Array<{ referer: string; clicks: number }>;
   topBrowsers: Array<{ browser: string; clicks: number }>;
   topDevices: Array<{ device_type: string; clicks: number }>;
@@ -86,6 +105,7 @@ export function parseAnalyticsFilters(
   const days = parseInt(query('days') ?? '30', 10);
   return {
     days: Number.isFinite(days) ? days : 30,
+    timezoneOffsetMinutes: parseTimezoneOffset(query('timezone_offset')),
     linkId: clean(query('link_id')),
     slug: clean(query('slug')),
     domain: clean(query('domain'))?.toLowerCase(),
@@ -108,9 +128,14 @@ export async function getAnalyticsSummary(
   env: Env,
   options: AnalyticsFilters = {}
 ): Promise<AnalyticsSummary> {
-  const days = Math.max(1, Math.min(options.days ?? 30, 365));
-  const filter = buildVisitFilter({ ...options, days });
+  const range = createAnalyticsRange(
+    options.days ?? 30,
+    options.timezoneOffsetMinutes ?? 0
+  );
+  const days = range.days;
+  const filter = buildVisitFilter(options, range);
   const fromVisits = `FROM visits v ${LINK_JOIN} WHERE ${filter.where}`;
+  const dailyDate = localDateSql('v.created_at', range.timezoneOffsetMinutes);
 
   const [
     totalClicks,
@@ -119,7 +144,7 @@ export async function getAnalyticsSummary(
     uniqueLinks,
     daily,
     topLinks,
-    topCountries,
+    countryRows,
     topReferrers,
     topBrowsers,
     topDevices,
@@ -141,9 +166,14 @@ export async function getAnalyticsSummary(
       `SELECT COUNT(DISTINCT COALESCE(v.link_id, v.slug)) as count ${fromVisits}`,
       filter.params
     ),
-    allRows<{ date: string; clicks: number }>(
+    allRows<DailyAnalyticsPoint>(
       env,
-      `SELECT substr(v.created_at, 1, 10) as date, COUNT(*) as clicks ${fromVisits} GROUP BY substr(v.created_at, 1, 10) ORDER BY date ASC`,
+      `SELECT ${dailyDate} as date,
+        COUNT(*) as clicks,
+        COALESCE(SUM(CASE WHEN COALESCE(v.is_bot, 0) = 0 THEN 1 ELSE 0 END), 0) as humanClicks,
+        COALESCE(SUM(CASE WHEN v.is_bot = 1 THEN 1 ELSE 0 END), 0) as botClicks,
+        COUNT(DISTINCT CASE WHEN v.ip_hash IS NOT NULL AND v.ip_hash != '' THEN v.ip_hash END) as uniqueVisitors
+       ${fromVisits} GROUP BY ${dailyDate} ORDER BY date ASC`,
       filter.params
     ),
     allRows<{
@@ -157,7 +187,14 @@ export async function getAnalyticsSummary(
       `SELECT COALESCE(v.link_id, l.id) as id, v.slug, COALESCE(v.domain, l.domain) as domain, l.title, COUNT(*) as clicks ${fromVisits} GROUP BY COALESCE(v.link_id, l.id), v.slug, COALESCE(v.domain, l.domain), l.title ORDER BY clicks DESC LIMIT 10`,
       filter.params
     ),
-    topDimension(env, "COALESCE(v.country, 'Unknown')", 'country', fromVisits, filter.params),
+    allRows<CountryTraffic>(
+      env,
+      `SELECT UPPER(TRIM(COALESCE(v.country, ''))) as country, COUNT(*) as clicks
+       ${fromVisits}
+       GROUP BY UPPER(TRIM(COALESCE(v.country, '')))
+       ORDER BY clicks DESC LIMIT 250`,
+      filter.params
+    ),
     topDimension(env, "COALESCE(v.referer, 'Direct')", 'referer', fromVisits, filter.params),
     topDimension(env, "COALESCE(v.browser, 'Other')", 'browser', fromVisits, filter.params),
     topDimension(
@@ -179,13 +216,17 @@ export async function getAnalyticsSummary(
       filter.params
     ),
     getTopTargets(env, filter),
-    getConversionStats(env, options, days),
+    getConversionStats(env, options, range),
   ]);
   const eligibleClicks = Math.max(0, totalClicks - botClicks);
   const hasConversionAttribution = conversionAttributionAvailable(options);
+  const geography = normalizeGeography(countryRows);
 
   return {
     days,
+    timezoneOffsetMinutes: range.timezoneOffsetMinutes,
+    rangeStart: range.start,
+    rangeEnd: range.end,
     totalClicks,
     botClicks,
     uniqueVisitors,
@@ -199,9 +240,10 @@ export async function getAnalyticsSummary(
       hasConversionAttribution
     ),
     conversionAttributionAvailable: hasConversionAttribution,
-    daily,
+    daily: fillDailyAnalytics(daily, range),
     topLinks,
-    topCountries: topCountries as AnalyticsSummary['topCountries'],
+    topCountries: legacyTopCountries(geography),
+    geography,
     topReferrers: topReferrers as AnalyticsSummary['topReferrers'],
     topBrowsers: topBrowsers as AnalyticsSummary['topBrowsers'],
     topDevices: topDevices as AnalyticsSummary['topDevices'],
@@ -327,22 +369,22 @@ export async function getTrafficAnomalyMetrics(
   };
 }
 
-function buildVisitFilter(options: AnalyticsFilters): { where: string; params: unknown[] } {
-  const days = Math.max(1, Math.min(options.days ?? 30, 365));
-  const since = new Date(Date.now() - (days - 1) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  const conditions = ['v.created_at >= ?'];
-  const params: unknown[] = [since];
+function buildVisitFilter(
+  options: AnalyticsFilters,
+  range: AnalyticsRange
+): { where: string; params: unknown[] } {
+  const conditions = ['v.created_at >= ?', 'v.created_at < ?'];
+  const params: unknown[] = [range.start, range.end];
   addCommonFilters(conditions, params, options, 'v');
   return { where: conditions.join(' AND '), params };
 }
 
 function buildConversionFilter(
   options: AnalyticsFilters,
-  days: number
+  range: AnalyticsRange
 ): { where: string; params: unknown[] } {
-  const since = new Date(Date.now() - (days - 1) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  const conditions = ['ce.created_at >= ?'];
-  const params: unknown[] = [since];
+  const conditions = ['ce.created_at >= ?', 'ce.created_at < ?'];
+  const params: unknown[] = [range.start, range.end];
   addCommonFilters(conditions, params, options, 'ce');
   return { where: conditions.join(' AND '), params };
 }
@@ -417,14 +459,14 @@ async function getTopTargets(
 async function getConversionStats(
   env: Env,
   options: AnalyticsFilters,
-  days: number
+  range: AnalyticsRange
 ): Promise<{
   total: number;
   events: AnalyticsSummary['topConversionEvents'];
   values: AnalyticsSummary['conversionValues'];
 }> {
   if (!conversionAttributionAvailable(options)) return { total: 0, events: [], values: [] };
-  const filter = buildConversionFilter(options, days);
+  const filter = buildConversionFilter(options, range);
   const from = `FROM conversion_events ce ${CONVERSION_LINK_JOIN} WHERE ${filter.where}`;
   const [total, events, values] = await Promise.all([
     safeFirstCount(env, `SELECT COUNT(*) as count ${from}`, filter.params),

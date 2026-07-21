@@ -4,11 +4,16 @@ export function analyticsCsv(summary: AnalyticsSummary): string {
   const rows: Array<Array<string | number | null | undefined>> = [
     ['section', 'label', 'value', 'extra'],
     ['summary', 'days', summary.days, ''],
+    ['summary', 'timezone_offset_minutes', summary.timezoneOffsetMinutes, ''],
+    ['summary', 'range_start', summary.rangeStart, ''],
+    ['summary', 'range_end', summary.rangeEnd, ''],
     ['summary', 'total_clicks', summary.totalClicks, ''],
     ['summary', 'unique_visitors', summary.uniqueVisitors, ''],
     ['summary', 'unique_links', summary.uniqueLinks, ''],
     ['summary', 'bot_clicks', summary.botClicks, ''],
     ['summary', 'eligible_human_clicks', summary.eligibleClicks, ''],
+    ['summary', 'mapped_country_clicks', summary.geography.mappedClicks, ''],
+    ['summary', 'unmapped_country_clicks', summary.geography.unknownClicks, ''],
     ['summary', 'conversions_total', summary.conversionsTotal, ''],
     ['summary', 'conversion_rate_percent', summary.conversionRate, ''],
     [
@@ -19,11 +24,18 @@ export function analyticsCsv(summary: AnalyticsSummary): string {
     ],
   ];
 
-  for (const item of summary.daily) rows.push(['daily', item.date, item.clicks, 'clicks']);
+  for (const item of summary.daily) {
+    rows.push(['daily_total', item.date, item.clicks, 'clicks']);
+    rows.push(['daily_human', item.date, item.humanClicks, 'clicks']);
+    rows.push(['daily_bot', item.date, item.botClicks, 'clicks']);
+    rows.push(['daily_unique', item.date, item.uniqueVisitors, 'visitors']);
+  }
   for (const item of summary.topLinks)
     rows.push(['top_links', item.slug, item.clicks, item.title ?? item.domain ?? '']);
   for (const item of summary.topCountries)
     rows.push(['top_countries', item.country, item.clicks, 'clicks']);
+  for (const item of summary.geography.countries)
+    rows.push(['country_distribution', item.country, item.clicks, 'clicks']);
   for (const item of summary.topReferrers)
     rows.push(['top_referrers', item.referer, item.clicks, 'clicks']);
   for (const item of summary.topBrowsers)

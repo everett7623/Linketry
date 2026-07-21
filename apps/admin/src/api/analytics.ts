@@ -22,6 +22,9 @@ export interface AnalyticsFilters {
 
 export interface AnalyticsSummary {
   days: number;
+  timezoneOffsetMinutes: number;
+  rangeStart: string;
+  rangeEnd: string;
   totalClicks: number;
   botClicks: number;
   uniqueVisitors: number;
@@ -30,7 +33,13 @@ export interface AnalyticsSummary {
   conversionsTotal: number | null;
   conversionRate: number | null;
   conversionAttributionAvailable: boolean;
-  daily: Array<{ date: string; clicks: number }>;
+  daily: Array<{
+    date: string;
+    clicks: number;
+    humanClicks: number;
+    botClicks: number;
+    uniqueVisitors: number;
+  }>;
   topLinks: Array<{
     id?: string | null;
     slug: string;
@@ -39,6 +48,11 @@ export interface AnalyticsSummary {
     clicks: number;
   }>;
   topCountries: Array<{ country: string; clicks: number }>;
+  geography: {
+    countries: Array<{ country: string; clicks: number }>;
+    mappedClicks: number;
+    unknownClicks: number;
+  };
   topReferrers: Array<{ referer: string; clicks: number }>;
   topBrowsers: Array<{ browser: string; clicks: number }>;
   topDevices: Array<{ device_type: string; clicks: number }>;
@@ -193,5 +207,6 @@ function analyticsQuery(filters: AnalyticsFilters): URLSearchParams {
     }
   }
   if (!q.has('days')) q.set('days', '30');
+  q.set('timezone_offset', String(-new Date().getTimezoneOffset()));
   return q;
 }

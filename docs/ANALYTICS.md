@@ -9,7 +9,7 @@ The Admin panel has two dashboard-style pages:
 | Page           | Purpose                                                                                                              |
 | -------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Overview       | High-level dashboard with total links, total clicks, today's clicks, recently created links, and top links by clicks |
-| Analytics      | Filterable traffic dashboard for attribution, targets, UTM dimensions, and conversions                               |
+| Analytics      | Filterable traffic dashboard for trends, geography, audience composition, attribution, targets, and conversions      |
 | Link Analytics | Single-link detail page with daily trend, referrers, devices, redirect targets, and conversions                      |
 
 ## Tracked Visit Data
@@ -35,6 +35,7 @@ V6 also records the resolved redirect target in `visit_targets` when smart redir
 `GET /api/v1/analytics` and the Admin Analytics page support:
 
 - `days`
+- `timezone_offset` (minutes east of UTC; the Admin supplies the current browser offset)
 - `link_id`
 - `slug`
 - `domain`
@@ -62,7 +63,10 @@ The Analytics page currently shows:
 - Unique clicked links
 - Bot clicks and bot rate
 - Conversion Overview with eligible human clicks, conversion event count, Event Rate, goal breakdown, and currency-separated recorded values
-- Daily click trend
+- Browser-local daily trend with total, human, bot, and approximate unique-visitor series
+- Line, area, and stacked-bar trend views
+- Local interactive world traffic map with the complete bounded country distribution
+- Device donut and browser composition charts
 - Top links
 - Top countries
 - Top referrers
@@ -77,6 +81,10 @@ The Analytics page currently shows:
 Analytics summary reports can be exported from `GET /api/v1/export/analytics.csv`. Raw visits can still be exported from `GET /api/v1/export/visits.csv`.
 
 The Analytics and Link Analytics pages refresh every 10 seconds by default. Operators can select a 5, 10, or 30 second interval, disable automatic refresh, or refresh manually. This is bounded near-real-time polling, not a WebSocket stream. Automatic refresh pauses while the browser tab is hidden, and the latest completed request wins if filters change while a request is running.
+
+Overview and Analytics define "today" using the browser's current fixed UTC offset. The Admin sends `timezone_offset` in minutes east of UTC (for example, `480` for UTC+08:00). The Worker returns `timezoneOffsetMinutes`, `rangeStart`, and `rangeEnd`, fills every local date in the selected 1-365 day range, and keeps UTC as the storage format. API clients that omit the parameter receive the UTC boundary. A fixed offset is used for the selected range; it does not model a daylight-saving transition inside a historical range.
+
+The `geography` response contains at most 250 grouped ISO 3166-1 alpha-2 country rows plus explicit `mappedClicks` and `unknownClicks` totals. The map geometry ships with the Admin bundle and never calls a third-party map service. `topCountries` remains available for compatible clients and CSV exports now include the full country distribution and all daily series.
 
 Event Rate is calculated as conversion events divided by eligible human clicks. Classified bot clicks are excluded from the denominator. It is an event-performance metric, not a session/user conversion rate, and it can exceed 100% when one click creates multiple events. Conversion events do not currently store visit-level country, device, browser, or referrer attribution, so applying any of those filters makes conversion events, Event Rate, goal breakdowns, and recorded values unavailable rather than combining filtered clicks with unfiltered events.
 

@@ -10,18 +10,32 @@ Last updated: 2026-07-21
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.28.4 live         | Production health reports v0.28.4; redirect, analytics, D1, and KV behavior remain unchanged                                                                                                            |
-| Admin frontend             | ✅ 0.28.4 live         | Production Pages and custom-domain HTML report v0.28.4; the custom-domain entry asset recovered after propagation                                                                                       |
+| Worker backend             | ✅ 0.28.5 live         | Production and the isolated Demo report v0.28.5; redirect, D1, and KV behavior remain unchanged                                                                                                         |
+| Admin frontend             | ✅ 0.28.5 live         | Production and Demo Admin initial assets report v0.28.5 after the readiness-gated deployment                                                                                                            |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
-| Documentation              | ✅ 0.28.5 updated      | Admin deployment readiness, incident evidence, release notes, progress, and task records are synchronized                                                                                               |
+| Documentation              | ✅ 0.28.6 updated      | Analytics range semantics, visual coverage, local map provenance, release notes, progress, and task records are synchronized                                                                             |
 | Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                             |
-| End-to-end test            | ✅ Full regression     | 78 deployment, 104 Worker, 58 Admin unit, 25 Admin browser scenarios, 6 Demo API, and 4 site tests pass; Worker/Admin/Site builds pass                                                                   |
+| End-to-end test            | ✅ Full regression     | 78 deployment, 109 Worker, 58 Admin unit, 25 Admin browser scenarios, 6 Demo API, and 4 site tests pass; Worker/Admin/Site builds pass                                                                   |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.28.4 live         | Production Worker/Admin are synchronized on v0.28.4 after online-upgrade run `29798209627`                                                                                                              |
-| Repository update target   | ✅ 0.28.5 ready        | v0.28.5 holds upgrade completion until the configured Admin origin serves the target HTML and executable initial assets                                                                                  |
+| Current version            | ✅ 0.28.5 live         | Production and Demo Worker/Admin surfaces are synchronized on v0.28.5                                                                                                                                    |
+| Repository update target   | ✅ 0.28.6 ready       | v0.28.6 fixes local-day analytics and adds multi-series trends, world geography, and audience composition; isolated Demo publication is the remaining rollout step                                       |
 | Next planned work          | 🟡 Pre-1.0 validation | Cloudflare Access needs a complete cross-origin auth design; independent fresh-account, large-data, and assistive-technology validation remain                                                          |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.28.6 Analytics Visual Depth
+
+| Area                    | Status      | Notes                                                                                                                       |
+| ----------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Today boundary          | ✅ Complete | Overview and Analytics use the browser's explicit UTC offset and keep UTC storage                                            |
+| Trend analysis          | ✅ Complete | Zero-filled daily rows expose total, human, bot, and approximate unique visitors through three chart modes                   |
+| Geography               | ✅ Complete | A locally bundled interactive world map uses a bounded 250-country aggregation and preserves unknown traffic                |
+| Audience composition    | ✅ Complete | Device donut and browser bars complement existing detailed attribution lists                                                 |
+| Contract compatibility  | ✅ Complete | Existing Analytics fields remain; explicit range, daily metrics, and geography fields are additive                          |
+| Redirect/data impact    | ✅ None     | Redirect handlers, asynchronous visit recording, D1/KV ownership, migrations, production data, and Demo isolation unchanged |
+| Verification            | ✅ Complete | 109 Worker, 58 Admin unit, 25 browser, 78 deployment, 6 Demo API, and 4 site tests pass; production builds and the official npm audit pass |
 
 ---
 

@@ -5,9 +5,15 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🔴 In Progress
+## ✅ Completed - Analytics Visual Depth (v0.28.6)
 
-_(none)_
+- [x] Correct Overview and Analytics local-day boundaries
+- [x] Add zero-filled multi-series daily analytics and bounded geography aggregation
+- [x] Add line, area, stacked-bar, world-map, device, and browser views
+- [x] Add focused Worker, scale, Admin, responsive, and accessibility coverage
+- [x] Complete release metadata and full regression
+
+Task record: `.codex/tasks/analytics-visual-depth-2026-07-21.md`
 
 ---
 

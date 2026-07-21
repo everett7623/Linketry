@@ -113,8 +113,6 @@ export const observabilityMessages = {
     trafficPrivacyNote:
       'Only aggregate counts and rates are evaluated and stored. No new visitor, IP, or session identifiers are collected.',
     noData: 'No data yet.',
-    dailyClicks: 'Daily Clicks',
-    noVisitsRange: 'No visits in this range.',
     recentVisits: 'Recent Visits',
     noRecentVisits: 'No recent visits.',
     direct: 'Direct',
@@ -250,8 +248,6 @@ export const observabilityMessages = {
     trafficBotCurrentVsBaseline: '{current}% 对比 {baseline}%',
     trafficPrivacyNote: '系统只评估并保存聚合计数与比例，不会新增访客、IP 或会话标识。',
     noData: '暂无数据。',
-    dailyClicks: '每日访问',
-    noVisitsRange: '该时间范围内暂无访问。',
     recentVisits: '最近访问',
     noRecentVisits: '暂无最近访问。',
     direct: '直接访问',

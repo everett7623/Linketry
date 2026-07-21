@@ -172,5 +172,8 @@ export function getOverview(): Promise<{
   recentLinks: Link[];
   topLinks: Link[];
 }> {
-  return apiGet('/api/v1/overview');
+  const query = new URLSearchParams({
+    timezone_offset: String(-new Date().getTimezoneOffset()),
+  });
+  return apiGet(`/api/v1/overview?${query.toString()}`);
 }
