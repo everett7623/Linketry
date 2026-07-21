@@ -33,6 +33,8 @@ Fix browser-local "today" analytics and make the Analytics dashboard useful for 
 - Worker type-check plus Admin and project-site production builds.
 - Desktop and mobile screenshot review, Axe scan, and horizontal-overflow checks.
 - Official npm registry audit: zero known vulnerabilities.
+- Isolated Demo workflow `29803326084` deployed commit `9a5b07b2f53cce60eb174bf0bad61bf4f2f905d5` and passed its live parity/read-only gates.
+- Live `demo.linketry.com/analytics` reports v0.28.6, browser-local today traffic, all three visual panels, no horizontal overflow at 1280px, and no console errors.
 
 ## Project Review
 

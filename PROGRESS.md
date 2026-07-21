@@ -10,15 +10,15 @@ Last updated: 2026-07-21
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.28.5 live         | Production and the isolated Demo report v0.28.5; redirect, D1, and KV behavior remain unchanged                                                                                                         |
-| Admin frontend             | ✅ 0.28.5 live         | Production and Demo Admin initial assets report v0.28.5 after the readiness-gated deployment                                                                                                            |
+| Worker backend             | ✅ Demo 0.28.6 live    | The isolated Demo reports v0.28.6; production remains on v0.28.5 and redirect, D1, and KV behavior remain unchanged                                                                                     |
+| Admin frontend             | ✅ Demo 0.28.6 live    | Demo Admin initial assets report v0.28.6; production remains on v0.28.5 pending an owner-controlled upgrade                                                                                             |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ 0.28.6 updated      | Analytics range semantics, visual coverage, local map provenance, release notes, progress, and task records are synchronized                                                                             |
-| Deployment                 | ✅ Production + Demo   | Production, `linketry.com`, and the isolated read-only Demo at `demo.linketry.com` are live                                                                                                             |
+| Deployment                 | ✅ Demo updated        | Isolated Demo workflow `29803326084` deployed v0.28.6 and passed live parity/read-only gates; production remains intentionally on v0.28.5                                                              |
 | End-to-end test            | ✅ Full regression     | 78 deployment, 109 Worker, 58 Admin unit, 25 Admin browser scenarios, 6 Demo API, and 4 site tests pass; Worker/Admin/Site builds pass                                                                   |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | ✅ 0.28.5 live         | Production and Demo Worker/Admin surfaces are synchronized on v0.28.5                                                                                                                                    |
-| Repository update target   | ✅ 0.28.6 ready       | v0.28.6 fixes local-day analytics and adds multi-series trends, world geography, and audience composition; isolated Demo publication is the remaining rollout step                                       |
+| Current version            | ✅ Demo 0.28.6 live    | Repository and Demo Worker/Admin surfaces are on v0.28.6; production remains on v0.28.5                                                                                                                  |
+| Repository update target   | ✅ 0.28.6 published   | v0.28.6 fixes local-day analytics and adds multi-series trends, world geography, and audience composition; production rollout remains owner-controlled                                                   |
 | Next planned work          | 🟡 Pre-1.0 validation | Cloudflare Access needs a complete cross-origin auth design; independent fresh-account, large-data, and assistive-technology validation remain                                                          |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
@@ -36,6 +36,7 @@ Last updated: 2026-07-21
 | Contract compatibility  | ✅ Complete | Existing Analytics fields remain; explicit range, daily metrics, and geography fields are additive                          |
 | Redirect/data impact    | ✅ None     | Redirect handlers, asynchronous visit recording, D1/KV ownership, migrations, production data, and Demo isolation unchanged |
 | Verification            | ✅ Complete | 109 Worker, 58 Admin unit, 25 browser, 78 deployment, 6 Demo API, and 4 site tests pass; production builds and the official npm audit pass |
+| Live Demo               | ✅ 0.28.6   | Workflow `29803326084` passed parity and read-only checks; live Analytics shows non-empty local today traffic, trend, map, and audience panels |
 
 ---
 

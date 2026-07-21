@@ -32,6 +32,7 @@ _(none)_
 - Added focused time-boundary, geography-normalization, real SQLite Analytics/Overview integration, 100k-visit query-budget, responsive chart/map, and accessibility coverage.
 - Verified the Analytics visual hierarchy at 390px and 1440px with Playwright screenshots.
 - Passed 109 Worker, 78 deployment, 58 Admin unit, 25 Admin browser, 6 Demo API, and 4 project-site tests; Worker/Admin/Site builds and the official npm registry audit pass.
+- Deployed v0.28.6 to the isolated read-only Demo through workflow `29803326084` and verified the live today, trend, geography, audience, version, and no-overflow states.
 - Redirect handlers, asynchronous visit recording, D1/KV ownership, migrations, production data, and Demo isolation are unchanged.
 
 ---
