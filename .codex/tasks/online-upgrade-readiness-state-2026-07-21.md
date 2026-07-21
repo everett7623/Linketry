@@ -27,7 +27,7 @@ Make an in-progress Admin page automatically converge to the deployed release wi
 - [x] Persist and restore success feedback for the real no-run-ID path.
 - [x] Add unit, browser, and deployment regressions.
 - [x] Synchronize v0.28.8 release metadata and documentation.
-- [ ] Deploy and verify the isolated Demo after the repository commit is pushed.
+- [x] Deploy and verify the isolated Demo through workflow `29817579157`.
 
 ## Verification
 
@@ -36,6 +36,8 @@ Make an in-progress Admin page automatically converge to the deployed release wi
 - 6 Demo API and 4 project-site tests pass.
 - Admin and project-site production builds pass.
 - Official npm registry audit: zero known vulnerabilities.
+- Demo Worker health and Admin metadata report v0.28.8, the initial script serves `application/javascript`, the upgrade-complete feedback survives reload, and the stable overview has no browser warnings or errors.
+- The production workflow stopped at its owner-controlled safety gate before mutation because its approved release metadata still targets the prior release.
 
 ## Safety Boundaries
 

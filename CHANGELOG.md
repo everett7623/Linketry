@@ -27,6 +27,8 @@ _(none)_
 - Reproduced production workflow `29811494912`: Worker and Admin deployment writes completed, while the Admin entry asset returned `text/html` during Pages propagation and the readiness job eventually failed.
 - Added no-run-ID, delayed Admin asset, MIME validation, focus-resume, dual-runtime readiness, and success-feedback browser coverage.
 - Passed 110 Worker, 78 deployment, 60 Admin unit, 25 Admin browser, 6 Demo API, and 4 project-site tests; Worker type-check, Admin/Site builds, and the official npm registry audit pass.
+- Deployed v0.28.8 to the isolated read-only Demo through workflow `29817579157`; live Worker health, Admin metadata, entry-script MIME, completed-upgrade feedback, stable overview loading, and browser logs were verified.
+- The production push workflow stopped at its owner-controlled safety gate before any mutation because the approved release metadata has not been advanced to v0.28.8.
 - Redirect handlers, deployment permissions, D1/KV ownership, migrations, analytics, and production data are unchanged.
 
 ---

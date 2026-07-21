@@ -14,10 +14,10 @@ Last updated: 2026-07-21
 | Admin frontend             | ✅ 0.28.8 verified     | Online upgrade waits for Worker plus Admin document/asset readiness and recovers polling after browser suspension                                                                                       |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
 | Documentation              | ✅ 0.28.8 updated      | Production failure evidence, combined readiness contract, release notes, progress, roadmap, and task records are synchronized                                                                            |
-| Deployment                 | 🟡 0.28.8 rollout next | Production and isolated Demo currently run v0.28.7; v0.28.8 remains behind the existing owner-controlled release gates                                                                                   |
+| Deployment                 | 🟡 Production pending  | Isolated Demo runs v0.28.8 through workflow `29817579157`; production remains v0.28.7 behind its owner-controlled release gate                                                                           |
 | End-to-end test            | ✅ Full regression     | 110 Worker, 78 deployment, 60 Admin unit, 25 Admin browser, 6 Demo API, and 4 site tests pass; Worker type-check and Admin/Site builds pass                                                             |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | 🟡 Repository 0.28.8   | Repository metadata targets v0.28.8; production and isolated Demo currently run v0.28.7                                                                                                                  |
+| Current version            | 🟡 0.28.8 staged       | Repository and isolated Demo run v0.28.8; production remains v0.28.7 pending owner approval                                                                                                              |
 | Repository update target   | ✅ 0.28.8 verified     | v0.28.8 fixes stale online-upgrade state without changing redirect or data behavior                                                                                                                       |
 | Next planned work          | 🟡 Pre-1.0 validation | Cloudflare Access needs a complete cross-origin auth design; independent fresh-account, large-data, and assistive-technology validation remain                                                          |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
@@ -36,7 +36,7 @@ Last updated: 2026-07-21
 | Feedback continuity      | ✅ Complete | Every successful path records the target release before reload                                                              |
 | Verification             | ✅ Complete | Full Worker, deployment, Admin, Demo API, and site regression passes; builds and official npm audit pass                    |
 | Redirect/data impact     | ✅ None     | Redirect handlers, deployment permissions, D1/KV, migrations, analytics, and production data are unchanged                 |
-| Live rollout             | 🟡 Pending  | Production and isolated Demo remain on v0.28.7 until the existing protected release gates are approved                      |
+| Live rollout             | 🟡 Partial  | Demo workflow `29817579157` and live browser checks pass on v0.28.8; production remains v0.28.7 pending owner approval       |
 
 ---
 
