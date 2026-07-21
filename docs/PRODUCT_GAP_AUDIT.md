@@ -17,6 +17,15 @@ The review covered:
 
 The complete dependency audit reports no known vulnerabilities. Vite is updated to the supported 6.4 line; React, Tailwind, and React Router major releases remain separate work because they need dedicated migration testing.
 
+## Reconciled In 0.29.1
+
+| Area                    | Result                                                                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Live release state      | Demo v0.29.0 parity is verified; production intentionally remains v0.28.8 for the owner-controlled update and upgrade path.                             |
+| Update discovery        | The Admin compares its installed version with the configured repository branch's `package.json`; a GitHub Release or tag is not required.              |
+| Optional Demo resources | Queue is configured, while R2 remains unavailable until its isolated Cloudflare account capability and two environment variables are restored.         |
+| Pre-1.0 boundary        | The four external P0 evidence gates remain explicit and are not counted as completed by local automation or the successful core Demo deployment.          |
+
 ## Completed In 0.29.0
 
 | Area                       | Result                                                                                                                                                        |
@@ -101,10 +110,6 @@ The repository policy and canonical advisory URL are documented and tested in v0
 ### Fresh-account deployment rehearsal
 
 The maintained owner checklist and automation now cover repository setup, scoped credentials, D1/KV creation, first deployment, first login, first domain, first redirect, optional R2 backup, upgrade, and rollback. Before 1.0, repeat the exact checklist in an independent owner-controlled fork/account and retain the evidence; local automation and contract tests do not replace this external validation.
-
-### Public Demo redirect-domain reachability
-
-The Admin and API have branded Pages domains, but seeded short links still use the isolated account's `workers.dev` origin. Before 1.0, add and verify an isolated branded redirect hostname so public Demo redirects do not depend on regional `workers.dev` reachability; never reuse production routes or data.
 
 ### Independent assistive-technology audit
 

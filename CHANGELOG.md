@@ -13,6 +13,32 @@ _(none)_
 
 ---
 
+## [0.29.1] - 2026-07-21
+
+### Fixed
+
+- Prevented a production Admin blank page caused by a Pages SPA HTML fallback being retained under a hashed JavaScript cache key on the proxied custom domain.
+- Deployment readiness now checks canonical Admin asset URLs without bypassing the cache that browsers use and rejects HTML fallbacks, incorrect MIME types, or unsafe long-term caching.
+- Removed a midnight-sensitive Analytics heatmap assertion so release verification remains deterministic across local-day boundaries.
+
+### Changed
+
+- Reconciled public progress, roadmap, product-gap, and task records with the successful v0.29.0 isolated Demo rollout and the intentionally retained production v0.28.8 upgrade baseline.
+- Marked the implemented V7 scope complete and corrected the Demo capability inventory so optional R2 is not presented as verified while its bucket variables remain unset.
+- Custom Admin Pages CNAMEs are maintained as DNS-only records, Admin security headers are shipped with the build, and theme initialization runs through a CSP-compatible external script.
+- Kept the isolated synthetic Demo redirect origin on `workers.dev`; an additional branded redirect hostname is no longer a public 1.0 requirement.
+- Replaced one-year Admin/site asset caching with mandatory revalidation so a transient SPA fallback cannot remain under a JavaScript or CSS cache key.
+- Synchronized workspace, OpenAPI, deployment example, and workflow fallback versions for the maintenance release.
+
+### Verified
+
+- Confirmed Demo v0.29.0 Worker/Admin parity, 18 read APIs, canonical brand assets, and write rejection; production Worker/Admin remain healthy on v0.28.8.
+- Confirmed GitHub update discovery reads `package.json` from the configured branch, so version notifications do not require a GitHub Release or tag.
+- Passed 81 deployment, 110 Worker, 64 Admin unit, 25 Admin browser, 6 Demo API, and 4 project-site tests; Worker type-check, Admin/Site builds, and the official npm registry audit also pass.
+- Redirect handlers, analytics ingestion, D1/KV ownership, migrations, Cloudflare resources, production data, and environment isolation are unchanged.
+
+---
+
 ## [0.29.0] - 2026-07-21
 
 ### Added

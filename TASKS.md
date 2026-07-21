@@ -5,6 +5,31 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## In Progress - Production Admin Cache Recovery (v0.29.1)
+
+- [x] Reproduce the empty production Admin and isolate HTML, canonical asset, MIME, cache, and Pages-origin behavior
+- [x] Stop bypassing the user-facing asset cache key during deployment readiness checks
+- [x] Require DNS-only Pages Admin CNAMEs and reject unsafe long-term Admin asset caching
+- [x] Preserve Admin security headers while moving the pre-paint theme initializer to a CSP-compatible external script
+- [x] Keep the isolated Demo Worker on `workers.dev` and remove a branded redirect hostname from the public 1.0 gates
+- [ ] Complete full regression, deploy v0.29.1, and verify the production Admin renders through its canonical URL
+
+Task record: `.codex/tasks/production-admin-cache-recovery-2026-07-21.md`
+
+---
+
+## Completed - Post-Deployment Status Reconciliation (v0.29.1)
+
+- [x] Verify repository, Demo, and production versions against live endpoints and GitHub workflow state
+- [x] Record that Demo core parity passes while optional R2 bucket bindings remain unset
+- [x] Confirm update discovery reads the configured repository branch instead of requiring a GitHub Release or tag
+- [x] Reconcile V7, Pre-1.0, Demo, production, and upgrade status across public planning documents
+- [x] Synchronize v0.29.1 release metadata and run the release/document verification gates
+
+Task record: `.codex/tasks/post-deployment-status-reconciliation-2026-07-21.md`
+
+---
+
 ## ✅ Completed - Online Upgrade Readiness State (v0.28.8)
 
 - [x] Capture the production workflow, Worker, Admin HTML, and asset MIME evidence

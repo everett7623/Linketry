@@ -1,17 +1,20 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { collectInitialAssets, verifyAdminLive, waitForAdminLive } from './admin-live-smoke.mjs';
 
 const adminUrl = 'https://admin.example.com';
-const version = '0.28.8';
+const version = '0.29.1';
 const html = `
   <meta name="linketry-version" content="${version}">
   <script type="module" crossorigin src="/assets/index-release.js"></script>
   <link rel="stylesheet" href="/assets/index-release.css">
 `;
 
-function response(body, contentType) {
-  return new Response(body, { headers: { 'Content-Type': contentType } });
+function response(body, contentType, cacheControl = 'public, max-age=0, must-revalidate') {
+  return new Response(body, {
+    headers: { 'Content-Type': contentType, 'Cache-Control': cacheControl },
+  });
 }
 
 function healthyFetch(input) {
@@ -48,6 +51,50 @@ test('accepts the current Admin HTML only when initial assets have executable MI
     }),
     /returned text\/html.*instead of script/
   );
+});
+
+test('checks canonical asset cache keys and rejects unsafe long-term caching', async () => {
+  const requests = [];
+  await verifyAdminLive({
+    adminUrl,
+    version,
+    fetchImpl: async (input, init) => {
+      requests.push({ url: new URL(String(input)), headers: new Headers(init?.headers) });
+      return healthyFetch(input);
+    },
+  });
+
+  const htmlRequest = requests.find((request) => request.url.pathname === '/');
+  const assetRequests = requests.filter((request) => request.url.pathname.startsWith('/assets/'));
+  assert.equal(htmlRequest?.headers.get('Cache-Control'), 'no-cache');
+  assert.equal(assetRequests.length, 2);
+  assert.ok(assetRequests.every((request) => !request.url.search));
+  assert.ok(assetRequests.every((request) => !request.headers.has('Cache-Control')));
+
+  await assert.rejects(
+    verifyAdminLive({
+      adminUrl,
+      version,
+      fetchImpl: async (input) => {
+        const url = new URL(String(input));
+        if (url.pathname.endsWith('.js')) {
+          return response('export {};', 'application/javascript', 'public, max-age=31536000');
+        }
+        return healthyFetch(input);
+      },
+    }),
+    /unsafe long-term caching/
+  );
+});
+
+test('Admin Pages security headers require revalidation without immutable caching', () => {
+  const headers = readFileSync(
+    new URL('../apps/admin/public/_headers', import.meta.url),
+    'utf8'
+  );
+  assert.match(headers, /Content-Security-Policy:.*script-src 'self'/);
+  assert.match(headers, /\/assets\/\*[\s\S]*Cache-Control: public, max-age=0, must-revalidate/);
+  assert.doesNotMatch(headers, /immutable/i);
 });
 
 test('readiness polling waits through a transient Pages asset fallback', async () => {

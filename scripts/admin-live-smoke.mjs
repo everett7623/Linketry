@@ -35,10 +35,10 @@ export function collectInitialAssets(html) {
   return assets;
 }
 
-async function fetchRequired(fetchImpl, url) {
+async function fetchRequired(fetchImpl, url, { bypassCache = false } = {}) {
   const response = await fetchImpl(url, {
     redirect: 'follow',
-    headers: { 'Cache-Control': 'no-cache' },
+    ...(bypassCache ? { headers: { 'Cache-Control': 'no-cache' } } : {}),
   });
   if (!response.ok) throw new Error(`${url} returned HTTP ${response.status}.`);
   return response;
@@ -48,12 +48,19 @@ function expectedContentType(kind) {
   return kind === 'script' ? /^(?:application|text)\/javascript\b/i : /^text\/css\b/i;
 }
 
+function hasUnsafeLongTermCache(value) {
+  if (/\bimmutable\b/i.test(value)) return true;
+  const maxAge = value.match(/(?:^|,)\s*(?:s-maxage|max-age)\s*=\s*(\d+)/i);
+  return maxAge ? Number(maxAge[1]) > 0 : false;
+}
+
 export async function verifyAdminLive({ adminUrl, version, fetchImpl = fetch }) {
   if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error('Version must use semantic versioning.');
   const adminOrigin = normalizeOrigin(adminUrl);
   const htmlResponse = await fetchRequired(
     fetchImpl,
-    `${adminOrigin}/?linketry-admin-ready=${encodeURIComponent(version)}`
+    `${adminOrigin}/?linketry-admin-ready=${encodeURIComponent(version)}`,
+    { bypassCache: true }
   );
   const html = await htmlResponse.text();
   const versionPattern = new RegExp(
@@ -78,6 +85,12 @@ export async function verifyAdminLive({ adminUrl, version, fetchImpl = fetch }) 
       if (!expectedContentType(asset.kind).test(contentType)) {
         throw new Error(
           `Admin asset ${asset.path} returned ${contentType || 'no Content-Type'} instead of ${asset.kind}.`
+        );
+      }
+      const cacheControl = response.headers.get('cache-control') ?? '';
+      if (hasUnsafeLongTermCache(cacheControl)) {
+        throw new Error(
+          `Admin asset ${asset.path} uses unsafe long-term caching: ${cacheControl}.`
         );
       }
     })

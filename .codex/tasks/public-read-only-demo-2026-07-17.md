@@ -36,7 +36,7 @@ Core profile complete and live. The v0.23.0 safety layer is deployed in an isola
 - [ ] Grant the replacement isolated-account token R2 and Queues permissions.
 - [ ] Rerun the guarded workflow to create/bind the planned R2 buckets and Queue and upload synthetic artifacts.
 - [ ] Verify backup/report downloads and Queue capability status on the live Demo.
-- [ ] Decide whether the isolated Worker should remain on `workers.dev` or add `demoapi.linketry.com` through a separately approved domain arrangement.
+- [x] Keep synthetic Demo redirects on the isolated `workers.dev` Worker origin; the branded Admin and API Pages domains are sufficient for a test-only Demo.
 
 ## Verification
 

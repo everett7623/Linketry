@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { verifyDemoLiveParity } from './demo-live-smoke.mjs';
 
-const version = '0.29.0';
+const version = '0.29.1';
 const adminOrigin = 'https://demo.linketry.com';
 const apiOrigin = 'https://linketry-demo-worker.example.workers.dev';
 const darkLogo = readFileSync(new URL('../apps/admin/public/favicon.svg', import.meta.url));
@@ -59,7 +59,15 @@ test('Admin and project site use identical canonical dark and light brand assets
     index,
     new RegExp(`href="/favicon-light\\.svg\\?v=${version.replaceAll('.', '\\.')}"`)
   );
-  assert.match(index, /preference = stored === 'light' \|\| stored === 'dark' \? stored : 'dark'/);
+  assert.match(index, /<script src="\/theme-init\.js"><\/script>/);
+  const themeInit = readFileSync(
+    new URL('../apps/admin/public/theme-init.js', import.meta.url),
+    'utf8'
+  );
+  assert.match(
+    themeInit,
+    /preference = stored === 'light' \|\| stored === 'dark' \? stored : 'dark'/
+  );
 });
 
 test('Demo and production Admin share the complete route inventory', () => {

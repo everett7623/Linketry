@@ -10,18 +10,32 @@ Last updated: 2026-07-21
 
 | Layer                      | Status                 | Notes                                                                                                                                                                                                   |
 | -------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ Runtime unchanged   | Demo runs v0.28.8 and production remains v0.28.7; redirect, API, analytics, D1, and KV behavior are unchanged                                                                                             |
-| Admin frontend             | ✅ 0.29.0 verified     | Worker plus Admin asset readiness is retained with faster polling, immediate feedback, and persistent completion notice                                                                                  |
+| Worker backend             | ✅ Runtime unchanged   | v0.29.1 changes Admin delivery and deployment validation only; redirect, API, analytics, D1, and KV behavior are unchanged                                                                                |
+| Admin frontend             | ✅ 0.29.1 recovered    | Production uses a DNS-only Pages CNAME, platform cache defaults, CSP-compatible theme startup, and canonical asset readiness checks                                                                      |
 | Database schema            | ✅ Complete            | V6 analytics migration applied in production through GitHub Actions                                                                                                                                     |
-| Documentation              | ✅ 0.29.0 updated      | Demo synchronization, online-upgrade feedback, Analytics palette, release notes, progress, and task records are synchronized                                                                             |
-| Deployment                 | 🟡 Demo sync pending   | Demo runs v0.28.8 and will follow the v0.29.0 `main` push; production remains v0.28.7 behind its owner-controlled release gate                                                                            |
-| End-to-end test            | ✅ Full regression     | 79 deployment, 110 Worker, 64 Admin unit, 25 Admin browser, 6 Demo API, and 4 site tests pass; Worker type-check, Admin/Site builds, and npm audit pass                                                    |
+| Documentation              | ✅ 0.29.1 updated      | Live version evidence, optional Demo R2 state, pre-1.0 gates, release notes, progress, roadmap, and task records are synchronized                                                                          |
+| Deployment                 | 🟡 v0.29.1 rollout     | The v0.29.1 push will synchronize the isolated Demo and run the owner-approved production recovery; final live verification remains                                                                      |
+| End-to-end test            | ✅ Full regression     | 81 deployment, 110 Worker, 64 Admin unit, 25 Admin browser, 6 Demo API, and 4 site tests pass; Worker type-check, Admin/Site builds, and npm audit pass                                                    |
 | Known issues               | ✅ Tracked             | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                          |
-| Current version            | 🟡 0.29.0 staged       | Repository targets v0.29.0; isolated Demo is v0.28.8 and production is v0.28.7 pending their separate deployment paths                                                                                   |
-| Repository update target   | ✅ 0.29.0 ready        | v0.29.0 keeps Demo on reviewed `main`, accelerates owner-controlled upgrades, and expands global distribution colors; production remains owner-controlled                                                |
-| Next planned work          | 🟡 Pre-1.0 validation | Cloudflare Access needs a complete cross-origin auth design; independent fresh-account, large-data, and assistive-technology validation remain                                                          |
+| Current version            | 🟡 0.29.1 prepared     | Repository targets v0.29.1; live Demo is v0.29.0 and production is v0.28.8 until the reviewed recovery deployment completes                                                                              |
+| Repository update target   | ✅ 0.29.1 ready        | GitHub `main` package metadata remains the update-discovery source; production v0.28.8 can detect the newer repository version without a GitHub Release or tag                                            |
+| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, and private vulnerability reporting remain; a branded Demo redirect is intentionally unnecessary                         |
 | Shlink migration readiness | ✅ Complete            | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                               |
 | Shlink feature gap audit   | ✅ Complete            | Gap analysis documented in `docs/SHLINK_FEATURE_GAP.md`; highest-value missing capabilities identified as query-param forwarding, title auto-resolution, and multi-segment/strict-mode redirect options |
+
+---
+
+## Linketry 0.29.1 Post-Deployment Status Reconciliation
+
+| Area                    | Status      | Notes                                                                                                                                            |
+| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Repository and Demo     | ✅ Verified | `main` and every workspace were v0.29.0; Demo Worker/Admin live parity passed on v0.29.0 after workflow `29843142149`                              |
+| Production baseline     | ✅ Verified | `go.uukk.de` and `admin.uukk.de` serve v0.28.8, preserving the intended owner-controlled update-notification and upgrade test                     |
+| Update discovery        | ✅ Verified | Admin reads the configured repository branch's `package.json`; GitHub Release/tag creation is not required for a newer-version notification       |
+| Optional Demo resources | 🟡 Pending  | Queue is configured, but R2 bucket variables remain unset until the isolated Cloudflare account enables the optional R2 capability                |
+| Production Admin cache  | ✅ Fixed    | Canonical assets are checked without cache bypass, long-lived custom caching is rejected, and the Admin CNAME is maintained as DNS-only           |
+| Public 1.0 gates        | 🟡 Pending  | Independent fresh-account, remote-D1 scale, assistive-technology, and private vulnerability-reporting evidence remains                           |
+| Redirect/data impact    | ✅ None     | Admin delivery and DNS proxy mode change; redirect logic, migrations, D1/KV ownership, production records, and stored data remain unchanged       |
 
 ---
 
@@ -29,7 +43,7 @@ Last updated: 2026-07-21
 
 | Area                       | Status         | Notes                                                                                                                          |
 | -------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Official Demo              | ✅ Implemented | Pushes to `main` enter only the isolated Demo workflow; manual confirmation and production-overlap rejection remain             |
+| Official Demo              | ✅ Live        | Workflow `29843142149` synchronized v0.29.0 from `main`; live Admin/Worker parity and the read-only boundary pass                 |
 | Self-hosted upgrades       | ✅ Implemented | Each instance dispatches its configured repository/branch; workflow polling is 2s and combined release-readiness polling is 1s  |
 | Completion feedback        | ✅ Implemented | Worker/Admin dual readiness, accessible result notifications, earliest reload, and persistent post-refresh confirmation coexist |
 | Global access distribution | ✅ Implemented | World traffic uses ten intensity colors; per-link countries use ten categorical colors; Demo seed covers ten countries          |
@@ -49,7 +63,7 @@ Last updated: 2026-07-21
 | Feedback continuity      | ✅ Complete | Every successful path records the target release before reload                                                              |
 | Verification             | ✅ Complete | Full Worker, deployment, Admin, Demo API, and site regression passes; builds and official npm audit pass                    |
 | Redirect/data impact     | ✅ None     | Redirect handlers, deployment permissions, D1/KV, migrations, analytics, and production data are unchanged                 |
-| Live rollout             | 🟡 Partial  | Demo workflow `29817579157` and live browser checks pass on v0.28.8; production remains v0.28.7 pending owner approval       |
+| Live rollout             | ✅ Complete | Production Worker/Admin now serve v0.28.8; the isolated Demo subsequently advanced to v0.29.0 through its separate workflow |
 
 ---
 
@@ -729,9 +743,10 @@ Last updated: 2026-07-21
 ## Next Steps
 
 1. Complete deployment Bootstrap with a fresh-account first-link rehearsal; guided provisioning, three-track preflight, production enforcement, and the separate Demo workflow are complete
-2. Add optional Cloudflare Access and asynchronous signed click webhooks without weakening bearer-token recovery or redirect stability
-3. Keep social preview customization, new reviewed locale catalogs, real-time visuals, optional AI, and external clients behind the foundational work
-4. Keep Shlink retirement operations deferred until their external prerequisites are ready
+2. Keep the isolated Demo Worker on its synthetic-only `workers.dev` origin; no additional branded redirect hostname is required
+3. Design optional Cloudflare Access without weakening bearer-token recovery; the asynchronous signed click Webhook is already complete
+4. Keep social preview customization, new reviewed locale catalogs, real-time visuals, optional AI, and external clients behind the foundational work
+5. Keep Shlink retirement operations deferred until their external prerequisites are ready
 
 ---
 

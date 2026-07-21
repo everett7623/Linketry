@@ -282,6 +282,16 @@ Status: complete in the repository; the isolated Demo synchronizes after the `ma
 - The world traffic map uses ten intensity colors, per-link country distribution uses ten categorical colors, and Demo data covers ten countries
 - Redirect handlers, asynchronous analytics ingestion, D1/KV ownership, migrations, and production resources are unchanged
 
+## 0.29.1: Post-Deployment Status Reconciliation
+
+Status: complete in the repository; deployment remains separated between the automatic isolated Demo and owner-controlled production tracks.
+
+- Live checks confirm the isolated Demo serves v0.29.0 while production intentionally remains on v0.28.8 for upgrade validation
+- GitHub update discovery reads the configured repository branch's `package.json`; a GitHub Release or tag is not required
+- Optional Demo R2 bindings remain disabled and are not presented as part of the currently verified Demo capability surface
+- Public 1.0 still requires independent fresh-account, remote-D1 scale, assistive-technology, and private vulnerability-reporting evidence; the synthetic Demo keeps its isolated `workers.dev` redirect origin
+- Redirect handlers, asynchronous analytics ingestion, D1/KV ownership, migrations, production resources, and stored data are unchanged
+
 ## Long-Term Product Principles
 
 Linketry is intended to remain useful for long-term self-hosted operation, not just a one-time migration tool.
@@ -295,7 +305,7 @@ Linketry is intended to remain useful for long-term self-hosted operation, not j
 
 ## V7: Operations, Recovery, And Monitoring
 
-Status: in progress. R2 backup restore preview, one-click restore, pre-restore backup, restore reporting, and factory reset are implemented.
+Status: complete for the currently tracked V7 scope.
 
 Goal: make Linketry safer to operate for years, with stronger recovery paths and proactive monitoring.
 
@@ -375,7 +385,7 @@ Ordered delivery:
 1. Done: publish an authenticated OpenAPI contract and Swagger documentation, with route drift checks.
 2. Done: warn about duplicate normalized destination URLs during create/edit while allowing intentional duplicates.
 3. In progress: fresh self-hosting now has dry-run-first, confirmation-gated, idempotent D1/KV provisioning with unique names and binding output. Fresh, upgrade, and Demo tracks share redacted preflight checks, D1/KV account verification, and fail-closed isolation checks. The production workflow enforces approved release/commit/migration state plus backup-backed upgrade gates before any Cloudflare write; the separate Demo workflow adds protected-account enforcement and exact release approvals. Fresh-account rehearsal remains.
-4. Done in v0.25.0: the independent official project site is live at `linketry.com`, and the isolated read-only Demo is live at `demo.linketry.com` with separate-account Worker, Pages, D1, KV, R2, Queue, scoped credentials, a responsive complete Admin surface, advanced synthetic data, suppressed real-visitor analytics writes, and a native Worker rate limit.
+4. Done in v0.25.0: the independent official project site is live at `linketry.com`, and the isolated read-only Demo is live at `demo.linketry.com` with separate-account Worker, Pages, D1, KV, Queue, scoped credentials, a responsive complete Admin surface, advanced synthetic data, suppressed real-visitor analytics writes, and a native Worker rate limit. Optional R2 bindings remain disabled until the isolated account capability is activated and verified.
 5. The asynchronous signed `link.clicked` webhook is complete in v0.28.4; add optional Cloudflare Access authentication only after JWT, CORS, CSRF, logout, and bearer-token recovery behavior share one reviewed contract.
 6. Done in v0.16.0: Admin density and optional-module visibility preferences.
 7. Theme preferences completed in v0.17.0, the optional Links card view in v0.19.0, and the community locale workflow in v0.20.0; follow with reviewed locale contributions, per-link social preview controls, and later ecosystem clients built against OpenAPI.

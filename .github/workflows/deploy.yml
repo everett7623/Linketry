@@ -178,7 +178,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.27.8'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.29.1'}"`,
             `LINKETRY_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
             `LINKETRY_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             `LINKETRY_UPDATE_REPOSITORY = ${JSON.stringify(env.LINKETRY_UPDATE_REPOSITORY)}`,
@@ -335,7 +335,7 @@ jobs:
             name: hostname,
             content: target,
             ttl: 1,
-            proxied: true,
+            proxied: false,
           });
 
           if (existing) {
@@ -343,13 +343,13 @@ jobs:
               method: 'PUT',
               body: payload,
             });
-            console.log(`Updated ${hostname} to ${target}.`);
+            console.log(`Updated ${hostname} to DNS-only CNAME ${target}.`);
           } else {
             await cloudflare(`/zones/${zoneId}/dns_records`, {
               method: 'POST',
               body: payload,
             });
-            console.log(`Created ${hostname} pointing to ${target}.`);
+            console.log(`Created DNS-only ${hostname} pointing to ${target}.`);
           }
           NODE
 
@@ -357,7 +357,7 @@ jobs:
         if: env.CLOUDFLARE_DNS_API_TOKEN == '' && env.LINKETRY_ADMIN_URL != '' && env.LINKETRY_ADMIN_ZONE != '' && env.LINKETRY_PAGES_PROJECT != ''
         run: |
           echo "Admin DNS automation skipped because the optional CLOUDFLARE_DNS_API_TOKEN secret is not configured."
-          echo "Point the Admin hostname to ${LINKETRY_PAGES_PROJECT}.pages.dev in Cloudflare DNS."
+          echo "Point the Admin hostname to ${LINKETRY_PAGES_PROJECT}.pages.dev as a DNS-only CNAME."
 
       - name: Verify Admin deployment readiness
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_API_URL != '' && env.LINKETRY_PAGES_PROJECT != ''

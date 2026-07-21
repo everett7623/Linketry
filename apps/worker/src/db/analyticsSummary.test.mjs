@@ -70,12 +70,18 @@ test('overview and analytics share the browser-local today boundary', async () =
     summary.hourlyHeatmap.reduce((total, item) => total + item.clicks, 0),
     2
   );
+  const currentLocal = new Date(Date.parse(currentVisit) + 480 * 60_000);
+  const previousLocal = new Date(Date.parse(previousVisit) + 480 * 60_000);
   assert.equal(
-    summary.hourlyHeatmap.find((item) => item.weekday === 2 && item.hour === 0)?.clicks,
+    summary.hourlyHeatmap.find(
+      (item) => item.weekday === currentLocal.getUTCDay() && item.hour === currentLocal.getUTCHours()
+    )?.clicks,
     1
   );
   assert.equal(
-    summary.hourlyHeatmap.find((item) => item.weekday === 1 && item.hour === 23)?.clicks,
+    summary.hourlyHeatmap.find(
+      (item) => item.weekday === previousLocal.getUTCDay() && item.hour === previousLocal.getUTCHours()
+    )?.clicks,
     1
   );
   assert.deepEqual(summary.geography, {

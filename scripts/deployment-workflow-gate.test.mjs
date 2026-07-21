@@ -239,6 +239,9 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   assert.match(workflow, /wrangler pages project create/);
   assert.match(workflow, /wrangler deploy --secrets-file/);
   assert.match(workflow, /node scripts\/admin-live-smoke\.mjs/);
+  assert.match(workflow, /proxied: false/);
+  assert.doesNotMatch(workflow, /proxied: true/);
+  assert.match(workflow, /DNS-only CNAME/);
   assert.match(workflow, /secrets\.LINKETRY_ADMIN_TOKEN/);
   assert.match(workflow, /secrets\.LINKETRY_GITHUB_UPDATE_TOKEN/);
   assert.doesNotMatch(workflow, /wrangler secret put LINKETRY_ADMIN_TOKEN/);
