@@ -292,14 +292,24 @@ Status: complete in the repository; deployment remains separated between the aut
 - Public 1.0 still requires independent fresh-account, remote-D1 scale, assistive-technology, and private vulnerability-reporting evidence; the synthetic Demo keeps its isolated `workers.dev` redirect origin
 - Redirect handlers, asynchronous analytics ingestion, D1/KV ownership, migrations, production resources, and stored data are unchanged
 
+## 0.29.6: Beginner-Friendly Project Site Deployment
+
+Status: complete in the repository; publication follows the normal reviewed project-site workflow.
+
+- The homepage exposes Live Demo, AI-assisted deployment, and GitHub source as clear first actions
+- New self-hosters can choose a copyable AI-assistant prompt or the maintained command-line workflow
+- Both routes explain the minimum Worker, D1, KV, Pages, and single-hostname profile without presenting optional infrastructure as required
+- Copy feedback is accessible, mobile layouts keep commands readable, and permanent-free or one-click claims are intentionally avoided
+- Worker, redirect, Admin, API, D1/KV, migration, and production deployment behavior remain unchanged
+
 ## 0.29.5: Admin Hashed Cache Readiness
 
-Status: in progress; the cache-policy correction and regression coverage are complete, while deployment convergence remains.
+Status: complete; production run `29886864268` and isolated Demo run `29886793473` both passed readiness.
 
 - Build and live checks require canonical Vite content-hashed JavaScript and CSS without query or fragment identities
 - Long-lived caching is accepted only after the content hash is part of the canonical path
 - Missing assets, HTML fallbacks, wrong MIME types, and non-hashed paths continue to fail closed
-- Production and Demo already render authenticated v0.29.4 Overview pages; v0.29.5 aligns workflow status with that safe live behavior
+- Production and Demo render authenticated v0.29.5 Overview pages with canonical content-hashed assets
 - Redirect logic, analytics, D1/KV ownership, migrations, and stored data remain unchanged
 
 ## 0.29.4: Admin Module Identity Recovery

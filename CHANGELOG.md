@@ -13,6 +13,27 @@ _(none)_
 
 ---
 
+## [0.29.6] - 2026-07-22
+
+### Added
+
+- Added a beginner-recommended AI-assisted deployment route to the project site with a copyable, repository-aware prompt for Codex, Claude Code, Cursor, and similar coding assistants.
+- Added a parallel command-line route that keeps the maintained bootstrap, repository configuration, and protected GitHub Actions workflow visible for experienced operators.
+
+### Changed
+
+- Reworked the public deployment section around honest prerequisites, free-tier-friendly positioning, account-owned data, automatic Pages Admin URLs, and dry-run-before-write reassurance.
+- Surfaced AI-assisted deployment directly from the homepage hero while retaining the live Demo and GitHub source entry points.
+- Replaced the primary-navigation GitHub text control with a compact, accessible GitHub icon while keeping its visible tooltip and mobile target size.
+- Kept optional R2, Queue, branded Admin DNS, and upgrade-only backup requirements outside the beginner fresh-install path.
+
+### Tests
+
+- Expanded the project-site contract to require both deployment routes, accessible copy feedback, safety-gate language, and the absence of permanent-free claims.
+- Worker, redirect, Admin, API, D1, KV, migration, and production deployment behavior are unchanged.
+
+---
+
 ## [0.29.5] - 2026-07-22
 
 ### Fixed

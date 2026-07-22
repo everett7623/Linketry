@@ -12,7 +12,7 @@ Keep the v0.29.4 Admin module-identity recovery while allowing production custom
 - [x] Permit long-lived caching only after the content hash is part of the canonical asset path.
 - [x] Add regression coverage for long-lived hashed assets, query suffixes, and non-hashed paths.
 - [x] Complete v0.29.5 regression and release metadata synchronization.
-- [ ] Deploy v0.29.5 and verify both live workflow conclusions.
+- [x] Deploy v0.29.5 and verify production run `29886864268` and Demo run `29886793473`.
 
 ## Safety
 

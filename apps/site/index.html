@@ -56,7 +56,28 @@
           ><a class="nav-demo" href="https://demo.linketry.com">Live Demo</a
           ><a href="https://everettlabs.dev/coffee/" target="_blank" rel="noopener noreferrer"
             >Coffee</a
-          ><a class="nav-github" href="https://github.com/everett7623/Linketry">GitHub</a>
+          ><a
+            class="nav-github"
+            href="https://github.com/everett7623/Linketry"
+            aria-label="GitHub"
+            title="GitHub"
+            ><svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"
+              />
+              <path d="M9 18c-4.51 2-5-2-7-2" />
+            </svg>
+          </a>
         </nav>
       </div>
     </header>
@@ -76,13 +97,11 @@
               <a class="button demo" href="https://demo.linketry.com"
                 >Open live demo <span aria-hidden="true">↗</span></a
               >
-              <a
-                class="button primary"
-                href="https://github.com/everett7623/Linketry/blob/main/docs/SELF_HOSTING.md"
-                >Deploy Linketry <span aria-hidden="true">↗</span></a
+              <a class="button primary" href="#deploy"
+                >Deploy with an AI assistant <span aria-hidden="true">↓</span></a
               >
               <a class="button secondary" href="https://github.com/everett7623/Linketry"
-                >View source</a
+                >View on GitHub <span aria-hidden="true">↗</span></a
               >
             </div>
             <p class="demo-status">
@@ -291,51 +310,136 @@ Authorization: Bearer ••••••••
         <div class="shell">
           <div class="section-heading">
             <div>
-              <p class="eyebrow"><span></span> Self-host in your account</p>
-              <h2>From clone to first link.</h2>
+              <p class="eyebrow"><span></span> Beginner-friendly self-hosting</p>
+              <h2>Two safe ways to deploy.</h2>
             </div>
             <p>
-              The guided bootstrap previews every resource name, checks the selected account and
-              requires an exact confirmation before creating anything.
+              Choose guided help or run the commands yourself. Both paths use the same reviewed
+              scripts, dry runs and confirmation gates.
             </p>
           </div>
-          <ol class="deploy-steps">
+          <ul class="deploy-proof" aria-label="Beginner deployment benefits">
+            <li><strong>No VPS or Docker</strong><span>Runs on Cloudflare</span></li>
+            <li><strong>Free-tier friendly</strong><span>Pay only if usage grows</span></li>
             <li>
-              <span>01</span>
-              <div>
-                <h3>Clone and install</h3>
-                <p>
-                  Fork the GPL-licensed repository and install the pinned workspace dependencies.
-                </p>
-              </div>
-              <code>npm install</code>
+              <strong>Your account, your data</strong><span>D1 stays under your control</span>
             </li>
-            <li>
-              <span>02</span>
-              <div>
-                <h3>Preview resources</h3>
-                <p>Generate unique D1, KV, Worker and Pages names without changing Cloudflare.</p>
+            <li><strong>Preview before writes</strong><span>Exact confirmation required</span></li>
+          </ul>
+          <div class="deploy-prerequisite">
+            <span>Before you start</span>
+            <p>
+              You need a GitHub account, a Cloudflare account and one hostname such as
+              <code>go.example.com</code>. Cloudflare Pages supplies the Admin URL automatically.
+            </p>
+          </div>
+          <div class="deploy-routes">
+            <article class="deploy-route recommended">
+              <p class="route-label">A · Recommended for beginners</p>
+              <h3>Deploy with an AI assistant</h3>
+              <p class="route-summary">
+                Open your fork in Codex, Claude Code or Cursor, then give it the guarded prompt
+                below. It will explain each choice and pause before any Cloudflare or GitHub write.
+              </p>
+              <ol class="route-steps">
+                <li>
+                  <span>1</span>
+                  <p>
+                    <a href="https://github.com/everett7623/Linketry/fork">Fork Linketry</a> into
+                    your own GitHub account.
+                  </p>
+                </li>
+                <li>
+                  <span>2</span>
+                  <p>Clone your fork and open the project in your AI assistant.</p>
+                </li>
+                <li>
+                  <span>3</span>
+                  <p>Copy this prompt and follow the assistant's checkpoints.</p>
+                </li>
+              </ol>
+              <div class="prompt-shell">
+                <div class="prompt-header">
+                  <span>Safe deployment prompt</span>
+                  <button
+                    type="button"
+                    class="copy-button"
+                    data-copy-deploy-prompt="ai-deploy-prompt"
+                    aria-describedby="deploy-copy-status"
+                  >
+                    Copy prompt
+                  </button>
+                </div>
+                <pre
+                  id="ai-deploy-prompt"
+                  tabindex="0"
+                ><code data-deploy-prompt>Help me deploy Linketry from my fork to my own Cloudflare account.
+
+1. Read AGENTS.md and docs/SELF_HOSTING.md before acting.
+2. Use the basic fresh-install profile: one Worker hostname, D1, KV and the automatic Pages Admin URL. Do not enable optional R2, Queue or branded Admin DNS.
+3. Run deploy:bootstrap and deploy:configure in dry-run mode first. Show me the resource plan and exact confirmation phrase before every apply or deployment.
+4. Keep Cloudflare and GitHub tokens out of source files, logs and command arguments. Ask me to enter them only through supported hidden prompts or secret stores.
+5. Stop on any safety-gate failure. Do not bypass migration, account or domain checks.
+6. After deployment, verify /health, the Admin login page and one test short link.</code></pre>
               </div>
-              <code>npm run deploy:bootstrap</code>
-            </li>
-            <li>
-              <span>03</span>
-              <div>
-                <h3>Approve and deploy</h3>
-                <p>
-                  Bind the reviewed release, commit and migrations, then let the safety-gated
-                  workflow deploy.
-                </p>
-              </div>
-              <code>git push origin main</code>
-            </li>
-          </ol>
+              <p id="deploy-copy-status" class="copy-status" aria-live="polite">
+                The prompt never asks you to paste a token into chat or commit it to the repository.
+              </p>
+            </article>
+
+            <article class="deploy-route">
+              <p class="route-label">B · Guided command line</p>
+              <h3>Run the maintained workflow yourself</h3>
+              <p class="route-summary">
+                Best when you already use GitHub CLI and Wrangler. Every resource is previewed
+                before it is created or connected.
+              </p>
+              <ol class="route-steps compact">
+                <li>
+                  <span>1</span>
+                  <p>Install dependencies and sign in to Cloudflare.</p>
+                </li>
+                <li>
+                  <span>2</span>
+                  <p>Preview, review and create only the required D1 and KV.</p>
+                </li>
+                <li>
+                  <span>3</span>
+                  <p>Preview repository settings, then start the protected workflow.</p>
+                </li>
+              </ol>
+              <pre
+                class="deploy-command"
+                tabindex="0"
+                aria-label="PowerShell deployment quick path"
+              ><code>npm ci
+npx wrangler login
+npm run deploy:bootstrap -- --prefix linketry-you --domain go.example.com --account-id &lt;account-id&gt;
+
+# Review the dry-run, then repeat it with the printed
+# --apply --confirm phrase.
+
+$repo = 'OWNER/REPOSITORY'
+gh secret set CLOUDFLARE_API_TOKEN --repo $repo
+gh api --method PUT "repos/$repo/environments/production"
+npm run deploy:configure -- --repo $repo --prefix linketry-you --domain go.example.com --account-id &lt;account-id&gt;
+
+# Review this dry-run, then repeat it with the printed
+# --apply --confirm phrase before starting deployment.
+gh workflow run deploy.yml --repo $repo --ref main --field confirm_release=true</code></pre>
+              <a
+                class="route-link"
+                href="https://github.com/everett7623/Linketry/blob/main/docs/SELF_HOSTING.md"
+                >Open the complete command guide ↗</a
+              >
+            </article>
+          </div>
           <div class="deploy-callout">
             <div>
-              <strong>Fresh installs and upgrades are different tracks.</strong>
+              <strong>Both routes keep the same safety boundaries.</strong>
               <p>
-                Existing deployments keep their bindings and require a verified backup before
-                migrations or deploy.
+                Fresh installs create only reviewed resources. Existing installations keep their
+                bindings and require a verified backup before upgrades.
               </p>
             </div>
             <a href="https://github.com/everett7623/Linketry/blob/main/docs/DEPLOYMENT_PREFLIGHT.md"

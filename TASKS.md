@@ -5,7 +5,21 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## In Progress - Admin Hashed Cache Readiness (v0.29.5)
+## Completed - Beginner-Friendly Site Deployment (v0.29.6)
+
+- [x] Review the current Linketry project site and the EdgeEver reference structure
+- [x] Keep the Linketry identity while surfacing Demo, AI deployment, and GitHub actions
+- [x] Add beginner-recommended AI-assisted deployment with a safe copyable prompt
+- [x] Add the maintained guarded command-line path and honest prerequisites
+- [x] Add accessible copy feedback, responsive styles, and site contract coverage
+- [x] Replace the primary-navigation GitHub text control with an accessible icon
+- [x] Complete regression and synchronize v0.29.6 release metadata
+
+Task record: `.codex/tasks/site-beginner-deployment-2026-07-22.md`
+
+---
+
+## Completed - Admin Hashed Cache Readiness (v0.29.5)
 
 - [x] Deploy v0.29.4 and verify production and Demo authenticated Overview rendering
 - [x] Capture the production readiness false positive after all Cloudflare uploads succeeded
@@ -13,7 +27,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Permit long-lived caching for canonical content-hashed assets
 - [x] Reject query/fragment identities and non-hashed entry paths
 - [x] Complete regression and synchronize v0.29.5 release metadata
-- [ ] Deploy v0.29.5 and verify both workflow conclusions
+- [x] Deploy v0.29.5 and verify production run `29886864268` and Demo run `29886793473`
 
 Task record: `.codex/tasks/admin-hashed-cache-readiness-2026-07-22.md`
 
