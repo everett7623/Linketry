@@ -14,8 +14,8 @@ Last updated: 2026-07-27
 | Admin frontend             | ✅ 0.29.12 live       | Production and isolated Demo Admin deployments completed successfully for v0.29.12                                                                                                                  |
 | Database schema            | ✅ Complete           | V6 analytics migration applied in production through GitHub Actions                                                                                                                                 |
 | Documentation              | 🟡 0.29.15 local      | Read-only PR CI, Quick Deploy, reviewed production, upstream-only Demo sync, site-only publication, examples, task records, and release metadata are synchronized                                  |
-| Deployment                 | 🟡 0.29.15 pending    | Source and project-site publication are pending; production and Demo remain on the v0.29.12 workflows `30075595234` and `30072730389`                                                               |
-| End-to-end test            | ✅ Full regression    | 89 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass; all builds, type-check, isolation probes, and Wrangler dry-run pass      |
+| Deployment                 | 🟡 0.29.15 PR         | Draft PR #13 is open with all three read-only CI jobs passing; merge, fresh-account rehearsal, and maintained deployments remain                                                                  |
+| End-to-end test            | ✅ Local + PR CI      | 89 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass locally and in PR CI; all builds, type-check, isolation probes, and Wrangler dry-run pass |
 | Known issues               | ✅ Tracked            | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                      |
 | Current version            | 🟡 0.29.15 local      | The follow-up uses replaceable resource defaults, hard-disables Demo in production builds, and limits Demo synchronization to the official repository                                                |
 | Repository update target   | 🟡 0.29.15 pending    | GitHub `main` package metadata remains the update-discovery source; no GitHub Release or tag is required                                                                                            |
@@ -35,7 +35,7 @@ Last updated: 2026-07-27
 | Official Demo sync    | ✅ Isolated  | The Demo follows official `main` only in `everett7623/Linketry` and retains its separate account, credentials, data, and read-only gate |
 | Official site release | ✅ Singular  | Production tests/builds the site without publishing; one upstream manual exact-commit workflow can deploy only `linketry-site`     |
 | Existing instances    | ✅ Preserved | Production Worker/Admin, Demo, D1, KV, DNS, migrations, and stored data are outside this correction                                |
-| Verification          | 🟡 Local pass | Complete local regression and Wrangler dry-run pass; source publication, fresh-account rehearsal, and maintained workflow runs remain |
+| Verification          | 🟡 PR pass    | Draft PR #13 passes all three read-only CI jobs; merge, fresh-account rehearsal, and maintained production/Demo/site workflow runs remain |
 
 ---
 

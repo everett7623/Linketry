@@ -34,6 +34,7 @@ Correct the public production Quick Deploy profile so current Wrangler and Cloud
 - [x] Add a separate read-only pull-request CI matrix that cannot access deployment credentials or mutate Cloudflare.
 - [x] Synchronize v0.29.15 metadata and documentation.
 - [x] Pass configuration parsing/dry-run, full regression, production/Demo builds, and injected-variable isolation checks.
+- [x] Push release commit `72cc716`, open Draft PR #13, and pass all three read-only PR CI jobs.
 - [ ] Publish with existing production/Demo push workflows skipped.
 - [ ] Rehearse Quick Deploy in a fresh Cloudflare account and verify provisioned D1/KV IDs replace the reserved template defaults.
 - [ ] Dispatch and verify only the public project-site workflow.

@@ -18,7 +18,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Add read-only pull-request CI with no deployment credentials or Cloudflare writes
 - [x] Add regression coverage and synchronize v0.29.15 release metadata
 - [x] Validate configuration, complete tests/builds, production/Demo isolation probes, and Wrangler dry-run
-- [ ] Publish source, rehearse fresh-account Quick Deploy, and verify maintained production/Demo/site workflows
+- [x] Push `codex/linketry-0.29.15-release`, open Draft PR #13, and pass all three read-only PR CI jobs
+- [ ] Merge source, rehearse fresh-account Quick Deploy, and verify maintained production/Demo/site workflows
 
 Task record: `.codex/tasks/cloudflare-autoprovisioning-correction-2026-07-25.md`
 
