@@ -1,0 +1,113 @@
+name: Validate Linketry
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-linketry-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    name: Deployment and site contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test deployment contracts
+        run: npm run test:deployment
+
+      - name: Test Demo API gateway
+        run: npm run test --workspace=apps/demo-api
+
+      - name: Test project site
+        run: npm run test:site
+
+      - name: Build project site
+        run: npm run build:site
+
+  worker:
+    name: Worker type-check and tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check Worker
+        run: npm run type-check --workspace=apps/worker
+
+      - name: Test Worker
+        run: npm run test:worker
+
+  admin:
+    name: Admin and deployment builds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Admin browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Test Admin unit rules
+        run: npm run test:unit --workspace=apps/admin
+
+      - name: Test Admin browser workflows
+        run: npm run test:smoke --workspace=apps/admin
+
+      - name: Build production Admin
+        run: npm run build --workspace=apps/admin
+        env:
+          VITE_LINKETRY_DEMO_MODE: 'false'
+          VITE_LINKETRY_DEMO_ACCESS_CODE: ''
+
+      - name: Test production Admin build
+        run: npm run test:production --workspace=apps/admin
+
+      - name: Build isolated Demo Admin
+        run: npm run build --workspace=apps/admin
+        env:
+          VITE_LINKETRY_API_URL: https://demo.invalid.example
+          VITE_LINKETRY_DEMO_MODE: 'true'
+          VITE_LINKETRY_DEMO_ACCESS_CODE: LinketryDemo
+
+      - name: Test isolated Demo Admin build
+        run: npm run test:production --workspace=apps/admin
+
+      - name: Build Quick Deploy production Admin
+        run: npm run build
+
+      - name: Validate Quick Deploy Worker bundle
+        run: npx wrangler deploy --dry-run

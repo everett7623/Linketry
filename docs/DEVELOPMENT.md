@@ -79,6 +79,8 @@ Do not fetch directly from Admin pages when an API client module is appropriate.
 7. Update release metadata and maintained status documents in the same change set.
 8. Review the final diff for secrets, production identifiers, unrelated edits, and stale documentation.
 
+Pull requests run `.github/workflows/ci.yml` before merge. Its three parallel jobs validate deployment/site contracts, Worker type-check/tests, and the normal production, isolated Demo, and Quick Deploy Admin build matrix. The workflow has read-only repository permission, receives no deployment environment or Cloudflare credentials, and permits only `wrangler deploy --dry-run`; all resource writes remain in the separate protected deployment workflows.
+
 ## Redirect Changes
 
 Redirect code is the highest-risk area.

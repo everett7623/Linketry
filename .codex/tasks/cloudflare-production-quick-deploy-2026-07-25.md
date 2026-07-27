@@ -50,3 +50,4 @@ Make the public Cloudflare Deploy Button create a complete normal Linketry produ
 - Local validation did not create or modify Cloudflare resources, run remote migrations, or change DNS.
 - Publishing this source release uses `[skip ci]` because the existing push-triggered production and isolated Demo workflows deploy separate maintained resources.
 - Production and the isolated Demo remain on the v0.29.12 release workflows until their respective reviewed deployments are explicitly requested.
+- Public validation after source publication found that Wrangler rejects empty resource-ID placeholders; v0.29.15 tracks valid replaceable template defaults, explicit production build variables, and an upstream-only official Demo sync.

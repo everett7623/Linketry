@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "vars": {
-    "LINKETRY_VERSION": "0.29.14",
+    "LINKETRY_VERSION": "0.29.15",
     "LINKETRY_DAILY_CRON": "0 18 * * *",
     "LINKETRY_HEALTH_CRON": "0 * * * *",
   },
@@ -14,14 +14,14 @@
     {
       "binding": "DB",
       "database_name": "linketry-db",
-      "database_id": "",
+      "database_id": "00000000-0000-4000-8000-000000000001",
       "migrations_dir": "migrations",
     },
   ],
   "kv_namespaces": [
     {
       "binding": "KV",
-      "id": "",
+      "id": "00000000000000000000000000000001",
     },
   ],
   "assets": {

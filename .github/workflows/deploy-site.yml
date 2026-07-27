@@ -1,0 +1,78 @@
+name: Deploy Linketry Project Site
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type DEPLOY LINKETRY SITE to publish only the project site
+        required: true
+        type: string
+      approved_commit:
+        description: Exact 40-character commit SHA to publish
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-linketry-project-site
+  cancel-in-progress: false
+
+jobs:
+  deploy-site:
+    if: github.repository == 'everett7623/Linketry'
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      LINKETRY_SITE_PROJECT: ${{ vars.LINKETRY_SITE_PROJECT }}
+
+    steps:
+      - name: Check out the approved source
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Verify exact site release
+        env:
+          LINKETRY_SITE_CONFIRMATION: ${{ inputs.confirmation }}
+          LINKETRY_SITE_APPROVED_COMMIT: ${{ inputs.approved_commit }}
+        run: |
+          if [ "$LINKETRY_SITE_CONFIRMATION" != "DEPLOY LINKETRY SITE" ]; then
+            echo "The exact project-site confirmation phrase is required."
+            exit 1
+          fi
+          if ! printf '%s' "$LINKETRY_SITE_APPROVED_COMMIT" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "The approved commit must be a lowercase 40-character SHA."
+            exit 1
+          fi
+          if [ "$LINKETRY_SITE_APPROVED_COMMIT" != "$GITHUB_SHA" ]; then
+            echo "The approved commit does not match the checked-out workflow commit."
+            exit 1
+          fi
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Cloudflare production credentials are required."
+            exit 1
+          fi
+          if [ "$LINKETRY_SITE_PROJECT" != "linketry-site" ]; then
+            echo "The protected project-site target must be exactly linketry-site."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test project site
+        run: npm run test:site
+
+      - name: Build project site
+        run: npm run build:site
+
+      - name: Deploy only the project site
+        run: npx wrangler pages deploy apps/site/dist --project-name "$LINKETRY_SITE_PROJECT" --branch main --commit-hash "$GITHUB_SHA"
