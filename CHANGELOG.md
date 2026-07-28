@@ -13,6 +13,23 @@ _(none)_
 
 ---
 
+## [0.29.18] - 2026-07-28
+
+### Fixed
+
+- Extended production Admin readiness verification from five to ten minutes so delayed Cloudflare Pages asset propagation does not report a failed upgrade after Worker and Admin publication have already succeeded.
+- Added coverage proving the default readiness budget survives thirty consecutive asset-fallback responses and succeeds when the new asset becomes available.
+
+### Safety
+
+- The change affects only post-deployment verification timing; redirects, migrations, Worker bindings, analytics, D1/KV data, secrets, and production/Demo ownership are unchanged.
+
+### Tests
+
+- Passed 90 deployment, 110 Worker, 64 Admin unit, 25 Admin browser, 1 production-build browser, 6 Demo API, and 10 project-site tests plus all production, Demo, Quick Deploy, and site builds, Worker type-check, and Wrangler dry-run.
+
+---
+
 ## [0.29.17] - 2026-07-28
 
 ### Fixed

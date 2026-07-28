@@ -2,7 +2,7 @@
 
 > Linketry is an open-source, self-hosted platform for short-link management, click analytics, destination health monitoring, imports, backups and automation on Cloudflare.
 
-Current documented version: 0.29.17
+Current documented version: 0.29.18
 Canonical website: https://linketry.com/
 Source repository: https://github.com/everett7623/Linketry
 License: GPL-3.0-only

@@ -1,7 +1,7 @@
 # Production Upgrade Version Synchronization
 
 Date: 2026-07-28
-Release: 0.29.17
+Release: 0.29.18
 
 ## Objective
 
@@ -26,6 +26,7 @@ Restore the reviewed GitHub upgrade path for the maintained production instance 
 - Select the generated production Worker config explicitly in the production migration gate.
 - Select the generated Demo Worker config explicitly in the official Demo migration gate.
 - Select the generated production Worker config explicitly during D1 migration application and Worker publication.
+- Allow the strict Admin asset/version readiness check to cover up to ten minutes of Pages propagation.
 - Lock both command paths with regression tests.
 - Synchronize v0.29.16 release metadata and deployment examples.
 
@@ -33,9 +34,10 @@ Restore the reviewed GitHub upgrade path for the maintained production instance 
 
 - [x] Reproduced the incorrect sentinel D1 query.
 - [x] Confirmed the explicit production config reads the real remote migration state.
-- [x] Run 89 deployment, 110 Worker, 64 Admin unit, 25 Admin browser, 1 production-build browser, 6 Demo API, and 10 site tests.
+- [x] Run 90 deployment, 110 Worker, 64 Admin unit, 25 Admin browser, 1 production-build browser, 6 Demo API, and 10 site tests.
 - [x] Build production, Demo, Quick Deploy, and site artifacts and pass Wrangler dry-run.
 - [x] Confirm official Demo workflow `30371208433` deploys v0.29.16 successfully.
 - [x] Confirm production workflow `30371241109` passes the repaired safety gate and isolate the follow-up config-selection failure.
-- [ ] Deploy the reviewed production workflow.
-- [ ] Verify `go.uukk.de/health` and `admin.uukk.de` both advertise v0.29.17.
+- [x] Deploy v0.29.17 Worker and Admin through the reviewed production workflow.
+- [x] Verify `go.uukk.de/health`, `admin.uukk.de`, and the official Demo advertise v0.29.17.
+- [ ] Deploy v0.29.18 and verify the production workflow completes successfully.

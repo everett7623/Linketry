@@ -102,7 +102,7 @@ export async function verifyAdminLive({ adminUrl, version, fetchImpl = fetch }) 
   return { adminOrigin, version, assets: assets.map((asset) => asset.path) };
 }
 
-export async function waitForAdminLive(options, attempts = 30, delayMs = 10_000) {
+export async function waitForAdminLive(options, attempts = 60, delayMs = 10_000) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {

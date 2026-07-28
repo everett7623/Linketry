@@ -48,7 +48,7 @@ test('accepts the bundled production Admin under the /admin asset prefix', async
 
 test('rejects query cache keys that create a second ES module identity', async () => {
   const indexPath = await fixture(`
-    <script type="module" src="/assets/index-AbCd1234.js?v=0.29.17"></script>
+    <script type="module" src="/assets/index-AbCd1234.js?v=0.29.18"></script>
     <link rel="stylesheet" href="/assets/index-EfGh5678.css">
   `);
   await assert.rejects(verifyAdminBuild(indexPath), /canonical Vite content-hashed path/);
