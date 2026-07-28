@@ -5,16 +5,18 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress - Production Upgrade Version Synchronization (v0.29.16)
+## 🟡 In Progress - Production Upgrade Version Synchronization (v0.29.17)
 
 - [x] Reproduce the production Worker and Admin remaining on v0.29.13
 - [x] Inspect failed push and manual GitHub production deployments
 - [x] Identify the migration gate selecting the root Quick Deploy template D1 binding
 - [x] Confirm the explicit production Worker config reads the real D1 migration inventory
 - [x] Fix production and official Demo migration gate config selection
-- [x] Add regression coverage and synchronize v0.29.16 release metadata
+- [x] Confirm the v0.29.16 gate passes and the official Demo deploys successfully
+- [x] Fix production migration application and Worker publication to use the same explicit config
+- [x] Add regression coverage and synchronize v0.29.17 release metadata
 - [x] Run the full affected regression suite
-- [ ] Deploy v0.29.16 through the reviewed production workflow and verify Worker/Admin parity
+- [ ] Deploy v0.29.17 through the reviewed production workflow and verify Worker/Admin parity
 
 Task record: `.codex/tasks/production-upgrade-version-sync-2026-07-28.md`
 

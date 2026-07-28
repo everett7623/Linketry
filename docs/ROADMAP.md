@@ -324,9 +324,18 @@ Status: prepared in the repository; publication follows the normal reviewed proj
 - Desktop and mobile checks cover all 10 eyebrow/heading pairs, menu anchoring, hidden/expanded states, runtime errors, and horizontal overflow
 - Worker redirects, Admin behavior, APIs, D1/KV ownership, migrations, credentials, and production resources remain unchanged
 
-## 0.29.16: Production Upgrade Version Synchronization
+## 0.29.17: Production Config Selection Completion
 
 Status: implemented; reviewed production deployment and live parity verification are pending.
+
+- Production D1 migration application explicitly selects the generated production Worker configuration
+- Production Worker publication uses the same explicit configuration as the read-only safety gate
+- Root Quick Deploy configuration remains isolated from maintained production and official Demo workflows
+- No migration source, redirect behavior, analytics path, D1/KV data, or environment ownership changes
+
+## 0.29.16: Production Upgrade Version Synchronization
+
+Status: released to `main`; the official Demo deployed successfully and production exposed a follow-up write-step config-selection issue fixed in v0.29.17.
 
 - Production and official Demo migration gates explicitly select their generated Worker configurations
 - The production gate no longer resolves the root Quick Deploy template or queries its sentinel D1 binding
