@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 ---
 
@@ -10,18 +10,31 @@ Last updated: 2026-07-27
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.29.12 live       | Production Worker health reports v0.29.12; redirect, API, analytics, D1, and KV behavior are unchanged                                                                                              |
-| Admin frontend             | ✅ 0.29.12 live       | Production and isolated Demo Admin deployments completed successfully for v0.29.12                                                                                                                  |
+| Worker backend             | 🟡 0.29.13 live       | Production Worker is healthy but GitHub upgrades are blocked by an incorrect Wrangler config selection in the migration gate                                                                        |
+| Admin frontend             | 🟡 0.29.13 live       | Production Admin matches the Worker; v0.29.16 repairs the blocked deployment path rather than masking the installed version                                                                          |
 | Database schema            | ✅ Complete           | V6 analytics migration applied in production through GitHub Actions                                                                                                                                 |
-| Documentation              | 🟡 0.29.15 local      | Read-only PR CI, Quick Deploy, reviewed production, upstream-only Demo sync, site-only publication, examples, task records, and release metadata are synchronized                                  |
-| Deployment                 | 🟡 0.29.15 PR         | Draft PR #13 is open with all three read-only CI jobs passing; merge, fresh-account rehearsal, and maintained deployments remain                                                                  |
-| End-to-end test            | ✅ Local + PR CI      | 89 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass locally and in PR CI; all builds, type-check, isolation probes, and Wrangler dry-run pass |
+| Documentation              | 🟡 0.29.16 local      | Production, official Demo, official site, and user Quick Deploy roles are fixed and release metadata is synchronized                                                                                 |
+| Deployment                 | 🟡 Repair pending     | v0.29.15 source is on `main`; v0.29.16 fixes the migration gate that prevented Worker/Admin publication                                                                                              |
+| End-to-end test            | ✅ Local              | 89 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 1 production-build browser, and 10 site tests pass; all builds, type-check, and Wrangler dry-run pass                           |
 | Known issues               | ✅ Tracked            | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | 🟡 0.29.15 local      | The follow-up uses replaceable resource defaults, hard-disables Demo in production builds, and limits Demo synchronization to the official repository                                                |
-| Repository update target   | 🟡 0.29.15 pending    | GitHub `main` package metadata remains the update-discovery source; no GitHub Release or tag is required                                                                                            |
+| Current version            | 🟡 0.29.16 local      | The maintenance release explicitly selects each generated Worker config during remote migration checks                                                                                              |
+| Repository update target   | 🟡 0.29.16 pending    | GitHub `main` package metadata remains the update-discovery source; the reviewed production deployment must publish the matching Worker/Admin runtime                                                |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, and private vulnerability reporting remain; then prioritize URL semantics, mobile deep links, and branded QR assets |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
+
+---
+
+## Linketry 0.29.16 Production Upgrade Version Synchronization
+
+| Area                     | Status      | Notes                                                                                                                        |
+| ------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Live reproduction        | ✅ Confirmed | `go.uukk.de/health` and `admin.uukk.de` both report v0.29.13 while GitHub `main` reports v0.29.15                            |
+| Failure diagnosis        | ✅ Complete  | Production runs reached the safety gate, then queried the root Quick Deploy sentinel D1 ID instead of the configured D1     |
+| Production gate          | ✅ Fixed     | Remote migration inventory now explicitly uses `apps/worker/wrangler.toml`                                                  |
+| Official Demo gate       | ✅ Fixed     | The corresponding check explicitly uses `apps/worker/wrangler.demo.toml`                                                     |
+| Runtime/data impact      | ✅ None      | Redirects, analytics scheduling, migrations, D1/KV ownership, secrets, and stored data are unchanged                        |
+| Release verification     | 🟡 Deploy pending | Full local regression and all production/Demo/Quick Deploy/site builds pass; reviewed production deployment and live v0.29.16 parity remain |
 
 ---
 

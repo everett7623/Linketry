@@ -165,8 +165,8 @@ export async function runDeploymentWorkflowGate({
         'list',
         readEnv(env, 'LINKETRY_D1_DATABASE_NAME'),
         '--remote',
-        '--cwd',
-        'apps/worker',
+        '--config',
+        'apps/worker/wrangler.toml',
       ],
       env
     );

@@ -67,7 +67,10 @@ test('upgrade gate binds approval to release, commit, migrations, backup, and re
   assert.equal(report.mutationPerformed, false);
   assert.equal(report.migrationDigest, migrationDigest);
   assert.equal(report.preflight.ok, true);
-  assert.equal(calls.at(-1), 'd1 migrations list linketry-new --remote --cwd apps/worker');
+  assert.equal(
+    calls.at(-1),
+    'd1 migrations list linketry-new --remote --config apps/worker/wrangler.toml'
+  );
   assert.doesNotMatch(JSON.stringify(report), /must-never-appear/);
 });
 

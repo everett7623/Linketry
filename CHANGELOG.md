@@ -13,6 +13,25 @@ _(none)_
 
 ---
 
+## [0.29.16] - 2026-07-28
+
+### Fixed
+
+- Fixed reviewed production upgrades failing before deployment because the migration safety gate resolved the root Quick Deploy template instead of the generated production Worker configuration.
+- Fixed the equivalent official Demo migration check by selecting its generated Demo Worker configuration explicitly.
+- Restored end-to-end version synchronization so successful GitHub deployments update both the production Worker runtime and Admin build from the same package version.
+
+### Safety
+
+- The repair changes only read-only migration inventory commands; it does not alter migrations, redirect behavior, asynchronous analytics, D1/KV ownership, stored data, or environment boundaries.
+
+### Tests
+
+- Verified the production D1 migration inventory against the explicit Worker configuration and added command-level regression coverage for production and official Demo gates.
+- Passed 89 deployment, 110 Worker, 64 Admin unit, 25 Admin browser, 1 production-build browser, 6 Demo API, and 10 project-site tests plus production, Demo, Quick Deploy, and site builds, Worker type-check, and Wrangler dry-run.
+
+---
+
 ## [0.29.15] - 2026-07-25
 
 ### Fixed

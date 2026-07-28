@@ -97,7 +97,7 @@ test('Demo gate binds manual approval to an isolated account, release, commit, a
   assert.equal(report.preflight.ok, true);
   assert.equal(
     calls.at(-1),
-    'd1 migrations list linketry-demo-d1 --remote --config wrangler.demo.toml --cwd apps/worker'
+    'd1 migrations list linketry-demo-d1 --remote --config apps/worker/wrangler.demo.toml'
   );
   assert.doesNotMatch(JSON.stringify(report), /demo-token-must-never-appear/);
   assert.doesNotMatch(JSON.stringify(report), /demo-admin-token-must-never-appear/);
