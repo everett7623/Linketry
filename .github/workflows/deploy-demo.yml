@@ -21,6 +21,7 @@ concurrency:
 jobs:
   deploy-demo:
     name: Deploy isolated Demo
+    if: github.repository == 'everett7623/Linketry'
     runs-on: ubuntu-latest
     environment: linketry-demo
     env:

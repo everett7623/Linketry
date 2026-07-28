@@ -5,6 +5,26 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## 🟡 In Progress - Cloudflare Auto-Provisioning Correction (v0.29.15)
+
+- [x] Verify the public v0.29.14 Wrangler and environment files
+- [x] Reproduce Wrangler rejecting empty D1/KV resource IDs
+- [x] Confirm the current official automatic-provisioning contract
+- [x] Replace empty IDs with valid non-account template defaults for Cloudflare automatic provisioning
+- [x] Force Quick Deploy and reviewed production Admin builds to disable Demo mode
+- [x] Restrict automatic Demo synchronization to the official upstream repository
+- [x] Add a manual, exact-commit GitHub Actions path that deploys only `linketry-site`
+- [x] Remove the duplicate project-site write from the reviewed production workflow
+- [x] Add read-only pull-request CI with no deployment credentials or Cloudflare writes
+- [x] Add regression coverage and synchronize v0.29.15 release metadata
+- [x] Validate configuration, complete tests/builds, production/Demo isolation probes, and Wrangler dry-run
+- [x] Push `codex/linketry-0.29.15-release`, open Draft PR #13, and pass all three read-only PR CI jobs
+- [ ] Merge source, rehearse fresh-account Quick Deploy, and verify maintained production/Demo/site workflows
+
+Task record: `.codex/tasks/cloudflare-autoprovisioning-correction-2026-07-25.md`
+
+---
+
 ## ✅ Completed - Production-Only Cloudflare Quick Deploy (v0.29.14)
 
 - [x] Synchronize local `main` with remote and reconstruct the v0.29.13 release breakpoint

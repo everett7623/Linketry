@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-07-25
+Last updated: 2026-07-27
 
 ---
 
@@ -13,15 +13,29 @@ Last updated: 2026-07-25
 | Worker backend             | ✅ 0.29.12 live       | Production Worker health reports v0.29.12; redirect, API, analytics, D1, and KV behavior are unchanged                                                                                              |
 | Admin frontend             | ✅ 0.29.12 live       | Production and isolated Demo Admin deployments completed successfully for v0.29.12                                                                                                                  |
 | Database schema            | ✅ Complete           | V6 analytics migration applied in production through GitHub Actions                                                                                                                                 |
-| Documentation              | ✅ 0.29.14 local      | Production-only Cloudflare Quick Deploy, bundled Admin guidance, GEO contract, examples, task record, and release metadata are locally verified                                                       |
-| Deployment                 | 🟡 0.29.14 pending    | v0.29.14 has only local dry-run verification; production and Demo remain on the v0.29.12 workflows `30075595234` and `30072730389`                                                                   |
-| End-to-end test            | ✅ Full regression    | 87 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass; Worker type-check, normal/Demo Admin, Site, and Quick Deploy builds pass |
+| Documentation              | 🟡 0.29.15 local      | Read-only PR CI, Quick Deploy, reviewed production, upstream-only Demo sync, site-only publication, examples, task records, and release metadata are synchronized                                  |
+| Deployment                 | 🟡 0.29.15 PR         | Draft PR #13 is open with all three read-only CI jobs passing; merge, fresh-account rehearsal, and maintained deployments remain                                                                  |
+| End-to-end test            | ✅ Local + PR CI      | 89 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass locally and in PR CI; all builds, type-check, isolation probes, and Wrangler dry-run pass |
 | Known issues               | ✅ Tracked            | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | ✅ 0.29.14 release    | The repository publishes the production-only Cloudflare Quick Deploy profile; existing production and Demo instances remain on v0.29.12 until separately deployed                                  |
-| Repository update target   | ✅ 0.29.14 release    | GitHub `main` package metadata remains the update-discovery source; no GitHub Release or tag is required                                                                                            |
+| Current version            | 🟡 0.29.15 local      | The follow-up uses replaceable resource defaults, hard-disables Demo in production builds, and limits Demo synchronization to the official repository                                                |
+| Repository update target   | 🟡 0.29.15 pending    | GitHub `main` package metadata remains the update-discovery source; no GitHub Release or tag is required                                                                                            |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, and private vulnerability reporting remain; then prioritize URL semantics, mobile deep links, and branded QR assets |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
+
+---
+
+## Linketry 0.29.15 Cloudflare Auto-Provisioning Correction
+
+| Area                  | Status       | Notes                                                                                                                               |
+| --------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Quick Deploy resources | ✅ Corrected | D1/KV use valid non-account template defaults that Cloudflare replaces with resources owned by each installer                     |
+| Pre-merge validation   | ✅ Read-only | Three parallel PR CI jobs cover contracts/site, Worker, and Admin/build matrices without deployment credentials or remote writes  |
+| Production boundary   | ✅ Guarded   | Quick Deploy and reviewed production force normal same-origin Admin builds with Demo mode disabled                                |
+| Official Demo sync    | ✅ Isolated  | The Demo follows official `main` only in `everett7623/Linketry` and retains its separate account, credentials, data, and read-only gate |
+| Official site release | ✅ Singular  | Production tests/builds the site without publishing; one upstream manual exact-commit workflow can deploy only `linketry-site`     |
+| Existing instances    | ✅ Preserved | Production Worker/Admin, Demo, D1, KV, DNS, migrations, and stored data are outside this correction                                |
+| Verification          | 🟡 PR pass    | Draft PR #13 passes all three read-only CI jobs; merge, fresh-account rehearsal, and maintained production/Demo/site workflow runs remain |
 
 ---
 

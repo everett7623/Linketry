@@ -154,7 +154,7 @@ routes = [
 ]
 
 [vars]
-LINKETRY_VERSION = "0.29.14"
+LINKETRY_VERSION = "0.29.15"
 
 [[d1_databases]]
 binding = "DB"
@@ -195,7 +195,7 @@ curl https://go.example.com/health
 Expected response:
 
 ```json
-{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.29.14" } }
+{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.29.15" } }
 ```
 
 ---
@@ -309,7 +309,7 @@ Defined in `apps/worker/wrangler.toml`:
 
 | Name                   | Example      |
 | ---------------------- | ------------ |
-| `LINKETRY_VERSION`     | `0.29.14`    |
+| `LINKETRY_VERSION`     | `0.29.15`    |
 | `LINKETRY_DAILY_CRON`  | `0 18 * * *` |
 | `LINKETRY_HEALTH_CRON` | `0 * * * *`  |
 
@@ -359,15 +359,13 @@ It deploys Admin only when the Cloudflare secrets and these repository variables
 | `LINKETRY_R2_BUCKET`         | `linketry-backups`             | Optional: generates the R2 backup bucket binding                                                          |
 | `LINKETRY_R2_PREVIEW_BUCKET` | `linketry-backups-dev`         | Optional: generates the preview R2 bucket binding                                                         |
 | `LINKETRY_VISITS_QUEUE`      | `linketry-visits`              | Optional: generates queue producer and consumer bindings                                                  |
-| `LINKETRY_SITE_PROJECT`      | `linketry-site`                | Optional maintainer Pages project for the official product site                                           |
-| `LINKETRY_SITE_URL`          | `https://linketry.com`         | Optional canonical project-site URL shown in deployment summaries                                         |
 
 Every Cloudflare-enabled workflow run also requires exact deployment approvals:
 
 | Name                                  | Example              | Purpose                                                                   |
 | ------------------------------------- | -------------------- | ------------------------------------------------------------------------- |
 | `LINKETRY_DEPLOYMENT_TRACK`           | `upgrade`            | Allows only the reviewed `fresh` or `upgrade` path; Demo is rejected here |
-| `LINKETRY_APPROVED_RELEASE`           | `0.29.14`            | Must match the root package version                                       |
+| `LINKETRY_APPROVED_RELEASE`           | `0.29.15`            | Must match the root package version                                       |
 | `LINKETRY_APPROVED_COMMIT`            | `<40-character SHA>` | Must match the commit being deployed                                      |
 | `LINKETRY_APPROVED_MIGRATIONS_SHA256` | `<digest>`           | Must match `npm run deploy:migration-digest`                              |
 
@@ -383,7 +381,7 @@ On the first successful deployment, the workflow generates `LINKETRY_ADMIN_TOKEN
 
 ### Official Project Site
 
-The public project site is isolated from the Admin under `apps/site`. Maintainers can validate it with `npm run test:site` and `npm run build:site`. Set `LINKETRY_SITE_PROJECT=linketry-site` to deploy the build through the same release-bound workflow.
+The public project site is isolated from the Admin under `apps/site`. The production workflow validates it with `npm run test:site` and `npm run build:site` but cannot publish it. Maintainers deploy only through the upstream **Deploy Linketry Project Site** workflow, which requires an exact commit, the `DEPLOY LINKETRY SITE` confirmation phrase, and `LINKETRY_SITE_PROJECT=linketry-site` in the protected production environment.
 
 The automatic preview is `https://linketry-site.pages.dev`, and the purchased apex is active at `https://linketry.com` through the Pages project's **Custom domains** configuration. Keep the Pages custom-domain association in place; an apex DNS record by itself is not a substitute for that association.
 

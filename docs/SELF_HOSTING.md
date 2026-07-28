@@ -16,7 +16,7 @@ Use the Deploy to Cloudflare button for a new self-hosted production instance wh
 | Admin assets  | Built into the same Worker and served from `/admin/`                       |
 | Admin secret  | Private `LINKETRY_ADMIN_TOKEN` entered through Cloudflare's protected form |
 
-The quick profile does **not** enable `LINKETRY_DEMO_MODE`, request any `LINKETRY_DEMO_*` variable, create the official Demo Worker/Pages projects, or seed synthetic data. It also does not create a separate Pages project because Cloudflare Deploy Buttons support one Worker application; the Admin is bundled as Worker static assets instead.
+The quick profile does **not** enable `LINKETRY_DEMO_MODE`, request any `LINKETRY_DEMO_*` variable, create the official Demo Worker/Pages projects, or seed synthetic data. Its Admin build explicitly disables Demo mode and uses the deployed Worker as its same-origin API. The official Demo workflow is guarded to the upstream Linketry repository, so repositories created through Quick Deploy skip it. The quick profile also does not create a separate Pages project because Cloudflare Deploy Buttons support one Worker application; the Admin is bundled as Worker static assets instead.
 
 1. Open the Cloudflare deployment button and sign in to the account that will own the instance.
 2. Choose unique Worker, D1, and KV names. Enter a long random `LINKETRY_ADMIN_TOKEN` and save it in a password manager.
@@ -248,7 +248,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.29.14" } }
+{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.29.15" } }
 ```
 
 ### Build and Deploy Admin
@@ -314,7 +314,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.29.14
+LINKETRY_APPROVED_RELEASE=0.29.15
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true

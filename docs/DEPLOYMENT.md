@@ -6,6 +6,15 @@ For a fresh self-hosted install, begin with the public [deployment options page]
 
 The longer maintainer production runbook is in [../DEPLOYMENT.md](../DEPLOYMENT.md).
 
+## Deployment Track Boundary
+
+| Track | Owner and trigger | Creates or updates | Demo relationship |
+| ----- | ----------------- | ------------------ | ----------------- |
+| Cloudflare Quick Deploy | Any installer; Deploy to Cloudflare button | One production Worker with `/admin/`, one fresh D1 database, and one fresh KV namespace | None; Demo variables, resources, mode, workflows, and seed data are excluded |
+| Reviewed production | Each operator's repository; guarded push or manual GitHub Actions run | The operator's approved production Worker, Admin Pages project, bindings, migrations, and optional capabilities | Demo mode and Demo deployment are rejected by the production gate |
+| Official Demo | Upstream `everett7623/Linketry` only; `main` synchronization or guarded manual run | Isolated read-only Demo resources and synthetic data in the maintained Demo account | Follows the same source version and route inventory as production without sharing production credentials, resources, or data |
+| Official project site | Upstream `everett7623/Linketry` only; exact-commit manual workflow | Only the maintained `linketry-site` Pages project | Cannot deploy Worker, Admin, Demo, D1, KV, migrations, or DNS |
+
 ## Targets
 
 Cloudflare Quick Deploy profile:
@@ -14,6 +23,8 @@ Cloudflare Quick Deploy profile:
 - Bundled production Admin: `<worker>.<account>.workers.dev/admin/`
 - Fresh production D1 and KV bindings: selected in the Cloudflare form
 - Demo mode, Demo resources, Pages, R2, and Queue: not configured
+
+The source Wrangler file contains clearly reserved, non-account template IDs because Cloudflare requires valid defaults when it scans a Deploy Button repository. Cloudflare replaces those defaults with newly provisioned resources selected in the installer's form; they are not maintained Linketry production or Demo resource IDs.
 
 Reviewed repository basic profile:
 
@@ -89,8 +100,7 @@ The repository includes `.github/workflows/deploy.yml`. On every push to `main`,
 4. create the Admin Pages project when it does not exist
 5. deploy the Worker with first-deploy or preserved secrets, only when Cloudflare repository secrets are configured
 6. deploy Admin to the Pages project named by `LINKETRY_PAGES_PROJECT`, only when Cloudflare repository secrets and variables are configured
-7. optionally deploy the official project site when `LINKETRY_SITE_PROJECT` is configured
-8. keep a custom Admin hostname on a DNS-only Pages CNAME, then wait until that canonical origin advertises the release and serves its initial JavaScript and CSS with executable MIME types and safe cache policy
+7. keep a custom Admin hostname on a DNS-only Pages CNAME, then wait until that canonical origin advertises the release and serves its initial JavaScript and CSS with executable MIME types and safe cache policy
 
 The `deploy` job is bound to the GitHub environment named `production`. Create and review that environment before the first production run so GitHub records production deployment history separately from the protected `linketry-demo` environment. Repository-level variables and secrets remain available to the job; they do not need to be copied merely to enable deployment tracking.
 
@@ -114,7 +124,7 @@ LINKETRY_D1_DATABASE_NAME=linketry
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.29.14
+LINKETRY_APPROVED_RELEASE=0.29.15
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<output-of-npm-run-deploy:migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
@@ -124,7 +134,7 @@ The workflow validates these exact approvals and the selected account/resources 
 
 The post-deploy Admin readiness check is anonymous and read-only. It requests the canonical Vite content-hashed asset paths used by browsers, without a cache-bypass header, and keeps the GitHub run active during Pages or custom-domain propagation. Query/fragment identities, non-hashed entry paths, HTML fallbacks, and incorrect MIME types fail readiness. Long-lived caching is safe only after the content hash is part of the canonical path. DNS-only Pages CNAMEs remain preferred so zone-level cache rules cannot retain an SPA fallback under an Admin asset URL.
 
-Optional advanced variables: `LINKETRY_KV_PREVIEW_ID`, `LINKETRY_R2_BUCKET`, `LINKETRY_R2_PREVIEW_BUCKET`, and `LINKETRY_VISITS_QUEUE`. Add more comma-separated values to `LINKETRY_WORKER_DOMAINS` only when the installation serves multiple short domains. `LINKETRY_SITE_PROJECT` and `LINKETRY_SITE_URL` are official-project maintainer settings, not self-hosting requirements.
+Optional advanced variables: `LINKETRY_KV_PREVIEW_ID`, `LINKETRY_R2_BUCKET`, `LINKETRY_R2_PREVIEW_BUCKET`, and `LINKETRY_VISITS_QUEUE`. Add more comma-separated values to `LINKETRY_WORKER_DOMAINS` only when the installation serves multiple short domains.
 
 The basic Cloudflare API token needs Workers Scripts, D1, KV, Pages, and zone-scoped Workers Routes permissions. Add R2 and Queues permissions only when those advanced resources are configured.
 
@@ -132,11 +142,11 @@ If either secret is missing, the workflow intentionally skips Cloudflare deploym
 If an Admin variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.
 If a Worker variable is missing, the workflow skips Worker deploy rather than relying on a committed production `wrangler.toml`. Older installations may retain `LINKETRY_SHORT_DOMAIN` as a legacy fallback, but new configuration writes only `LINKETRY_WORKER_DOMAINS`.
 
-`LINKETRY_SITE_PROJECT` is a maintainer-only optional deployment and is not required for a self-hosted Linketry instance. Its `linketry.com` apex custom domain must be associated in the Cloudflare Pages project before DNS can serve it.
+The production workflow tests and builds the project site but never publishes it. Official `linketry.com` publication uses the upstream-only **Deploy Linketry Project Site** workflow with an exact commit and confirmation phrase.
 
 ## Official Demo Deployment
 
-The official Demo never uses the production `Deploy Linketry` workflow. Its separate `Deploy Isolated Linketry Demo` workflow follows pushes to `main` and also supports a confirmation-gated manual run. It reads credentials and variables only from the protected `linketry-demo` GitHub environment and rejects every protected production account, resource, and hostname before a Cloudflare write. Automatic `main` synchronization binds the release, commit, and non-destructive migration digest to the pushed commit; manual runs retain exact release/commit/migration approvals.
+The official Demo never uses the production `Deploy Linketry` workflow. Its separate `Deploy Isolated Linketry Demo` workflow follows pushes to `main` only in the upstream `everett7623/Linketry` repository and also supports a confirmation-gated manual run there. Forks and repositories created through Quick Deploy skip the Demo job. The workflow reads credentials and variables only from the protected `linketry-demo` GitHub environment and rejects every protected production account, resource, and hostname before a Cloudflare write. Automatic `main` synchronization binds the release, commit, and non-destructive migration digest to the pushed commit; manual runs retain exact release/commit/migration approvals.
 
 The workflow expects isolated D1, KV, Worker, Admin Pages, token, and domain targets to exist already. After its fail-closed safety gate passes, it can create the explicitly named `linketry-demo-*` API Pages gateway, optional R2 buckets, and optional Queue. The API gateway is a Pages Function in the Demo account with a Service Binding to the isolated Worker; it does not bind D1, KV, R2, or Queue directly. The workflow supports the account's automatic `workers.dev` origin without treating it as a custom Worker domain, builds the same production Admin route tree with a public preview-code entry and read-only mode, rejects every mutating Admin API request, suppresses real-visitor analytics writes, applies a native per-client Worker rate limit, and idempotently refreshes synthetic D1/R2 samples plus disabled advanced-feature settings after migrations. After Pages deployment it verifies both the API gateway and the complete Admin/Worker parity contract. It can register the reviewed Pages custom domain but never edits DNS, so the `demoapi` CNAME remains an explicit owner action. See [Deployment Preflight](DEPLOYMENT_PREFLIGHT.md#official-demo) for the complete environment contract.
 

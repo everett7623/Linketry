@@ -324,6 +324,17 @@ Status: prepared in the repository; publication follows the normal reviewed proj
 - Desktop and mobile checks cover all 10 eyebrow/heading pairs, menu anchoring, hidden/expanded states, runtime errors, and horizontal overflow
 - Worker redirects, Admin behavior, APIs, D1/KV ownership, migrations, credentials, and production resources remain unchanged
 
+## 0.29.15: Cloudflare Auto-Provisioning Correction
+
+Status: implemented; local validation and GitHub Actions publication are pending.
+
+- Production Quick Deploy uses valid non-account D1/KV template defaults that Cloudflare replaces with fresh resources in the installing user's account
+- Quick Deploy and reviewed production builds force a same-origin normal Admin with Demo mode disabled
+- The official Demo continues to follow upstream `main` for version and route parity, but its workflow cannot run from an installing user's repository
+- Contract tests reject empty resource identifiers and cross-track production/Demo configuration
+- Official project-site publication has a separate manual, exact-commit GitHub Actions workflow that cannot deploy Worker, Admin, Demo, D1, KV, migrations, or DNS
+- Existing production, Admin, Demo, D1, KV, DNS, migrations, and stored data remain unchanged
+
 ## 0.29.14: Production-Only Cloudflare Quick Deploy
 
 Status: implemented and locally verified; publication is pending.

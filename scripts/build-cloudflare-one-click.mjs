@@ -14,7 +14,13 @@ if (!npmCli) {
 
 const build = spawnSync(process.execPath, [npmCli, 'run', 'build', '--workspace=apps/admin'], {
   cwd: repositoryRoot,
-  env: { ...process.env, VITE_LINKETRY_BASE_PATH: '/admin/' },
+  env: {
+    ...process.env,
+    VITE_LINKETRY_API_URL: '',
+    VITE_LINKETRY_BASE_PATH: '/admin/',
+    VITE_LINKETRY_DEMO_MODE: 'false',
+    VITE_LINKETRY_DEMO_ACCESS_CODE: '',
+  },
   stdio: 'inherit',
 });
 

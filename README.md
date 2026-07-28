@@ -110,6 +110,8 @@ linketry/
 
 ## Local Development
 
+Pull requests run a read-only GitHub Actions validation matrix before merge. It exercises deployment contracts, Worker and Admin tests, the official Demo build, the project site, and Quick Deploy dry-run without receiving Cloudflare credentials or publishing resources.
+
 ### Prerequisites
 
 - Node.js 24.x
@@ -244,7 +246,7 @@ https://<worker>.<account>.workers.dev/         Worker API + short links
 https://<worker>.<account>.workers.dev/admin/  Admin UI
 ```
 
-Cloudflare creates and binds a fresh D1 database and KV namespace, builds the Admin under `/admin/`, deploys the Worker, and then applies the D1 migrations. Enter a long random `LINKETRY_ADMIN_TOKEN` in the hidden setup field and save it in a password manager. No `LINKETRY_DEMO_*` value, Demo resource, Demo mode, or synthetic seed is part of this path.
+Cloudflare creates and binds a fresh D1 database and KV namespace, builds the Admin under `/admin/`, deploys the Worker, and then applies the D1 migrations. Enter a long random `LINKETRY_ADMIN_TOKEN` in the hidden setup field and save it in a password manager. No `LINKETRY_DEMO_*` value, Demo resource, Demo mode, or synthetic seed is part of this path. The official Demo remains an upstream-only synchronization environment and its workflow is skipped in repositories created by Quick Deploy.
 
 After deployment, open `/admin/`, log in, and set the Worker hostname as the initial short-link domain. Add a custom domain later if needed. Existing installations must not use this fresh-install profile.
 

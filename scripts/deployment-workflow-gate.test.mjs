@@ -194,7 +194,6 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   const deploy = workflow.indexOf('- name: Deploy Worker');
   const adminDeploy = workflow.indexOf('- name: Deploy Admin');
   const adminReady = workflow.indexOf('- name: Verify Admin deployment readiness');
-  const siteDeploy = workflow.indexOf('- name: Deploy project site');
 
   assert.ok(gate > -1);
   assert.ok(gate < pagesProject);
@@ -203,7 +202,6 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   assert.ok(migrations < deploy);
   assert.ok(deploy < adminDeploy);
   assert.ok(adminDeploy < adminReady);
-  assert.ok(deploy < siteDeploy);
   for (const name of [
     'LINKETRY_DEPLOYMENT_TRACK',
     'LINKETRY_APPROVED_RELEASE',
@@ -226,6 +224,8 @@ test('production workflow runs the safety gate before every Cloudflare write', (
     workflow,
     /VITE_LINKETRY_REPOSITORY_URL: \$\{\{ github\.server_url \}\}\/\$\{\{ github\.repository \}\}/
   );
+  assert.match(workflow, /VITE_LINKETRY_DEMO_MODE: 'false'/);
+  assert.match(workflow, /VITE_LINKETRY_DEMO_ACCESS_CODE: ''/);
   assert.match(workflow, /VITE_LINKETRY_UPDATE_BRANCH: \$\{\{ env\.LINKETRY_UPDATE_BRANCH \}\}/);
   assert.match(
     workflow,
@@ -241,6 +241,11 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   assert.match(workflow, /node scripts\/admin-live-smoke\.mjs/);
   assert.match(workflow, /npx playwright install --with-deps chromium/);
   assert.match(workflow, /npm run test:production --workspace=apps\/admin/);
+  assert.match(workflow, /npm run test:site/);
+  assert.match(workflow, /npm run build:site/);
+  assert.doesNotMatch(workflow, /Deploy project site|Skip project site deploy/);
+  assert.doesNotMatch(workflow, /LINKETRY_SITE_PROJECT|LINKETRY_SITE_URL/);
+  assert.doesNotMatch(workflow, /wrangler pages deploy apps\/site\/dist/);
   assert.match(workflow, /proxied: false/);
   assert.doesNotMatch(workflow, /proxied: true/);
   assert.match(

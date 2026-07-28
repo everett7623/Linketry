@@ -13,6 +13,33 @@ _(none)_
 
 ---
 
+## [0.29.15] - 2026-07-25
+
+### Fixed
+
+- Replaced schema-invalid empty D1/KV identifiers with non-account template defaults that Cloudflare Deploy Button replaces with fresh resources in each installing user's account.
+- Forced both Quick Deploy and reviewed production Admin builds to use the deployed Worker API with Demo mode disabled, regardless of ambient build variables.
+- Restricted automatic Demo synchronization to the official `everett7623/Linketry` repository while retaining push-to-`main` parity verification there.
+- Removed the duplicate project-site write from the production workflow; it still tests and builds the site, while the upstream exact-commit site workflow is now the only publication path.
+
+### Added
+
+- Added a protected, manual GitHub Actions workflow for publishing only the official `linketry-site` Pages project without deploying Worker, Admin, Demo, D1, KV, migrations, or DNS.
+- Added deployment contracts and an operator-facing path matrix that keep user Quick Deploy, reviewed production, upstream-only Demo, and upstream-only project-site publication separate.
+- Added a read-only pull-request CI matrix for deployment/site contracts, Worker verification, Admin browser tests, production/Demo builds, and Quick Deploy dry-run before merge.
+
+### Safety
+
+- Quick Deploy creates only a production Worker, bundled Admin, fresh D1 database, and fresh KV cache; it cannot start the official Demo workflow or synthetic seeding.
+- This correction does not change redirect evaluation, asynchronous analytics, maintained instance resources, or stored data.
+
+### Tests
+
+- Passed 89 deployment, 110 Worker, 64 Admin unit, 25 Admin browser, 2 production-build browser, 6 Demo API, and 10 project-site tests.
+- Passed Worker type-check, normal production Admin, official Demo Admin, Quick Deploy Admin, project-site builds, injected-Demo-variable isolation, and Wrangler dry-run validation.
+
+---
+
 ## [0.29.14] - 2026-07-25
 
 ### Fixed

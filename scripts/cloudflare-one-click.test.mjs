@@ -25,6 +25,17 @@ test('Cloudflare one-click profile provisions only a normal production instance'
   assert.equal(config.workers_dev, true);
   assert.equal(config.d1_databases[0].binding, 'DB');
   assert.equal(config.kv_namespaces[0].binding, 'KV');
+  assert.equal(config.d1_databases[0].database_name, 'linketry-db');
+  assert.equal(config.d1_databases[0].database_id, '00000000-0000-4000-8000-000000000001');
+  assert.equal(config.kv_namespaces[0].id, '00000000000000000000000000000001');
+  assert.match(config.d1_databases[0].database_name, /^linketry-[a-z0-9-]+$/);
+  assert.match(
+    config.d1_databases[0].database_id,
+    /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/
+  );
+  assert.match(config.kv_namespaces[0].id, /^[a-f0-9]{32}$/);
+  assert.notEqual(config.d1_databases[0].database_id.trim(), '');
+  assert.notEqual(config.kv_namespaces[0].id.trim(), '');
   assert.equal(config.assets.directory, 'apps/admin/dist');
   assert.equal(config.assets.binding, 'ASSETS');
   assert.doesNotMatch(configSource, /DEMO|demo|pages/i);
@@ -59,4 +70,7 @@ test('bundled Admin is isolated under /admin before the slug catch-all', async (
   assert.match(brandMark, /import\.meta\.env\.BASE_URL/);
   assert.match(viteConfig, /VITE_LINKETRY_BASE_PATH === '\/admin\/'/);
   assert.match(buildScript, /VITE_LINKETRY_BASE_PATH: '\/admin\/'/);
+  assert.match(buildScript, /VITE_LINKETRY_API_URL: ''/);
+  assert.match(buildScript, /VITE_LINKETRY_DEMO_MODE: 'false'/);
+  assert.match(buildScript, /VITE_LINKETRY_DEMO_ACCESS_CODE: ''/);
 });
