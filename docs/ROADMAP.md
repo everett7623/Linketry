@@ -324,9 +324,18 @@ Status: prepared in the repository; publication follows the normal reviewed proj
 - Desktop and mobile checks cover all 10 eyebrow/heading pairs, menu anchoring, hidden/expanded states, runtime errors, and horizontal overflow
 - Worker redirects, Admin behavior, APIs, D1/KV ownership, migrations, credentials, and production resources remain unchanged
 
+## 0.29.16: Production Upgrade Version Synchronization
+
+Status: implemented; reviewed production deployment and live parity verification are pending.
+
+- Production and official Demo migration gates explicitly select their generated Worker configurations
+- The production gate no longer resolves the root Quick Deploy template or queries its sentinel D1 binding
+- Worker and Admin builds continue to derive their runtime version from the same root package release
+- The change is limited to read-only deployment validation and does not modify migrations, redirects, analytics, D1/KV data, or environment ownership
+
 ## 0.29.15: Cloudflare Auto-Provisioning Correction
 
-Status: implemented; local validation and GitHub Actions publication are pending.
+Status: complete in the repository; superseded by the v0.29.16 production upgrade repair.
 
 - Production Quick Deploy uses valid non-account D1/KV template defaults that Cloudflare replaces with fresh resources in the installing user's account
 - Quick Deploy and reviewed production builds force a same-origin normal Admin with Demo mode disabled

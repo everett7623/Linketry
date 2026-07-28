@@ -5,7 +5,22 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress - Cloudflare Auto-Provisioning Correction (v0.29.15)
+## 🟡 In Progress - Production Upgrade Version Synchronization (v0.29.16)
+
+- [x] Reproduce the production Worker and Admin remaining on v0.29.13
+- [x] Inspect failed push and manual GitHub production deployments
+- [x] Identify the migration gate selecting the root Quick Deploy template D1 binding
+- [x] Confirm the explicit production Worker config reads the real D1 migration inventory
+- [x] Fix production and official Demo migration gate config selection
+- [x] Add regression coverage and synchronize v0.29.16 release metadata
+- [x] Run the full affected regression suite
+- [ ] Deploy v0.29.16 through the reviewed production workflow and verify Worker/Admin parity
+
+Task record: `.codex/tasks/production-upgrade-version-sync-2026-07-28.md`
+
+---
+
+## ✅ Completed - Cloudflare Auto-Provisioning Correction (v0.29.15)
 
 - [x] Verify the public v0.29.14 Wrangler and environment files
 - [x] Reproduce Wrangler rejecting empty D1/KV resource IDs
@@ -19,7 +34,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Add regression coverage and synchronize v0.29.15 release metadata
 - [x] Validate configuration, complete tests/builds, production/Demo isolation probes, and Wrangler dry-run
 - [x] Push `codex/linketry-0.29.15-release`, open Draft PR #13, and pass all three read-only PR CI jobs
-- [ ] Merge source, rehearse fresh-account Quick Deploy, and verify maintained production/Demo/site workflows
+- [x] Merge source and pass PR validation; the production gate failure is repaired in v0.29.16, while the empty-account Quick Deploy rehearsal remains a release-operations follow-up
 
 Task record: `.codex/tasks/cloudflare-autoprovisioning-correction-2026-07-25.md`
 
