@@ -10,15 +10,15 @@ Last updated: 2026-07-28
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.29.17 live       | Production Worker successfully upgraded through the repaired generated-config path                                                                                                                   |
-| Admin frontend             | ✅ 0.29.17 live       | Production Admin and the single official Demo both advertise v0.29.17; Pages propagation exceeded the old five-minute readiness window                                                              |
+| Worker backend             | ✅ 0.29.18 live       | Production Worker successfully upgraded through the repaired generated-config path                                                                                                                   |
+| Admin frontend             | ✅ 0.29.18 live       | Production Admin and the single official Demo both advertise v0.29.18                                                                                                                                |
 | Database schema            | ✅ Complete           | V6 analytics migration applied in production through GitHub Actions                                                                                                                                 |
-| Documentation              | 🟡 0.29.18 local      | Production, official Demo, official site, and user Quick Deploy roles are fixed and release metadata is synchronized                                                                                 |
-| Deployment                 | 🟡 Verification pending | v0.29.17 published production and Demo successfully; v0.29.18 extends readiness polling so the workflow reports the real outcome                                                                    |
+| Documentation              | ✅ 0.29.18 current    | Production, official Demo, official site, and user Quick Deploy roles are fixed and release metadata is synchronized                                                                                 |
+| Deployment                 | ✅ 0.29.18 live       | Reviewed production run `30375704922` and official Demo run `30375624947` both completed successfully                                                                                               |
 | End-to-end test            | ✅ Local              | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 1 production-build browser, and 10 site tests pass; all builds, type-check, and Wrangler dry-run pass                           |
 | Known issues               | ✅ Tracked            | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | 🟡 0.29.18 local      | The final maintenance release retains explicit production config selection and allows ten minutes for versioned Pages assets                                                                         |
-| Repository update target   | 🟡 0.29.18 pending    | GitHub `main` package metadata remains the update-discovery source; the reviewed workflow must finish green with matching Worker/Admin runtime                                                       |
+| Current version            | ✅ 0.29.18 live       | The release retains explicit production config selection and allows ten minutes for versioned Pages assets                                                                                           |
+| Repository update target   | ✅ 0.29.18 current    | GitHub `main`, production Worker/Admin, and official Demo all expose the same release                                                                                                                 |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, and private vulnerability reporting remain; then prioritize URL semantics, mobile deep links, and branded QR assets |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
@@ -29,12 +29,12 @@ Last updated: 2026-07-28
 
 | Area                    | Status      | Notes                                                                                                                     |
 | ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Production publication  | ✅ v0.29.17  | Run `30372577729` applied migrations and deployed Worker/Admin successfully                                               |
-| Live production parity  | ✅ Verified  | `go.uukk.de/health`, `admin.uukk.de`, and `linketry-admin.pages.dev` all advertise v0.29.17                               |
-| Official Demo parity    | ✅ Verified  | Run `30372525039`, `demoapi.linketry.com`, and `demo.linketry.com` all report v0.29.17                                   |
+| Production publication  | ✅ v0.29.18  | Run `30375704922` passed the gate, migrations, Worker/Admin deployment, and readiness verification                       |
+| Live production parity  | ✅ Verified  | `go.uukk.de/health`, `admin.uukk.de`, and `linketry-admin.pages.dev` all advertise v0.29.18                               |
+| Official Demo parity    | ✅ Verified  | Run `30375624947`, `demoapi.linketry.com`, and `demo.linketry.com` all report v0.29.18                                   |
 | Readiness diagnosis     | ✅ Complete  | New Admin HTML arrived before its hashed JS asset; the asset became executable after the previous five-minute budget     |
 | Readiness budget        | ✅ Extended  | Default polling now permits sixty ten-second attempts, covering ten minutes without weakening asset MIME/version checks  |
-| Final verification      | 🟡 Deploy pending | Full local regression passes; reviewed v0.29.18 deployment and a green production workflow remain                    |
+| Final verification      | ✅ Complete  | Full local regression and both maintained Cloudflare workflows pass                                                       |
 
 ---
 

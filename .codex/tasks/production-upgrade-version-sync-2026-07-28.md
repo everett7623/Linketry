@@ -40,4 +40,5 @@ Restore the reviewed GitHub upgrade path for the maintained production instance 
 - [x] Confirm production workflow `30371241109` passes the repaired safety gate and isolate the follow-up config-selection failure.
 - [x] Deploy v0.29.17 Worker and Admin through the reviewed production workflow.
 - [x] Verify `go.uukk.de/health`, `admin.uukk.de`, and the official Demo advertise v0.29.17.
-- [ ] Deploy v0.29.18 and verify the production workflow completes successfully.
+- [x] Deploy v0.29.18 through production run `30375704922` and verify the workflow completes successfully.
+- [x] Verify production Worker/Admin and official Demo all advertise v0.29.18.
