@@ -21,7 +21,9 @@ test('project-site workflow is manual, exact-commit bound, and Pages-only', asyn
   assert.match(workflow, /LINKETRY_SITE_PROJECT" != "linketry-site"/);
   assert.ok(gateIndex >= 0 && gateIndex < deployIndex);
 
-  const wranglerWrites = workflow.match(/npx wrangler [^\n]+/g) ?? [];
+  const wranglerWrites = (workflow.match(/npx wrangler [^\n]+/g) ?? []).map((command) =>
+    command.trimEnd()
+  );
   assert.deepEqual(wranglerWrites, [
     'npx wrangler pages deploy apps/site/dist --project-name "$LINKETRY_SITE_PROJECT" --branch main --commit-hash "$GITHUB_SHA"',
   ]);

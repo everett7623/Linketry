@@ -34,7 +34,9 @@ test('PR CI is read-only and covers the complete pre-merge validation matrix', a
 
   assert.match(workflow, /VITE_LINKETRY_DEMO_MODE: 'false'/);
   assert.match(workflow, /VITE_LINKETRY_DEMO_MODE: 'true'/);
-  const wranglerCommands = workflow.match(/npx wrangler [^\n]+/g) ?? [];
+  const wranglerCommands = (workflow.match(/npx wrangler [^\n]+/g) ?? []).map((command) =>
+    command.trimEnd()
+  );
   assert.deepEqual(wranglerCommands, ['npx wrangler deploy --dry-run']);
   assert.doesNotMatch(workflow, /d1 migrations apply|d1 execute|pages deploy|secret put/);
 });

@@ -13,6 +13,25 @@ _(none)_
 
 ---
 
+## [0.29.17] - 2026-07-28
+
+### Fixed
+
+- Fixed production migration application still resolving the root Quick Deploy template after the read-only safety gate had selected the correct generated Worker configuration.
+- Fixed production Worker publication to use that same explicit generated configuration, keeping validation, migrations, bindings, secrets, and deployment on one reviewed target.
+
+### Safety
+
+- No migration files, redirect behavior, analytics scheduling, D1/KV ownership, stored data, or Demo resources changed.
+- The official Demo successfully deployed v0.29.16 before this production-only follow-up and retains its separate workflow and account.
+
+### Tests
+
+- Added workflow regression assertions for explicit production config selection during both D1 migration application and Worker deployment.
+- Passed 89 deployment, 110 Worker, 64 Admin unit, 25 Admin browser, 1 production-build browser, 6 Demo API, and 10 project-site tests plus all production, Demo, Quick Deploy, and site builds, Worker type-check, and Wrangler dry-run.
+
+---
+
 ## [0.29.16] - 2026-07-28
 
 ### Fixed

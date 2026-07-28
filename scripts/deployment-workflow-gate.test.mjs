@@ -240,7 +240,14 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   assert.match(workflow, /inventory_status=\$\?/);
   assert.match(workflow, /inventory_status" -ne 1/);
   assert.match(workflow, /wrangler pages project create/);
-  assert.match(workflow, /wrangler deploy --secrets-file/);
+  assert.match(
+    workflow,
+    /wrangler d1 migrations apply "\$LINKETRY_D1_DATABASE_NAME" --remote --config apps\/worker\/wrangler\.toml/
+  );
+  assert.match(
+    workflow,
+    /wrangler deploy --config apps\/worker\/wrangler\.toml --secrets-file/
+  );
   assert.match(workflow, /node scripts\/admin-live-smoke\.mjs/);
   assert.match(workflow, /npx playwright install --with-deps chromium/);
   assert.match(workflow, /npm run test:production --workspace=apps\/admin/);
