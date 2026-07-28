@@ -324,9 +324,18 @@ Status: prepared in the repository; publication follows the normal reviewed proj
 - Desktop and mobile checks cover all 10 eyebrow/heading pairs, menu anchoring, hidden/expanded states, runtime errors, and horizontal overflow
 - Worker redirects, Admin behavior, APIs, D1/KV ownership, migrations, credentials, and production resources remain unchanged
 
+## 0.29.18: Admin Readiness Propagation Window
+
+Status: implemented; final reviewed production workflow verification is pending.
+
+- Strict Admin version and asset checks retain their existing behavior while allowing up to ten minutes for Pages propagation
+- Regression coverage proves the default budget survives more than five minutes of transient HTML asset fallback
+- Production and official Demo are already live on v0.29.17 through their distinct maintained workflows
+- No redirect, migration, analytics, D1/KV, credential, or environment-boundary behavior changes
+
 ## 0.29.17: Production Config Selection Completion
 
-Status: implemented; reviewed production deployment and live parity verification are pending.
+Status: live in production and the official Demo; superseded by the v0.29.18 readiness reporting fix.
 
 - Production D1 migration application explicitly selects the generated production Worker configuration
 - Production Worker publication uses the same explicit configuration as the read-only safety gate
