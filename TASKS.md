@@ -5,7 +5,7 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress - Production Upgrade Version Synchronization (v0.29.18)
+## ✅ Completed - Production Upgrade Version Synchronization (v0.29.18)
 
 - [x] Reproduce the production Worker and Admin remaining on v0.29.13
 - [x] Inspect failed push and manual GitHub production deployments
@@ -18,7 +18,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Extend Admin Pages readiness verification to cover observed six-minute propagation
 - [x] Add regression coverage and synchronize v0.29.18 release metadata
 - [x] Run the full affected regression suite
-- [ ] Deploy v0.29.18 through the reviewed production workflow and verify green workflow plus Worker/Admin parity
+- [x] Deploy v0.29.18 through the reviewed production workflow and verify green workflow plus Worker/Admin parity
 
 Task record: `.codex/tasks/production-upgrade-version-sync-2026-07-28.md`
 
