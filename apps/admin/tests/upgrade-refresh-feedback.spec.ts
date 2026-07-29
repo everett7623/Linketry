@@ -42,7 +42,11 @@ async function preparePage(
   await page.route('**/api/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path === '/api/v1/auth/me') {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: '{"success":true}' });
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '{"success":true}',
+      });
       return;
     }
     if (path === '/api/v1/settings') {
@@ -67,7 +71,9 @@ async function preparePage(
   });
 }
 
-test('newly loaded target build confirms the completed online upgrade', async ({ page }) => {
+test('newly loaded target build keeps completed upgrade feedback in the sidebar only', async ({
+  page,
+}) => {
   await preparePage(page, LINKETRY_VERSION, {
     targetVersion: LINKETRY_VERSION,
     followUpRefreshScheduled: true,
@@ -75,33 +81,28 @@ test('newly loaded target build confirms the completed online upgrade', async ({
 
   await page.goto('/overview');
 
-  await expect(
-    page.getByText(
-      messages.en.upgradeCompletedTitle.replace('{version}', LINKETRY_VERSION)
-    )
-  ).toBeVisible();
-  await expect(page.getByText(messages.en.upgradeCompletedDescription)).toBeVisible();
-  await page.getByRole('button', { name: messages.en.dismissUpgradeResult }).click();
-  await expect(page.getByText(messages.en.upgradeCompletedDescription)).toHaveCount(0);
+  await expect(page.getByTestId('sidebar-version')).toBeVisible();
+  await expect(page.getByTestId('upgrade-refresh-notice')).toHaveCount(0);
   await expect
     .poll(() => page.evaluate((key) => sessionStorage.getItem(key), UPGRADE_FEEDBACK_STORAGE_KEY))
     .toBeNull();
 });
 
-test('target build infers completion from an older source build update cache', async ({ page }) => {
+test('target build clears inferred completion without rendering a duplicate notice', async ({
+  page,
+}) => {
   await preparePage(page, LINKETRY_VERSION, null, LINKETRY_VERSION);
 
   await page.goto('/overview');
-  await expect(page.getByText(messages.en.upgradeCompletedDescription)).toHaveCount(0);
+  await expect(page.getByTestId('upgrade-refresh-notice')).toHaveCount(0);
   await page.evaluate(() => localStorage.removeItem('linketry_last_loaded_version'));
   await page.reload();
 
-  await expect(
-    page.getByText(
-      messages.en.upgradeCompletedTitle.replace('{version}', LINKETRY_VERSION)
-    )
-  ).toBeVisible();
-  await expect(page.getByText(messages.en.upgradeCompletedDescription)).toBeVisible();
+  await expect(page.getByTestId('sidebar-version')).toBeVisible();
+  await expect(page.getByTestId('upgrade-refresh-notice')).toHaveCount(0);
+  await expect
+    .poll(() => page.evaluate((key) => sessionStorage.getItem(key), UPGRADE_FEEDBACK_STORAGE_KEY))
+    .toBeNull();
 });
 
 test('stale build requests a manual refresh after the bounded retry', async ({ page }) => {
@@ -113,6 +114,7 @@ test('stale build requests a manual refresh after the bounded retry', async ({ p
 
   await page.goto('/overview');
 
+  await expect(page.getByTestId('upgrade-refresh-notice')).toBeVisible();
   await expect(
     page.getByText(messages.en.upgradePropagationTitle.replace('{version}', targetVersion))
   ).toBeVisible();

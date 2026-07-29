@@ -67,11 +67,14 @@ export function UpdateBanner({
     };
   }, []);
 
-  if (upgradeFeedback.feedback) {
+  useEffect(() => {
+    if (upgradeFeedback.completed) upgradeFeedback.dismiss();
+  }, [upgradeFeedback.completed, upgradeFeedback.dismiss]);
+
+  if (upgradeFeedback.feedback && !upgradeFeedback.completed) {
     return (
       <UpgradeRefreshNotice
         targetVersion={upgradeFeedback.feedback.targetVersion}
-        completed={upgradeFeedback.completed}
         autoRefreshing={upgradeFeedback.autoRefreshing}
         onDismiss={upgradeFeedback.dismiss}
         onReload={upgradeFeedback.reloadNow}

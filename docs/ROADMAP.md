@@ -324,6 +324,26 @@ Status: prepared in the repository; publication follows the normal reviewed proj
 - Desktop and mobile checks cover all 10 eyebrow/heading pairs, menu anchoring, hidden/expanded states, runtime errors, and horizontal overflow
 - Worker redirects, Admin behavior, APIs, D1/KV ownership, migrations, credentials, and production resources remain unchanged
 
+## 0.29.20: Upgrade Completion Feedback Deduplication
+
+Status: complete locally on top of the v0.29.19 hardening baseline.
+
+- The target Admin build keeps completed release status in the existing sidebar version center
+- Completed and inferred upgrade feedback is cleared without rendering a duplicate page-level success notice
+- Stale builds retain the bounded automatic follow-up refresh and explicit manual refresh guidance
+- Redirects, Worker runtime, analytics scheduling, D1/KV ownership, migrations, secrets, and Cloudflare resources are unchanged
+
+## 0.29.19: Release Hardening
+
+Status: complete locally; external public-launch gates remain.
+
+- Cloudflare and local builds select the documented Node.js 24 runtime through `.node-version`
+- Maintained Wrangler, PostCSS, Sharp, and React Router dependencies replace the audited release baseline
+- The npm lockfile uses official-registry package artifacts with integrity metadata
+- Default parallel Admin browser coverage tolerates measured lazy-route cold compilation without weakening product assertions
+- The remaining React Router audit entry applies only to unused unstable RSC APIs; Linketry remains a declarative BrowserRouter SPA
+- Redirect behavior, analytics scheduling, D1/KV ownership, migrations, stored data, secrets, and Cloudflare resources are unchanged
+
 ## 0.29.18: Admin Readiness Propagation Window
 
 Status: implemented; final reviewed production workflow verification is pending.

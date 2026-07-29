@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-07-28
+Last updated: 2026-07-29
 
 ---
 
@@ -10,18 +10,44 @@ Last updated: 2026-07-28
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.29.18 live       | Production Worker successfully upgraded through the repaired generated-config path                                                                                                                   |
-| Admin frontend             | ✅ 0.29.18 live       | Production Admin and the single official Demo both advertise v0.29.18                                                                                                                                |
+| Worker backend             | ✅ 0.29.18 live       | The v0.29.20 local patch does not change Worker runtime or redirect behavior                                                                                                                           |
+| Admin frontend             | 🟡 0.29.20 prepared   | Upgrade completion feedback is deduplicated on top of the v0.29.19 dependency hardening; production and the official Demo remain on v0.29.18                                                        |
 | Database schema            | ✅ Complete           | V6 analytics migration applied in production through GitHub Actions                                                                                                                                 |
-| Documentation              | ✅ 0.29.18 current    | Production, official Demo, official site, and user Quick Deploy roles are fixed and release metadata is synchronized                                                                                 |
-| Deployment                 | ✅ 0.29.18 live       | Reviewed production run `30375704922` and official Demo run `30375624947` both completed successfully                                                                                               |
-| End-to-end test            | ✅ Local              | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 1 production-build browser, and 10 site tests pass; all builds, type-check, and Wrangler dry-run pass                           |
+| Documentation              | 🟡 0.29.20 prepared   | Version examples, toolchain policy, changelog, progress, tasks, and release records are synchronized locally                                                                                           |
+| Deployment                 | 🟡 Local hardening    | Node 24 is pinned and Wrangler 4.115.0 is prepared; no Cloudflare resource or live deployment has been changed                                                                                        |
+| End-to-end test            | ✅ Local              | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass; all builds, type-check, clean install, and Wrangler dry-run pass             |
 | Known issues               | ✅ Tracked            | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | ✅ 0.29.18 live       | The release retains explicit production config selection and allows ten minutes for versioned Pages assets                                                                                           |
-| Repository update target   | ✅ 0.29.18 current    | GitHub `main`, production Worker/Admin, and official Demo all expose the same release                                                                                                                 |
+| Current version            | 🟡 0.29.20 prepared   | Production Worker/Admin and the official Demo remain on v0.29.18 until a reviewed release is explicitly authorized                                                                                   |
+| Repository update target   | 🟡 0.29.20 local      | The local worktree contains the release-hardening and upgrade-feedback patches; GitHub `main` is unchanged                                                                                           |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, and private vulnerability reporting remain; then prioritize URL semantics, mobile deep links, and branded QR assets |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
+
+---
+
+## Linketry 0.29.20 Upgrade Completion Feedback Deduplication
+
+| Area                    | Status       | Notes                                                                                                                  |
+| ----------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Completion surface      | ✅ Simplified | The target build clears page-level completion feedback and keeps release status in the existing sidebar version center |
+| Stale-build guidance    | ✅ Preserved  | Automatic follow-up refresh and manual refresh notices remain available until the target version loads                 |
+| Session cleanup         | ✅ Covered    | Persisted and inferred completed feedback is removed without rendering a duplicate notice                              |
+| Redirect/runtime impact | ✅ None       | Redirects, Worker runtime, analytics, D1/KV, migrations, secrets, and Cloudflare resources are unchanged               |
+| Release state           | 🟡 Local      | The patch is prepared locally on top of v0.29.19; production and the official Demo remain on v0.29.18                  |
+
+---
+
+## Linketry 0.29.19 Release Hardening
+
+| Area                    | Status      | Notes                                                                                                                                            |
+| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Runtime baseline        | ✅ Pinned   | `.node-version` selects Node.js 24 for local and Cloudflare builds                                                                                |
+| Dependency maintenance  | ✅ Updated  | Wrangler 4.115.0, PostCSS 8.5.24, and React Router 7.18.2 replace the audited baseline; unused ESLint is removed                                  |
+| Lockfile provenance     | ✅ Hardened | Package artifacts resolve from the official npm registry with integrity metadata and no `npmmirror.com` URLs                                    |
+| Admin browser stability | ✅ Focused  | The default eight-worker 25-test browser suite passes with bounded lazy-route cold-start waits and result-scoped assertions                     |
+| Security exception      | ✅ Reviewed | The remaining npm advisory affects only unstable React Router RSC APIs, which the declarative Linketry BrowserRouter application does not use    |
+| Cloudflare impact       | ✅ None     | No Worker, Pages, D1, KV, DNS, migration, secret, production, or Demo resource was changed                                                       |
+| Release gate            | 🟡 External | Local regression is complete; rehearse Quick Deploy in a fresh Cloudflare account and enable private vulnerability reporting before public 1.0 |
 
 ---
 

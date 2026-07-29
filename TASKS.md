@@ -5,6 +5,35 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed - Upgrade Completion Feedback Deduplication (v0.29.20)
+
+- [x] Keep completed upgrade status in the existing sidebar version center
+- [x] Remove the duplicate page-level completion notice after the target build loads
+- [x] Clear persisted and inferred completed feedback without a transient success banner
+- [x] Preserve stale-build automatic and manual refresh guidance
+- [x] Add focused browser regression coverage and synchronize release metadata
+
+Task record: `.codex/tasks/release-hardening-2026-07-29.md`
+
+---
+
+## ✅ Completed - Local Release Hardening (v0.29.19)
+
+- [x] Reproduce the dependency-audit and default parallel Admin browser failures from the v0.29.18 release baseline
+- [x] Pin Node.js 24 for Cloudflare and local builds
+- [x] Upgrade Wrangler, Miniflare/Sharp, PostCSS, and React Router to the maintained compatible versions
+- [x] Remove the unused, unconfigured ESLint dependency
+- [x] Rebuild `package-lock.json` from the official npm registry with integrity metadata
+- [x] Stabilize concurrent lazy-route checks without changing Admin behavior
+- [x] Pass the Admin production build and default eight-worker 25-test browser suite
+- [x] Complete the full deployment, Worker, Admin, Demo API, and site release regression
+- [ ] Rehearse Quick Deploy in a fresh Cloudflare account before beginner-stable publication
+- [ ] Enable GitHub private vulnerability reporting before public 1.0
+
+Task record: `.codex/tasks/release-hardening-2026-07-29.md`
+
+---
+
 ## ✅ Completed - Production Upgrade Version Synchronization (v0.29.18)
 
 - [x] Reproduce the production Worker and Admin remaining on v0.29.13

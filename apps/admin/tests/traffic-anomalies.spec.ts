@@ -126,7 +126,9 @@ test('traffic anomaly settings save and a manual check shows aggregate evidence'
   });
 
   await page.goto('/analytics');
-  await expect(page.getByRole('heading', { name: messages.en.trafficAnomalyAlerts })).toBeVisible();
+  await expect(page.getByRole('heading', { name: messages.en.trafficAnomalyAlerts })).toBeVisible({
+    timeout: 15_000,
+  });
 
   await page.getByLabel(messages.en.enableTrafficAnomalyAlerts).check();
   await page.getByLabel(messages.en.trafficMinimumVisits).fill('100');

@@ -1,0 +1,838 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index fbd138f..63f2f1b 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -13,6 +13,46 @@ _(none)_
+ 
+ ---
+ 
++## [0.29.20] - 2026-07-29
++
++### Fixed
++
++- Removed the duplicate page-level upgrade-complete notice after the target Admin build loads; completion remains visible through the sidebar version center.
++- Cleared completed or inferred upgrade feedback without rendering a second success surface, while preserving automatic and manual refresh guidance for stale builds.
++
++### Tests
++
++- Updated browser coverage for completed, inferred, automatic-refresh, and manual-refresh upgrade feedback states.
++- Kept the full v0.29.19 release-hardening regression baseline unchanged.
++
++---
++
++## [0.29.19] - 2026-07-29
++
++### Changed
++
++- Pinned Cloudflare and local builds to Node.js 24 through `.node-version`.
++- Upgraded Wrangler to 4.115.0, PostCSS to 8.5.24, and React Router to 7.18.2; removed the unused, unconfigured ESLint dependency.
++- Rebuilt the npm lockfile from the official npm registry with package integrity metadata and no `npmmirror.com` artifact URLs.
++
++### Fixed
++
++- Gave the two heaviest lazy Admin routes a bounded 15-second first-render allowance so the default eight-worker Playwright suite remains stable during concurrent Vite cold compilation.
++- Scoped Links workflow assertions to the active results table so React Router transitions cannot match stale Overview content.
++
++### Security
++
++- The dependency refresh removes the previously reported Wrangler/Miniflare/Sharp, PostCSS, ESLint/Minimatch, and React Router open-redirect findings.
++- npm continues to report one upstream React Router advisory as two high-severity dependency entries. The advisory affects only unstable RSC APIs; Linketry is a declarative `BrowserRouter` SPA and does not import or use the affected RSC surface.
++- Redirect behavior, API contracts, migrations, D1/KV ownership, secrets, analytics scheduling, and production/Demo resources are unchanged.
++
++### Tests
++
++- Passed 90 deployment, 110 Worker, 64 Admin unit, 25 default-parallel Admin browser, 2 production-build browser, 6 Demo API, and 10 project-site tests.
++- Passed a clean Node.js 24 install, Worker type-check, production/Demo/Quick Deploy Admin builds, project-site build, and Wrangler 4.115.0 dry-run.
++
++---
++
+ ## [0.29.18] - 2026-07-28
+ 
+ ### Fixed
+diff --git a/DEPLOYMENT.md b/DEPLOYMENT.md
+index 06b23a1..63578a6 100644
+--- a/DEPLOYMENT.md
++++ b/DEPLOYMENT.md
+@@ -154,7 +154,7 @@ routes = [
+ ]
+ 
+ [vars]
+-LINKETRY_VERSION = "0.29.18"
++LINKETRY_VERSION = "0.29.20"
+ 
+ [[d1_databases]]
+ binding = "DB"
+@@ -195,7 +195,7 @@ curl https://go.example.com/health
+ Expected response:
+ 
+ ```json
+-{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.29.18" } }
++{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.29.20" } }
+ ```
+ 
+ ---
+@@ -309,7 +309,7 @@ Defined in `apps/worker/wrangler.toml`:
+ 
+ | Name                   | Example      |
+ | ---------------------- | ------------ |
+-| `LINKETRY_VERSION`     | `0.29.18`    |
++| `LINKETRY_VERSION`     | `0.29.20`    |
+ | `LINKETRY_DAILY_CRON`  | `0 18 * * *` |
+ | `LINKETRY_HEALTH_CRON` | `0 * * * *`  |
+ 
+@@ -365,7 +365,7 @@ Every Cloudflare-enabled workflow run also requires exact deployment approvals:
+ | Name                                  | Example              | Purpose                                                                   |
+ | ------------------------------------- | -------------------- | ------------------------------------------------------------------------- |
+ | `LINKETRY_DEPLOYMENT_TRACK`           | `upgrade`            | Allows only the reviewed `fresh` or `upgrade` path; Demo is rejected here |
+-| `LINKETRY_APPROVED_RELEASE`           | `0.29.18`            | Must match the root package version                                       |
++| `LINKETRY_APPROVED_RELEASE`           | `0.29.20`            | Must match the root package version                                       |
+ | `LINKETRY_APPROVED_COMMIT`            | `<40-character SHA>` | Must match the commit being deployed                                      |
+ | `LINKETRY_APPROVED_MIGRATIONS_SHA256` | `<digest>`           | Must match `npm run deploy:migration-digest`                              |
+ 
+diff --git a/PROGRESS.md b/PROGRESS.md
+index 33c8591..42f74cc 100644
+--- a/PROGRESS.md
++++ b/PROGRESS.md
+@@ -2,7 +2,7 @@
+ 
+ Quick reference for what is done, what is in progress, and what is not started.
+ 
+-Last updated: 2026-07-28
++Last updated: 2026-07-29
+ 
+ ---
+ 
+@@ -10,21 +10,47 @@ Last updated: 2026-07-28
+ 
+ | Layer                      | Status                | Notes                                                                                                                                                                                               |
+ | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+-| Worker backend             | ✅ 0.29.18 live       | Production Worker successfully upgraded through the repaired generated-config path                                                                                                                   |
+-| Admin frontend             | ✅ 0.29.18 live       | Production Admin and the single official Demo both advertise v0.29.18                                                                                                                                |
++| Worker backend             | ✅ 0.29.18 live       | The v0.29.20 local patch does not change Worker runtime or redirect behavior                                                                                                                           |
++| Admin frontend             | 🟡 0.29.20 prepared   | Upgrade completion feedback is deduplicated on top of the v0.29.19 dependency hardening; production and the official Demo remain on v0.29.18                                                        |
+ | Database schema            | ✅ Complete           | V6 analytics migration applied in production through GitHub Actions                                                                                                                                 |
+-| Documentation              | ✅ 0.29.18 current    | Production, official Demo, official site, and user Quick Deploy roles are fixed and release metadata is synchronized                                                                                 |
+-| Deployment                 | ✅ 0.29.18 live       | Reviewed production run `30375704922` and official Demo run `30375624947` both completed successfully                                                                                               |
+-| End-to-end test            | ✅ Local              | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 1 production-build browser, and 10 site tests pass; all builds, type-check, and Wrangler dry-run pass                           |
++| Documentation              | 🟡 0.29.20 prepared   | Version examples, toolchain policy, changelog, progress, tasks, and release records are synchronized locally                                                                                           |
++| Deployment                 | 🟡 Local hardening    | Node 24 is pinned and Wrangler 4.115.0 is prepared; no Cloudflare resource or live deployment has been changed                                                                                        |
++| End-to-end test            | ✅ Local              | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass; all builds, type-check, clean install, and Wrangler dry-run pass             |
+ | Known issues               | ✅ Tracked            | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                      |
+-| Current version            | ✅ 0.29.18 live       | The release retains explicit production config selection and allows ten minutes for versioned Pages assets                                                                                           |
+-| Repository update target   | ✅ 0.29.18 current    | GitHub `main`, production Worker/Admin, and official Demo all expose the same release                                                                                                                 |
++| Current version            | 🟡 0.29.20 prepared   | Production Worker/Admin and the official Demo remain on v0.29.18 until a reviewed release is explicitly authorized                                                                                   |
++| Repository update target   | 🟡 0.29.20 local      | The local worktree contains the release-hardening and upgrade-feedback patches; GitHub `main` is unchanged                                                                                           |
+ | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, and private vulnerability reporting remain; then prioritize URL semantics, mobile deep links, and branded QR assets |
+ | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
+ | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
+ 
+ ---
+ 
++## Linketry 0.29.20 Upgrade Completion Feedback Deduplication
++
++| Area                    | Status       | Notes                                                                                                                  |
++| ----------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
++| Completion surface      | ✅ Simplified | The target build clears page-level completion feedback and keeps release status in the existing sidebar version center |
++| Stale-build guidance    | ✅ Preserved  | Automatic follow-up refresh and manual refresh notices remain available until the target version loads                 |
++| Session cleanup         | ✅ Covered    | Persisted and inferred completed feedback is removed without rendering a duplicate notice                              |
++| Redirect/runtime impact | ✅ None       | Redirects, Worker runtime, analytics, D1/KV, migrations, secrets, and Cloudflare resources are unchanged               |
++| Release state           | 🟡 Local      | The patch is prepared locally on top of v0.29.19; production and the official Demo remain on v0.29.18                  |
++
++---
++
++## Linketry 0.29.19 Release Hardening
++
++| Area                    | Status      | Notes                                                                                                                                            |
++| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
++| Runtime baseline        | ✅ Pinned   | `.node-version` selects Node.js 24 for local and Cloudflare builds                                                                                |
++| Dependency maintenance  | ✅ Updated  | Wrangler 4.115.0, PostCSS 8.5.24, and React Router 7.18.2 replace the audited baseline; unused ESLint is removed                                  |
++| Lockfile provenance     | ✅ Hardened | Package artifacts resolve from the official npm registry with integrity metadata and no `npmmirror.com` URLs                                    |
++| Admin browser stability | ✅ Focused  | The default eight-worker 25-test browser suite passes with bounded lazy-route cold-start waits and result-scoped assertions                     |
++| Security exception      | ✅ Reviewed | The remaining npm advisory affects only unstable React Router RSC APIs, which the declarative Linketry BrowserRouter application does not use    |
++| Cloudflare impact       | ✅ None     | No Worker, Pages, D1, KV, DNS, migration, secret, production, or Demo resource was changed                                                       |
++| Release gate            | 🟡 External | Local regression is complete; rehearse Quick Deploy in a fresh Cloudflare account and enable private vulnerability reporting before public 1.0 |
++
++---
++
+ ## Linketry 0.29.18 Admin Readiness Propagation Window
+ 
+ | Area                    | Status      | Notes                                                                                                                     |
+diff --git a/SUPPORT.md b/SUPPORT.md
+index a45c504..4c30697 100644
+--- a/SUPPORT.md
++++ b/SUPPORT.md
+@@ -19,7 +19,7 @@ Linketry uses semantic versioning with this pre-1.0 policy:
+ | --- | --- |
+ | Node.js | 24.x |
+ | npm | 10 or newer |
+-| Wrangler | 4.111.0 or newer within major version 4 |
++| Wrangler | 4.115.0 or newer within major version 4 |
+ | Cloudflare Workers runtime | The compatibility date generated by the maintained deployment workflows |
+ | Admin browsers | Current stable Chrome, Edge, Firefox, and Safari; automated release coverage uses Chromium |
+ 
+diff --git a/TASKS.md b/TASKS.md
+index 026ef3a..984a748 100644
+--- a/TASKS.md
++++ b/TASKS.md
+@@ -5,6 +5,35 @@ One item in "In Progress" at a time whenever possible.
+ 
+ ---
+ 
++## ✅ Completed - Upgrade Completion Feedback Deduplication (v0.29.20)
++
++- [x] Keep completed upgrade status in the existing sidebar version center
++- [x] Remove the duplicate page-level completion notice after the target build loads
++- [x] Clear persisted and inferred completed feedback without a transient success banner
++- [x] Preserve stale-build automatic and manual refresh guidance
++- [x] Add focused browser regression coverage and synchronize release metadata
++
++Task record: `.codex/tasks/release-hardening-2026-07-29.md`
++
++---
++
++## ✅ Completed - Local Release Hardening (v0.29.19)
++
++- [x] Reproduce the dependency-audit and default parallel Admin browser failures from the v0.29.18 release baseline
++- [x] Pin Node.js 24 for Cloudflare and local builds
++- [x] Upgrade Wrangler, Miniflare/Sharp, PostCSS, and React Router to the maintained compatible versions
++- [x] Remove the unused, unconfigured ESLint dependency
++- [x] Rebuild `package-lock.json` from the official npm registry with integrity metadata
++- [x] Stabilize concurrent lazy-route checks without changing Admin behavior
++- [x] Pass the Admin production build and default eight-worker 25-test browser suite
++- [x] Complete the full deployment, Worker, Admin, Demo API, and site release regression
++- [ ] Rehearse Quick Deploy in a fresh Cloudflare account before beginner-stable publication
++- [ ] Enable GitHub private vulnerability reporting before public 1.0
++
++Task record: `.codex/tasks/release-hardening-2026-07-29.md`
++
++---
++
+ ## ✅ Completed - Production Upgrade Version Synchronization (v0.29.18)
+ 
+ - [x] Reproduce the production Worker and Admin remaining on v0.29.13
+diff --git a/apps/admin/index.html b/apps/admin/index.html
+index b410da3..5b2b230 100644
+--- a/apps/admin/index.html
++++ b/apps/admin/index.html
+@@ -2,11 +2,11 @@
+ <html lang="en">
+   <head>
+     <meta charset="UTF-8" />
+-    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg?v=0.29.18" />
++    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg?v=0.29.20" />
+     <link
+       rel="icon"
+       type="image/svg+xml"
+-      href="%BASE_URL%favicon-light.svg?v=0.29.18"
++      href="%BASE_URL%favicon-light.svg?v=0.29.20"
+       media="(prefers-color-scheme: light)"
+     />
+     <meta name="theme-color" content="#0f172a" />
+diff --git a/apps/admin/package.json b/apps/admin/package.json
+index 3f7e8ae..9680795 100644
+--- a/apps/admin/package.json
++++ b/apps/admin/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@linketry/admin",
+-  "version": "0.29.18",
++  "version": "0.29.20",
+   "author": "everettlabs",
+   "license": "GPL-3.0-only",
+   "private": true,
+@@ -23,7 +23,7 @@
+     "qrcode": "^1.5.4",
+     "react": "^18.3.1",
+     "react-dom": "^18.3.1",
+-    "react-router-dom": "^6.25.1"
++    "react-router-dom": "^7.18.2"
+   },
+   "devDependencies": {
+     "@axe-core/playwright": "^4.12.1",
+@@ -33,7 +33,7 @@
+     "@types/react-dom": "^18.3.0",
+     "@vitejs/plugin-react": "^4.3.1",
+     "autoprefixer": "^10.4.19",
+-    "postcss": "^8.4.40",
++    "postcss": "^8.5.24",
+     "tailwindcss": "^3.4.7",
+     "typescript": "^5.4.5",
+     "vite": "^6.4.3"
+diff --git a/apps/admin/src/components/UpdateBanner.tsx b/apps/admin/src/components/UpdateBanner.tsx
+index 3f941bf..2fb55f5 100644
+--- a/apps/admin/src/components/UpdateBanner.tsx
++++ b/apps/admin/src/components/UpdateBanner.tsx
+@@ -67,11 +67,14 @@ export function UpdateBanner({
+     };
+   }, []);
+ 
+-  if (upgradeFeedback.feedback) {
++  useEffect(() => {
++    if (upgradeFeedback.completed) upgradeFeedback.dismiss();
++  }, [upgradeFeedback.completed, upgradeFeedback.dismiss]);
++
++  if (upgradeFeedback.feedback && !upgradeFeedback.completed) {
+     return (
+       <UpgradeRefreshNotice
+         targetVersion={upgradeFeedback.feedback.targetVersion}
+-        completed={upgradeFeedback.completed}
+         autoRefreshing={upgradeFeedback.autoRefreshing}
+         onDismiss={upgradeFeedback.dismiss}
+         onReload={upgradeFeedback.reloadNow}
+diff --git a/apps/admin/src/components/UpgradeRefreshNotice.tsx b/apps/admin/src/components/UpgradeRefreshNotice.tsx
+index c2022b6..17e9cce 100644
+--- a/apps/admin/src/components/UpgradeRefreshNotice.tsx
++++ b/apps/admin/src/components/UpgradeRefreshNotice.tsx
+@@ -1,56 +1,51 @@
+ import React from 'react';
+-import { CheckCircle2, RefreshCw, X } from 'lucide-react';
++import { RefreshCw, X } from 'lucide-react';
+ import { LINKETRY_VERSION } from '@linketry/shared';
+ import { useLocale } from '../contexts/LocaleContext.tsx';
+ 
+ export function UpgradeRefreshNotice({
+   targetVersion,
+-  completed,
+   autoRefreshing,
+   onDismiss,
+   onReload,
+ }: {
+   targetVersion: string;
+-  completed: boolean;
+   autoRefreshing: boolean;
+   onDismiss: () => void;
+   onReload: () => void;
+ }) {
+   const { t } = useLocale();
+-  const Icon = completed ? CheckCircle2 : RefreshCw;
+ 
+   return (
+-    <div className="mx-auto mt-4 w-full max-w-[1600px] px-6" role="status" aria-live="polite">
++    <div
++      data-testid="upgrade-refresh-notice"
++      className="mx-auto mt-4 w-full max-w-[1600px] px-6"
++      role="status"
++      aria-live="polite"
++    >
+       <div className="relative flex flex-col gap-3 rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 pr-10 text-sm text-slate-200 sm:flex-row sm:items-center">
+-        <Icon
+-          className={`h-5 w-5 shrink-0 ${completed ? 'text-emerald-400' : 'text-brand-300'}`}
+-          aria-hidden="true"
+-        />
++        <RefreshCw className="h-5 w-5 shrink-0 text-brand-300" aria-hidden="true" />
+         <div className="min-w-0 flex-1">
+           <p className="font-semibold text-slate-100">
+-            {t(completed ? 'upgradeCompletedTitle' : 'upgradePropagationTitle', {
++            {t('upgradePropagationTitle', {
+               version: targetVersion,
+             })}
+           </p>
+           <p className="mt-0.5 text-slate-400">
+-            {completed
+-              ? t('upgradeCompletedDescription')
+-              : t(autoRefreshing ? 'upgradePropagationRefreshing' : 'upgradePropagationManual', {
+-                  currentVersion: LINKETRY_VERSION,
+-                })}
++            {t(autoRefreshing ? 'upgradePropagationRefreshing' : 'upgradePropagationManual', {
++              currentVersion: LINKETRY_VERSION,
++            })}
+           </p>
+         </div>
+-        {!completed && (
+-          <button
+-            type="button"
+-            onClick={onReload}
+-            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-brand-600 px-3 py-2 font-medium text-white hover:bg-brand-500"
+-          >
+-            <RefreshCw className="h-4 w-4" aria-hidden="true" />
+-            {t('refreshNow')}
+-          </button>
+-        )}
+-        {(completed || !autoRefreshing) && (
++        <button
++          type="button"
++          onClick={onReload}
++          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-brand-600 px-3 py-2 font-medium text-white hover:bg-brand-500"
++        >
++          <RefreshCw className="h-4 w-4" aria-hidden="true" />
++          {t('refreshNow')}
++        </button>
++        {!autoRefreshing && (
+           <button
+             type="button"
+             onClick={onDismiss}
+diff --git a/apps/admin/src/i18n/updateMessages.ts b/apps/admin/src/i18n/updateMessages.ts
+index e33c53e..e37ee39 100644
+--- a/apps/admin/src/i18n/updateMessages.ts
++++ b/apps/admin/src/i18n/updateMessages.ts
+@@ -51,9 +51,6 @@ export const updateMessages = {
+     upgradeTimeout: 'Deployment did not finish in time.',
+     upgradeVerificationFailed:
+       'Deployment succeeded, but this page could not verify the running version. Reload to confirm the update.',
+-    upgradeCompletedTitle: 'Linketry {version} upgrade complete',
+-    upgradeCompletedDescription:
+-      'The Admin refreshed successfully and is now running the new version.',
+     upgradePropagationTitle: 'Deployment complete. Waiting for Linketry {version}',
+     upgradePropagationRefreshing:
+       'This page is still running {currentVersion}. It will refresh once more in a few seconds.',
+@@ -113,8 +110,6 @@ export const updateMessages = {
+     upgradeFailedGeneric: '在线升级失败。',
+     upgradeTimeout: '部署未能在限定时间内结束。',
+     upgradeVerificationFailed: '部署已成功，但当前页面无法核对运行版本，请刷新确认更新结果。',
+-    upgradeCompletedTitle: 'Linketry {version} 升级完成',
+-    upgradeCompletedDescription: '后台已刷新并正在运行新版本。',
+     upgradePropagationTitle: '部署完成，正在等待 Linketry {version} 生效',
+     upgradePropagationRefreshing: '当前页面仍为 {currentVersion}，几秒后将再自动刷新一次。',
+     upgradePropagationManual: '当前页面仍为 {currentVersion}，请刷新页面加载已部署的新版本。',
+diff --git a/apps/admin/tests/analytics-refresh.spec.ts b/apps/admin/tests/analytics-refresh.spec.ts
+index f1d1f03..7fac839 100644
+--- a/apps/admin/tests/analytics-refresh.spec.ts
++++ b/apps/admin/tests/analytics-refresh.spec.ts
+@@ -169,9 +169,9 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
+   });
+ 
+   await page.goto('/analytics');
+-  await expect(
+-    page.getByRole('heading', { name: messages.en.analytics, exact: true })
+-  ).toBeVisible();
++  await expect(page.getByRole('heading', { name: messages.en.analytics, exact: true })).toBeVisible(
++    { timeout: 15_000 }
++  );
+   await expect.poll(() => analyticsRequests).toBeGreaterThan(0);
+   await expect.poll(() => analyticsTimezoneOffset).not.toBeNull();
+   await expect(page.getByTestId('traffic-trend-panel')).toBeVisible();
+diff --git a/apps/admin/tests/i18n-smoke.spec.ts b/apps/admin/tests/i18n-smoke.spec.ts
+index 8f730a7..36b4b1b 100644
+--- a/apps/admin/tests/i18n-smoke.spec.ts
++++ b/apps/admin/tests/i18n-smoke.spec.ts
+@@ -442,7 +442,7 @@ test('English core workflow renders overview, links, create link, and settings',
+     .getByRole('link', { name: messages.en.links, exact: true })
+     .click();
+   await expect(page.getByRole('heading', { name: messages.en.links })).toBeVisible();
+-  await expect(page.getByText('/docs', { exact: true })).toBeVisible();
++  await expect(page.getByRole('table').getByText('/docs', { exact: true })).toBeVisible();
+   await expectNoSeriousAccessibilityViolations(page);
+   const migrationTrigger = page.getByRole('button', { name: messages.en.migrateShortDomain });
+   await migrationTrigger.click();
+@@ -528,7 +528,7 @@ test('Simplified Chinese core workflow renders localized navigation and forms',
+     .getByRole('link', { name: messages['zh-CN'].links, exact: true })
+     .click();
+   await expect(page.getByRole('heading', { name: messages['zh-CN'].links })).toBeVisible();
+-  await expect(page.getByText('/docs', { exact: true })).toBeVisible();
++  await expect(page.getByRole('table').getByText('/docs', { exact: true })).toBeVisible();
+ 
+   await page.getByRole('main').getByRole('link', { name: messages['zh-CN'].createLink }).click();
+   await expect(page.getByRole('heading', { name: messages['zh-CN'].createLink })).toBeVisible();
+diff --git a/apps/admin/tests/traffic-anomalies.spec.ts b/apps/admin/tests/traffic-anomalies.spec.ts
+index 2f6d6c3..3f86d5f 100644
+--- a/apps/admin/tests/traffic-anomalies.spec.ts
++++ b/apps/admin/tests/traffic-anomalies.spec.ts
+@@ -126,7 +126,9 @@ test('traffic anomaly settings save and a manual check shows aggregate evidence'
+   });
+ 
+   await page.goto('/analytics');
+-  await expect(page.getByRole('heading', { name: messages.en.trafficAnomalyAlerts })).toBeVisible();
++  await expect(page.getByRole('heading', { name: messages.en.trafficAnomalyAlerts })).toBeVisible({
++    timeout: 15_000,
++  });
+ 
+   await page.getByLabel(messages.en.enableTrafficAnomalyAlerts).check();
+   await page.getByLabel(messages.en.trafficMinimumVisits).fill('100');
+diff --git a/apps/admin/tests/upgrade-refresh-feedback.spec.ts b/apps/admin/tests/upgrade-refresh-feedback.spec.ts
+index b8ab0b4..b98bc87 100644
+--- a/apps/admin/tests/upgrade-refresh-feedback.spec.ts
++++ b/apps/admin/tests/upgrade-refresh-feedback.spec.ts
+@@ -42,7 +42,11 @@ async function preparePage(
+   await page.route('**/api/v1/**', async (route) => {
+     const path = new URL(route.request().url()).pathname;
+     if (path === '/api/v1/auth/me') {
+-      await route.fulfill({ status: 200, contentType: 'application/json', body: '{"success":true}' });
++      await route.fulfill({
++        status: 200,
++        contentType: 'application/json',
++        body: '{"success":true}',
++      });
+       return;
+     }
+     if (path === '/api/v1/settings') {
+@@ -67,7 +71,9 @@ async function preparePage(
+   });
+ }
+ 
+-test('newly loaded target build confirms the completed online upgrade', async ({ page }) => {
++test('newly loaded target build keeps completed upgrade feedback in the sidebar only', async ({
++  page,
++}) => {
+   await preparePage(page, LINKETRY_VERSION, {
+     targetVersion: LINKETRY_VERSION,
+     followUpRefreshScheduled: true,
+@@ -75,33 +81,28 @@ test('newly loaded target build confirms the completed online upgrade', async ({
+ 
+   await page.goto('/overview');
+ 
+-  await expect(
+-    page.getByText(
+-      messages.en.upgradeCompletedTitle.replace('{version}', LINKETRY_VERSION)
+-    )
+-  ).toBeVisible();
+-  await expect(page.getByText(messages.en.upgradeCompletedDescription)).toBeVisible();
+-  await page.getByRole('button', { name: messages.en.dismissUpgradeResult }).click();
+-  await expect(page.getByText(messages.en.upgradeCompletedDescription)).toHaveCount(0);
++  await expect(page.getByTestId('sidebar-version')).toBeVisible();
++  await expect(page.getByTestId('upgrade-refresh-notice')).toHaveCount(0);
+   await expect
+     .poll(() => page.evaluate((key) => sessionStorage.getItem(key), UPGRADE_FEEDBACK_STORAGE_KEY))
+     .toBeNull();
+ });
+ 
+-test('target build infers completion from an older source build update cache', async ({ page }) => {
++test('target build clears inferred completion without rendering a duplicate notice', async ({
++  page,
++}) => {
+   await preparePage(page, LINKETRY_VERSION, null, LINKETRY_VERSION);
+ 
+   await page.goto('/overview');
+-  await expect(page.getByText(messages.en.upgradeCompletedDescription)).toHaveCount(0);
++  await expect(page.getByTestId('upgrade-refresh-notice')).toHaveCount(0);
+   await page.evaluate(() => localStorage.removeItem('linketry_last_loaded_version'));
+   await page.reload();
+ 
+-  await expect(
+-    page.getByText(
+-      messages.en.upgradeCompletedTitle.replace('{version}', LINKETRY_VERSION)
+-    )
+-  ).toBeVisible();
+-  await expect(page.getByText(messages.en.upgradeCompletedDescription)).toBeVisible();
++  await expect(page.getByTestId('sidebar-version')).toBeVisible();
++  await expect(page.getByTestId('upgrade-refresh-notice')).toHaveCount(0);
++  await expect
++    .poll(() => page.evaluate((key) => sessionStorage.getItem(key), UPGRADE_FEEDBACK_STORAGE_KEY))
++    .toBeNull();
+ });
+ 
+ test('stale build requests a manual refresh after the bounded retry', async ({ page }) => {
+@@ -113,6 +114,7 @@ test('stale build requests a manual refresh after the bounded retry', async ({ p
+ 
+   await page.goto('/overview');
+ 
++  await expect(page.getByTestId('upgrade-refresh-notice')).toBeVisible();
+   await expect(
+     page.getByText(messages.en.upgradePropagationTitle.replace('{version}', targetVersion))
+   ).toBeVisible();
+diff --git a/apps/demo-api/package.json b/apps/demo-api/package.json
+index f3f8b7c..c8a77ba 100644
+--- a/apps/demo-api/package.json
++++ b/apps/demo-api/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@linketry/demo-api",
+-  "version": "0.29.18",
++  "version": "0.29.20",
+   "author": "everettlabs",
+   "license": "GPL-3.0-only",
+   "private": true,
+diff --git a/apps/site/index.html b/apps/site/index.html
+index 7296bbf..e66246a 100644
+--- a/apps/site/index.html
++++ b/apps/site/index.html
+@@ -68,7 +68,7 @@
+             "applicationCategory": "BusinessApplication",
+             "applicationSubCategory": "Link management and analytics",
+             "operatingSystem": "Cloudflare Workers",
+-            "softwareVersion": "0.29.18",
++            "softwareVersion": "0.29.20",
+             "isAccessibleForFree": true,
+             "license": "https://github.com/everett7623/Linketry/blob/main/LICENSE",
+             "codeRepository": "https://github.com/everett7623/Linketry",
+diff --git a/apps/site/package.json b/apps/site/package.json
+index 644d542..2dd8e7e 100644
+--- a/apps/site/package.json
++++ b/apps/site/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@linketry/site",
+-  "version": "0.29.18",
++  "version": "0.29.20",
+   "author": "everettlabs",
+   "license": "GPL-3.0-only",
+   "private": true,
+diff --git a/apps/site/public/llms.txt b/apps/site/public/llms.txt
+index 697d6e4..3eeddd6 100644
+--- a/apps/site/public/llms.txt
++++ b/apps/site/public/llms.txt
+@@ -2,7 +2,7 @@
+ 
+ > Linketry is an open-source, self-hosted platform for short-link management, click analytics, destination health monitoring, imports, backups and automation on Cloudflare.
+ 
+-Current documented version: 0.29.18
++Current documented version: 0.29.20
+ Canonical website: https://linketry.com/
+ Source repository: https://github.com/everett7623/Linketry
+ License: GPL-3.0-only
+diff --git a/apps/site/tests/site.test.mjs b/apps/site/tests/site.test.mjs
+index 5114510..67d075d 100644
+--- a/apps/site/tests/site.test.mjs
++++ b/apps/site/tests/site.test.mjs
+@@ -90,7 +90,7 @@ test('project site exposes grounded machine-readable facts for search and AI dis
+   const facts = homeData['@graph'].find((item) => item['@type'] === 'FAQPage');
+ 
+   assert.equal(software.name, 'Linketry');
+-  assert.equal(software.softwareVersion, '0.29.18');
++  assert.equal(software.softwareVersion, '0.29.20');
+   assert.equal(software.isAccessibleForFree, true);
+   assert.equal(software.offers.price, '0');
+   assert.match(software.codeRepository, /github\.com\/everett7623\/Linketry/);
+@@ -106,7 +106,7 @@ test('project site exposes grounded machine-readable facts for search and AI dis
+   assert.match(robots, /User-agent: OAI-SearchBot/);
+   assert.match(robots, /User-agent: GPTBot[\s\S]*Disallow: \//);
+   assert.match(robots, /Content-Signal: search=yes, ai-input=yes, ai-train=no, use=reference/);
+-  assert.match(llms, /Current documented version: 0\.29\.18/);
++  assert.match(llms, /Current documented version: 0\.29\.20/);
+   assert.match(llms, /D1 is the source of truth/);
+   assert.match(llms, /does not require Demo mode/);
+ });
+diff --git a/apps/worker/package.json b/apps/worker/package.json
+index 8ad308a..4c1afa3 100644
+--- a/apps/worker/package.json
++++ b/apps/worker/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@linketry/worker",
+-  "version": "0.29.18",
++  "version": "0.29.20",
+   "author": "everettlabs",
+   "license": "GPL-3.0-only",
+   "private": true,
+@@ -21,6 +21,6 @@
+   "devDependencies": {
+     "@cloudflare/workers-types": "^4.20240725.0",
+     "typescript": "^5.4.5",
+-    "wrangler": "^4.111.0"
++    "wrangler": "^4.115.0"
+   }
+ }
+diff --git a/apps/worker/src/openapi/document.test.mjs b/apps/worker/src/openapi/document.test.mjs
+index 3939c4b..e005cc9 100644
+--- a/apps/worker/src/openapi/document.test.mjs
++++ b/apps/worker/src/openapi/document.test.mjs
+@@ -55,9 +55,9 @@ test('OpenAPI operation inventory matches mounted Hono route declarations', asyn
+ });
+ 
+ test('OpenAPI document is versioned, secured, unique, and contains no credential examples', () => {
+-  const document = createOpenApiDocument({}, '0.29.18');
++  const document = createOpenApiDocument({}, '0.29.20');
+   assert.equal(document.openapi, '3.1.0');
+-  assert.equal(document.info.version, '0.29.18');
++  assert.equal(document.info.version, '0.29.20');
+   assert.equal(
+     new Set(API_OPERATIONS.map((item) => key(item.method, item.path))).size,
+     API_OPERATIONS.length
+diff --git a/apps/worker/src/openapi/document.ts b/apps/worker/src/openapi/document.ts
+index aa92b4d..cd3b2f7 100644
+--- a/apps/worker/src/openapi/document.ts
++++ b/apps/worker/src/openapi/document.ts
+@@ -154,7 +154,7 @@ const jsonResponse = (
+   content: { 'application/json': { schema } },
+ });
+ 
+-export function createOpenApiDocument(_env: Env, version = '0.29.18') {
++export function createOpenApiDocument(_env: Env, version = '0.29.20') {
+   const paths: Record<string, Record<string, unknown>> = {};
+   for (const operation of API_OPERATIONS) {
+     const parameters = [...operation.path.matchAll(/\{([^}]+)\}/g)].map((match) => ({
+diff --git a/apps/worker/wrangler.toml.example b/apps/worker/wrangler.toml.example
+index 682c9fa..fb965a4 100644
+--- a/apps/worker/wrangler.toml.example
++++ b/apps/worker/wrangler.toml.example
+@@ -13,7 +13,7 @@ routes = [
+ ]
+ 
+ [vars]
+-LINKETRY_VERSION = "0.29.18"
++LINKETRY_VERSION = "0.29.20"
+ LINKETRY_DAILY_CRON = "0 18 * * *"
+ LINKETRY_HEALTH_CRON = "0 * * * *"
+ LINKETRY_UPDATE_REPOSITORY = "<your-github-owner>/<your-linketry-repository>"
+diff --git a/docs/DEPLOYMENT.md b/docs/DEPLOYMENT.md
+index 0de863d..a3442f3 100644
+--- a/docs/DEPLOYMENT.md
++++ b/docs/DEPLOYMENT.md
+@@ -124,7 +124,7 @@ LINKETRY_D1_DATABASE_NAME=linketry
+ LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
+ LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
+ LINKETRY_DEPLOYMENT_TRACK=fresh
+-LINKETRY_APPROVED_RELEASE=0.29.18
++LINKETRY_APPROVED_RELEASE=0.29.20
+ LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
+ LINKETRY_APPROVED_MIGRATIONS_SHA256=<output-of-npm-run-deploy:migration-digest>
+ LINKETRY_FRESH_INSTALL_CONFIRMED=true
+diff --git a/docs/ROADMAP.md b/docs/ROADMAP.md
+index cae2016..9daf91f 100644
+--- a/docs/ROADMAP.md
++++ b/docs/ROADMAP.md
+@@ -324,6 +324,26 @@ Status: prepared in the repository; publication follows the normal reviewed proj
+ - Desktop and mobile checks cover all 10 eyebrow/heading pairs, menu anchoring, hidden/expanded states, runtime errors, and horizontal overflow
+ - Worker redirects, Admin behavior, APIs, D1/KV ownership, migrations, credentials, and production resources remain unchanged
+ 
++## 0.29.20: Upgrade Completion Feedback Deduplication
++
++Status: complete locally on top of the v0.29.19 hardening baseline.
++
++- The target Admin build keeps completed release status in the existing sidebar version center
++- Completed and inferred upgrade feedback is cleared without rendering a duplicate page-level success notice
++- Stale builds retain the bounded automatic follow-up refresh and explicit manual refresh guidance
++- Redirects, Worker runtime, analytics scheduling, D1/KV ownership, migrations, secrets, and Cloudflare resources are unchanged
++
++## 0.29.19: Release Hardening
++
++Status: complete locally; external public-launch gates remain.
++
++- Cloudflare and local builds select the documented Node.js 24 runtime through `.node-version`
++- Maintained Wrangler, PostCSS, Sharp, and React Router dependencies replace the audited release baseline
++- The npm lockfile uses official-registry package artifacts with integrity metadata
++- Default parallel Admin browser coverage tolerates measured lazy-route cold compilation without weakening product assertions
++- The remaining React Router audit entry applies only to unused unstable RSC APIs; Linketry remains a declarative BrowserRouter SPA
++- Redirect behavior, analytics scheduling, D1/KV ownership, migrations, stored data, secrets, and Cloudflare resources are unchanged
++
+ ## 0.29.18: Admin Readiness Propagation Window
+ 
+ Status: implemented; final reviewed production workflow verification is pending.
+diff --git a/docs/SELF_HOSTING.md b/docs/SELF_HOSTING.md
+index 5f27465..aaaf331 100644
+--- a/docs/SELF_HOSTING.md
++++ b/docs/SELF_HOSTING.md
+@@ -248,7 +248,7 @@ curl https://go.example.com/health
+ Expected shape:
+ 
+ ```json
+-{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.29.18" } }
++{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.29.20" } }
+ ```
+ 
+ ### Build and Deploy Admin
+@@ -314,7 +314,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
+ LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
+ LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
+ LINKETRY_DEPLOYMENT_TRACK=fresh
+-LINKETRY_APPROVED_RELEASE=0.29.18
++LINKETRY_APPROVED_RELEASE=0.29.20
+ LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
+ LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
+ LINKETRY_FRESH_INSTALL_CONFIRMED=true
+diff --git a/package.json b/package.json
+index e11f678..c5b627f 100644
+--- a/package.json
++++ b/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "linketry",
+-  "version": "0.29.18",
++  "version": "0.29.20",
+   "description": "Linketry is a self-hosted link management, analytics and monitoring platform.",
+   "author": "everettlabs",
+   "homepage": "https://linketry.com",
+@@ -55,7 +55,6 @@
+   },
+   "devDependencies": {
+     "typescript": "^5.4.5",
+-    "prettier": "^3.3.3",
+-    "eslint": "^9.8.0"
++    "prettier": "^3.3.3"
+   }
+ }
+diff --git a/packages/shared/package.json b/packages/shared/package.json
+index fe8a975..a261920 100644
+--- a/packages/shared/package.json
++++ b/packages/shared/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@linketry/shared",
+-  "version": "0.29.18",
++  "version": "0.29.20",
+   "author": "everettlabs",
+   "license": "GPL-3.0-only",
+   "private": true,
+diff --git a/packages/shared/src/version.ts b/packages/shared/src/version.ts
+index dbf7a30..ba1eddf 100644
+--- a/packages/shared/src/version.ts
++++ b/packages/shared/src/version.ts
+@@ -1 +1 @@
+-export const LINKETRY_VERSION = '0.29.18';
++export const LINKETRY_VERSION = '0.29.20';
+diff --git a/scripts/admin-asset-integrity.test.mjs b/scripts/admin-asset-integrity.test.mjs
+index 96bd838..0c1e6aa 100644
+--- a/scripts/admin-asset-integrity.test.mjs
++++ b/scripts/admin-asset-integrity.test.mjs
+@@ -48,7 +48,7 @@ test('accepts the bundled production Admin under the /admin asset prefix', async
+ 
+ test('rejects query cache keys that create a second ES module identity', async () => {
+   const indexPath = await fixture(`
+-    <script type="module" src="/assets/index-AbCd1234.js?v=0.29.18"></script>
++    <script type="module" src="/assets/index-AbCd1234.js?v=0.29.20"></script>
+     <link rel="stylesheet" href="/assets/index-EfGh5678.css">
+   `);
+   await assert.rejects(verifyAdminBuild(indexPath), /canonical Vite content-hashed path/);
+diff --git a/scripts/admin-live-smoke.test.mjs b/scripts/admin-live-smoke.test.mjs
+index 23f219b..5f985ce 100644
+--- a/scripts/admin-live-smoke.test.mjs
++++ b/scripts/admin-live-smoke.test.mjs
+@@ -4,7 +4,7 @@ import test from 'node:test';
+ import { collectInitialAssets, verifyAdminLive, waitForAdminLive } from './admin-live-smoke.mjs';
+ 
+ const adminUrl = 'https://admin.example.com';
+-const version = '0.29.18';
++const version = '0.29.20';
+ const html = `
+   <meta name="linketry-version" content="${version}">
+   <script type="module" crossorigin src="/assets/index-AbCd1234.js"></script>
+@@ -94,7 +94,7 @@ test('requires canonical content-hashed paths and permits their long-term cachin
+         const url = new URL(String(input));
+         if (url.pathname === '/') {
+           return response(
+-            html.replace('/assets/index-AbCd1234.js', '/assets/index-AbCd1234.js?v=0.29.18'),
++            html.replace('/assets/index-AbCd1234.js', `/assets/index-AbCd1234.js?v=${version}`),
+             'text/html'
+           );
+         }
+diff --git a/scripts/demo-admin-parity.test.mjs b/scripts/demo-admin-parity.test.mjs
+index 5aae74e..2ce6053 100644
+--- a/scripts/demo-admin-parity.test.mjs
++++ b/scripts/demo-admin-parity.test.mjs
+@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
+ import test from 'node:test';
+ import { verifyDemoLiveParity } from './demo-live-smoke.mjs';
+ 
+-const version = '0.29.18';
++const version = '0.29.20';
+ const adminOrigin = 'https://demo.linketry.com';
+ const apiOrigin = 'https://linketry-demo-worker.example.workers.dev';
+ const darkLogo = readFileSync(new URL('../apps/admin/public/favicon.svg', import.meta.url));
+diff --git a/scripts/support-policy.test.mjs b/scripts/support-policy.test.mjs
+index f3c9ae6..7f02a32 100644
+--- a/scripts/support-policy.test.mjs
++++ b/scripts/support-policy.test.mjs
+@@ -37,9 +37,9 @@ test('support policy fixes one pre-1.0 compatibility and rollback contract', ()
+ 
+ test('documented toolchain matches package metadata and public navigation', () => {
+   assert.deepEqual(packageJson.engines, { node: '>=24 <25', npm: '>=10' });
+-  assert.match(workerPackage.devDependencies.wrangler, /^\^4\.111\.0$/);
++  assert.match(workerPackage.devDependencies.wrangler, /^\^4\.115\.0$/);
+   assert.match(support, /Node\.js \| 24\.x/);
+-  assert.match(support, /Wrangler \| 4\.111\.0 or newer within major version 4/);
++  assert.match(support, /Wrangler \| 4\.115\.0 or newer within major version 4/);
+   assert.match(readme, /\[Security policy\]\(SECURITY\.md\)/);
+   assert.match(readme, /\[Support and compatibility\]\(SUPPORT\.md\)/);
+   assert.doesNotMatch(`${readme}\n${read('docs/SELF_HOSTING.md')}\n${read('docs/DEVELOPMENT.md')}`, /Node\.js 24 recommended/);
+diff --git a/wrangler.jsonc b/wrangler.jsonc
+index 1b15924..0883573 100644
+--- a/wrangler.jsonc
++++ b/wrangler.jsonc
+@@ -6,7 +6,7 @@
+   "compatibility_flags": ["nodejs_compat"],
+   "workers_dev": true,
+   "vars": {
+-    "LINKETRY_VERSION": "0.29.18",
++    "LINKETRY_VERSION": "0.29.20",
+     "LINKETRY_DAILY_CRON": "0 18 * * *",
+     "LINKETRY_HEALTH_CRON": "0 * * * *",
+   },

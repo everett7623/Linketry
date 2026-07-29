@@ -13,6 +13,46 @@ _(none)_
 
 ---
 
+## [0.29.20] - 2026-07-29
+
+### Fixed
+
+- Removed the duplicate page-level upgrade-complete notice after the target Admin build loads; completion remains visible through the sidebar version center.
+- Cleared completed or inferred upgrade feedback without rendering a second success surface, while preserving automatic and manual refresh guidance for stale builds.
+
+### Tests
+
+- Updated browser coverage for completed, inferred, automatic-refresh, and manual-refresh upgrade feedback states.
+- Kept the full v0.29.19 release-hardening regression baseline unchanged.
+
+---
+
+## [0.29.19] - 2026-07-29
+
+### Changed
+
+- Pinned Cloudflare and local builds to Node.js 24 through `.node-version`.
+- Upgraded Wrangler to 4.115.0, PostCSS to 8.5.24, and React Router to 7.18.2; removed the unused, unconfigured ESLint dependency.
+- Rebuilt the npm lockfile from the official npm registry with package integrity metadata and no `npmmirror.com` artifact URLs.
+
+### Fixed
+
+- Gave the two heaviest lazy Admin routes a bounded 15-second first-render allowance so the default eight-worker Playwright suite remains stable during concurrent Vite cold compilation.
+- Scoped Links workflow assertions to the active results table so React Router transitions cannot match stale Overview content.
+
+### Security
+
+- The dependency refresh removes the previously reported Wrangler/Miniflare/Sharp, PostCSS, ESLint/Minimatch, and React Router open-redirect findings.
+- npm continues to report one upstream React Router advisory as two high-severity dependency entries. The advisory affects only unstable RSC APIs; Linketry is a declarative `BrowserRouter` SPA and does not import or use the affected RSC surface.
+- Redirect behavior, API contracts, migrations, D1/KV ownership, secrets, analytics scheduling, and production/Demo resources are unchanged.
+
+### Tests
+
+- Passed 90 deployment, 110 Worker, 64 Admin unit, 25 default-parallel Admin browser, 2 production-build browser, 6 Demo API, and 10 project-site tests.
+- Passed a clean Node.js 24 install, Worker type-check, production/Demo/Quick Deploy Admin builds, project-site build, and Wrangler 4.115.0 dry-run.
+
+---
+
 ## [0.29.18] - 2026-07-28
 
 ### Fixed
