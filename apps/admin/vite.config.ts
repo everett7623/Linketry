@@ -66,21 +66,8 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     },
-    // 压缩优化
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        // 生产环境移除 console
-        drop_console: process.env.NODE_ENV === 'production',
-        drop_debugger: true,
-        // 移除无用代码
-        pure_funcs: ['console.log', 'console.debug', 'console.info']
-      },
-      format: {
-        // 移除注释
-        comments: false
-      }
-    },
+    // 压缩优化（使用默认的 esbuild，更快）
+    minify: 'esbuild',
     // 性能优化
     chunkSizeWarningLimit: 1000, // 1MB 警告阈值
     reportCompressedSize: true
