@@ -356,6 +356,7 @@ export async function batchUpsert<T extends Record<string, any>>(
  * 限制：`query` 不得包含 LIMIT 或 OFFSET 关键字，本函数会自动追加分页子句。
  *
  * @throws query 中已含 LIMIT/OFFSET 时抛出错误，防止产生双重 LIMIT
+ * @throws pageSize 不是 1–10000 的整数时抛出错误，防止 NaN/Infinity 产生无效 SQL
  */
 export async function processInPages<T>(
   db: D1Database,
@@ -367,6 +368,13 @@ export async function processInPages<T>(
   } = {}
 ): Promise<number> {
   const { pageSize = 100, maxPages = Infinity } = options;
+
+  // 防止 NaN / Infinity / 负数产生无效的 LIMIT/OFFSET SQL
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 10000) {
+    throw new Error(
+      `processInPages: pageSize must be an integer between 1 and 10000, got: ${pageSize}`
+    );
+  }
 
   // 防止双重 LIMIT：调用方不应在 query 中包含分页子句
   if (/\b(LIMIT|OFFSET)\b/i.test(query)) {

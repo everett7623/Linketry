@@ -5,7 +5,24 @@ const KV_TTL_DEFAULT = 60 * 60 * 24; // 24 小时（默认）
 /** Cloudflare KV expirationTtl 最小值为 60 秒 */
 const KV_TTL_MIN = 60;
 
+/** 有效 hostname：字母/数字/连字符，点分隔，不含 ':' */
+const VALID_DOMAIN_RE =
+  /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$/;
+/** 有效 slug：仅限字母/数字/连字符/下划线 */
+const VALID_SLUG_RE = /^[a-zA-Z0-9_-]+$/;
+
+/**
+ * 构造 KV 缓存键。
+ * 严格校验 domain 和 slug 格式，防止含 ':' 的值制造 key 冲突。
+ * 校验失败会抛出异常，调用方的 try/catch 会将其视为缓存未命中——安全降级到 D1。
+ */
 export function kvKey(domain: string, slug: string): string {
+  if (!VALID_DOMAIN_RE.test(domain)) {
+    throw new Error(`Invalid domain for KV key: "${domain}"`);
+  }
+  if (!VALID_SLUG_RE.test(slug)) {
+    throw new Error(`Invalid slug for KV key: "${slug}"`);
+  }
   return `linketry:slug:${domain}:${slug}`;
 }
 
