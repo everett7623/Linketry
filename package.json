@@ -1,6 +1,6 @@
 {
   "name": "linketry",
-  "version": "0.29.18",
+  "version": "0.29.20",
   "description": "Linketry is a self-hosted link management, analytics and monitoring platform.",
   "author": "everettlabs",
   "homepage": "https://linketry.com",
@@ -55,7 +55,6 @@
   },
   "devDependencies": {
     "typescript": "^5.4.5",
-    "prettier": "^3.3.3",
-    "eslint": "^9.8.0"
+    "prettier": "^3.3.3"
   }
 }

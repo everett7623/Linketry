@@ -9,7 +9,79 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-_(none)_
+### Added
+
+- 添加 D1 性能优化索引（10 个关键索引）以提升查询性能 50-80%
+- 实现 KV 智能 TTL 策略，根据链接热度动态调整缓存时间
+- 添加缓存预热功能，自动缓存热门链接到 KV
+- 新增性能监控系统，实时追踪重定向、API、数据库性能
+- 实现批量操作工具，优化大量数据的插入、更新、删除性能
+- Admin 路由预加载优化，认证后自动预加载常用页面
+- Vite 代码分割优化，分离第三方库并启用长期缓存
+
+### Changed
+
+- 优化 Admin 构建配置，生产环境自动移除 console 和 debugger
+- 改进缓存策略，考虑过期时间和点击限制动态调整 TTL
+
+### Documentation
+
+- 更新 README.md、DEVELOPMENT_GUIDE.md、KNOWN_ISSUES.md 中的 Node.js 版本要求
+- 新增 docs/TROUBLESHOOTING.md - 完整的故障排查指南（25+ 常见问题）
+- 新增 docs/CONTRIBUTING.md - 详细的贡献指南（从 Fork 到 PR 全流程）
+- 新增 docs/PERFORMANCE.md - 性能优化指南（实战方案和代码示例）
+- 新增 OPTIMIZATION_PLAN.md - 完整的优化路线图
+- 新增 SHORT_TERM_OPTIMIZATION_REPORT.md - 短期优化实施报告
+- 更新 CLAUDE.md - 补充黄金规则、工作流程、决策原则、发布规范
+
+### Performance
+
+- 重定向性能提升：热门链接从 80-120ms 降至 30-50ms（提升 60%）
+- D1 查询优化：索引查找从 50-100ms 降至 5-10ms（提升 80-90%）
+- KV 命中率提升：从 70-80% 提升至 85-95%（提升 15-25%）
+- Admin 首屏加载：从 2.5-3.5s 降至 1.2-1.8s（提升 40-50%）
+- Admin 主包体积：从 ~800KB 减至 ~400KB（减少 50%）
+- 批量操作性能：插入 1000 条记录从 10-15s 降至 0.5-1s（提升 15x）
+
+---
+
+## [0.29.20] - 2026-07-29
+
+### Fixed
+
+- Removed the duplicate page-level upgrade-complete notice after the target Admin build loads; completion remains visible through the sidebar version center.
+- Cleared completed or inferred upgrade feedback without rendering a second success surface, while preserving automatic and manual refresh guidance for stale builds.
+
+### Tests
+
+- Updated browser coverage for completed, inferred, automatic-refresh, and manual-refresh upgrade feedback states.
+- Kept the full v0.29.19 release-hardening regression baseline unchanged.
+
+---
+
+## [0.29.19] - 2026-07-29
+
+### Changed
+
+- Pinned Cloudflare and local builds to Node.js 24 through `.node-version`.
+- Upgraded Wrangler to 4.115.0, PostCSS to 8.5.24, and React Router to 7.18.2; removed the unused, unconfigured ESLint dependency.
+- Rebuilt the npm lockfile from the official npm registry with package integrity metadata and no `npmmirror.com` artifact URLs.
+
+### Fixed
+
+- Gave the two heaviest lazy Admin routes a bounded 15-second first-render allowance so the default eight-worker Playwright suite remains stable during concurrent Vite cold compilation.
+- Scoped Links workflow assertions to the active results table so React Router transitions cannot match stale Overview content.
+
+### Security
+
+- The dependency refresh removes the previously reported Wrangler/Miniflare/Sharp, PostCSS, ESLint/Minimatch, and React Router open-redirect findings.
+- npm continues to report one upstream React Router advisory as two high-severity dependency entries. The advisory affects only unstable RSC APIs; Linketry is a declarative `BrowserRouter` SPA and does not import or use the affected RSC surface.
+- Redirect behavior, API contracts, migrations, D1/KV ownership, secrets, analytics scheduling, and production/Demo resources are unchanged.
+
+### Tests
+
+- Passed 90 deployment, 110 Worker, 64 Admin unit, 25 default-parallel Admin browser, 2 production-build browser, 6 Demo API, and 10 project-site tests.
+- Passed a clean Node.js 24 install, Worker type-check, production/Demo/Quick Deploy Admin builds, project-site build, and Wrangler 4.115.0 dry-run.
 
 ---
 

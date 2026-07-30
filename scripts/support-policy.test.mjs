@@ -37,9 +37,9 @@ test('support policy fixes one pre-1.0 compatibility and rollback contract', () 
 
 test('documented toolchain matches package metadata and public navigation', () => {
   assert.deepEqual(packageJson.engines, { node: '>=24 <25', npm: '>=10' });
-  assert.match(workerPackage.devDependencies.wrangler, /^\^4\.111\.0$/);
+  assert.match(workerPackage.devDependencies.wrangler, /^\^4\.115\.0$/);
   assert.match(support, /Node\.js \| 24\.x/);
-  assert.match(support, /Wrangler \| 4\.111\.0 or newer within major version 4/);
+  assert.match(support, /Wrangler \| 4\.115\.0 or newer within major version 4/);
   assert.match(readme, /\[Security policy\]\(SECURITY\.md\)/);
   assert.match(readme, /\[Support and compatibility\]\(SUPPORT\.md\)/);
   assert.doesNotMatch(`${readme}\n${read('docs/SELF_HOSTING.md')}\n${read('docs/DEVELOPMENT.md')}`, /Node\.js 24 recommended/);

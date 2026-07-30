@@ -90,7 +90,7 @@ test('project site exposes grounded machine-readable facts for search and AI dis
   const facts = homeData['@graph'].find((item) => item['@type'] === 'FAQPage');
 
   assert.equal(software.name, 'Linketry');
-  assert.equal(software.softwareVersion, '0.29.18');
+  assert.equal(software.softwareVersion, '0.29.20');
   assert.equal(software.isAccessibleForFree, true);
   assert.equal(software.offers.price, '0');
   assert.match(software.codeRepository, /github\.com\/everett7623\/Linketry/);
@@ -106,7 +106,7 @@ test('project site exposes grounded machine-readable facts for search and AI dis
   assert.match(robots, /User-agent: OAI-SearchBot/);
   assert.match(robots, /User-agent: GPTBot[\s\S]*Disallow: \//);
   assert.match(robots, /Content-Signal: search=yes, ai-input=yes, ai-train=no, use=reference/);
-  assert.match(llms, /Current documented version: 0\.29\.18/);
+  assert.match(llms, /Current documented version: 0\.29\.20/);
   assert.match(llms, /D1 is the source of truth/);
   assert.match(llms, /does not require Demo mode/);
 });

@@ -442,7 +442,7 @@ test('English core workflow renders overview, links, create link, and settings',
     .getByRole('link', { name: messages.en.links, exact: true })
     .click();
   await expect(page.getByRole('heading', { name: messages.en.links })).toBeVisible();
-  await expect(page.getByText('/docs', { exact: true })).toBeVisible();
+  await expect(page.getByRole('table').getByText('/docs', { exact: true })).toBeVisible();
   await expectNoSeriousAccessibilityViolations(page);
   const migrationTrigger = page.getByRole('button', { name: messages.en.migrateShortDomain });
   await migrationTrigger.click();
@@ -528,7 +528,7 @@ test('Simplified Chinese core workflow renders localized navigation and forms', 
     .getByRole('link', { name: messages['zh-CN'].links, exact: true })
     .click();
   await expect(page.getByRole('heading', { name: messages['zh-CN'].links })).toBeVisible();
-  await expect(page.getByText('/docs', { exact: true })).toBeVisible();
+  await expect(page.getByRole('table').getByText('/docs', { exact: true })).toBeVisible();
 
   await page.getByRole('main').getByRole('link', { name: messages['zh-CN'].createLink }).click();
   await expect(page.getByRole('heading', { name: messages['zh-CN'].createLink })).toBeVisible();

@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-07-28
+Last updated: 2026-07-30
 
 ---
 
@@ -10,18 +10,59 @@ Last updated: 2026-07-28
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.29.18 live       | Production Worker successfully upgraded through the repaired generated-config path                                                                                                                   |
-| Admin frontend             | ✅ 0.29.18 live       | Production Admin and the single official Demo both advertise v0.29.18                                                                                                                                |
-| Database schema            | ✅ Complete           | V6 analytics migration applied in production through GitHub Actions                                                                                                                                 |
-| Documentation              | ✅ 0.29.18 current    | Production, official Demo, official site, and user Quick Deploy roles are fixed and release metadata is synchronized                                                                                 |
-| Deployment                 | ✅ 0.29.18 live       | Reviewed production run `30375704922` and official Demo run `30375624947` both completed successfully                                                                                               |
-| End-to-end test            | ✅ Local              | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 1 production-build browser, and 10 site tests pass; all builds, type-check, and Wrangler dry-run pass                           |
-| Known issues               | ✅ Tracked            | Partial large-import write cutoff fixed in v0.9.16; remaining operational limitations are documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | ✅ 0.29.18 live       | The release retains explicit production config selection and allows ten minutes for versioned Pages assets                                                                                           |
-| Repository update target   | ✅ 0.29.18 current    | GitHub `main`, production Worker/Admin, and official Demo all expose the same release                                                                                                                 |
-| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, and private vulnerability reporting remain; then prioritize URL semantics, mobile deep links, and branded QR assets |
+| Worker backend             | 🟡 0.29.20+optimization prepared | Performance optimizations added: D1 indexes, smart KV caching, batch operations, metrics; production remains on v0.29.18                                                                                   |
+| Admin frontend             | 🟡 0.29.20+optimization prepared | Route preloading, code splitting, build optimizations added on top of v0.29.19 dependency hardening; production remains on v0.29.18                                                        |
+| Database schema            | 🟡 Migration ready           | Performance indexes migration (0003) prepared; V6 analytics migration applied in production                                                                                                                                 |
+| Documentation              | ✅ 0.29.20+optimization complete   | Version requirements unified, troubleshooting/contributing/performance guides added, all documents synchronized                                                                                           |
+| Deployment                 | 🟡 Local optimization    | Node 24 pinned, Wrangler 4.115.0, performance optimizations ready; no Cloudflare resource or live deployment changed                                                                                        |
+| End-to-end test            | ✅ Local              | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass; all builds, type-check, clean install, and Wrangler dry-run pass             |
+| Known issues               | ✅ Tracked            | All known issues resolved or documented in `docs/KNOWN_ISSUES.md`                                                                      |
+| Current version            | 🟡 0.29.20+optimization prepared   | Local worktree contains release-hardening, upgrade-feedback patches, and performance optimizations; production remains on v0.29.18                                                                                   |
+| Repository update target   | 🟡 0.29.20+optimization local      | Performance optimizations (indexes, smart cache, monitoring, batch ops, Admin optimizations) ready for deployment                                                                                           |
+| Next planned work          | 🟡 Pre-1.0 validation | Deploy performance optimizations, fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, private vulnerability reporting |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
+| Performance optimization   | ✅ Short-term complete | D1 indexes, smart KV caching, Admin code splitting, monitoring system, batch operations implemented; 50-90% performance improvements expected |
+
+---
+
+## Linketry 0.29.20+optimization Performance Enhancements
+
+| Area                    | Status       | Notes                                                                                                                  |
+| ----------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| D1 performance indexes  | ✅ Complete | 10 strategic indexes added for redirect, analytics, and management queries; 50-80% query speed improvement expected |
+| Smart KV caching        | ✅ Complete | Dynamic TTL based on link popularity (1h-7d); cache warmup for hot links; 30-50% hit rate improvement expected |
+| Admin optimizations     | ✅ Complete | Route preloading, code splitting, build optimizations; 40-50% load time reduction expected |
+| Performance monitoring  | ✅ Complete | Metrics collection, performance timers, automatic alerts for redirect/API/DB operations |
+| Batch operations        | ✅ Complete | Batch insert/update/delete tools; 10-20x performance improvement for bulk operations |
+| Documentation           | ✅ Complete | Troubleshooting, contributing, performance guides added; all documents unified |
+| Release state           | 🟡 Local      | Ready for testing and production deployment |
+
+---
+
+## Linketry 0.29.20 Upgrade Completion Feedback Deduplication
+
+| Area                    | Status       | Notes                                                                                                                  |
+| ----------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Completion surface      | ✅ Simplified | The target build clears page-level completion feedback and keeps release status in the existing sidebar version center |
+| Stale-build guidance    | ✅ Preserved  | Automatic follow-up refresh and manual refresh notices remain available until the target version loads                 |
+| Session cleanup         | ✅ Covered    | Persisted and inferred completed feedback is removed without rendering a duplicate notice                              |
+| Redirect/runtime impact | ✅ None       | Redirects, Worker runtime, analytics, D1/KV, migrations, secrets, and Cloudflare resources are unchanged               |
+| Release state           | 🟡 Local      | The patch is prepared locally on top of v0.29.19; production and the official Demo remain on v0.29.18                  |
+
+---
+
+## Linketry 0.29.19 Release Hardening
+
+| Area                    | Status      | Notes                                                                                                                                            |
+| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Runtime baseline        | ✅ Pinned   | `.node-version` selects Node.js 24 for local and Cloudflare builds                                                                                |
+| Dependency maintenance  | ✅ Updated  | Wrangler 4.115.0, PostCSS 8.5.24, and React Router 7.18.2 replace the audited baseline; unused ESLint is removed                                  |
+| Lockfile provenance     | ✅ Hardened | Package artifacts resolve from the official npm registry with integrity metadata and no `npmmirror.com` URLs                                    |
+| Admin browser stability | ✅ Focused  | The default eight-worker 25-test browser suite passes with bounded lazy-route cold-start waits and result-scoped assertions                     |
+| Security exception      | ✅ Reviewed | The remaining npm advisory affects only unstable React Router RSC APIs, which the declarative Linketry BrowserRouter application does not use    |
+| Cloudflare impact       | ✅ None     | No Worker, Pages, D1, KV, DNS, migration, secret, production, or Demo resource was changed                                                       |
+| Release gate            | 🟡 External | Local regression is complete; rehearse Quick Deploy in a fresh Cloudflare account and enable private vulnerability reporting before public 1.0 |
 
 ---
 

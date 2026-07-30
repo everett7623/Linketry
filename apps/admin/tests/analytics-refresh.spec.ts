@@ -169,9 +169,9 @@ test('Analytics supports manual refresh and persistent near-real-time controls',
   });
 
   await page.goto('/analytics');
-  await expect(
-    page.getByRole('heading', { name: messages.en.analytics, exact: true })
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: messages.en.analytics, exact: true })).toBeVisible(
+    { timeout: 15_000 }
+  );
   await expect.poll(() => analyticsRequests).toBeGreaterThan(0);
   await expect.poll(() => analyticsTimezoneOffset).not.toBeNull();
   await expect(page.getByTestId('traffic-trend-panel')).toBeVisible();

@@ -2,6 +2,26 @@
 
 This guide explains how to make safe, maintainable changes to Linketry. Read docs/ARCHITECTURE.md first for runtime behavior and failure boundaries.
 
+**Last updated**: 2026-07-30  
+**Current version**: v0.29.20+optimization (local)  
+**Production version**: v0.29.18
+
+---
+
+## Golden Rules
+
+⚠️ **Read and follow the [Golden Rules in AGENTS.md](../AGENTS.md#golden-rules)** before making any changes.
+
+Summary:
+1. Redirect stability is #1 priority
+2. Stats failures must not break redirects
+3. Only implement the requested version
+4. KV is cache only, D1 is source of truth
+5. Never silently overwrite existing slugs
+6. Never commit secrets
+
+---
+
 ## Read Before Changing Code
 
 Use these sources in order:
@@ -20,10 +40,13 @@ Security reports follow `SECURITY.md`; compatibility, supported tooling, backups
 
 ## Prerequisites
 
-- Node.js 24.x
-- npm 10 or newer
-- A Cloudflare account for remote D1/KV/R2/Queue work
-- Wrangler from the repository dependencies
+| Tool       | Version              | Notes |
+|------------|----------------------|-------|
+| Node.js    | 24.x (recommended), >=20 | Pinned in `.node-version` |
+| npm        | 10+                  | Package manager |
+| TypeScript | 5.4+                 | Language version |
+| Wrangler   | 4                    | Installed from repo dependencies |
+| Cloudflare | Account              | For D1, KV, R2, Queue, Worker, Pages |
 
 ## Local Setup
 
