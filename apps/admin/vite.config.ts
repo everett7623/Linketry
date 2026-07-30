@@ -52,15 +52,12 @@ export default defineConfig({
             'react-dom',
             'react-router-dom'
           ],
-          // UI 组件库
-          'vendor-ui': [
-            'lucide-react',
-            '@headlessui/react'
-          ],
-          // 工具库
+          // UI 和工具库
           'vendor-utils': [
-            'date-fns',
-            'qrcode'
+            'lucide-react',
+            'qrcode',
+            'clsx',
+            'dayjs'
           ]
         },
         // 优化文件名
