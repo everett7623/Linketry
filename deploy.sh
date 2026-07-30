@@ -121,8 +121,14 @@ if [ -z "$API_URL" ]; then
     exit 1
 fi
 
+# 校验 URL 格式，必须以 https:// 开头
+if [[ ! "$API_URL" =~ ^https://[a-zA-Z0-9._-]+(:[0-9]+)?(/.*)?$ ]]; then
+    echo -e "${RED}✗ 无效的 API_URL（必须以 https:// 开头）${NC}"
+    exit 1
+fi
+
 echo "正在构建 Admin..."
-VITE_LINKETRY_API_URL=$API_URL npm run build --workspace=apps/admin
+VITE_LINKETRY_API_URL="$API_URL" npm run build --workspace=apps/admin
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}✗ Admin 构建失败${NC}"
@@ -137,7 +143,13 @@ if [ -z "$PAGES_PROJECT" ]; then
     exit 1
 fi
 
-wrangler pages deploy apps/admin/dist --project-name=$PAGES_PROJECT
+# 校验项目名称格式，防止命令注入
+if [[ ! "$PAGES_PROJECT" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+    echo -e "${RED}✗ 无效的 Pages 项目名称（只允许字母、数字、- 和 _）${NC}"
+    exit 1
+fi
+
+wrangler pages deploy apps/admin/dist --project-name="$PAGES_PROJECT"
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ Admin 部署成功${NC}"
