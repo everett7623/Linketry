@@ -10,8 +10,8 @@ WHERE status = 'active';
 
 -- 2. 热门链接查询优化
 -- 用于缓存预热和分析
-CREATE INDEX IF NOT EXISTS idx_links_click_count
-ON links(click_count DESC)
+CREATE INDEX IF NOT EXISTS idx_links_clicks
+ON links(clicks DESC)
 WHERE status = 'active';
 
 -- 3. 访问统计查询优化

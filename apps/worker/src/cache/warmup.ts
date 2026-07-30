@@ -11,14 +11,14 @@ export async function warmupPopularLinks(env: Env): Promise<number> {
     const result = await env.DB.prepare(`
       SELECT
         domain, slug, long_url, redirect_type, status,
-        expires_at, max_clicks, click_count, password_hash,
+        expires_at, max_clicks, clicks, password_hash,
         warning_enabled
       FROM links
       WHERE status = 'active'
         AND (expires_at IS NULL OR expires_at > datetime('now'))
-        AND (max_clicks IS NULL OR click_count < max_clicks)
-        AND click_count > 50
-      ORDER BY click_count DESC
+        AND (max_clicks IS NULL OR clicks < max_clicks)
+        AND clicks > 50
+      ORDER BY clicks DESC
       LIMIT 1000
     `).all();
 
@@ -43,7 +43,7 @@ export async function warmupPopularLinks(env: Env): Promise<number> {
               status: link.status,
               expires_at: link.expires_at,
               max_clicks: link.max_clicks,
-              click_count: link.click_count,
+              click_count: link.clicks,
               password_hash: link.password_hash,
               warning_enabled: link.warning_enabled
             });
