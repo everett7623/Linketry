@@ -45,12 +45,12 @@ const THRESHOLDS = {
 
 /**
  * 记录性能指标
+ * 使用调用方提供的 timestamp，不覆盖（对齐 PerformanceMetrics 接口约定）
  */
 export function recordMetrics(metrics: PerformanceMetrics): void {
   console.log(JSON.stringify({
-    ...metrics,
-    timestamp: Date.now(),
-    level: 'metrics'
+    level: 'metrics',
+    ...metrics,  // 调用方的所有字段（含 timestamp）在此处保留，不被覆盖
   }));
 }
 
@@ -158,18 +158,30 @@ export class PerformanceTimer {
   }
 
   /**
-   * 获取所有指标
+   * 获取各阶段耗时
+   *
+   * 返回每个 mark 相对于前一个时间点的耗时（毫秒），而非距构造时刻的偏移量。
+   * 第一个 mark 的耗时 = 该 mark 距 timer 创建的时间。
+   * 'total' = 从创建到调用本方法的总耗时。
+   *
+   * 示例：
+   *   timer.mark('kv');      // T=10ms
+   *   timer.mark('d1');      // T=15ms
+   *   timer.getMetrics()     // { kv: 10, d1: 5, total: 15+ }
    */
   getMetrics(): Record<string, number> {
-    const metrics: Record<string, number> = {
+    const result: Record<string, number> = {
       total: this.elapsed()
     };
 
-    for (const [name, time] of this.marks.entries()) {
-      metrics[name] = time - this.startTime;
+    const entries = Array.from(this.marks.entries());
+    for (let i = 0; i < entries.length; i++) {
+      const [name, time] = entries[i];
+      const prevTime = i === 0 ? this.startTime : entries[i - 1][1];
+      result[name] = time - prevTime;
     }
 
-    return metrics;
+    return result;
   }
 }
 

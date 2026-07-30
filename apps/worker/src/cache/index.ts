@@ -2,39 +2,30 @@ import type { KVCacheEntry } from '@linketry/shared';
 import type { Env } from '../types';
 
 const KV_TTL_DEFAULT = 60 * 60 * 24; // 24 小时（默认）
-const KV_TTL_HOT = 60 * 60 * 24 * 7; // 7 天（热门链接）
-const KV_TTL_WARM = 60 * 60 * 24 * 3; // 3 天（常用链接）
-const KV_TTL_COLD = 60 * 60; // 1 小时（冷门链接）
+/** Cloudflare KV expirationTtl 最小值为 60 秒 */
+const KV_TTL_MIN = 60;
 
-function kvKey(domain: string, slug: string): string {
+export function kvKey(domain: string, slug: string): string {
   return `linketry:slug:${domain}:${slug}`;
 }
 
 /**
- * 智能 TTL 策略
- * 根据点击量动态调整缓存时间
+ * 计算 KV 缓存 TTL（秒）
+ *
+ * 返回 null 表示链接已过期，不应写入缓存；
+ * 这样重定向路径会直接查 D1，拿到最新状态。
  */
-function calculateSmartTTL(entry: KVCacheEntry): number {
-  // KVCacheEntry 不包含 clicks，这里使用默认策略
-  // 实际的点击数应该从 D1 查询后决定 TTL
+function calculateTTL(entry: KVCacheEntry): number | null {
   let ttl = KV_TTL_DEFAULT;
 
-  // 如果有过期时间，不超过过期时间
   if (entry.expiresAt) {
     const expiresIn = new Date(entry.expiresAt).getTime() - Date.now();
-    if (expiresIn > 0) {
-      ttl = Math.min(ttl, Math.floor(expiresIn / 1000));
-    } else {
-      // 已过期，缓存 5 分钟用于显示过期页面
-      ttl = 300;
+    if (expiresIn <= 0) {
+      // 已过期——不写入缓存，交由重定向路径从 D1 读取最新状态
+      return null;
     }
-  }
-
-  // 如果有点击限制，根据剩余点击数调整
-  // 注意：KVCacheEntry 不包含当前点击数，需要从 D1 获取
-  if (entry.maxClicks) {
-    // 接近限制，缓存时间缩短
-    ttl = Math.min(ttl, 60 * 30); // 最多 30 分钟
+    // 不超过过期时间，且满足 KV 最小 TTL 要求（60s）
+    ttl = Math.min(ttl, Math.max(KV_TTL_MIN, Math.floor(expiresIn / 1000)));
   }
 
   return ttl;
@@ -53,13 +44,21 @@ export async function getCachedLink(
   }
 }
 
-export async function setCachedLink(env: Env, domain: string, entry: KVCacheEntry): Promise<void> {
+/**
+ * 写入 KV 缓存。
+ * 返回 true 表示写入成功，false 表示跳过（链接已过期）或写入失败。
+ * 缓存错误永远不向外抛出，不影响重定向路径。
+ */
+export async function setCachedLink(env: Env, domain: string, entry: KVCacheEntry): Promise<boolean> {
   try {
+    const ttl = calculateTTL(entry);
+    if (ttl === null) return false; // 已过期，不写入缓存
     const key = kvKey(domain, entry.slug);
-    const ttl = calculateSmartTTL(entry);
     await env.KV.put(key, JSON.stringify(entry), { expirationTtl: ttl });
+    return true;
   } catch {
     // Cache errors must not affect redirects
+    return false;
   }
 }
 

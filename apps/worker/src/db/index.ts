@@ -954,3 +954,63 @@ export function parseApiTokenScopes(value: string): ApiTokenScope[] {
     );
   return scopes.length > 0 ? [...new Set(scopes)] : ['read'];
 }
+
+// ---------------------------------------------------------------------------
+// Cache warmup helpers — 供 cache/warmup.ts 调用，保持 SQL 集中在此文件
+// ---------------------------------------------------------------------------
+
+/** warmup 所需的链接字段 */
+export interface WarmupLink {
+  id: string;
+  domain: string | null;
+  slug: string;
+  long_url: string;
+  redirect_type: number;
+  status: string;
+  expires_at: string | null;
+  max_clicks: number | null;
+  warning_enabled: number;
+}
+
+/**
+ * 查询热门活跃链接，用于 KV 缓存预热
+ * @param minClicks 最小点击数阈值（默认 50）
+ * @param limit 最多返回条数（默认 1000）
+ */
+export async function getPopularLinksForWarmup(
+  env: Env,
+  minClicks = 50,
+  limit = 1000
+): Promise<WarmupLink[]> {
+  const result = await env.DB.prepare(`
+    SELECT id, domain, slug, long_url, redirect_type, status,
+           expires_at, max_clicks, warning_enabled
+    FROM links
+    WHERE status = 'active'
+      AND (expires_at IS NULL OR expires_at > datetime('now'))
+      AND (max_clicks IS NULL OR clicks < max_clicks)
+      AND clicks > ?
+    ORDER BY clicks DESC
+    LIMIT ?
+  `).bind(minClicks, limit).all();
+  return (result.results ?? []) as WarmupLink[];
+}
+
+/**
+ * 游标分页查询所有链接的 domain/slug，用于全量清缓存
+ * 按 slug 排序以支持稳定游标翻页。
+ */
+export async function listDistinctLinkDomainSlugs(
+  env: Env,
+  cursor: string | null,
+  limit: number
+): Promise<{ domain: string | null; slug: string }[]> {
+  const result = cursor
+    ? await env.DB.prepare(
+        `SELECT DISTINCT domain, slug FROM links WHERE slug > ? ORDER BY slug LIMIT ?`
+      ).bind(cursor, limit).all()
+    : await env.DB.prepare(
+        `SELECT DISTINCT domain, slug FROM links ORDER BY slug LIMIT ?`
+      ).bind(limit).all();
+  return (result.results ?? []) as { domain: string | null; slug: string }[];
+}
