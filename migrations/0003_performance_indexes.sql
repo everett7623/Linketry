@@ -16,18 +16,18 @@ WHERE status = 'active';
 
 -- 3. 访问统计查询优化
 -- 用于单链接分析和时间范围查询
-CREATE INDEX IF NOT EXISTS idx_visits_link_timestamp
-ON visits(link_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_visits_link_created
+ON visits(link_id, created_at DESC);
 
 -- 4. 多维度分析优化
 -- 用于按国家、设备等维度的分析查询
 CREATE INDEX IF NOT EXISTS idx_visits_country_device
-ON visits(link_id, country, device, timestamp DESC);
+ON visits(link_id, country, device_type, created_at DESC);
 
 -- 5. 时间范围分析优化
 -- 用于 Analytics 仪表板的时间范围过滤
-CREATE INDEX IF NOT EXISTS idx_visits_timestamp_link
-ON visits(timestamp DESC, link_id);
+CREATE INDEX IF NOT EXISTS idx_visits_created_link
+ON visits(created_at DESC, link_id);
 
 -- 6. 域名管理优化
 -- 用于按域名列出链接
@@ -49,8 +49,8 @@ AND status = 'active';
 
 -- 9. 审计日志查询优化
 -- 用于审计日志页面的时间范围查询
-CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp
-ON audit_logs(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created
+ON audit_logs(created_at DESC);
 
 -- 10. 导入任务状态查询优化
 -- 用于导入任务列表和状态轮询
