@@ -15,22 +15,13 @@ function kvKey(domain: string, slug: string): string {
  * 根据点击量动态调整缓存时间
  */
 function calculateSmartTTL(entry: KVCacheEntry): number {
-  const clickCount = entry.click_count || 0;
-
-  // 1. 根据点击量确定基础 TTL
+  // KVCacheEntry 不包含 clicks，这里使用默认策略
+  // 实际的点击数应该从 D1 查询后决定 TTL
   let ttl = KV_TTL_DEFAULT;
 
-  if (clickCount > 1000) {
-    ttl = KV_TTL_HOT; // 热门链接：7 天
-  } else if (clickCount > 100) {
-    ttl = KV_TTL_WARM; // 常用链接：3 天
-  } else if (clickCount < 10) {
-    ttl = KV_TTL_COLD; // 冷门链接：1 小时
-  }
-
-  // 2. 如果有过期时间，不超过过期时间
-  if (entry.expires_at) {
-    const expiresIn = new Date(entry.expires_at).getTime() - Date.now();
+  // 如果有过期时间，不超过过期时间
+  if (entry.expiresAt) {
+    const expiresIn = new Date(entry.expiresAt).getTime() - Date.now();
     if (expiresIn > 0) {
       ttl = Math.min(ttl, Math.floor(expiresIn / 1000));
     } else {
@@ -39,13 +30,11 @@ function calculateSmartTTL(entry: KVCacheEntry): number {
     }
   }
 
-  // 3. 如果有点击限制，根据剩余点击数调整
-  if (entry.max_clicks && entry.click_count) {
-    const remaining = entry.max_clicks - entry.click_count;
-    if (remaining < 10) {
-      // 接近限制，缓存时间缩短
-      ttl = Math.min(ttl, 60 * 30); // 最多 30 分钟
-    }
+  // 如果有点击限制，根据剩余点击数调整
+  // 注意：KVCacheEntry 不包含当前点击数，需要从 D1 获取
+  if (entry.maxClicks) {
+    // 接近限制，缓存时间缩短
+    ttl = Math.min(ttl, 60 * 30); // 最多 30 分钟
   }
 
   return ttl;

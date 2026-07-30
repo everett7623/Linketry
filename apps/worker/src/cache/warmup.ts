@@ -10,9 +10,8 @@ export async function warmupPopularLinks(env: Env): Promise<number> {
     // 查询热门活跃链接
     const result = await env.DB.prepare(`
       SELECT
-        domain, slug, long_url, redirect_type, status,
-        expires_at, max_clicks, clicks, password_hash,
-        warning_enabled
+        id, domain, slug, long_url, redirect_type, status,
+        expires_at, max_clicks, warning_enabled
       FROM links
       WHERE status = 'active'
         AND (expires_at IS NULL OR expires_at > datetime('now'))
@@ -37,15 +36,15 @@ export async function warmupPopularLinks(env: Env): Promise<number> {
         batch.map(async (link: any) => {
           try {
             await setCachedLink(env, link.domain, {
+              id: link.id,
               slug: link.slug,
-              long_url: link.long_url,
-              redirect_type: link.redirect_type as 301 | 302,
+              domain: link.domain,
+              longUrl: link.long_url,
+              redirectType: link.redirect_type as 301 | 302,
               status: link.status,
-              expires_at: link.expires_at,
-              max_clicks: link.max_clicks,
-              click_count: link.clicks,
-              password_hash: link.password_hash,
-              warning_enabled: link.warning_enabled
+              expiresAt: link.expires_at,
+              maxClicks: link.max_clicks,
+              warningEnabled: !!link.warning_enabled
             });
             cached++;
           } catch (err) {
