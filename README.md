@@ -114,7 +114,7 @@ Pull requests run a read-only GitHub Actions validation matrix before merge. It 
 
 ### Prerequisites
 
-- Node.js 24.x
+- Node.js 24.x (推荐) 或 >=20
 - npm 10+
 - Wrangler 4, installed locally by `npm install`
 - Cloudflare account

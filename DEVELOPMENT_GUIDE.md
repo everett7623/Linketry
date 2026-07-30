@@ -8,9 +8,9 @@ This guide covers local setup, architecture decisions, and conventions for contr
 
 | Tool       | Version    |
 |------------|------------|
-| Node.js    | 20+        |
+| Node.js    | 24 (推荐) 或 >=20 |
 | npm        | 10+        |
-| Wrangler   | 3+         |
+| Wrangler   | 4+         |
 | TypeScript | 5.4+       |
 
 Install Wrangler globally:

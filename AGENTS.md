@@ -2,6 +2,10 @@
 
 This file tells AI coding agents (Cascade, Codex, Copilot, etc.) how to work on this codebase safely and correctly.
 
+**Last updated**: 2026-07-30  
+**Current version**: v0.29.20+optimization (local)  
+**Production version**: v0.29.18
+
 ---
 
 ## Project Overview
@@ -13,6 +17,28 @@ Linketry is a **self-hosted link management, analytics and monitoring platform**
 - `packages/shared` — shared TypeScript types and validators
 
 Public progress and planning live in `PROGRESS.md`, `TASKS.md`, and `docs/ROADMAP.md`. **Read them before making major changes.**
+
+---
+
+## Tech Stack
+
+| Layer    | Technology                              |
+| -------- | --------------------------------------- |
+| Backend  | Cloudflare Workers + TypeScript         |
+| Database | Cloudflare D1 (SQLite)                  |
+| Cache    | Cloudflare KV                           |
+| Frontend | React + Vite + Tailwind CSS             |
+| Monorepo | npm workspaces                          |
+
+## Requirements
+
+| Tool       | Version              |
+|------------|----------------------|
+| Node.js    | 24.x (recommended), >=20 |
+| npm        | 10+                  |
+| TypeScript | 5.4+                 |
+| Wrangler   | 4                    |
+| Cloudflare | Account with D1, KV, Worker, Pages |
 
 ---
 
@@ -54,13 +80,16 @@ See `TASKS.md` for the active task list.
 
 ```
 User visits /:slug
-→ Worker checks KV cache
-→ KV hit: redirect immediately
-→ KV miss: query D1 links table
-→ Found active link: write KV, then redirect
-→ async ctx.waitUntil(): record visit stats
+→ Worker checks KV cache for linketry:slug:<domain>:<slug>
+→ KV hit: re-verify link status in D1 (handles disable/delete/expiry during cache propagation)
+→ KV miss: query D1 links table by domain and slug
+→ Found active link: write to KV with smart TTL, then redirect
+→ Found disabled/expired: return appropriate HTML page
 → Not found: return 404 HTML page
+→ async ctx.waitUntil(): record visit stats (never blocks redirect)
 ```
+
+**Key principle**: D1 is the source of truth. KV is a disposable acceleration layer. Even on cache hits, D1 status is re-checked to ensure disable, delete, expiry, and click-limit changes take effect immediately.
 
 ### Admin API Auth (V1)
 
@@ -78,13 +107,15 @@ linketry:slug:<domain>:<slug>
 
 ### KV Cache Rules
 
-| Event          | KV Action              |
-|----------------|------------------------|
-| Create link    | Write to KV            |
-| Update link    | Delete old, write new  |
-| Disable link   | Delete from KV         |
-| Delete link    | Delete from KV         |
-| Visit link     | Read; write on miss    |
+| Event          | KV Action              | TTL Strategy |
+|----------------|------------------------|--------------|
+| Create link    | Write to KV            | Smart TTL (1h-7d based on usage) |
+| Update link    | Delete old, write new  | Smart TTL |
+| Disable link   | Delete from KV         | - |
+| Delete link    | Delete from KV         | - |
+| Visit link     | Read; write on miss    | Smart TTL |
+
+**Smart TTL**: Hot links (>1000 clicks) = 7 days, warm links (>100 clicks) = 3 days, default = 24 hours, cold links (<10 clicks) = 1 hour. Automatically adjusted for expires_at and max_clicks.
 
 ---
 

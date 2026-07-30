@@ -2,7 +2,29 @@
 
 This document describes the current runtime architecture. It is derived from the deployed Worker, Admin route tree, D1 migrations, and maintained operational documents. Historical plans are useful for product intent, but they do not override this document or the code.
 
+**Last updated**: 2026-07-30  
+**Current version**: v0.29.20+optimization (local)  
+**Production version**: v0.29.18
+
+---
+
+## Golden Rules
+
+⚠️ **All development must follow the [Golden Rules in AGENTS.md](../AGENTS.md#golden-rules)**.
+
+These 6 immutable rules govern all changes:
+1. Redirect stability is #1 priority
+2. Stats failures must not break redirects  
+3. Only implement the requested version
+4. KV is cache only, D1 is source of truth
+5. Never silently overwrite existing slugs
+6. Never commit secrets
+
+---
+
 ## Design Priorities
+
+These architectural principles expand on the Golden Rules and guide system design:
 
 1. Redirect stability comes before analytics, automation, and presentation.
 2. D1 is the source of truth. KV is a disposable acceleration layer.
