@@ -52,10 +52,6 @@ export default defineConfig({
             'react-dom',
             'react-router-dom'
           ],
-          // 图表库
-          'vendor-charts': [
-            'recharts'
-          ],
           // UI 组件库
           'vendor-ui': [
             'lucide-react',
