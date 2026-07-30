@@ -1,10 +1,11 @@
-import React, { lazy } from 'react';
+import React, { lazy, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
 import { PageLoading } from './components/ui/PageLoading';
 
+// 懒加载所有路由组件
 const Overview = lazy(() =>
   import('./pages/Overview').then((module) => ({ default: module.Overview }))
 );
@@ -55,8 +56,36 @@ const Operations = lazy(() =>
   import('./pages/Operations').then((module) => ({ default: module.Operations }))
 );
 
+/**
+ * 预加载关键路由
+ * 用户认证后，在空闲时预加载常用页面
+ */
+function usePreloadRoutes(authenticated: boolean) {
+  useEffect(() => {
+    if (!authenticated) return;
+
+    // 延迟 1 秒后开始预加载，避免阻塞初始渲染
+    const timer = setTimeout(() => {
+      // 预加载最常用的页面
+      Promise.all([
+        import('./pages/Overview'),
+        import('./pages/Links'),
+        import('./pages/Analytics')
+      ]).catch(err => {
+        console.warn('Route preload failed:', err);
+      });
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [authenticated]);
+}
+
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { authenticated, loading } = useAuth();
+
+  // 预加载路由
+  usePreloadRoutes(authenticated);
+
   if (loading) {
     return <PageLoading fullScreen />;
   }

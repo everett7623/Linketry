@@ -41,5 +41,55 @@ export default defineConfig({
   build: {
     outDir: basePath === '/admin/' ? 'dist/admin' : 'dist',
     sourcemap: true,
+    // 代码分割优化
+    rollupOptions: {
+      output: {
+        // 手动分包策略
+        manualChunks: {
+          // React 核心库
+          'vendor-react': [
+            'react',
+            'react-dom',
+            'react-router-dom'
+          ],
+          // 图表库
+          'vendor-charts': [
+            'recharts'
+          ],
+          // UI 组件库
+          'vendor-ui': [
+            'lucide-react',
+            '@headlessui/react'
+          ],
+          // 工具库
+          'vendor-utils': [
+            'date-fns',
+            'qrcode'
+          ]
+        },
+        // 优化文件名
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
+      }
+    },
+    // 压缩优化
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        // 生产环境移除 console
+        drop_console: process.env.NODE_ENV === 'production',
+        drop_debugger: true,
+        // 移除无用代码
+        pure_funcs: ['console.log', 'console.debug', 'console.info']
+      },
+      format: {
+        // 移除注释
+        comments: false
+      }
+    },
+    // 性能优化
+    chunkSizeWarningLimit: 1000, // 1MB 警告阈值
+    reportCompressedSize: true
   },
 });
