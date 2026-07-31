@@ -5,6 +5,21 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed — Performance Optimization And Security Hardening (v0.30.0)
+
+- [x] 新增 D1 性能索引（`migrations/0003_performance_indexes.sql`）
+- [x] 实现 KV 缓存过期感知 TTL 和键格式安全校验（`apps/worker/src/cache/index.ts`）
+- [x] 添加缓存预热功能（`apps/worker/src/cache/warmup.ts`）
+- [x] 新增性能监控系统（`apps/worker/src/utils/metrics.ts`）
+- [x] 实现批量操作工具（`apps/worker/src/db/batch.ts`）
+- [x] Admin 路由预加载 + Vite 代码分割（`apps/admin/src/App.tsx`，`vite.config.ts`）
+- [x] 修复 deploy.sh 命令注入漏洞；修复 vite.config 依赖配置问题
+- [x] 新增 `docs/QUICK_START.md`（小白三步一键部署指南）
+- [x] 新增 `docs/TROUBLESHOOTING.md`、`docs/CONTRIBUTING.md`、`docs/PERFORMANCE.md`
+- [x] 版本化为 v0.30.0，同步所有版本文件
+
+---
+
 ## ✅ Completed - Upgrade Completion Feedback Deduplication (v0.29.20)
 
 - [x] Keep completed upgrade status in the existing sidebar version center

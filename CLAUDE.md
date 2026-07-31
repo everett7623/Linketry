@@ -39,14 +39,14 @@ Linketry 是自托管短链接管理、访问分析与健康监控平台，运�
 
 | 技术层 | 技术栈 |
 |--------|--------|
-| Backend | Cloudflare Workers + TypeScript |
+| Backend | Cloudflare Workers + TypeScript + **Hono** |
 | Database | Cloudflare D1 (SQLite) |
 | Cache | Cloudflare KV |
 | Frontend | React + Vite + Tailwind CSS |
 | Monorepo | npm workspaces |
 
 **技术约束**：
-- **Node.js**: 24.x（推荐），>=20
+- **Node.js**: 24.x（`>=24 <25`，不支持其他版本）
 - **npm**: 10+
 - **TypeScript**: 5.4+
 - **Wrangler**: 4
@@ -117,6 +117,8 @@ GET /:slug
 - KV 命中后仍需重新验证 D1 状态（处理禁用/删除/过期/点击限制）
 - 所有分析写入必须包在 `ctx.waitUntil()` 中
 - 访问统计失败不能传播到重定向响应
+- `POST /:slug` 同样处理重定向（密码保护链接提交）
+- **保留路径**（不会被当做 slug）：`admin`, `api`, `health`, `login`, `settings`, `assets`, `static`, `favicon.ico`, `robots.txt`, `sitemap.xml`
 
 ### KV 缓存键格式
 
@@ -219,7 +221,7 @@ npm run build --workspace=apps/admin
 ### 测试
 
 ```bash
-# Admin 测试
+# Admin 测试（单元测试 via Node test runner + Playwright smoke/无障碍测试）
 npm run test:admin
 
 # Site 测试
@@ -246,7 +248,10 @@ npm run build --workspace=apps/admin
 # 构建 Site
 npm run build:site
 
-# 类型检查所有包
+# 类型检查（Worker）
+npm run type-check --workspace=apps/worker
+
+# 一键构建 Cloudflare 部署包（非类型检查）
 npm run build
 ```
 
@@ -292,7 +297,7 @@ npm run deploy:preflight -- --track fresh --check-cloudflare
 #### 缓存 (`apps/worker/src/cache/index.ts`)
 - 所有 KV 读写在此文件
 - 函数：`getCachedLink`, `setCachedLink`, `deleteCachedLink`
-- 默认 TTL：86400 秒（24 小时）
+- Smart TTL：热门（>1000 点击）= 7天，活跃（>100）= 3天，默认 = 24小时，冷门（<10）= 1小时；`expires_at` 和 `max_clicks` 会进一步压缩 TTL
 
 #### 响应 (`apps/worker/src/utils/response.ts`)
 - `jsonOk(data)` — `{ success: true, data }`
@@ -335,7 +340,7 @@ Token 存储在 `localStorage` 的 `linketry_token` 键。
 
 ## 导入系统
 
-导入器在 `apps/worker/src/importers/`，实现 `ImportAdapter` 接口（来自 `packages/shared`）：
+导入器在 `apps/worker/src/importers/`，实现 `ImportAdapter` 接口（来自 `@linketry/shared`，源文件 `packages/shared/src/types/index.ts` 和 `packages/shared/src/validators/index.ts`）：
 
 ```ts
 interface ImportAdapter {
@@ -368,7 +373,7 @@ interface ImportAdapter {
 
 1. 在 `apps/worker/src/db/index.ts` 添加 DB 函数
 2. 创建/更新 `apps/worker/src/routes/<resource>.ts`
-3. 在 `apps/worker/src/index.ts` 注册路由
+3. 在 `apps/worker/src/routes/api.ts` 的 `registerAdminApiRoutes(app)` 中注册路由（`index.ts` 只调用此函数，不直接注册路由）
 4. 更新 `apps/admin/src/api/<resource>.ts` API 客户端
 
 ### 添加新的 Admin 页面
@@ -413,6 +418,11 @@ interface ImportAdapter {
 - `LINKETRY_VERSION` — 当前版本
 - `LINKETRY_DAILY_CRON` — 每日备份 Cron（可选）
 - `LINKETRY_HEALTH_CRON` — 健康检查 Cron（可选）
+- `LINKETRY_UPDATE_REPOSITORY` — GitHub owner/repo，用于版本检查（如 `user/linketry`）
+- `LINKETRY_UPDATE_BRANCH` — 版本检查分支（需与 Admin `VITE_LINKETRY_UPDATE_BRANCH` 一致）
+
+### Worker Secrets（可选）
+- `LINKETRY_GITHUB_UPDATE_TOKEN` — 应用内升级令牌（私有仓库时需要）
 
 ### Admin Build Variables
 - `VITE_LINKETRY_API_URL` — Worker API 基础 URL（Admin 和 Worker 分离域时必需）
@@ -423,7 +433,7 @@ interface ImportAdapter {
 
 ## 技术约束
 
-- **Node.js**: 24.x（推荐），>=20
+- **Node.js**: 24.x（`>=24 <25`，不支持其他版本）
 - **npm**: 10+
 - **TypeScript**: 5.4+
 - **Wrangler**: 4

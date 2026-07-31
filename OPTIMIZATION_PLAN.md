@@ -776,24 +776,25 @@ export async function rateLimit(
 
 ## 📅 实施计划
 
-### Phase 1: 文档更新（1-2 天）
-- [ ] 更新 Node.js 版本要求
-- [ ] 清理 KNOWN_ISSUES.md
-- [ ] 创建 TROUBLESHOOTING.md
-- [ ] 创建 CONTRIBUTING.md
-- [ ] 创建 PERFORMANCE.md
+### Phase 1: 文档更新 ✅ 已完成（v0.30.0）
+- [x] 更新 Node.js 版本要求（在 v0.29.19 中完成）
+- [ ] 清理 KNOWN_ISSUES.md（已记录，延迟处理）
+- [x] 创建 TROUBLESHOOTING.md → `docs/TROUBLESHOOTING.md` ✅
+- [x] 创建 CONTRIBUTING.md → `docs/CONTRIBUTING.md` ✅
+- [x] 创建 PERFORMANCE.md → `docs/PERFORMANCE.md` ✅
 
-### Phase 2: 代码优化（3-5 天）
-- [ ] TypeScript 严格模式
-- [ ] 错误处理标准化
-- [ ] 性能优化实施
-- [ ] 安全加固
+### Phase 2: 代码优化 🟡 部分完成（v0.30.0）
+- [ ] TypeScript 严格模式（待完成）
+- [ ] 错误处理标准化（待完成）
+- [x] 性能优化实施 → D1 索引（0003）、KV 过期感知 TTL、缓存预热、性能监控、批量操作 ✅
+- [ ] 安全加固 Rate Limiting（待完成）
 
-### Phase 3: UI/UX 优化（2-3 天）
-- [ ] 加载状态改进
-- [ ] 空状态优化
-- [ ] 响应式检查
-- [ ] 无障碍优化
+### Phase 3: UI/UX 优化 🟡 部分完成（v0.30.0）
+- [ ] 加载状态改进（待完成）
+- [ ] 空状态优化（待完成）
+- [ ] 响应式检查（待完成）
+- [ ] 无障碍优化（待完成）
+- [x] Admin 路由预加载 + Vite 代码分割优化 ✅
 
 ### Phase 4: 测试增强（2-3 天）
 - [ ] E2E 测试补充

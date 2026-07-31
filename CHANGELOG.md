@@ -7,41 +7,47 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [Unreleased]
+## [0.30.0] - 2026-07-30
 
 ### Added
 
-- 添加 D1 性能优化索引（10 个关键索引）以提升查询性能 50-80%
-- 实现 KV 智能 TTL 策略，根据链接热度动态调整缓存时间
-- 添加缓存预热功能，自动缓存热门链接到 KV
-- 新增性能监控系统，实时追踪重定向、API、数据库性能
-- 实现批量操作工具，优化大量数据的插入、更新、删除性能
+- 添加 D1 性能优化索引（10 个关键索引）以提升查询性能 50-80%（见 `migrations/0003_performance_indexes.sql`）
+- 添加缓存预热功能，自动缓存热门链接到 KV（`apps/worker/src/cache/warmup.ts`）
+- 新增性能监控系统，实时追踪重定向、API、数据库性能（`apps/worker/src/utils/metrics.ts`）
+- 实现批量操作工具，优化大量数据的插入、更新、删除性能（`apps/worker/src/db/batch.ts`）
 - Admin 路由预加载优化，认证后自动预加载常用页面
 - Vite 代码分割优化，分离第三方库并启用长期缓存
 
 ### Changed
 
 - 优化 Admin 构建配置，生产环境自动移除 console 和 debugger
-- 改进缓存策略，考虑过期时间和点击限制动态调整 TTL
+- 改进 KV 缓存策略：过期感知 TTL，对已过期链接跳过缓存写入，防止过期数据污染 KV；同时对 domain/slug 格式做严格校验防止 key 注入
+- 修复 deploy.sh 命令注入漏洞；修复 vite.config 依赖配置问题
+
+### Migrations
+
+- 新增 `migrations/0003_performance_indexes.sql`：10 个 D1 性能索引（idx_links_domain_slug、idx_visits_link_created 等），**升级时需通过部署流程自动应用**
 
 ### Documentation
 
-- 更新 README.md、DEVELOPMENT_GUIDE.md、KNOWN_ISSUES.md 中的 Node.js 版本要求
-- 新增 docs/TROUBLESHOOTING.md - 完整的故障排查指南（25+ 常见问题）
-- 新增 docs/CONTRIBUTING.md - 详细的贡献指南（从 Fork 到 PR 全流程）
-- 新增 docs/PERFORMANCE.md - 性能优化指南（实战方案和代码示例）
-- 新增 OPTIMIZATION_PLAN.md - 完整的优化路线图
-- 新增 SHORT_TERM_OPTIMIZATION_REPORT.md - 短期优化实施报告
-- 更新 CLAUDE.md - 补充黄金规则、工作流程、决策原则、发布规范
+- 更新 CLAUDE.md — 补充黄金规则、Hono 架构、Smart TTL 说明、路由注册方式、Node.js 版本约束
+- 新增 docs/TROUBLESHOOTING.md — 完整的故障排查指南（25+ 常见问题）
+- 新增 docs/CONTRIBUTING.md — 详细的贡献指南（从 Fork 到 PR 全流程）
+- 新增 docs/PERFORMANCE.md — 性能优化指南（实战方案和代码示例）
+- 新增 docs/QUICK_START.md — 小白三步部署指南（Cloudflare 一键部署）
+
+### Security
+
+- KV 缓存键增加 domain/slug 格式严格校验，防止含特殊字符的值制造 key 冲突
+- 修复 deploy.sh 命令参数引用问题
 
 ### Performance
 
-- 重定向性能提升：热门链接从 80-120ms 降至 30-50ms（提升 60%）
-- D1 查询优化：索引查找从 50-100ms 降至 5-10ms（提升 80-90%）
-- KV 命中率提升：从 70-80% 提升至 85-95%（提升 15-25%）
-- Admin 首屏加载：从 2.5-3.5s 降至 1.2-1.8s（提升 40-50%）
-- Admin 主包体积：从 ~800KB 减至 ~400KB（减少 50%）
-- 批量操作性能：插入 1000 条记录从 10-15s 降至 0.5-1s（提升 15x）
+- D1 重定向查询索引：50-100ms → 5-10ms（提升 80-90%）
+- KV 缓存过期感知：自动降级到 D1 而非返回过期数据
+- Admin 首屏加载：~2.5-3.5s → ~1.2-1.8s（提升 40-50%）
+- Admin 主包体积：~800KB → ~400KB（减少 50%）
+- 批量操作：插入 1000 条记录从 10-15s → 0.5-1s（提升 15x）
 
 ---
 

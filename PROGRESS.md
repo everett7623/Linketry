@@ -10,23 +10,23 @@ Last updated: 2026-07-30
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | 🟡 0.29.20+optimization prepared | Performance optimizations added: D1 indexes, smart KV caching, batch operations, metrics; production remains on v0.29.18                                                                                   |
-| Admin frontend             | 🟡 0.29.20+optimization prepared | Route preloading, code splitting, build optimizations added on top of v0.29.19 dependency hardening; production remains on v0.29.18                                                        |
-| Database schema            | 🟡 Migration ready           | Performance indexes migration (0003) prepared; V6 analytics migration applied in production                                                                                                                                 |
-| Documentation              | ✅ 0.29.20+optimization complete   | Version requirements unified, troubleshooting/contributing/performance guides added, all documents synchronized                                                                                           |
-| Deployment                 | 🟡 Local optimization    | Node 24 pinned, Wrangler 4.115.0, performance optimizations ready; no Cloudflare resource or live deployment changed                                                                                        |
-| End-to-end test            | ✅ Local              | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass; all builds, type-check, clean install, and Wrangler dry-run pass             |
+| Worker backend             | ✅ 0.30.0             | Performance optimizations shipped: D1 indexes, expiry-aware KV caching, batch operations, metrics; production on v0.29.18 pending upgrade                                                         |
+| Admin frontend             | ✅ 0.30.0             | Route preloading, code splitting, build optimizations shipped on top of v0.29.19 dependency hardening; production on v0.29.18 pending upgrade                                                      |
+| Database schema            | ✅ Migration ready    | Performance indexes migration (0003) prepared and versioned; V6 analytics migration applied in production                                                                                           |
+| Documentation              | ✅ 0.30.0 complete    | Version requirements unified, troubleshooting/contributing/performance/quick-start guides added, CLAUDE.md updated                                                                                   |
+| Deployment                 | 🟡 Pending upgrade    | Node 24 pinned, Wrangler 4.115.0, performance optimizations versioned as 0.30.0; GitHub Variables need updating before deploy                                                                       |
+| End-to-end test            | ✅ Local              | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass; all builds, type-check, clean install, and Wrangler dry-run pass      |
 | Known issues               | ✅ Tracked            | All known issues resolved or documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | 🟡 0.29.20+optimization prepared   | Local worktree contains release-hardening, upgrade-feedback patches, and performance optimizations; production remains on v0.29.18                                                                                   |
-| Repository update target   | 🟡 0.29.20+optimization local      | Performance optimizations (indexes, smart cache, monitoring, batch ops, Admin optimizations) ready for deployment                                                                                           |
+| Current version            | ✅ 0.30.0 prepared    | Local worktree versioned at 0.30.0; production remains on v0.29.18 pending controlled upgrade                                                                                                       |
+| Repository update target   | ✅ 0.30.0 local       | Performance optimizations (indexes, expiry-aware cache, monitoring, batch ops, Admin optimizations) ready for deployment                                                                            |
 | Next planned work          | 🟡 Pre-1.0 validation | Deploy performance optimizations, fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, private vulnerability reporting |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
-| Performance optimization   | ✅ Short-term complete | D1 indexes, smart KV caching, Admin code splitting, monitoring system, batch operations implemented; 50-90% performance improvements expected |
+| Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system, batch operations shipped in 0.30.0 |
 
 ---
 
-## Linketry 0.29.20+optimization Performance Enhancements
+## Linketry 0.30.0 Performance Enhancements
 
 | Area                    | Status       | Notes                                                                                                                  |
 | ----------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
@@ -36,7 +36,7 @@ Last updated: 2026-07-30
 | Performance monitoring  | ✅ Complete | Metrics collection, performance timers, automatic alerts for redirect/API/DB operations |
 | Batch operations        | ✅ Complete | Batch insert/update/delete tools; 10-20x performance improvement for bulk operations |
 | Documentation           | ✅ Complete | Troubleshooting, contributing, performance guides added; all documents unified |
-| Release state           | 🟡 Local      | Ready for testing and production deployment |
+| Release state           | ✅ 0.30.0    | Versioned; pending production deployment (GitHub Variables update required) |
 
 ---
 
