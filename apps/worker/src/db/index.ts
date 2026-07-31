@@ -993,7 +993,7 @@ export async function getPopularLinksForWarmup(
     ORDER BY clicks DESC
     LIMIT ?
   `).bind(minClicks, limit).all();
-  return (result.results ?? []) as WarmupLink[];
+  return (result.results ?? []) as unknown as WarmupLink[];
 }
 
 /**
