@@ -21,11 +21,17 @@ export async function warmupPopularLinks(env: Env): Promise<number> {
 
     if (links.length === 0) return 0;
 
+    const domainLinks = links.filter(l => l.domain !== null);
+    const domainlessCount = links.length - domainLinks.length;
+    if (domainlessCount > 0) {
+      console.log(`Skipped ${domainlessCount} domain-less links (cached on first redirect)`);
+    }
+
     let cached = 0;
 
     // 并行分批写入，每批 WARMUP_BATCH_SIZE 个
-    for (let i = 0; i < links.length; i += WARMUP_BATCH_SIZE) {
-      const batch = links.slice(i, i + WARMUP_BATCH_SIZE);
+    for (let i = 0; i < domainLinks.length; i += WARMUP_BATCH_SIZE) {
+      const batch = domainLinks.slice(i, i + WARMUP_BATCH_SIZE);
 
       const results = await Promise.all(
         batch.map(link =>
@@ -48,7 +54,7 @@ export async function warmupPopularLinks(env: Env): Promise<number> {
       cached += results.filter(Boolean).length;
     }
 
-    console.log(`Warmed up ${cached}/${links.length} popular links`);
+    console.log(`Warmed up ${cached}/${domainLinks.length} popular links`);
     return cached;
   } catch (err) {
     console.error('Cache warmup failed:', err);
@@ -63,29 +69,31 @@ export async function warmupPopularLinks(env: Env): Promise<number> {
  * 使用游标分页避免一次性加载全量数据，并行批量删除提升效率。
  */
 export async function clearAllCache(env: Env): Promise<void> {
-  let cursor: string | null = null;
+  let offset = 0;
   let totalCleared = 0;
 
   try {
     while (true) {
       // 分页读取，避免一次性加载所有链接占满 Worker 内存
-      const rows = await listDistinctLinkDomainSlugs(env, cursor, CLEAR_PAGE_SIZE);
+      const rows = await listDistinctLinkDomainSlugs(env, offset, CLEAR_PAGE_SIZE);
       if (rows.length === 0) break;
 
       // 并行批量删除（通过 cache/index.ts 的 deleteCachedLink，保持 KV 操作集中）
       for (let i = 0; i < rows.length; i += CLEAR_PARALLEL_SIZE) {
         const batch = rows.slice(i, i + CLEAR_PARALLEL_SIZE);
         await Promise.all(
-          batch.map(({ domain, slug }) => deleteCachedLink(env, domain ?? '', slug))
+          batch.map(({ domain, slug }) =>
+            domain !== null ? deleteCachedLink(env, domain, slug) : Promise.resolve()
+          )
         );
-        totalCleared += batch.length;
+        totalCleared += batch.filter(r => r.domain !== null).length;
       }
 
       // 本页不足一页，已到末尾
       if (rows.length < CLEAR_PAGE_SIZE) break;
 
-      // 推进游标到本页最后一条 slug
-      cursor = rows[rows.length - 1].slug;
+      // 推进偏移量
+      offset += rows.length;
     }
 
     console.log(`Cleared cache for ${totalCleared} links`);

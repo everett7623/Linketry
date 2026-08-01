@@ -1002,15 +1002,11 @@ export async function getPopularLinksForWarmup(
  */
 export async function listDistinctLinkDomainSlugs(
   env: Env,
-  cursor: string | null,
+  offset: number,
   limit: number
 ): Promise<{ domain: string | null; slug: string }[]> {
-  const result = cursor
-    ? await env.DB.prepare(
-        `SELECT DISTINCT domain, slug FROM links WHERE slug > ? ORDER BY slug LIMIT ?`
-      ).bind(cursor, limit).all()
-    : await env.DB.prepare(
-        `SELECT DISTINCT domain, slug FROM links ORDER BY slug LIMIT ?`
-      ).bind(limit).all();
+  const result = await env.DB.prepare(
+    `SELECT DISTINCT domain, slug FROM links ORDER BY slug, COALESCE(domain, '') LIMIT ? OFFSET ?`
+  ).bind(limit, offset).all();
   return (result.results ?? []) as { domain: string | null; slug: string }[];
 }

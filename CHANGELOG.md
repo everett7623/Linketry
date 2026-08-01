@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.30.1] - 2026-08-01
+
+### Fixed
+
+- `cache/warmup.ts`: 预热前过滤 null-domain 链接，避免 `setCachedLink` 因空字符串域名校验失败而静默跳过
+- `cache/warmup.ts`: `clearAllCache` 改用 OFFSET 翻页并跳过 null-domain 行，修复原 `domain ?? ''` 导致删除失败的问题
+- `db/index.ts`: `listDistinctLinkDomainSlugs` 改为 OFFSET 分页并补充 `ORDER BY slug, COALESCE(domain, '')`，修复页边界处同 slug 跨域行被漏掉的问题
+- `utils/metrics.ts`: `level: 'metrics'` 移到 spread 之后，防止调用方字段静默覆盖日志级别
+
+---
+
 ## [0.30.0] - 2026-07-30
 
 ### Added

@@ -49,8 +49,8 @@ const THRESHOLDS = {
  */
 export function recordMetrics(metrics: PerformanceMetrics): void {
   console.log(JSON.stringify({
+    ...metrics,
     level: 'metrics',
-    ...metrics,  // 调用方的所有字段（含 timestamp）在此处保留，不被覆盖
   }));
 }
 
