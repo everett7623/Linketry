@@ -61,7 +61,7 @@ test('dispatch uses only configured deployment targets and returns GitHub run de
   assert.equal(request.init.headers.Authorization, 'Bearer github-token');
   assert.deepEqual(JSON.parse(request.init.body), {
     ref: 'main',
-    inputs: { confirm_release: true },
+    inputs: { confirm_release: 'true' },
   });
   assert.deepEqual(result, {
     accepted: true,

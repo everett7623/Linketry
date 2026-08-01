@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.30.2] - 2026-08-01
+
+### Fixed
+
+- `updates/github.ts`: 修正 GitHub API 版本号（`2026-03-10` → `2022-11-28`），恢复一键升级 dispatch 和运行状态查询
+- `updates/github.ts`: `workflow_dispatch` inputs 值改为字符串 `'true'`（原为布尔值），符合 GitHub Actions 规范
+- `admin/index.html`: favicon 缓存破坏版本号同步至 v0.30.2
+
+---
+
 ## [0.30.1] - 2026-08-01
 
 ### Fixed

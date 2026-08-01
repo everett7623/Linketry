@@ -1,7 +1,7 @@
 import type { Env } from '../types';
 
 const GITHUB_API_URL = 'https://api.github.com';
-const GITHUB_API_VERSION = '2026-03-10';
+const GITHUB_API_VERSION = '2022-11-28';
 const DEPLOY_WORKFLOW = 'deploy.yml';
 const REQUEST_TIMEOUT_MS = 10_000;
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
@@ -99,7 +99,7 @@ export async function dispatchOnlineUpgrade(
       method: 'POST',
       body: JSON.stringify({
         ref: config.branch,
-        inputs: { confirm_release: true },
+        inputs: { confirm_release: 'true' },
       }),
     },
     fetcher
