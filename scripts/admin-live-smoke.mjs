@@ -62,7 +62,13 @@ export function canonicalViteAssetPath(assetPath) {
   return url.pathname;
 }
 
-export async function verifyAdminLive({ adminUrl, version, fetchImpl = fetch }) {
+export async function verifyAdminLive({
+  adminUrl,
+  version,
+  fetchImpl = fetch,
+  probeAssetOrigin = false,
+  probeAttempt = 1,
+}) {
   if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error('Version must use semantic versioning.');
   const adminOrigin = normalizeOrigin(adminUrl);
   const htmlResponse = await fetchRequired(
@@ -89,7 +95,13 @@ export async function verifyAdminLive({ adminUrl, version, fetchImpl = fetch }) 
   await Promise.all(
     assets.map(async (asset) => {
       canonicalViteAssetPath(asset.path);
-      const response = await fetchRequired(fetchImpl, new URL(asset.path, adminOrigin).href);
+      const assetUrl = new URL(asset.path, adminOrigin);
+      if (probeAssetOrigin) {
+        assetUrl.searchParams.set('linketry-origin-ready', `${version}-${probeAttempt}`);
+      }
+      const response = await fetchRequired(fetchImpl, assetUrl.href, {
+        bypassCache: probeAssetOrigin,
+      });
       const contentType = response.headers.get('content-type') ?? '';
       if (!expectedContentType(asset.kind).test(contentType)) {
         throw new Error(
@@ -106,7 +118,10 @@ export async function waitForAdminLive(options, attempts = 60, delayMs = 10_000)
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      return await verifyAdminLive(options);
+      return await verifyAdminLive({
+        ...options,
+        ...(options.probeAssetOrigin ? { probeAttempt: attempt } : {}),
+      });
     } catch (error) {
       lastError = error;
       if (attempt < attempts) {
@@ -120,12 +135,22 @@ export async function waitForAdminLive(options, attempts = 60, delayMs = 10_000)
   throw lastError;
 }
 
+export async function waitForAdminLiveAfterOriginProbe(
+  options,
+  attempts = 60,
+  delayMs = 10_000
+) {
+  await waitForAdminLive({ ...options, probeAssetOrigin: true }, attempts, delayMs);
+  return waitForAdminLive({ ...options, probeAssetOrigin: false }, attempts, delayMs);
+}
+
 function parseArgs(argv) {
-  const result = { adminUrl: '', version: '' };
+  const result = { adminUrl: '', version: '', probeBeforeCanonical: false };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === '--admin-url') result.adminUrl = argv[++index] ?? '';
     else if (argument === '--version') result.version = argv[++index] ?? '';
+    else if (argument === '--probe-before-canonical') result.probeBeforeCanonical = true;
     else throw new Error(`Unknown argument: ${argument}`);
   }
   if (!result.adminUrl || !result.version) {
@@ -135,7 +160,10 @@ function parseArgs(argv) {
 }
 
 async function main() {
-  const report = await waitForAdminLive(parseArgs(process.argv.slice(2)));
+  const options = parseArgs(process.argv.slice(2));
+  const report = options.probeBeforeCanonical
+    ? await waitForAdminLiveAfterOriginProbe(options)
+    : await waitForAdminLive(options);
   console.log(
     `Admin readiness verified: ${report.adminOrigin} serves Linketry ${report.version} with ${report.assets.length} initial assets.`
   );

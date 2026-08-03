@@ -217,6 +217,10 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   );
   assert.ok(pagesReadiness > -1);
   assert.ok(pagesReadiness < customDomainReadiness);
+  assert.match(
+    readinessStep.slice(customDomainReadiness),
+    /--version "\$RESOLVED_LINKETRY_VERSION" \\\r?\n\s+--probe-before-canonical/
+  );
   for (const name of [
     'LINKETRY_DEPLOYMENT_TRACK',
     'LINKETRY_APPROVED_RELEASE',

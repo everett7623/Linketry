@@ -62,3 +62,11 @@ Make an in-progress Admin page automatically converge to the deployed release wi
 - The production workflow now verifies the exact target version and canonical initial JS/CSS MIME on `https://${LINKETRY_PAGES_PROJECT}.pages.dev` before making its first custom-domain readiness request.
 - The custom-domain check remains strict and does not add a query string, `no-cache` bypass, or alternate asset URL, so a green workflow still proves the user-facing canonical deployment is usable.
 - The production online-upgrade target remains `everett7623/Linketry` `main`; dispatch, approval variables, backup, migrations, and Cloudflare resource gates are unchanged.
+
+## v0.30.5 Custom-domain Origin Probe Follow-up
+
+- Production run `30784249554` proved `linketry-admin.pages.dev` v0.30.4 and both initial assets were ready immediately, then failed because `admin.uukk.de` received SPA fallback HTML for the same new hashed asset for all 60 canonical retries.
+- The custom-domain readiness path now polls each origin attempt with a unique query cache key, preventing a transient fallback response from poisoning either the canonical URL or later retries.
+- Only after a query-keyed probe returns the expected JS/CSS MIME does the workflow request the exact canonical asset paths; canonical failures still fail the deployment.
+- Cloudflare's recommended DNS-only custom-domain configuration remains enforced when a DNS-capable token is present and reported as an actionable warning otherwise.
+- The online-upgrade target, repository, branch, protected workflow, release approval, backup, migrations, and runtime resource gates are unchanged.

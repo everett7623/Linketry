@@ -5,7 +5,7 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Production Readiness Recovery (v0.30.4)
+## 🟡 In Progress — Production Readiness Recovery (v0.30.5)
 
 - [x] 同步并确认本地 `main` 与远程 `origin/main` 一致
 - [x] 从 GitHub Actions 日志复现 v0.30.2 部署预检失败
@@ -18,6 +18,11 @@ One item in "In Progress" at a time whenever possible.
 - [x] 保留 canonical URL、目标版本和 JS/CSS MIME 校验，不使用 cache bypass
 - [x] 同步 v0.30.4 release metadata
 - [x] 完成 v0.30.4 本地 release regression
+- [x] 确认 run `30784249554` 的 `pages.dev` 已立即就绪，但自定义域名的另一边缘仍缓存 fallback HTML
+- [x] 为自定义域名每次源站重试使用独立 query cache key，避免污染 canonical asset
+- [x] 保留最终无 query canonical URL、目标版本和 JS/CSS MIME 严格验证
+- [x] 同步 v0.30.5 release metadata
+- [x] 完成 v0.30.5 本地 release regression
 - [ ] 更新 GitHub 发布审批变量并通过受保护工作流部署生产
 - [ ] 验证生产 Worker、Admin、静态资产与在线升级 capability
 

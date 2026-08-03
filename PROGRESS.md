@@ -10,15 +10,15 @@ Last updated: 2026-08-03
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.30.4 prepared    | Production Worker is on v0.30.3; the v0.30.4 workflow-only recovery does not change Worker runtime behavior                                                                                         |
-| Admin frontend             | ✅ 0.30.4 prepared    | Production Admin is on v0.30.3; the sidebar upgrade fix remains intact and targets the configured original GitHub repository                                                                       |
+| Worker backend             | ✅ 0.30.5 prepared    | Production Worker is on v0.30.4; the v0.30.5 readiness recovery does not change Worker runtime behavior                                                                                             |
+| Admin frontend             | ✅ 0.30.5 prepared    | Production Admin is on v0.30.4; the sidebar upgrade fix remains intact and targets the configured original GitHub repository                                                                       |
 | Database schema            | ✅ Migration ready    | Performance indexes migration (0003) prepared and versioned; V6 analytics migration applied in production                                                                                           |
-| Documentation              | ✅ 0.30.4 synchronized | Workspace versions, deployment examples, CI fallbacks, changelog, progress, and task status are aligned                                                                                            |
-| Deployment                 | 🟡 Recovery prepared | v0.30.3 reached production, but readiness failed after a custom-domain edge cached fallback HTML for a new hashed asset; v0.30.4 validates Pages origin first                                      |
-| End-to-end test            | ✅ Complete           | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 26 Admin browser, 1 production-build browser, and 10 Site tests pass; Worker type-check and Admin/Site builds pass                              |
+| Documentation              | ✅ 0.30.5 synchronized | Workspace versions, deployment examples, CI fallbacks, changelog, progress, and task status are aligned                                                                                            |
+| Deployment                 | 🟡 Recovery prepared | v0.30.4 proved Pages origin readiness but the custom-domain edge still cached a fallback response; v0.30.5 isolates origin probes before canonical verification                                    |
+| End-to-end test            | ✅ Complete           | 91 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 26 Admin browser, 1 production-build browser, and 10 Site tests pass; Worker type-check and Admin/Site builds pass                              |
 | Known issues               | ✅ Tracked            | All known issues resolved or documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | ✅ 0.30.4 prepared    | Production Worker/Admin are live on v0.30.3; v0.30.4 is prepared for the protected recovery deployment                                                                                              |
-| Repository update target   | ✅ 0.30.4 local       | Production upgrade remains bound to `everett7623/Linketry` `main`; no redirect, D1, KV, migration, or secret contract changed                                                                       |
+| Current version            | ✅ 0.30.5 prepared    | Production Worker/Admin are live on v0.30.4; v0.30.5 is prepared for the protected recovery deployment                                                                                              |
+| Repository update target   | ✅ 0.30.5 local       | Production upgrade remains bound to `everett7623/Linketry` `main`; no redirect, D1, KV, migration, or secret contract changed                                                                       |
 | Next planned work          | 🟡 Pre-1.0 validation | Deploy performance optimizations, fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, private vulnerability reporting |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
@@ -26,16 +26,17 @@ Last updated: 2026-08-03
 
 ---
 
-## Linketry 0.30.4 Production Readiness Recovery
+## Linketry 0.30.5 Production Readiness Recovery
 
 | Area                     | Status       | Notes                                                                                                                        |
 | ------------------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| v0.30.3 publication      | ✅ Live       | Worker, Admin, Pages origin, and canonical initial assets serve v0.30.3 despite run `30783158533` ending at readiness         |
-| Readiness diagnosis      | ✅ Confirmed  | The custom-domain edge cached SPA fallback HTML for the new hashed entry asset before Pages propagation completed            |
-| Two-stage verification   | ✅ Fixed      | The workflow waits for strict `pages.dev` version/MIME readiness before its first custom-domain probe                        |
+| v0.30.4 publication      | ✅ Live       | Worker, Admin, Pages origin, and canonical initial assets serve v0.30.4 despite run `30784249554` ending at readiness         |
+| Readiness diagnosis      | ✅ Confirmed  | `pages.dev` passed immediately, while a different custom-domain edge cached SPA fallback HTML for the new hashed asset        |
+| Isolated origin probes   | ✅ Fixed      | Each custom-domain retry uses a unique query cache key and waits for correct resource MIME before touching canonical assets   |
+| Canonical verification   | ✅ Preserved  | A query probe cannot pass the gate; the final check still requests exact no-query JS/CSS paths                                |
 | Upgrade target           | ✅ Preserved  | Production remains bound to `everett7623/Linketry` `main` and the protected `deploy.yml` workflow                           |
 | Safety boundaries        | ✅ Unchanged  | Existing canonical asset, backup, migration digest, target, release, and Cloudflare resource gates remain mandatory          |
-| Production state         | 🟡 Pending    | v0.30.3 is live; the reviewed v0.30.4 recovery commit still requires protected deployment                                    |
+| Production state         | 🟡 Pending    | v0.30.4 is live; the reviewed v0.30.5 recovery commit still requires protected deployment                                    |
 
 ---
 

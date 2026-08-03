@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { collectInitialAssets, verifyAdminLive, waitForAdminLive } from './admin-live-smoke.mjs';
+import {
+  collectInitialAssets,
+  verifyAdminLive,
+  waitForAdminLive,
+  waitForAdminLiveAfterOriginProbe,
+} from './admin-live-smoke.mjs';
 
 const adminUrl = 'https://admin.example.com';
 const version = '0.29.20';
@@ -149,6 +154,70 @@ test('readiness polling waits through a transient Pages asset fallback', async (
   );
 
   assert.equal(scriptRequests, 2);
+  assert.equal(report.version, version);
+});
+
+test('custom-domain readiness probes an isolated cache key before canonical assets', async () => {
+  const assetRequests = [];
+  const probeCache = new Map();
+  let originReady = false;
+  const report = await waitForAdminLiveAfterOriginProbe(
+    {
+      adminUrl,
+      version,
+      fetchImpl: async (input, init) => {
+        const url = new URL(String(input));
+        if (url.pathname.startsWith('/assets/')) {
+          assetRequests.push({ url, headers: new Headers(init?.headers) });
+          if (url.search) {
+            const cached = probeCache.get(url.href);
+            if (cached) return cached;
+            if (url.pathname.endsWith('.js') && !originReady) {
+              originReady = true;
+              const fallback = response(html, 'text/html; charset=utf-8');
+              probeCache.set(url.href, fallback);
+              return fallback;
+            }
+            const ready = await healthyFetch(input);
+            probeCache.set(url.href, ready);
+            return ready;
+          }
+        }
+        return healthyFetch(input);
+      },
+    },
+    2,
+    0
+  );
+
+  const firstCanonical = assetRequests.findIndex((request) => !request.url.search);
+  assert.ok(firstCanonical > 0);
+  assert.ok(
+    assetRequests
+      .slice(0, firstCanonical)
+      .every((request) =>
+        request.url.searchParams.get('linketry-origin-ready')?.startsWith(`${version}-`)
+      )
+  );
+  assert.ok(
+    assetRequests
+      .slice(0, firstCanonical)
+      .every((request) => request.headers.get('Cache-Control') === 'no-cache')
+  );
+  assert.ok(assetRequests.slice(firstCanonical).every((request) => !request.url.search));
+  assert.ok(
+    assetRequests
+      .slice(firstCanonical)
+      .every((request) => !request.headers.has('Cache-Control'))
+  );
+  assert.deepEqual(
+    new Set(
+      assetRequests
+        .slice(0, firstCanonical)
+        .map((request) => request.url.searchParams.get('linketry-origin-ready'))
+    ),
+    new Set([`${version}-1`, `${version}-2`])
+  );
   assert.equal(report.version, version);
 });
 

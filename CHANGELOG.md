@@ -7,6 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.30.5] - 2026-08-03
+
+### Fixed
+
+- 修复生产自定义域名在 Pages 源站已就绪后，仍可能由另一个尚未传播完成的边缘节点把 SPA fallback HTML 缓存到新 canonical hash 资源路径的问题
+- 自定义域名 readiness 现在为每次源站探测使用独立 query cache key；只有探测资源返回正确 JS/CSS MIME 后才首次请求 canonical asset，避免 retry 自身被缓存污染
+- 最终成功条件仍严格验证无 query 的 canonical URL、目标版本与初始资源 MIME，探测结果不能代替生产可访问性检查
+
+### Changed
+
+- 同步所有 workspace、Worker 示例、Admin/Site 版本资产、部署文档与 CI fallback 至 v0.30.5
+
+---
+
 ## [0.30.4] - 2026-08-03
 
 ### Fixed
