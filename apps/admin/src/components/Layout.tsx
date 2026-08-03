@@ -8,13 +8,17 @@ import { DemoModeBanner } from './DemoModeBanner';
 import { useLocale } from '../contexts/LocaleContext';
 import { NAV_GROUPS } from './sidebar/sidebarNavigation';
 import { UpdateCheckProvider, useUpdateCheckContext } from '../contexts/UpdateCheckContext';
+import { OnlineUpgradeProvider } from '../contexts/OnlineUpgradeContext';
 import { PageLoading } from './ui/PageLoading';
 import { focusFirst, trapTabKey } from '../utils/focusTrap';
+import { VersionCenterDialog } from './VersionCenterDialog';
 
 export function Layout() {
   return (
     <UpdateCheckProvider>
-      <LayoutContent />
+      <OnlineUpgradeProvider>
+        <LayoutContent />
+      </OnlineUpgradeProvider>
     </UpdateCheckProvider>
   );
 }
@@ -25,7 +29,6 @@ function LayoutContent() {
   const { t } = useLocale();
   const location = useLocation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [upgradeRequestRevision, setUpgradeRequestRevision] = useState(0);
   const mobileDialogRef = useRef<HTMLDivElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const updateCheck = useUpdateCheckContext();
@@ -60,10 +63,7 @@ function LayoutContent() {
       data-table-density={tableDensity}
     >
       <div className="hidden h-full lg:block">
-        <Sidebar
-          collapsed={sidebarCollapsed}
-          onRequestUpgrade={() => setUpgradeRequestRevision((revision) => revision + 1)}
-        />
+        <Sidebar collapsed={sidebarCollapsed} />
       </div>
 
       {mobileSidebarOpen && (
@@ -84,7 +84,6 @@ function LayoutContent() {
             mobile
             onClose={() => setMobileSidebarOpen(false)}
             onNavigate={() => setMobileSidebarOpen(false)}
-            onRequestUpgrade={() => setUpgradeRequestRevision((revision) => revision + 1)}
           />
         </div>
       )}
@@ -127,17 +126,14 @@ function LayoutContent() {
           <span className="truncate text-sm font-semibold text-slate-100">Linketry</span>
         </div>
         <DemoModeBanner />
-        <UpdateBanner
-          update={updateCheck.update}
-          onDismiss={updateCheck.dismiss}
-          upgradeRequestRevision={upgradeRequestRevision}
-        />
+        <UpdateBanner update={updateCheck.update} onDismiss={updateCheck.dismiss} />
         <div className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 sm:py-8">
           <Suspense fallback={<PageLoading />}>
             <Outlet />
           </Suspense>
         </div>
       </main>
+      <VersionCenterDialog />
     </div>
   );
 }

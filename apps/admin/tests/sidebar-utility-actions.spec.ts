@@ -97,16 +97,18 @@ test('Desktop Sidebar keeps version below the Logo and preferences in the footer
   await expect(versionStatus.getByText(`v${LINKETRY_VERSION}`, { exact: true })).toBeVisible();
   await expect(versionStatus.getByText(messages.en.upToDate, { exact: true })).toBeVisible();
   await versionStatus.click();
-  const versionPanel = page.getByTestId('sidebar-version-panel');
-  await expect(versionPanel).toBeVisible();
-  await expect(versionPanel.getByText(`v${LINKETRY_VERSION}`, { exact: true })).toBeVisible();
-  await expect(versionPanel.getByText(messages.en.installedVersion, { exact: true })).toBeVisible();
-  await expect(versionPanel.getByText(messages.en.upToDate, { exact: true })).toBeVisible();
+  const versionCenter = page.getByRole('dialog', { name: messages.en.versionCenterTitle });
+  await expect(versionCenter).toBeVisible();
+  await expect(versionCenter.getByText(`v${LINKETRY_VERSION}`, { exact: true })).toHaveCount(2);
+  await expect(
+    versionCenter.getByText(messages.en.installedVersion, { exact: true })
+  ).toBeVisible();
+  await expect(versionCenter.getByText(messages.en.upToDate, { exact: true })).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
   await page.keyboard.press('Escape');
-  await expect(versionPanel).toHaveCount(0);
+  await expect(versionCenter).toHaveCount(0);
 
   const brandMark = page.getByTestId('sidebar-brand').getByTestId('brand-mark');
   await expect(brandMark).toHaveAttribute('src', `/favicon.svg?v=${LINKETRY_VERSION}`);
@@ -166,20 +168,17 @@ test('Update notice exposes a safe repository upgrade workflow without mobile ov
     'href',
     'https://github.com/everett7623/Linketry/blob/main/CHANGELOG.md'
   );
-  await expect(notice.getByRole('link', { name: messages.en.openDeployment })).toHaveAttribute(
-    'href',
-    'https://github.com/everett7623/Linketry/actions/workflows/deploy.yml'
-  );
+  await expect(notice.getByRole('button', { name: messages.en.viewUpdateDetails })).toBeVisible();
 
   await page.getByRole('button', { name: messages.en.openNavigation }).click();
   const mobileSidebar = page.getByRole('dialog', { name: messages.en.navigationMenu });
   await mobileSidebar.getByTestId('sidebar-version').click();
-  const versionPanel = page.getByTestId('sidebar-version-panel');
-  await expect(versionPanel).toBeVisible();
-  await expect(versionPanel.getByTestId('sidebar-upgrade-action')).toBeVisible();
+  const versionCenter = page.getByRole('dialog', { name: messages.en.versionCenterTitle });
+  await expect(versionCenter).toBeVisible();
+  await expect(versionCenter.getByRole('link', { name: messages.en.openDeployment })).toBeVisible();
   await expect
     .poll(() =>
-      versionPanel.evaluate((element) => {
+      versionCenter.evaluate((element) => {
         const rect = element.getBoundingClientRect();
         return rect.left >= 0 && rect.right <= window.innerWidth && rect.width >= 300;
       })
@@ -217,8 +216,7 @@ test('Sidebar waits for production upgrade capability before opening the GitHub 
         apiResponse({
           enabled: true,
           repositoryUrl: 'https://github.com/everett7623/Linketry',
-          workflowUrl:
-            'https://github.com/everett7623/Linketry/actions/workflows/deploy.yml',
+          workflowUrl: 'https://github.com/everett7623/Linketry/actions/workflows/deploy.yml',
           branch: 'main',
           reason: 'ready',
         })
@@ -243,11 +241,15 @@ test('Sidebar waits for production upgrade capability before opening the GitHub 
 
   const sidebar = page.locator('aside:visible');
   await sidebar.getByTestId('sidebar-version').click();
-  const versionPanel = page.getByTestId('sidebar-version-panel');
-  await versionPanel.getByTestId('sidebar-upgrade-action').click();
-  await expect(versionPanel).toHaveCount(0);
+  const versionCenter = page.getByRole('dialog', { name: messages.en.versionCenterTitle });
+  await expect(
+    versionCenter.getByRole('button', { name: messages.en.checkingUpgrade })
+  ).toBeDisabled();
   await expect(page.getByText(messages.en.upgradeCapabilityUnavailable)).toHaveCount(0);
 
   releaseCapability();
-  await expect(page.getByRole('heading', { name: messages.en.confirmUpgradeTitle })).toBeVisible();
+  await versionCenter.getByRole('button', { name: messages.en.upgradeOnline }).click();
+  await expect(
+    versionCenter.getByRole('heading', { name: messages.en.confirmUpgradeTitle })
+  ).toBeVisible();
 });

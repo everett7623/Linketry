@@ -5,7 +5,7 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Production Readiness Recovery (v0.30.5)
+## 🟡 In Progress — Unified Version Center And Production Readiness (v0.30.6)
 
 - [x] 同步并确认本地 `main` 与远程 `origin/main` 一致
 - [x] 从 GitHub Actions 日志复现 v0.30.2 部署预检失败
@@ -23,6 +23,12 @@ One item in "In Progress" at a time whenever possible.
 - [x] 保留最终无 query canonical URL、目标版本和 JS/CSS MIME 严格验证
 - [x] 同步 v0.30.5 release metadata
 - [x] 完成 v0.30.5 本地 release regression
+- [x] 将在线升级 capability、确认、执行、错误和刷新反馈提升为共享 Admin 状态
+- [x] 用统一版本中心替代侧栏 DOM 查询桥接和分散的升级操作组件
+- [x] 增加桌面、移动端、capability 延迟、升级进度和自动刷新浏览器回归
+- [x] 同步 v0.30.6 release metadata、部署示例、CHANGELOG、PROGRESS 和任务记录
+- [x] 完成 v0.30.6 全量本地 release regression
+- [x] 核对 React Router RSC advisory；当前 Vite SPA 不使用受影响的 unstable RSC APIs，等待非破坏性上游修复
 - [ ] 更新 GitHub 发布审批变量并通过受保护工作流部署生产
 - [ ] 验证生产 Worker、Admin、静态资产与在线升级 capability
 

@@ -70,3 +70,15 @@ Make an in-progress Admin page automatically converge to the deployed release wi
 - Only after a query-keyed probe returns the expected JS/CSS MIME does the workflow request the exact canonical asset paths; canonical failures still fail the deployment.
 - Cloudflare's recommended DNS-only custom-domain configuration remains enforced when a DNS-capable token is present and reported as an actionable warning otherwise.
 - The online-upgrade target, repository, branch, protected workflow, release approval, backup, migrations, and runtime resource gates are unchanged.
+
+## v0.30.6 Unified Version Center Follow-up
+
+- Online-upgrade capability, confirmation, deployment phases, errors, workflow links, and refresh feedback now live in one shared Admin state machine.
+- The sidebar, compact update notice, and Settings open the same responsive version center instead of triggering another component through a DOM query.
+- The version center keeps the protected deployment visible through prepare, queue, Worker/Admin deployment, and dual-readiness verification stages.
+- Successful verification remains briefly visible before automatic reload; stale-build propagation feedback and the bounded manual refresh path remain persistent.
+- Release rollback is intentionally not exposed without a separate reviewed commit, migration, backup, and deployment rollback contract.
+- Repository/branch matching, release approval, backup, migrations, Worker runtime verification, Admin asset readiness, redirects, D1/KV ownership, and stored data remain unchanged.
+- The official npm audit reports GHSA-qwww-vcr4-c8h2 for React Router 7; the advisory explicitly affects only unstable RSC APIs, which the React/Vite Admin and its dependency tree do not use. No forced major-version change is applied.
+- Node 24 verification passes 64 Admin unit scenarios, all 26 Admin browser scenarios, the production-build browser check, 110 Worker tests, 91 deployment tests, 6 Demo API tests, and 10 Site tests, plus Worker type-check and Admin/Site production builds.
+- Desktop update, confirmation, and progress dialogs plus English and Simplified Chinese mobile dialogs stay inside the viewport with no document or text overflow.

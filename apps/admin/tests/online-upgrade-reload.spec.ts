@@ -99,10 +99,12 @@ test('no-run-ID deployment waits through stale Admin assets and resumes on focus
   });
 
   await page.goto('/overview');
-  await page.getByRole('button', { name: messages.en.upgradeOnline }).click();
+  await page.getByTestId('open-version-center').click();
+  const versionCenter = page.getByRole('dialog', { name: messages.en.versionCenterTitle });
+  await versionCenter.getByRole('button', { name: messages.en.upgradeOnline }).click();
   const reloaded = page.waitForEvent('load');
-  await page.getByRole('button', { name: messages.en.confirmUpgrade }).click();
-  await expect(page.getByText(messages.en.upgradeFinalizing)).toBeVisible();
+  await versionCenter.getByRole('button', { name: messages.en.confirmUpgrade }).click();
+  await expect(versionCenter.getByText(messages.en.upgradeFinalizing)).toBeVisible();
   expect(scriptRequests()).toBe(1);
   await page.evaluate(() => window.dispatchEvent(new Event('focus')));
   await reloaded;
@@ -214,10 +216,12 @@ test('successful deployment verifies the new runtime across the Admin and Worker
   });
 
   await page.goto('/overview');
-  await page.getByRole('button', { name: messages.en.upgradeOnline }).click();
+  await page.getByTestId('open-version-center').click();
+  const versionCenter = page.getByRole('dialog', { name: messages.en.versionCenterTitle });
+  await versionCenter.getByRole('button', { name: messages.en.upgradeOnline }).click();
   const reloaded = page.waitForEvent('load');
-  await page.getByRole('button', { name: messages.en.confirmUpgrade }).click();
-  await expect(page.getByText(messages.en.upgradeSucceeded)).toBeVisible();
+  await versionCenter.getByRole('button', { name: messages.en.confirmUpgrade }).click();
+  await expect(versionCenter.getByText(messages.en.upgradeSucceeded)).toBeVisible();
   await reloaded;
 
   expect(runtimeChecks).toBeGreaterThan(0);

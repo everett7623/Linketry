@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-export const SUCCESS_RELOAD_DELAY_MS = 500;
+export const SUCCESS_RELOAD_DELAY_MS = 1_500;
 export const FINALIZING_RELOAD_DELAY_MS = 4_000;
 
 export function useUpgradeReload() {

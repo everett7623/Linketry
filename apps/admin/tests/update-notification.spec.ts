@@ -110,12 +110,13 @@ test('authenticated Admin opening shows and dismisses a cached GitHub update not
   expect(githubRequests).toBe(1);
 
   await page.getByTestId('sidebar-version').click();
+  const versionCenter = page.getByRole('dialog', { name: messages.en.versionCenterTitle });
   await expect(
-    page
-      .locator('main')
-      .getByRole('status')
-      .getByText(messages.en.updateAvailableTitle.replace('{version}', latestVersion))
+    versionCenter.getByText(messages.en.updateAvailableTitle.replace('{version}', latestVersion))
   ).toBeVisible();
+  await expect(
+    page.getByText(messages.en.updateAvailableTitle.replace('{version}', latestVersion))
+  ).toHaveCount(1);
   expect(githubRequests).toBe(2);
 });
 
@@ -350,14 +351,16 @@ test('automatic upgrade confirms deployment, verifies runtime, and reloads the A
   });
 
   await page.goto('/overview');
-  const upgradeButton = page.getByRole('button', { name: messages.en.upgradeOnline });
-  await expect(upgradeButton).toBeVisible();
-  await upgradeButton.click();
-  await expect(page.getByRole('heading', { name: messages.en.confirmUpgradeTitle })).toBeVisible();
+  await page.getByTestId('open-version-center').click();
+  const versionCenter = page.getByRole('dialog', { name: messages.en.versionCenterTitle });
+  await versionCenter.getByRole('button', { name: messages.en.upgradeOnline }).click();
+  await expect(
+    versionCenter.getByRole('heading', { name: messages.en.confirmUpgradeTitle })
+  ).toBeVisible();
 
   const reloaded = page.waitForEvent('load');
-  await page.getByRole('button', { name: messages.en.confirmUpgrade }).click();
-  await expect(page.getByText(messages.en.upgradeSucceeded)).toBeVisible();
+  await versionCenter.getByRole('button', { name: messages.en.confirmUpgrade }).click();
+  await expect(versionCenter.getByText(messages.en.upgradeSucceeded)).toBeVisible();
   await reloaded;
 
   expect(dispatchRequests).toBe(1);

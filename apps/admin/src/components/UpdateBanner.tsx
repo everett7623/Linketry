@@ -1,235 +1,107 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import { ExternalLink, RefreshCw, X } from 'lucide-react';
 import type { UpdateCheckResult } from '../api/updates';
-import {
-  fetchRuntimeVersion,
-  getOnlineUpgradeCapability,
-  getOnlineUpgradeRun,
-  startOnlineUpgrade,
-  type OnlineUpgradeCapability,
-} from '../api/onlineUpgrade';
-import { isAdminReleaseReady } from '../api/adminRelease.ts';
 import { useLocale } from '../contexts/LocaleContext';
-import { useUpgradeFeedback } from '../hooks/useUpgradeFeedback.ts';
-import { SUCCESS_RELOAD_DELAY_MS } from '../hooks/useUpgradeReload';
-import { waitForOnlineUpgrade, type OnlineUpgradePhase } from '../utils/onlineUpgrade';
-import { UpgradeConfirmDialog } from './UpgradeConfirmDialog';
+import { useOnlineUpgradeContext } from '../contexts/OnlineUpgradeContext';
 import { UpgradeRefreshNotice } from './UpgradeRefreshNotice.tsx';
-import { UpdateBannerActions } from './UpdateBannerActions';
-import { useToast } from './ui/Toast';
-
-type BannerPhase = 'idle' | 'starting' | OnlineUpgradePhase | 'success' | 'failed';
 
 export function UpdateBanner({
   update,
   onDismiss,
-  upgradeRequestRevision,
 }: {
   update: UpdateCheckResult | null;
   onDismiss: () => void;
-  upgradeRequestRevision: number;
 }) {
   const { t } = useLocale();
-  const toast = useToast();
-  const [capability, setCapability] = useState<OnlineUpgradeCapability | null | undefined>();
-  const [phase, setPhase] = useState<BannerPhase>('idle');
-  const [runUrl, setRunUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const activeRef = useRef(true);
-  const handledUpgradeRequestRef = useRef(0);
-  const upgradeFeedback = useUpgradeFeedback();
+  const upgrade = useOnlineUpgradeContext();
 
-  useEffect(() => {
-    setPhase('idle');
-    setRunUrl(null);
-    setError(null);
-    setConfirmOpen(false);
-  }, [update?.latestVersion]);
-
-  useEffect(() => {
-    if (!update) return;
-    let active = true;
-    setCapability(undefined);
-    getOnlineUpgradeCapability()
-      .then((result) => {
-        if (active) setCapability(result);
-      })
-      .catch(() => {
-        if (active) setCapability(null);
-      });
-    return () => {
-      active = false;
-    };
-  }, [update]);
-
-  useEffect(() => {
-    activeRef.current = true;
-    return () => {
-      activeRef.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (
-      upgradeRequestRevision <= handledUpgradeRequestRef.current ||
-      !update ||
-      capability === undefined
-    ) {
-      return;
-    }
-
-    handledUpgradeRequestRef.current = upgradeRequestRevision;
-    const canUpgradeConfiguredRelease =
-      capability?.enabled &&
-      capability.repositoryUrl === update.repositoryUrl &&
-      capability.branch === update.branch;
-    if (canUpgradeConfiguredRelease) {
-      setConfirmOpen(true);
-      return;
-    }
-    toast.warning(t('upgradeCapabilityUnavailable'));
-  }, [capability, t, toast, update, upgradeRequestRevision]);
-
-  useEffect(() => {
-    if (upgradeFeedback.completed) upgradeFeedback.dismiss();
-  }, [upgradeFeedback.completed, upgradeFeedback.dismiss]);
-
-  if (upgradeFeedback.feedback && !upgradeFeedback.completed) {
+  if (upgrade.feedback && !upgrade.feedbackCompleted) {
     return (
       <UpgradeRefreshNotice
-        targetVersion={upgradeFeedback.feedback.targetVersion}
-        autoRefreshing={upgradeFeedback.autoRefreshing}
-        onDismiss={upgradeFeedback.dismiss}
-        onReload={upgradeFeedback.reloadNow}
+        targetVersion={upgrade.feedback.targetVersion}
+        autoRefreshing={upgrade.feedbackAutoRefreshing}
+        onDismiss={upgrade.dismissFeedback}
+        onReload={upgrade.reloadNow}
       />
     );
   }
 
   if (!update) return null;
 
-  const automaticCapability =
-    capability?.enabled &&
-    capability.repositoryUrl === update.repositoryUrl &&
-    capability.branch === update.branch
-      ? capability
-      : capability === undefined
-        ? undefined
-        : null;
-
-  const dismiss = () => {
-    if (phase !== 'idle' && phase !== 'failed') return;
-    onDismiss();
-  };
-
-  const startUpgrade = async () => {
-    if (!automaticCapability?.enabled || (phase !== 'idle' && phase !== 'failed')) return;
-    setConfirmOpen(false);
-    setPhase('starting');
-    setError(null);
-    setRunUrl(null);
-
-    try {
-      const dispatch = await startOnlineUpgrade();
-      if (!activeRef.current) return;
-      setRunUrl(dispatch.runUrl);
-      const result = await waitForOnlineUpgrade({
-        targetVersion: update.latestVersion,
-        runId: dispatch.runId,
-        readRun: getOnlineUpgradeRun,
-        readRuntimeVersion: fetchRuntimeVersion,
-        readAdminReady: () => isAdminReleaseReady(update.latestVersion),
-        onPhase: (nextPhase) => {
-          if (!activeRef.current) return;
-          setPhase(nextPhase);
-        },
-        shouldContinue: () => activeRef.current,
-      });
-      if (!activeRef.current || result.outcome === 'cancelled') return;
-      if (result.outcome === 'success') {
-        upgradeFeedback.rememberSuccessfulDeployment(update.latestVersion);
-        setPhase('success');
-        toast.success(t('upgradeSucceeded'));
-        upgradeFeedback.scheduleReload(SUCCESS_RELOAD_DELAY_MS);
-        return;
-      }
-      setPhase('failed');
-      const failureMessage =
-        result.outcome === 'timeout'
-          ? t('upgradeTimeout')
-          : result.outcome === 'verification_failed'
-            ? t('upgradeVerificationFailed')
-            : t('upgradeFailed', { conclusion: result.conclusion ?? 'unknown' });
-      setError(failureMessage);
-      if (result.outcome === 'verification_failed') toast.warning(failureMessage);
-      else toast.error(failureMessage);
-    } catch (upgradeError) {
-      if (!activeRef.current) return;
-      setPhase('failed');
-      const failureMessage =
-        upgradeError instanceof Error ? upgradeError.message : t('upgradeFailedGeneric');
-      setError(failureMessage);
-      toast.error(failureMessage);
-    }
-  };
-
-  const busy = !['idle', 'failed'].includes(phase);
+  const active = upgrade.busy || upgrade.phase === 'confirming';
   const progressMessage =
-    error ?? (phase === 'idle' || phase === 'failed' ? null : t(phaseMessageKey(phase)));
+    upgrade.phase === 'failed'
+      ? upgrade.error
+      : upgrade.phase === 'confirming'
+        ? t('confirmUpgradeTitle')
+        : upgrade.phase !== 'idle'
+          ? t(phaseMessageKey(upgrade.phase))
+          : null;
 
   return (
-    <>
-      <div className="mx-auto mt-4 w-full max-w-[1600px] px-6" role="status" aria-live="polite">
-        <div className="relative flex flex-col gap-3 rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 pr-10 text-sm text-slate-200 sm:flex-row sm:items-start">
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-slate-100">
-              {t('updateAvailableTitle', { version: update.latestVersion })}
-            </p>
-            <p className="mt-0.5 text-slate-400">
-              {t(
-                automaticCapability?.enabled
+    <div
+      className="mx-auto mt-4 w-full max-w-[1600px] px-4 sm:px-6"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="relative flex flex-col gap-3 rounded-lg border border-brand-500/30 bg-brand-500/10 px-4 py-3 pr-10 text-sm text-slate-200 sm:flex-row sm:items-center">
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-slate-100">
+            {t('updateAvailableTitle', { version: update.latestVersion })}
+          </p>
+          <p className="mt-0.5 text-slate-400">
+            {progressMessage ??
+              t(
+                upgrade.automaticCapability?.enabled
                   ? 'updateAvailableAutomaticDescription'
                   : 'updateAvailableDescription',
                 { currentVersion: update.currentVersion }
               )}
-            </p>
-            {progressMessage && (
-              <p className={error ? 'mt-1 text-red-300' : 'mt-1 text-brand-200'}>
-                {progressMessage}
-              </p>
-            )}
-          </div>
-          <UpdateBannerActions
-            capability={automaticCapability}
-            changelogUrl={update.changelogUrl}
-            upgradeWorkflowUrl={update.upgradeWorkflowUrl}
-            runUrl={runUrl}
-            busy={busy}
-            onUpgrade={() => setConfirmOpen(true)}
-          />
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap items-center gap-1">
+          <a
+            href={update.changelogUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-medium text-slate-300 hover:bg-slate-800 hover:text-slate-100"
+          >
+            {t('viewChanges')}
+            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+          </a>
           <button
             type="button"
-            onClick={dismiss}
-            aria-label={t('dismissUpdate')}
-            title={t('dismissUpdate')}
-            disabled={busy}
-            className="absolute right-3 top-3 shrink-0 rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+            data-testid="open-version-center"
+            onClick={upgrade.openCenter}
+            className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-2.5 py-1 font-medium text-white hover:bg-brand-500"
           >
-            <X className="h-4 w-4" aria-hidden="true" />
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${upgrade.busy ? 'animate-spin' : ''}`}
+              aria-hidden="true"
+            />
+            {active ? t('viewUpgradeProgress') : t('viewUpdateDetails')}
           </button>
         </div>
+        <button
+          type="button"
+          onClick={onDismiss}
+          aria-label={t('dismissUpdate')}
+          title={t('dismissUpdate')}
+          disabled={active}
+          className="absolute right-3 top-3 rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <X className="h-4 w-4" aria-hidden="true" />
+        </button>
       </div>
-      <UpgradeConfirmDialog
-        open={confirmOpen}
-        version={update.latestVersion}
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={() => void startUpgrade()}
-      />
-    </>
+    </div>
   );
 }
 
-function phaseMessageKey(phase: Exclude<BannerPhase, 'idle' | 'failed'>) {
+function phaseMessageKey(
+  phase: Exclude<
+    ReturnType<typeof useOnlineUpgradeContext>['phase'],
+    'idle' | 'confirming' | 'failed'
+  >
+) {
   const keys = {
     starting: 'upgradeStarting',
     queued: 'upgradeQueued',

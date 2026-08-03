@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ExternalLink, RefreshCw, ShieldAlert, ShieldCheck } from 'lucide-react';
+import React from 'react';
+import { CircleArrowUp, ExternalLink, RefreshCw, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { LINKETRY_VERSION } from '@linketry/shared';
-import { getOnlineUpgradeCapability, type OnlineUpgradeCapability } from '../../api/onlineUpgrade';
+import type { OnlineUpgradeCapability } from '../../api/onlineUpgrade';
 import { GITHUB_CHANGELOG_URL, GITHUB_UPGRADE_WORKFLOW_URL } from '../../api/updates';
 import { useLocale } from '../../contexts/LocaleContext';
+import { useOnlineUpgradeContext } from '../../contexts/OnlineUpgradeContext';
 import { useUpdateCheckContext } from '../../contexts/UpdateCheckContext';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -13,26 +14,8 @@ export function ReleaseStatusPanel() {
   const { locale, t } = useLocale();
   const { success, warning, error } = useToast();
   const updateCheck = useUpdateCheckContext();
-  const [capability, setCapability] = useState<OnlineUpgradeCapability | null | undefined>();
-  const [capabilityLoading, setCapabilityLoading] = useState(true);
-
-  const refreshCapability = useCallback(async () => {
-    setCapabilityLoading(true);
-    try {
-      const nextCapability = await getOnlineUpgradeCapability();
-      setCapability(nextCapability);
-      return nextCapability;
-    } catch {
-      setCapability(null);
-      return null;
-    } finally {
-      setCapabilityLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void refreshCapability();
-  }, [refreshCapability]);
+  const onlineUpgrade = useOnlineUpgradeContext();
+  const { capability, capabilityLoading, refreshCapability } = onlineUpgrade;
 
   const handleRefresh = async () => {
     try {
@@ -114,6 +97,16 @@ export function ReleaseStatusPanel() {
       )}
 
       <div className="flex flex-wrap items-center gap-2">
+        {updateCheck.result?.updateAvailable && (
+          <Button
+            type="button"
+            size="sm"
+            icon={<CircleArrowUp size={14} aria-hidden="true" />}
+            onClick={onlineUpgrade.openCenter}
+          >
+            {t('viewUpdateDetails')}
+          </Button>
+        )}
         <Button
           type="button"
           size="sm"
