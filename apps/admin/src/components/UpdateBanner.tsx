@@ -23,9 +23,11 @@ type BannerPhase = 'idle' | 'starting' | OnlineUpgradePhase | 'success' | 'faile
 export function UpdateBanner({
   update,
   onDismiss,
+  upgradeRequestRevision,
 }: {
   update: UpdateCheckResult | null;
   onDismiss: () => void;
+  upgradeRequestRevision: number;
 }) {
   const { t } = useLocale();
   const toast = useToast();
@@ -35,6 +37,7 @@ export function UpdateBanner({
   const [error, setError] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const activeRef = useRef(true);
+  const handledUpgradeRequestRef = useRef(0);
   const upgradeFeedback = useUpgradeFeedback();
 
   useEffect(() => {
@@ -66,6 +69,27 @@ export function UpdateBanner({
       activeRef.current = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (
+      upgradeRequestRevision <= handledUpgradeRequestRef.current ||
+      !update ||
+      capability === undefined
+    ) {
+      return;
+    }
+
+    handledUpgradeRequestRef.current = upgradeRequestRevision;
+    const canUpgradeConfiguredRelease =
+      capability?.enabled &&
+      capability.repositoryUrl === update.repositoryUrl &&
+      capability.branch === update.branch;
+    if (canUpgradeConfiguredRelease) {
+      setConfirmOpen(true);
+      return;
+    }
+    toast.warning(t('upgradeCapabilityUnavailable'));
+  }, [capability, t, toast, update, upgradeRequestRevision]);
 
   useEffect(() => {
     if (upgradeFeedback.completed) upgradeFeedback.dismiss();

@@ -45,3 +45,12 @@ Make an in-progress Admin page automatically converge to the deployed release wi
 - No D1, KV, visits, migration, or analytics changes.
 - No production deployment without the existing owner-controlled release gates.
 - No polling loops that multiply across React effects.
+
+## v0.30.3 Production Recovery Follow-up
+
+- GitHub Actions run `30781318488` failed before Cloudflare writes because `demo-admin-parity.test.mjs` still expected the v0.29.20 favicon query while the release advertised v0.30.2.
+- Production Worker and Admin remained on v0.30.1; public health and Admin HTML checks confirmed no partial v0.30.2 deployment.
+- The sidebar could expose its upgrade button while the protected capability request was still pending, causing a false “Upgrade status unavailable” warning.
+- The parity test now reads the root package version, and a delayed-capability browser regression verifies that production waits for `everett7623/Linketry` `main` before opening the upgrade confirmation.
+- Redirect handling, D1/KV data, migrations, secrets, and the protected deployment gates remain unchanged.
+- Local verification passes: 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 26 Admin browser, 1 production-build browser, and 10 Site tests, plus Worker type-check and Admin/Site production builds.

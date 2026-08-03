@@ -10,9 +10,11 @@ import { SidebarVersionPanel } from './SidebarVersionPanel';
 export function SidebarVersionStatus({
   collapsed,
   mobile = false,
+  onRequestUpgrade,
 }: {
   collapsed: boolean;
   mobile?: boolean;
+  onRequestUpgrade: () => void;
 }) {
   const { t } = useLocale();
   const { success, warning } = useToast();
@@ -71,7 +73,8 @@ export function SidebarVersionStatus({
       setOpen(false);
       return;
     }
-    warning(t('upgradeCapabilityUnavailable'));
+    onRequestUpgrade();
+    setOpen(false);
   };
 
   return (

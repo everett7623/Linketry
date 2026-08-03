@@ -7,6 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.30.3] - 2026-08-03
+
+### Fixed
+
+- 修复部署预检将 favicon 版本硬编码为 `0.29.20`，导致 v0.30.2 生产升级在任何 Cloudflare 写入前失败的问题
+- 修复侧栏在线升级按钮早于 capability 请求完成时误报“无法读取升级状态”的竞态；请求会等待生产 Worker 确认配置仓库与分支后再打开确认框
+- 保持生产在线升级仅指向 Worker 配置的 `everett7623/Linketry` `main`，并继续执行现有备份、迁移、目标和发布安全门禁
+
+### Changed
+
+- 同步所有 workspace、Worker 示例、Admin/Site 版本资产、部署文档与 CI fallback 至 v0.30.3
+
+---
+
 ## [0.30.2] - 2026-08-01
 
 ### Fixed

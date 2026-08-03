@@ -16,9 +16,16 @@ interface SidebarProps {
   mobile?: boolean;
   onClose?: () => void;
   onNavigate?: () => void;
+  onRequestUpgrade: () => void;
 }
 
-export function Sidebar({ collapsed = false, mobile = false, onClose, onNavigate }: SidebarProps) {
+export function Sidebar({
+  collapsed = false,
+  mobile = false,
+  onClose,
+  onNavigate,
+  onRequestUpgrade,
+}: SidebarProps) {
   const { mode } = useAdminMode();
   const { sidebarDensity, loadingVisibility, moduleIsVisible } = useDisplayPreferences();
   const { t } = useLocale();
@@ -78,7 +85,11 @@ export function Sidebar({ collapsed = false, mobile = false, onClose, onNavigate
           data-testid="sidebar-version-slot"
           className={clsx(collapsed && !mobile ? 'px-2 pb-3' : compact ? 'px-2 pb-2' : 'px-3 pb-3')}
         >
-          <SidebarVersionStatus collapsed={collapsed && !mobile} mobile={mobile} />
+          <SidebarVersionStatus
+            collapsed={collapsed && !mobile}
+            mobile={mobile}
+            onRequestUpgrade={onRequestUpgrade}
+          />
         </div>
       </div>
 

@@ -5,6 +5,22 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## 🟡 In Progress — Production Upgrade Recovery (v0.30.3)
+
+- [x] 同步并确认本地 `main` 与远程 `origin/main` 一致
+- [x] 从 GitHub Actions 日志复现 v0.30.2 部署预检失败
+- [x] 让 Demo/Admin parity 从根 `package.json` 读取版本，避免发布版本硬编码漂移
+- [x] 修复侧栏在生产 capability 加载期间误报升级状态不可用的竞态
+- [x] 覆盖 `everett7623/Linketry` `main` capability 延迟返回的浏览器回归
+- [x] 同步 v0.30.3 release metadata
+- [x] 完成全部本地 release regression
+- [ ] 更新 GitHub 发布审批变量并通过受保护工作流部署生产
+- [ ] 验证生产 Worker、Admin、静态资产与在线升级 capability
+
+Task record: `.codex/tasks/online-upgrade-readiness-state-2026-07-21.md`
+
+---
+
 ## ✅ Completed — Performance Optimization And Security Hardening (v0.30.0)
 
 - [x] 新增 D1 性能索引（`migrations/0003_performance_indexes.sql`）

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page, type Route } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
 import { messages } from '../src/i18n/messages';
 import { EVERETTLABS_SUPPORT_URL } from '../src/utils/externalLinks';
@@ -11,9 +11,16 @@ function apiResponse(data: unknown) {
   };
 }
 
-async function mockDashboardApi(page: Page) {
+async function mockDashboardApi(
+  page: Page,
+  options: { upgradeCapability?: (route: Route) => Promise<void> } = {}
+) {
   await page.route('**/api/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
+    if (path === '/api/v1/system/upgrade' && options.upgradeCapability) {
+      await options.upgradeCapability(route);
+      return;
+    }
     if (path === '/api/v1/auth/me') {
       await route.fulfill({
         status: 200,
@@ -181,4 +188,66 @@ test('Update notice exposes a safe repository upgrade workflow without mobile ov
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
+});
+
+test('Sidebar waits for production upgrade capability before opening the GitHub upgrade confirmation', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('linketry_token', 'test-token');
+    localStorage.setItem('linketry.locale', 'en');
+    localStorage.setItem('linketry_theme', 'dark');
+    localStorage.removeItem('linketry_update_check');
+    localStorage.removeItem('linketry_dismissed_update_version');
+  });
+
+  let markCapabilityRequested!: () => void;
+  const capabilityRequested = new Promise<void>((resolve) => {
+    markCapabilityRequested = resolve;
+  });
+  let releaseCapability!: () => void;
+  const capabilityReleased = new Promise<void>((resolve) => {
+    releaseCapability = resolve;
+  });
+  await mockDashboardApi(page, {
+    upgradeCapability: async (route) => {
+      markCapabilityRequested();
+      await capabilityReleased;
+      await route.fulfill(
+        apiResponse({
+          enabled: true,
+          repositoryUrl: 'https://github.com/everett7623/Linketry',
+          workflowUrl:
+            'https://github.com/everett7623/Linketry/actions/workflows/deploy.yml',
+          branch: 'main',
+          reason: 'ready',
+        })
+      );
+    },
+  });
+  await page.route('https://api.github.com/repos/**/contents/package.json?ref=main', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ name: 'linketry', version: '99.0.0' }),
+    })
+  );
+
+  await page.goto('/overview');
+  await expect(
+    page.getByText(messages.en.updateAvailableTitle.replace('{version}', '99.0.0'), {
+      exact: true,
+    })
+  ).toBeVisible();
+  await capabilityRequested;
+
+  const sidebar = page.locator('aside:visible');
+  await sidebar.getByTestId('sidebar-version').click();
+  const versionPanel = page.getByTestId('sidebar-version-panel');
+  await versionPanel.getByTestId('sidebar-upgrade-action').click();
+  await expect(versionPanel).toHaveCount(0);
+  await expect(page.getByText(messages.en.upgradeCapabilityUnavailable)).toHaveCount(0);
+
+  releaseCapability();
+  await expect(page.getByRole('heading', { name: messages.en.confirmUpgradeTitle })).toBeVisible();
 });

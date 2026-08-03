@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-07-30
+Last updated: 2026-08-03
 
 ---
 
@@ -10,19 +10,31 @@ Last updated: 2026-07-30
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.30.0             | Performance optimizations shipped: D1 indexes, expiry-aware KV caching, batch operations, metrics; production on v0.29.18 pending upgrade                                                         |
-| Admin frontend             | ✅ 0.30.0             | Route preloading, code splitting, build optimizations shipped on top of v0.29.19 dependency hardening; production on v0.29.18 pending upgrade                                                      |
+| Worker backend             | ✅ 0.30.3 prepared    | Production remains on v0.30.1 until the repaired owner-controlled GitHub upgrade completes                                                                                                        |
+| Admin frontend             | ✅ 0.30.3 prepared    | Sidebar upgrade intent now waits for the production capability response before opening the configured GitHub upgrade confirmation                                                                 |
 | Database schema            | ✅ Migration ready    | Performance indexes migration (0003) prepared and versioned; V6 analytics migration applied in production                                                                                           |
-| Documentation              | ✅ 0.30.0 complete    | Version requirements unified, troubleshooting/contributing/performance/quick-start guides added, CLAUDE.md updated                                                                                   |
-| Deployment                 | 🟡 Pending upgrade    | Node 24 pinned, Wrangler 4.115.0, performance optimizations versioned as 0.30.0; GitHub Variables need updating before deploy                                                                       |
-| End-to-end test            | ✅ Local              | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 25 Admin browser, 2 production-build browser, and 10 site tests pass; all builds, type-check, clean install, and Wrangler dry-run pass      |
+| Documentation              | ✅ 0.30.3 synchronized | Workspace versions, deployment examples, CI fallbacks, changelog, progress, and task status are aligned                                                                                            |
+| Deployment                 | 🟡 Recovery prepared | v0.30.2 failed before Cloudflare writes because deployment parity used a stale hard-coded favicon version; v0.30.3 removes that release-specific assertion                                         |
+| End-to-end test            | ✅ Complete           | 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 26 Admin browser, 1 production-build browser, and 10 Site tests pass; Worker type-check and Admin/Site builds pass                              |
 | Known issues               | ✅ Tracked            | All known issues resolved or documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | ✅ 0.30.0 prepared    | Local worktree versioned at 0.30.0; production remains on v0.29.18 pending controlled upgrade                                                                                                       |
-| Repository update target   | ✅ 0.30.0 local       | Performance optimizations (indexes, expiry-aware cache, monitoring, batch ops, Admin optimizations) ready for deployment                                                                            |
+| Current version            | ✅ 0.30.3 prepared    | Production Worker/Admin remain on v0.30.1 pending the repaired controlled upgrade                                                                                                                   |
+| Repository update target   | ✅ 0.30.3 local       | Production upgrade remains bound to `everett7623/Linketry` `main`; no redirect, D1, KV, migration, or secret contract changed                                                                       |
 | Next planned work          | 🟡 Pre-1.0 validation | Deploy performance optimizations, fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, private vulnerability reporting |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system, batch operations shipped in 0.30.0 |
+
+---
+
+## Linketry 0.30.3 Production Upgrade Recovery
+
+| Area                     | Status       | Notes                                                                                                                        |
+| ------------------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Deployment preflight     | ✅ Fixed      | Demo/Admin parity reads the root package version instead of a release-specific `0.29.20` literal                            |
+| Sidebar upgrade trigger  | ✅ Fixed      | An upgrade click made while capability is loading is retained and handled after the configured repository/branch is verified |
+| Upgrade target           | ✅ Preserved  | Production remains bound to `everett7623/Linketry` `main` and the protected `deploy.yml` workflow                           |
+| Safety boundaries        | ✅ Unchanged  | Existing backup, migration digest, target, release, and Cloudflare resource gates remain mandatory                          |
+| Production state         | 🟡 Pending    | v0.30.1 remains live until the reviewed v0.30.3 commit is approved and deployed                                              |
 
 ---
 

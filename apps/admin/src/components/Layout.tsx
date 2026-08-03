@@ -25,6 +25,7 @@ function LayoutContent() {
   const { t } = useLocale();
   const location = useLocation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [upgradeRequestRevision, setUpgradeRequestRevision] = useState(0);
   const mobileDialogRef = useRef<HTMLDivElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const updateCheck = useUpdateCheckContext();
@@ -59,7 +60,10 @@ function LayoutContent() {
       data-table-density={tableDensity}
     >
       <div className="hidden h-full lg:block">
-        <Sidebar collapsed={sidebarCollapsed} />
+        <Sidebar
+          collapsed={sidebarCollapsed}
+          onRequestUpgrade={() => setUpgradeRequestRevision((revision) => revision + 1)}
+        />
       </div>
 
       {mobileSidebarOpen && (
@@ -80,6 +84,7 @@ function LayoutContent() {
             mobile
             onClose={() => setMobileSidebarOpen(false)}
             onNavigate={() => setMobileSidebarOpen(false)}
+            onRequestUpgrade={() => setUpgradeRequestRevision((revision) => revision + 1)}
           />
         </div>
       )}
@@ -122,7 +127,11 @@ function LayoutContent() {
           <span className="truncate text-sm font-semibold text-slate-100">Linketry</span>
         </div>
         <DemoModeBanner />
-        <UpdateBanner update={updateCheck.update} onDismiss={updateCheck.dismiss} />
+        <UpdateBanner
+          update={updateCheck.update}
+          onDismiss={updateCheck.dismiss}
+          upgradeRequestRevision={upgradeRequestRevision}
+        />
         <div className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 sm:py-8">
           <Suspense fallback={<PageLoading />}>
             <Outlet />
