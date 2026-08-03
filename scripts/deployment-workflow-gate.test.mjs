@@ -205,6 +205,18 @@ test('production workflow runs the safety gate before every Cloudflare write', (
   assert.ok(migrations < deploy);
   assert.ok(deploy < adminDeploy);
   assert.ok(adminDeploy < adminReady);
+  const readinessStep = workflow.slice(
+    adminReady,
+    workflow.indexOf('- name: Write deployment access summary')
+  );
+  const pagesReadiness = readinessStep.indexOf('--admin-url "$PAGES_ORIGIN"');
+  const customDomainReadiness = readinessStep.indexOf('--admin-url "$LINKETRY_ADMIN_URL"');
+  assert.match(
+    readinessStep,
+    /PAGES_ORIGIN="https:\/\/\$\{LINKETRY_PAGES_PROJECT\}\.pages\.dev"/
+  );
+  assert.ok(pagesReadiness > -1);
+  assert.ok(pagesReadiness < customDomainReadiness);
   for (const name of [
     'LINKETRY_DEPLOYMENT_TRACK',
     'LINKETRY_APPROVED_RELEASE',

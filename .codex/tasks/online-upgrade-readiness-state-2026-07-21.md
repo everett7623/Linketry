@@ -54,3 +54,11 @@ Make an in-progress Admin page automatically converge to the deployed release wi
 - The parity test now reads the root package version, and a delayed-capability browser regression verifies that production waits for `everett7623/Linketry` `main` before opening the upgrade confirmation.
 - Redirect handling, D1/KV data, migrations, secrets, and the protected deployment gates remain unchanged.
 - Local verification passes: 90 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 26 Admin browser, 1 production-build browser, and 10 Site tests, plus Worker type-check and Admin/Site production builds.
+
+## v0.30.4 Two-stage Readiness Follow-up
+
+- Production run `30783158533` passed preflight, tests, safety gates, migrations, Worker deployment, and Admin deployment; v0.30.3 is live on the Worker, Pages origin, and custom Admin domain.
+- The run ended at Admin readiness because its first custom-domain request reached a new hashed asset before Pages propagation completed, received SPA fallback HTML, and the outer custom-domain cache retained that response as a cache hit.
+- The production workflow now verifies the exact target version and canonical initial JS/CSS MIME on `https://${LINKETRY_PAGES_PROJECT}.pages.dev` before making its first custom-domain readiness request.
+- The custom-domain check remains strict and does not add a query string, `no-cache` bypass, or alternate asset URL, so a green workflow still proves the user-facing canonical deployment is usable.
+- The production online-upgrade target remains `everett7623/Linketry` `main`; dispatch, approval variables, backup, migrations, and Cloudflare resource gates are unchanged.

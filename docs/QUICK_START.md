@@ -34,7 +34,7 @@ After deployment finishes, check that your instance is healthy:
 https://<your-worker-name>.workers.dev/health
 ```
 
-You should see `{"status":"ok","version":"0.30.0"}`.
+You should see `{"status":"ok","version":"0.30.4"}`.
 
 If you get an error, wait 30 seconds and retry — Workers can take a moment to propagate.
 

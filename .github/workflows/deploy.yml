@@ -185,7 +185,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.30.3'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.30.4'}"`,
             `LINKETRY_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
             `LINKETRY_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             `LINKETRY_UPDATE_REPOSITORY = ${JSON.stringify(env.LINKETRY_UPDATE_REPOSITORY)}`,
@@ -372,13 +372,15 @@ jobs:
       - name: Verify Admin deployment readiness
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.LINKETRY_API_URL != '' && env.LINKETRY_PAGES_PROJECT != ''
         run: |
-          ADMIN_ORIGIN="$LINKETRY_ADMIN_URL"
-          if [ -z "$ADMIN_ORIGIN" ]; then
-            ADMIN_ORIGIN="https://${LINKETRY_PAGES_PROJECT}.pages.dev"
-          fi
+          PAGES_ORIGIN="https://${LINKETRY_PAGES_PROJECT}.pages.dev"
           node scripts/admin-live-smoke.mjs \
-            --admin-url "$ADMIN_ORIGIN" \
+            --admin-url "$PAGES_ORIGIN" \
             --version "$RESOLVED_LINKETRY_VERSION"
+          if [ -n "$LINKETRY_ADMIN_URL" ] && [ "$LINKETRY_ADMIN_URL" != "$PAGES_ORIGIN" ]; then
+            node scripts/admin-live-smoke.mjs \
+              --admin-url "$LINKETRY_ADMIN_URL" \
+              --version "$RESOLVED_LINKETRY_VERSION"
+          fi
 
       - name: Write deployment access summary
         if: always()

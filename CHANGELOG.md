@@ -7,6 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.30.4] - 2026-08-03
+
+### Fixed
+
+- 修复生产 Admin readiness 在 Pages 新版本静态资源尚未完成传播时先访问自定义域名，导致边缘节点将 SPA fallback HTML 缓存到新 hash 资源路径并使工作流误失败的问题
+- readiness 现在先严格验证 `pages.dev` 源站的目标版本和初始 JS/CSS MIME，再验证生产自定义域名，避免首次探测污染生产缓存
+- 保留 canonical URL、目标版本和资源 MIME 校验，不使用 query string 或 cache bypass 绕过生产可访问性检查
+
+### Changed
+
+- 同步所有 workspace、Worker 示例、Admin/Site 版本资产、部署文档与 CI fallback 至 v0.30.4
+
+---
+
 ## [0.30.3] - 2026-08-03
 
 ### Fixed
