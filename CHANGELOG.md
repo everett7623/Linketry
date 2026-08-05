@@ -7,6 +7,23 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.30.7] - 2026-08-06
+
+### Fixed
+
+- Malformed or non-object online-upgrade request bodies now return a controlled `400` response instead of risking an internal error.
+- 在线升级现在把后台确认的目标版本绑定到 GitHub 分支的精确提交；若分支在 dispatch 前变化，Worker 或受保护工作流会在任何 Cloudflare 写入前拒绝部署
+- Admin 升级状态机新增同步操作锁和操作代际校验，防止重复确认、目标版本变化或旧轮询回调启动并发部署或覆盖新状态
+- 移动端从导航抽屉打开版本中心时会先关闭导航，只保留一个模态焦点陷阱；关闭版本中心后焦点返回移动菜单按钮
+
+### Changed
+
+- `POST /api/v1/system/upgrade` 现在要求 `expectedVersion`，OpenAPI 合约同步声明必需请求体与分支目标变化的 `409` 响应
+- 受保护生产工作流接受可选的精确 release/commit 输入，并在生成手动发布批准前验证其与运行提交一致
+- 同步所有 workspace、Worker 示例、Admin/Site 版本资产、部署文档与 CI fallback 至 v0.30.7
+
+---
+
 ## [0.30.6] - 2026-08-03
 
 ### Added

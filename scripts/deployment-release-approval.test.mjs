@@ -26,6 +26,8 @@ test('authenticated manual confirmation approves only the selected version and c
         GITHUB_SHA: commit,
         GITHUB_ACTOR: 'everettlabs',
         LINKETRY_MANUAL_RELEASE_APPROVED: 'true',
+        LINKETRY_EXPECTED_RELEASE: '0.25.10',
+        LINKETRY_EXPECTED_COMMIT: commit,
       },
     }),
     {
@@ -34,6 +36,41 @@ test('authenticated manual confirmation approves only the selected version and c
       approvedCommit: commit,
       actor: 'everettlabs',
     }
+  );
+});
+
+test('authenticated in-app approval fails closed when release or commit changed before dispatch', () => {
+  const baseEnv = {
+    GITHUB_EVENT_NAME: 'workflow_dispatch',
+    GITHUB_SHA: commit,
+    GITHUB_ACTOR: 'everettlabs',
+    LINKETRY_MANUAL_RELEASE_APPROVED: 'true',
+    LINKETRY_EXPECTED_RELEASE: '0.25.11',
+    LINKETRY_EXPECTED_COMMIT: commit,
+  };
+  assert.throws(
+    () => resolveManualReleaseApproval({ env: baseEnv, version: '0.25.10' }),
+    /does not match package version/
+  );
+  assert.throws(
+    () =>
+      resolveManualReleaseApproval({
+        env: {
+          ...baseEnv,
+          LINKETRY_EXPECTED_RELEASE: '0.25.10',
+          LINKETRY_EXPECTED_COMMIT: 'b'.repeat(40),
+        },
+        version: '0.25.10',
+      }),
+    /does not match GITHUB_SHA/
+  );
+  assert.throws(
+    () =>
+      resolveManualReleaseApproval({
+        env: { ...baseEnv, LINKETRY_EXPECTED_COMMIT: '' },
+        version: '0.25.10',
+      }),
+    /must be provided together/
   );
 });
 

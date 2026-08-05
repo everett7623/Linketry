@@ -133,7 +133,7 @@ function LayoutContent() {
           </Suspense>
         </div>
       </main>
-      <VersionCenterDialog />
+      <VersionCenterDialog returnFocusRef={mobileMenuButtonRef} />
     </div>
   );
 }

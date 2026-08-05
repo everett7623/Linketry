@@ -6,6 +6,8 @@ const DEPLOY_WORKFLOW = 'deploy.yml';
 const REQUEST_TIMEOUT_MS = 10_000;
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const BRANCH_PATTERN = /^[A-Za-z0-9._/-]+$/;
+const COMMIT_PATTERN = /^[a-f0-9]{40}$/i;
+const VERSION_PATTERN = /^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z.-]+))?$/;
 
 type Fetcher = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
@@ -38,6 +40,11 @@ interface UpgradeConfig {
   token: string;
   repositoryUrl: string;
   workflowUrl: string;
+}
+
+interface DeploymentTarget {
+  commit: string;
+  version: string;
 }
 
 export class OnlineUpgradeError extends Error {
@@ -89,9 +96,21 @@ export function getOnlineUpgradeCapability(env: Env): OnlineUpgradeCapability {
 
 export async function dispatchOnlineUpgrade(
   env: Env,
+  expectedVersion: string,
   fetcher: Fetcher = globalThis.fetch
 ): Promise<OnlineUpgradeDispatch> {
   const config = resolveConfig(env);
+  const normalizedExpectedVersion = normalizeReleaseVersion(expectedVersion);
+  if (!normalizedExpectedVersion) {
+    throw new OnlineUpgradeError('Online upgrade requires a valid expected version.', 400);
+  }
+  const target = await readDeploymentTarget(config, fetcher);
+  if (target.version !== normalizedExpectedVersion) {
+    throw new OnlineUpgradeError(
+      `Configured branch now advertises Linketry ${target.version}; refresh before upgrading.`,
+      409
+    );
+  }
   const response = await githubFetch(
     `${workflowApiUrl(config)}/dispatches`,
     config.token,
@@ -99,7 +118,11 @@ export async function dispatchOnlineUpgrade(
       method: 'POST',
       body: JSON.stringify({
         ref: config.branch,
-        inputs: { confirm_release: 'true' },
+        inputs: {
+          confirm_release: 'true',
+          expected_release: target.version,
+          expected_commit: target.commit,
+        },
       }),
     },
     fetcher
@@ -126,6 +149,41 @@ export async function dispatchOnlineUpgrade(
     runUrl: safeRunUrl(record.html_url, config, runId),
     status: 'queued',
   };
+}
+
+async function readDeploymentTarget(
+  config: UpgradeConfig,
+  fetcher: Fetcher
+): Promise<DeploymentTarget> {
+  const commitResponse = await githubFetch(
+    `${GITHUB_API_URL}/repos/${config.repository}/commits/${encodeURIComponent(config.branch)}`,
+    config.token,
+    {},
+    fetcher
+  );
+  if (!commitResponse.ok) throw githubError('target commit lookup', commitResponse.status);
+
+  const commitBody = (await commitResponse.json()) as unknown;
+  const commit = stringValue(isRecord(commitBody) ? commitBody.sha : null)?.toLowerCase() ?? '';
+  if (!COMMIT_PATTERN.test(commit)) {
+    throw new OnlineUpgradeError('GitHub returned an invalid deployment commit.', 502);
+  }
+
+  const packageResponse = await githubFetch(
+    `${GITHUB_API_URL}/repos/${config.repository}/contents/package.json?ref=${encodeURIComponent(commit)}`,
+    config.token,
+    { headers: { Accept: 'application/vnd.github.raw+json' } },
+    fetcher
+  );
+  if (!packageResponse.ok) throw githubError('target package lookup', packageResponse.status);
+
+  const packageBody = (await packageResponse.json()) as unknown;
+  const packageRecord = isRecord(packageBody) ? packageBody : {};
+  const version = normalizeReleaseVersion(stringValue(packageRecord.version) ?? '');
+  if (packageRecord.name !== 'linketry' || !version) {
+    throw new OnlineUpgradeError('GitHub returned invalid Linketry package metadata.', 502);
+  }
+  return { commit, version };
 }
 
 export async function readOnlineUpgradeRun(
@@ -180,6 +238,13 @@ function resolveConfig(env: Env): UpgradeConfig {
     repositoryUrl: capability.repositoryUrl,
     workflowUrl: capability.workflowUrl,
   };
+}
+
+function normalizeReleaseVersion(value: string): string | null {
+  const match = value.trim().match(VERSION_PATTERN);
+  if (!match) return null;
+  const prerelease = match[4] ? `-${match[4]}` : '';
+  return `${match[1]}.${match[2]}.${match[3]}${prerelease}`;
 }
 
 async function githubFetch(

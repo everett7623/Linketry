@@ -2,9 +2,9 @@
 
 This file tells AI coding agents (Cascade, Codex, Copilot, etc.) how to work on this codebase safely and correctly.
 
-**Last updated**: 2026-07-30  
-**Current version**: v0.29.20+optimization (local)  
-**Production version**: v0.29.18
+**Last updated**: 2026-08-06
+**Current version**: v0.30.7 (local)
+**Production version**: v0.30.6
 
 ---
 

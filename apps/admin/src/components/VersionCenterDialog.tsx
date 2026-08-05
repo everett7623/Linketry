@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { Check, Circle, ExternalLink, LoaderCircle, RefreshCw, RotateCcw } from 'lucide-react';
 import { LINKETRY_VERSION } from '@linketry/shared';
 import { useLocale } from '../contexts/LocaleContext';
@@ -12,7 +12,11 @@ import { Modal } from './ui/Modal';
 
 const progressPhases = ['starting', 'queued', 'running', 'finalizing'] as const;
 
-export function VersionCenterDialog() {
+export function VersionCenterDialog({
+  returnFocusRef,
+}: {
+  returnFocusRef?: RefObject<HTMLElement>;
+}) {
   const { locale, t } = useLocale();
   const updateCheck = useUpdateCheckContext();
   const upgrade = useOnlineUpgradeContext();
@@ -29,6 +33,7 @@ export function VersionCenterDialog() {
       onClose={upgrade.closeCenter}
       title={t('versionCenterTitle')}
       size="md"
+      returnFocusRef={returnFocusRef}
     >
       <p className="text-sm leading-6 text-slate-400">{t('versionCenterDescription')}</p>
 

@@ -45,7 +45,14 @@ test('online upgrade capability rejects unsafe repository and branch configurati
 
 test('dispatch uses only configured deployment targets and returns GitHub run details', async () => {
   let request;
-  const result = await dispatchOnlineUpgrade(configuredEnv, async (input, init) => {
+  const commit = 'b'.repeat(40);
+  const result = await dispatchOnlineUpgrade(configuredEnv, '0.30.7', async (input, init) => {
+    const url = String(input);
+    if (url.endsWith('/commits/main')) return Response.json({ sha: commit });
+    if (url.includes('/contents/package.json?ref=')) {
+      assert.equal(init.headers.Accept, 'application/vnd.github.raw+json');
+      return Response.json({ name: 'linketry', version: '0.30.7' });
+    }
     request = { input: String(input), init };
     return Response.json({
       workflow_run_id: 12345,
@@ -61,7 +68,11 @@ test('dispatch uses only configured deployment targets and returns GitHub run de
   assert.equal(request.init.headers.Authorization, 'Bearer github-token');
   assert.deepEqual(JSON.parse(request.init.body), {
     ref: 'main',
-    inputs: { confirm_release: 'true' },
+    inputs: {
+      confirm_release: 'true',
+      expected_release: '0.30.7',
+      expected_commit: commit,
+    },
   });
   assert.deepEqual(result, {
     accepted: true,
@@ -72,7 +83,13 @@ test('dispatch uses only configured deployment targets and returns GitHub run de
 });
 
 test('dispatch supports GitHub responses without immediate run details', async () => {
-  const result = await dispatchOnlineUpgrade(configuredEnv, async () => {
+  const commit = 'c'.repeat(40);
+  const result = await dispatchOnlineUpgrade(configuredEnv, '0.30.7', async (input) => {
+    const url = String(input);
+    if (url.endsWith('/commits/main')) return Response.json({ sha: commit });
+    if (url.includes('/contents/package.json?ref=')) {
+      return Response.json({ name: 'linketry', version: '0.30.7' });
+    }
     return new Response(null, { status: 204 });
   });
   assert.equal(result.runId, null);
@@ -80,6 +97,25 @@ test('dispatch supports GitHub responses without immediate run details', async (
     result.runUrl,
     'https://github.com/owner/linketry-fork/actions/workflows/deploy.yml'
   );
+});
+
+test('dispatch fails closed when the configured branch no longer matches the confirmed release', async () => {
+  const commit = 'd'.repeat(40);
+  let dispatchCalled = false;
+  await assert.rejects(
+    () =>
+      dispatchOnlineUpgrade(configuredEnv, '0.30.7', async (input) => {
+        const url = String(input);
+        if (url.endsWith('/commits/main')) return Response.json({ sha: commit });
+        if (url.includes('/contents/package.json?ref=')) {
+          return Response.json({ name: 'linketry', version: '0.30.8' });
+        }
+        dispatchCalled = true;
+        return new Response(null, { status: 204 });
+      }),
+    (error) => error instanceof OnlineUpgradeError && error.status === 409
+  );
+  assert.equal(dispatchCalled, false);
 });
 
 test('run status is validated and reduced to the public polling contract', async () => {
@@ -107,8 +143,12 @@ test('run status is validated and reduced to the public polling contract', async
 
 test('upgrade requests reject missing configuration and invalid run IDs', async () => {
   await assert.rejects(
-    () => dispatchOnlineUpgrade({}),
+    () => dispatchOnlineUpgrade({}, '0.30.7'),
     (error) => error instanceof OnlineUpgradeError && error.status === 503
+  );
+  await assert.rejects(
+    () => dispatchOnlineUpgrade(configuredEnv, '../0.30.7'),
+    (error) => error instanceof OnlineUpgradeError && error.status === 400
   );
   await assert.rejects(
     () => readOnlineUpgradeRun(configuredEnv, 0),

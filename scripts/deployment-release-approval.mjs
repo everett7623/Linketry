@@ -29,11 +29,22 @@ export function resolveManualReleaseApproval({
 
   const commit = readEnv(env, 'GITHUB_SHA').toLowerCase();
   const actor = readEnv(env, 'GITHUB_ACTOR');
+  const expectedRelease = readEnv(env, 'LINKETRY_EXPECTED_RELEASE');
+  const expectedCommit = readEnv(env, 'LINKETRY_EXPECTED_COMMIT').toLowerCase();
   if (!version)
     throw new Error('Manual deployment could not resolve the Linketry package version.');
   if (!SHA_PATTERN.test(commit))
     throw new Error('Manual deployment requires an exact GitHub commit SHA.');
   if (!actor) throw new Error('Manual deployment requires an authenticated GitHub actor.');
+  if (Boolean(expectedRelease) !== Boolean(expectedCommit)) {
+    throw new Error('Expected release and commit must be provided together.');
+  }
+  if (expectedRelease && expectedRelease !== version) {
+    throw new Error(`Expected release ${expectedRelease} does not match package version ${version}.`);
+  }
+  if (expectedCommit && (!SHA_PATTERN.test(expectedCommit) || expectedCommit !== commit)) {
+    throw new Error('Expected commit does not match GITHUB_SHA for this deployment.');
+  }
 
   return {
     mode: 'workflow-dispatch',

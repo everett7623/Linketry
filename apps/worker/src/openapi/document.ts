@@ -157,6 +157,8 @@ const jsonResponse = (
 export function createOpenApiDocument(_env: Env, version = '0.29.20') {
   const paths: Record<string, Record<string, unknown>> = {};
   for (const operation of API_OPERATIONS) {
+    const isUpgradeDispatch =
+      operation.method === 'post' && operation.path === '/system/upgrade';
     const parameters = [...operation.path.matchAll(/\{([^}]+)\}/g)].map((match) => ({
       name: match[1],
       in: 'path',
@@ -173,9 +175,24 @@ export function createOpenApiDocument(_env: Env, version = '0.29.20') {
       ...(operation.method !== 'get' && operation.method !== 'delete'
         ? {
             requestBody: {
-              required: false,
+              required: isUpgradeDispatch,
               content: {
-                'application/json': { schema: { type: 'object', additionalProperties: true } },
+                'application/json': {
+                  schema: isUpgradeDispatch
+                    ? {
+                        type: 'object',
+                        additionalProperties: false,
+                        required: ['expectedVersion'],
+                        properties: {
+                          expectedVersion: {
+                            type: 'string',
+                            pattern:
+                              '^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$',
+                          },
+                        },
+                      }
+                    : { type: 'object', additionalProperties: true },
+                },
               },
             },
           }
@@ -190,6 +207,13 @@ export function createOpenApiDocument(_env: Env, version = '0.29.20') {
           $ref: '#/components/schemas/ApiError',
         }),
         '404': jsonResponse('Resource not found', { $ref: '#/components/schemas/ApiError' }),
+        ...(isUpgradeDispatch
+          ? {
+              '409': jsonResponse('Configured branch changed after update discovery', {
+                $ref: '#/components/schemas/ApiError',
+              }),
+            }
+          : {}),
       },
     };
   }

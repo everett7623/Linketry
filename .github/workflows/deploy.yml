@@ -11,6 +11,14 @@ on:
         required: true
         default: false
         type: boolean
+      expected_release:
+        description: Optional exact release expected by an authenticated in-app upgrade
+        required: false
+        type: string
+      expected_commit:
+        description: Optional exact commit expected by an authenticated in-app upgrade
+        required: false
+        type: string
 
 concurrency:
   group: deploy-linketry
@@ -87,6 +95,8 @@ jobs:
       - name: Resolve authenticated manual release approval
         env:
           LINKETRY_MANUAL_RELEASE_APPROVED: ${{ inputs.confirm_release }}
+          LINKETRY_EXPECTED_RELEASE: ${{ inputs.expected_release }}
+          LINKETRY_EXPECTED_COMMIT: ${{ inputs.expected_commit }}
         run: node scripts/deployment-release-approval.mjs
 
       - name: Test deployment preflight policies
@@ -185,7 +195,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.30.6'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.30.7'}"`,
             `LINKETRY_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
             `LINKETRY_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             `LINKETRY_UPDATE_REPOSITORY = ${JSON.stringify(env.LINKETRY_UPDATE_REPOSITORY)}`,

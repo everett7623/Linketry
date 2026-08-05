@@ -64,5 +64,11 @@ test('OpenAPI document is versioned, secured, unique, and contains no credential
   );
   assert.deepEqual(document.paths['/auth/login'].post.security, []);
   assert.deepEqual(document.paths['/links'].get.security, [{ bearerAuth: [] }]);
+  assert.equal(document.paths['/system/upgrade'].post.requestBody.required, true);
+  assert.deepEqual(
+    document.paths['/system/upgrade'].post.requestBody.content['application/json'].schema.required,
+    ['expectedVersion']
+  );
+  assert.ok(document.paths['/system/upgrade'].post.responses['409']);
   assert.doesNotMatch(JSON.stringify(document), /LINKETRY_ADMIN_TOKEN|Bearer [A-Za-z0-9_-]{8,}/);
 });

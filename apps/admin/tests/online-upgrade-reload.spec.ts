@@ -81,6 +81,7 @@ test('no-run-ID deployment waits through stale Admin assets and resumes on focus
       return;
     }
     if (path === '/api/v1/system/upgrade' && request.method() === 'POST') {
+      expect(request.postDataJSON()).toEqual({ expectedVersion: targetVersion });
       await route.fulfill(
         apiResponse({
           accepted: true,
@@ -185,6 +186,7 @@ test('successful deployment verifies the new runtime across the Admin and Worker
       return;
     }
     if (path === '/api/v1/system/upgrade' && request.method() === 'POST') {
+      expect(request.postDataJSON()).toEqual({ expectedVersion: targetVersion });
       await route.fulfill(
         corsApiResponse({
           accepted: true,

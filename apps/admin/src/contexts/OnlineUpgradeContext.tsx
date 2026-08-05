@@ -64,6 +64,8 @@ export function OnlineUpgradeProvider({ children }: { children: React.ReactNode 
   const [error, setError] = useState<string | null>(null);
   const activeRef = useRef(true);
   const targetVersionRef = useRef<string | null>(null);
+  const operationIdRef = useRef(0);
+  const operationInFlightRef = useRef(false);
   const capabilityRequestRef = useRef<Promise<OnlineUpgradeCapability | null> | null>(null);
   const {
     feedback,
@@ -75,6 +77,7 @@ export function OnlineUpgradeProvider({ children }: { children: React.ReactNode 
     scheduleReload,
   } = useUpgradeFeedback();
   const availableUpdate = updateCheck.result?.updateAvailable ? updateCheck.result : null;
+  const busy = ['starting', 'queued', 'running', 'finalizing', 'success'].includes(phase);
 
   useEffect(() => {
     activeRef.current = true;
@@ -112,13 +115,14 @@ export function OnlineUpgradeProvider({ children }: { children: React.ReactNode 
   }, [dismissFeedback, feedbackCompleted]);
 
   useEffect(() => {
+    if (busy) return;
     const nextTargetVersion = availableUpdate?.latestVersion ?? null;
     if (targetVersionRef.current === nextTargetVersion) return;
     targetVersionRef.current = nextTargetVersion;
     setPhase('idle');
     setRunUrl(null);
     setError(null);
-  }, [availableUpdate?.latestVersion]);
+  }, [availableUpdate?.latestVersion, busy]);
 
   const automaticCapability = useMemo(() => {
     if (capability === undefined) return undefined;
@@ -132,8 +136,6 @@ export function OnlineUpgradeProvider({ children }: { children: React.ReactNode 
     }
     return null;
   }, [availableUpdate, capability]);
-
-  const busy = ['starting', 'queued', 'running', 'finalizing', 'success'].includes(phase);
 
   const openCenter = useCallback(() => {
     setCenterOpen(true);
@@ -149,7 +151,7 @@ export function OnlineUpgradeProvider({ children }: { children: React.ReactNode 
 
   const requestUpgrade = useCallback(() => {
     setCenterOpen(true);
-    if (!availableUpdate) return;
+    if (!availableUpdate || operationInFlightRef.current) return;
     if (automaticCapability?.enabled) {
       setPhase('confirming');
       setError(null);
@@ -164,29 +166,43 @@ export function OnlineUpgradeProvider({ children }: { children: React.ReactNode 
   }, []);
 
   const confirmUpgrade = useCallback(async () => {
-    if (!automaticCapability?.enabled || !availableUpdate || phase !== 'confirming') return;
+    if (
+      !automaticCapability?.enabled ||
+      !availableUpdate ||
+      phase !== 'confirming' ||
+      operationInFlightRef.current
+    ) {
+      return;
+    }
+    const operationId = operationIdRef.current + 1;
+    operationIdRef.current = operationId;
+    operationInFlightRef.current = true;
+    const targetVersion = availableUpdate.latestVersion;
+    const isCurrentOperation = () =>
+      activeRef.current && operationIdRef.current === operationId;
     setPhase('starting');
     setError(null);
     setRunUrl(null);
 
     try {
-      const dispatch = await startOnlineUpgrade();
-      if (!activeRef.current) return;
+      const dispatch = await startOnlineUpgrade(targetVersion);
+      if (!isCurrentOperation()) return;
       setRunUrl(dispatch.runUrl);
       const result = await waitForOnlineUpgrade({
-        targetVersion: availableUpdate.latestVersion,
+        targetVersion,
         runId: dispatch.runId,
         readRun: getOnlineUpgradeRun,
         readRuntimeVersion: fetchRuntimeVersion,
-        readAdminReady: () => isAdminReleaseReady(availableUpdate.latestVersion),
+        readAdminReady: () => isAdminReleaseReady(targetVersion),
         onPhase: (nextPhase) => {
-          if (activeRef.current) setPhase(nextPhase);
+          if (isCurrentOperation()) setPhase(nextPhase);
         },
-        shouldContinue: () => activeRef.current,
+        shouldContinue: isCurrentOperation,
       });
-      if (!activeRef.current || result.outcome === 'cancelled') return;
+      if (!isCurrentOperation() || result.outcome === 'cancelled') return;
+      operationInFlightRef.current = false;
       if (result.outcome === 'success') {
-        rememberSuccessfulDeployment(availableUpdate.latestVersion);
+        rememberSuccessfulDeployment(targetVersion);
         setPhase('success');
         toast.success(t('upgradeSucceeded'));
         scheduleReload(SUCCESS_RELOAD_DELAY_MS);
@@ -204,7 +220,8 @@ export function OnlineUpgradeProvider({ children }: { children: React.ReactNode 
       if (result.outcome === 'verification_failed') toast.warning(failureMessage);
       else toast.error(failureMessage);
     } catch (upgradeError) {
-      if (!activeRef.current) return;
+      if (!isCurrentOperation()) return;
+      operationInFlightRef.current = false;
       const failureMessage =
         upgradeError instanceof Error ? upgradeError.message : t('upgradeFailedGeneric');
       setPhase('failed');

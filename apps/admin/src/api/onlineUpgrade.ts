@@ -31,8 +31,8 @@ export function getOnlineUpgradeCapability(): Promise<OnlineUpgradeCapability> {
   return apiGet<OnlineUpgradeCapability>('/api/v1/system/upgrade');
 }
 
-export function startOnlineUpgrade(): Promise<OnlineUpgradeDispatch> {
-  return apiPost<OnlineUpgradeDispatch>('/api/v1/system/upgrade');
+export function startOnlineUpgrade(expectedVersion: string): Promise<OnlineUpgradeDispatch> {
+  return apiPost<OnlineUpgradeDispatch>('/api/v1/system/upgrade', { expectedVersion });
 }
 
 export function getOnlineUpgradeRun(runId: number): Promise<OnlineUpgradeRun> {

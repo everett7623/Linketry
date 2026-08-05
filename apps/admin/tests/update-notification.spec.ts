@@ -321,6 +321,7 @@ test('automatic upgrade confirms deployment, verifies runtime, and reloads the A
     }
     if (path === '/api/v1/system/upgrade' && request.method() === 'POST') {
       dispatchRequests += 1;
+      expect(request.postDataJSON()).toEqual({ expectedVersion: latestVersion });
       await route.fulfill(
         apiResponse({
           accepted: true,
@@ -359,7 +360,12 @@ test('automatic upgrade confirms deployment, verifies runtime, and reloads the A
   ).toBeVisible();
 
   const reloaded = page.waitForEvent('load');
-  await versionCenter.getByRole('button', { name: messages.en.confirmUpgrade }).click();
+  await versionCenter
+    .getByRole('button', { name: messages.en.confirmUpgrade })
+    .evaluate((element) => {
+      (element as HTMLButtonElement).click();
+      (element as HTMLButtonElement).click();
+    });
   await expect(versionCenter.getByText(messages.en.upgradeSucceeded)).toBeVisible();
   await reloaded;
 

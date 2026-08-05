@@ -5,7 +5,13 @@ import { useLocale } from '../../contexts/LocaleContext';
 import { useOnlineUpgradeContext } from '../../contexts/OnlineUpgradeContext';
 import { useUpdateCheckContext } from '../../contexts/UpdateCheckContext';
 
-export function SidebarVersionStatus({ collapsed }: { collapsed: boolean }) {
+export function SidebarVersionStatus({
+  collapsed,
+  onBeforeOpen,
+}: {
+  collapsed: boolean;
+  onBeforeOpen?: () => void;
+}) {
   const { t } = useLocale();
   const updateCheck = useUpdateCheckContext();
   const upgrade = useOnlineUpgradeContext();
@@ -22,12 +28,21 @@ export function SidebarVersionStatus({ collapsed }: { collapsed: boolean }) {
           ? t('updateAvailableTitle', { version: latestVersion })
           : t('checkForUpdates');
 
+  const toggleCenter = () => {
+    if (upgrade.centerOpen) {
+      upgrade.closeCenter();
+      return;
+    }
+    onBeforeOpen?.();
+    upgrade.openCenter();
+  };
+
   return (
     <div className="relative">
       <button
         type="button"
         data-testid="sidebar-version"
-        onClick={upgrade.centerOpen ? upgrade.closeCenter : upgrade.openCenter}
+        onClick={toggleCenter}
         disabled={updateCheck.checking && !upgrade.centerOpen}
         className={clsx(
           'relative flex w-full items-center rounded-lg border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-wait',

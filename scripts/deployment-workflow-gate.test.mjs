@@ -230,6 +230,8 @@ test('production workflow runs the safety gate before every Cloudflare write', (
     assert.match(workflow, new RegExp(`${name}: \\$\\{\\{ vars\\.${name} \\}\\}`));
   }
   assert.match(workflow, /confirm_release:/);
+  assert.match(workflow, /expected_release:/);
+  assert.match(workflow, /expected_commit:/);
   assert.match(workflow, /uses: actions\/checkout@v6/);
   assert.match(workflow, /uses: actions\/setup-node@v6/);
   assert.doesNotMatch(workflow, /uses: actions\/(?:checkout|setup-node)@v4/);
@@ -238,6 +240,8 @@ test('production workflow runs the safety gate before every Cloudflare write', (
     /deploy:\s*\r?\n\s+if: github\.event_name != 'push' \|\| !contains\(github\.event\.head_commit\.message, '\[skip production\]'\)\s*\r?\n\s+runs-on: ubuntu-latest\s*\r?\n\s+environment: production/
   );
   assert.match(workflow, /LINKETRY_MANUAL_RELEASE_APPROVED: \$\{\{ inputs\.confirm_release \}\}/);
+  assert.match(workflow, /LINKETRY_EXPECTED_RELEASE: \$\{\{ inputs\.expected_release \}\}/);
+  assert.match(workflow, /LINKETRY_EXPECTED_COMMIT: \$\{\{ inputs\.expected_commit \}\}/);
   assert.match(workflow, /node scripts\/deployment-release-approval\.mjs/);
   assert.match(
     workflow,

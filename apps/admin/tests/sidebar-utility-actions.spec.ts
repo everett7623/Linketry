@@ -175,6 +175,14 @@ test('Update notice exposes a safe repository upgrade workflow without mobile ov
   await mobileSidebar.getByTestId('sidebar-version').click();
   const versionCenter = page.getByRole('dialog', { name: messages.en.versionCenterTitle });
   await expect(versionCenter).toBeVisible();
+  await expect(mobileSidebar).toHaveCount(0);
+  const closeVersionCenter = versionCenter.getByRole('button', { name: messages.en.closeDialog });
+  await expect(closeVersionCenter).toBeFocused();
+  const lastVersionCenterControl = versionCenter.locator('a[href], button:not([disabled])').last();
+  await page.keyboard.press('Shift+Tab');
+  await expect(lastVersionCenterControl).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(closeVersionCenter).toBeFocused();
   await expect(versionCenter.getByRole('link', { name: messages.en.openDeployment })).toBeVisible();
   await expect
     .poll(() =>
@@ -187,6 +195,9 @@ test('Update notice exposes a safe repository upgrade workflow without mobile ov
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(versionCenter).toHaveCount(0);
+  await expect(page.getByRole('button', { name: messages.en.openNavigation })).toBeFocused();
 });
 
 test('Sidebar waits for production upgrade capability before opening the GitHub upgrade confirmation', async ({

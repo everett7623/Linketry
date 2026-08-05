@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "vars": {
-    "LINKETRY_VERSION": "0.30.6",
+    "LINKETRY_VERSION": "0.30.7",
     "LINKETRY_DAILY_CRON": "0 18 * * *",
     "LINKETRY_HEALTH_CRON": "0 * * * *",
   },

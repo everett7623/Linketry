@@ -10,6 +10,7 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  returnFocusRef?: React.RefObject<HTMLElement>;
 }
 
 const sizeClasses = {
@@ -19,7 +20,14 @@ const sizeClasses = {
   xl: 'max-w-2xl',
 };
 
-export function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  size = 'md',
+  returnFocusRef,
+}: ModalProps) {
   const { t } = useLocale();
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
@@ -52,10 +60,15 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
       document.body.style.overflow = previousOverflow;
       const previousFocus = previousFocusRef.current;
       window.requestAnimationFrame(() => {
-        if (previousFocus?.isConnected) previousFocus.focus();
+        const previousFocusUsable =
+          previousFocus?.isConnected &&
+          previousFocus !== document.body &&
+          previousFocus !== document.documentElement;
+        if (previousFocusUsable) previousFocus.focus();
+        else if (returnFocusRef?.current?.isConnected) returnFocusRef.current.focus();
       });
     };
-  }, [open]);
+  }, [open, returnFocusRef]);
 
   if (!open) return null;
 

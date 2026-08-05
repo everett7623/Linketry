@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-08-05
+Last updated: 2026-08-06
 
 ---
 
@@ -10,19 +10,34 @@ Last updated: 2026-08-05
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.30.6 live        | Production Worker health reports v0.30.6; the release retains the v0.30.5 readiness recovery without changing redirect behavior                                                                     |
-| Admin frontend             | ✅ 0.30.6 live        | Production custom-domain and Pages-origin documents advertise v0.30.6, with executable JavaScript and CSS initial assets                                                                             |
+| Worker backend             | ✅ 0.30.7 prepared    | Online upgrades resolve and bind an exact GitHub release/commit before dispatch; redirect, analytics, D1, and KV behavior are unchanged                                                              |
+| Admin frontend             | ✅ 0.30.7 prepared    | Upgrade operations are generation-isolated and mobile version-center entry preserves one modal and deterministic focus restoration                                                                   |
 | Database schema            | ✅ Migration ready    | Performance indexes migration (0003) prepared and versioned; V6 analytics migration applied in production                                                                                           |
-| Documentation              | ✅ 0.30.6 synchronized | Workspace versions, deployment examples, CI fallbacks, changelog, progress, and task status are aligned                                                                                            |
-| Deployment                 | ✅ 0.30.6 live       | Protected workflow `30801291225` passed safety gates, migrations, Worker/Admin deployment, and dual-origin Admin readiness                                                                            |
-| End-to-end test            | ✅ Complete           | 91 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 26 Admin browser, 1 production-build browser, and 10 Site tests pass; Worker type-check and Admin/Site builds pass                              |
+| Documentation              | ✅ 0.30.7 synchronized | Workspace versions, deployment examples, CI fallbacks, changelog, progress, and task status are aligned                                                                                            |
+| Deployment                 | 🟡 0.30.7 prepared   | Production remains on verified v0.30.6 until release approval variables are updated and the protected workflow is run                                                                                |
+| End-to-end test            | ✅ Complete          | 92 deployment, 112 Worker, 6 Demo API, 64 Admin unit, 26 Admin browser, 1 production browser, and 10 site tests pass; type-check and affected builds pass                                          |
 | Known issues               | ✅ Tracked            | All known issues resolved or documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | ✅ 0.30.6 live        | Production Worker/Admin, Pages origin, and canonical initial assets are verified on v0.30.6                                                                                                          |
-| Repository update target   | ✅ 0.30.6 approved    | GitHub release and commit approvals match `0.30.6` at `6a7d3ba64c6e0d594fe3764b785852931516fd30`; the migration digest remains reviewed                                                             |
+| Current version            | ✅ 0.30.7 prepared    | Local source and release metadata are v0.30.7; production Worker/Admin remain verified on v0.30.6                                                                                                    |
+| Repository update target   | 🟡 0.30.7 local       | Production approvals remain bound to deployed v0.30.6 until the reviewed v0.30.7 commit and unchanged migration digest are approved                                                                 |
 | Next planned work          | 🟡 Pre-1.0 validation | Deploy performance optimizations, fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, private vulnerability reporting |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system, batch operations shipped in 0.30.0 |
+
+---
+
+## Linketry 0.30.7 Upgrade Target And State Isolation
+
+| Area                     | Status      | Notes                                                                                                                        |
+| ------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Target binding           | ✅ Complete | Worker resolves branch commit and package version, then dispatches both as protected workflow expectations                  |
+| Workflow gate            | ✅ Complete | Expected release and commit must match the workflow package and `GITHUB_SHA` before Cloudflare writes                       |
+| Admin operation state    | ✅ Complete | A synchronous lock and operation generation prevent duplicate dispatch and stale async callbacks                           |
+| Mobile modal ownership   | ✅ Complete | Opening the version center closes mobile navigation first; Tab/Escape and focus restoration have browser coverage           |
+| API contract             | ✅ Complete | OpenAPI requires `expectedVersion` and documents the fail-closed `409` response                                             |
+| Redirect/runtime impact  | ✅ None     | Redirect evaluation, analytics, D1/KV ownership, migrations, secrets, and stored data contracts are unchanged              |
+| Regression verification  | ✅ Complete | 92 deployment, 112 Worker, 6 Demo API, 64 Admin unit, 26 Admin browser, 1 production browser, and 10 site tests pass        |
+| Production state         | 🟡 Pending  | v0.30.6 remains live until the reviewed v0.30.7 protected deployment                                                        |
 
 ---
 

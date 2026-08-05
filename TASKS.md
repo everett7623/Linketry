@@ -5,6 +5,24 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## 🟡 In Progress — Online Upgrade Target And State Isolation (v0.30.7)
+
+- [x] Bind the Admin-confirmed version to the configured GitHub branch release before dispatch
+- [x] Resolve the exact target commit and pass release/commit expectations into the protected workflow
+- [x] Reject branch movement or mismatched workflow inputs before any Cloudflare write
+- [x] Require `expectedVersion` in the Worker route, Admin API client, and OpenAPI contract
+- [x] Add synchronous operation locking and generation checks around Admin upgrade polling
+- [x] Close mobile navigation before opening the version center and restore focus deterministically
+- [x] Cover duplicate confirmation, request payload, mobile modal ownership, Tab trapping, and focus restoration
+- [x] Synchronize v0.30.7 workspace versions, runtime examples, CI fallbacks, CHANGELOG, PROGRESS, and task records
+- [x] Complete the full affected regression suite
+- [ ] Update GitHub release approval variables and deploy through the protected production workflow
+- [ ] Verify production Worker/Admin parity, canonical assets, and authenticated online-upgrade capability
+
+Task record: `.codex/tasks/online-upgrade-target-binding-2026-08-06.md`
+
+---
+
 ## ✅ Completed — Unified Version Center And Production Readiness (v0.30.6)
 
 - [x] 同步并确认本地 `main` 与远程 `origin/main` 一致

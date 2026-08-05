@@ -11,6 +11,7 @@ import {
   readOnlineUpgradeRun,
 } from '../updates/github';
 import { jsonError, jsonOk } from '../utils/response';
+import { readExpectedUpgradeVersion } from './systemRequest';
 
 const systemRoutes = new Hono<{ Bindings: Env }>();
 
@@ -45,8 +46,19 @@ systemRoutes.get('/upgrade', (c) => {
 systemRoutes.post('/upgrade', async (c) => {
   if (!isAdminToken(c)) return jsonError('Instance admin token required', 403);
 
+  let body: unknown;
   try {
-    const result = await dispatchOnlineUpgrade(c.env);
+    body = await c.req.json();
+  } catch {
+    return jsonError('Invalid JSON body', 400);
+  }
+  const expectedVersion = readExpectedUpgradeVersion(body);
+  if (expectedVersion === null) {
+    return jsonError('expectedVersion is required', 400);
+  }
+
+  try {
+    const result = await dispatchOnlineUpgrade(c.env, expectedVersion);
     await recordAudit(
       c.env,
       c.req.raw,
@@ -56,6 +68,7 @@ systemRoutes.post('/upgrade', async (c) => {
       {
         repository: c.env.LINKETRY_UPDATE_REPOSITORY,
         branch: c.env.LINKETRY_UPDATE_BRANCH || 'main',
+        expected_version: expectedVersion,
       }
     );
     return jsonOk(result);
