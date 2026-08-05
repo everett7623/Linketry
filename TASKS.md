@@ -5,7 +5,7 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Unified Version Center And Production Readiness (v0.30.6)
+## ✅ Completed — Unified Version Center And Production Readiness (v0.30.6)
 
 - [x] 同步并确认本地 `main` 与远程 `origin/main` 一致
 - [x] 从 GitHub Actions 日志复现 v0.30.2 部署预检失败
@@ -29,8 +29,10 @@ One item in "In Progress" at a time whenever possible.
 - [x] 同步 v0.30.6 release metadata、部署示例、CHANGELOG、PROGRESS 和任务记录
 - [x] 完成 v0.30.6 全量本地 release regression
 - [x] 核对 React Router RSC advisory；当前 Vite SPA 不使用受影响的 unstable RSC APIs，等待非破坏性上游修复
-- [ ] 更新 GitHub 发布审批变量并通过受保护工作流部署生产
-- [ ] 验证生产 Worker、Admin、静态资产与在线升级 capability
+- [x] 通过受保护工作流 `30801291225` 部署生产，并确认安全门禁、迁移、Worker/Admin 发布和双域 readiness 全部通过
+- [x] 验证生产 Worker、Admin 文档和 canonical JS/CSS 静态资产均为 v0.30.6
+- [x] 确认线上受保护 system capability 路由未授权返回 `401`，且生产部署保留已配置的在线升级 GitHub secret
+- [x] 将 GitHub 发布审批变量同步至 `0.30.6`、提交 `6a7d3ba64c6e0d594fe3764b785852931516fd30` 和已复核迁移摘要
 
 Task record: `.codex/tasks/online-upgrade-readiness-state-2026-07-21.md`
 

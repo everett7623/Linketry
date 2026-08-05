@@ -82,3 +82,13 @@ Make an in-progress Admin page automatically converge to the deployed release wi
 - The official npm audit reports GHSA-qwww-vcr4-c8h2 for React Router 7; the advisory explicitly affects only unstable RSC APIs, which the React/Vite Admin and its dependency tree do not use. No forced major-version change is applied.
 - Node 24 verification passes 64 Admin unit scenarios, all 26 Admin browser scenarios, the production-build browser check, 110 Worker tests, 91 deployment tests, 6 Demo API tests, and 10 Site tests, plus Worker type-check and Admin/Site production builds.
 - Desktop update, confirmation, and progress dialogs plus English and Simplified Chinese mobile dialogs stay inside the viewport with no document or text overflow.
+
+## v0.30.6 Production Closure - 2026-08-05
+
+- Protected production workflow `30801291225` completed successfully at commit `6a7d3ba64c6e0d594fe3764b785852931516fd30`.
+- The workflow passed release and migration gates, applied the reviewed migration inventory, deployed Worker and Admin, and verified both `linketry-admin.pages.dev` and `admin.uukk.de` with the v0.30.6 document and canonical initial assets.
+- `https://go.uukk.de/health` reports v0.30.6; the production Admin document advertises v0.30.6, with its canonical JavaScript and CSS assets returning the expected MIME types.
+- The protected system upgrade route continues to reject unauthenticated requests with `401`; the successful deployment preserved the configured `LINKETRY_GITHUB_UPDATE_TOKEN` Worker secret used by the authenticated capability and dispatch flow.
+- Repository approval variables now match release `0.30.6`, commit `6a7d3ba64c6e0d594fe3764b785852931516fd30`, and migration digest `54bf95ca42735b85e17f109766db9c1005a1d851f8d4ec25d880cff8ca92da2f`.
+- Reconciliation verification passes all 91 deployment policy tests and repeats the live Admin readiness smoke successfully against both the Pages origin and production custom domain.
+- No repeated deployment was required during reconciliation, and no redirect, analytics, D1/KV ownership, stored data, secret value, or runtime behavior changed.

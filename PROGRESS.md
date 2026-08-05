@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-08-03
+Last updated: 2026-08-05
 
 ---
 
@@ -10,15 +10,15 @@ Last updated: 2026-08-03
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.30.6 prepared    | Production Worker is on v0.30.4; v0.30.6 retains the v0.30.5 readiness recovery without changing Worker runtime behavior                                                                            |
-| Admin frontend             | ✅ 0.30.6 prepared    | The unified version center owns update discovery, confirmation, progress, failure recovery, and post-deployment refresh feedback                                                                    |
+| Worker backend             | ✅ 0.30.6 live        | Production Worker health reports v0.30.6; the release retains the v0.30.5 readiness recovery without changing redirect behavior                                                                     |
+| Admin frontend             | ✅ 0.30.6 live        | Production custom-domain and Pages-origin documents advertise v0.30.6, with executable JavaScript and CSS initial assets                                                                             |
 | Database schema            | ✅ Migration ready    | Performance indexes migration (0003) prepared and versioned; V6 analytics migration applied in production                                                                                           |
 | Documentation              | ✅ 0.30.6 synchronized | Workspace versions, deployment examples, CI fallbacks, changelog, progress, and task status are aligned                                                                                            |
-| Deployment                 | 🟡 0.30.6 prepared   | v0.30.6 includes the v0.30.5 isolated origin probes and the Admin version-center improvement; protected production approval remains                                                                |
+| Deployment                 | ✅ 0.30.6 live       | Protected workflow `30801291225` passed safety gates, migrations, Worker/Admin deployment, and dual-origin Admin readiness                                                                            |
 | End-to-end test            | ✅ Complete           | 91 deployment, 110 Worker, 6 Demo API, 64 Admin unit, 26 Admin browser, 1 production-build browser, and 10 Site tests pass; Worker type-check and Admin/Site builds pass                              |
 | Known issues               | ✅ Tracked            | All known issues resolved or documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | ✅ 0.30.6 prepared    | Production Worker/Admin are live on v0.30.4; v0.30.6 is prepared as the next protected recovery deployment                                                                                           |
-| Repository update target   | ✅ 0.30.6 local       | Production upgrade remains bound to `everett7623/Linketry` `main`; no redirect, D1, KV, migration, or secret contract changed                                                                       |
+| Current version            | ✅ 0.30.6 live        | Production Worker/Admin, Pages origin, and canonical initial assets are verified on v0.30.6                                                                                                          |
+| Repository update target   | ✅ 0.30.6 approved    | GitHub release and commit approvals match `0.30.6` at `6a7d3ba64c6e0d594fe3764b785852931516fd30`; the migration digest remains reviewed                                                             |
 | Next planned work          | 🟡 Pre-1.0 validation | Deploy performance optimizations, fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, private vulnerability reporting |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
@@ -37,7 +37,7 @@ Last updated: 2026-08-03
 | Upgrade safety          | ✅ Preserved | Repository/branch matching, backup, migration, release approval, runtime version, and Admin asset readiness remain mandatory    |
 | Rollback scope          | ✅ Unchanged | No release rollback action is exposed without a reviewed commit, migration, backup, and deployment rollback contract            |
 | Dependency audit       | ⚠️ Upstream  | npm reports GHSA-qwww-vcr4-c8h2 in React Router 7; the advisory affects only unstable RSC APIs, which this Vite SPA does not use |
-| Production state       | 🟡 Pending  | Production remains on v0.30.4 until the owner updates the approved release and runs the protected v0.30.6 workflow               |
+| Production state       | ✅ Live     | Protected workflow `30801291225` deployed and verified v0.30.6; repository approval variables now match the deployed release     |
 
 ---
 
@@ -51,7 +51,7 @@ Last updated: 2026-08-03
 | Canonical verification   | ✅ Preserved  | A query probe cannot pass the gate; the final check still requests exact no-query JS/CSS paths                                |
 | Upgrade target           | ✅ Preserved  | Production remains bound to `everett7623/Linketry` `main` and the protected `deploy.yml` workflow                           |
 | Safety boundaries        | ✅ Unchanged  | Existing canonical asset, backup, migration digest, target, release, and Cloudflare resource gates remain mandatory          |
-| Production state         | 🟡 Superseded | v0.30.4 remains live; the reviewed v0.30.5 recovery is included in the pending v0.30.6 release                              |
+| Production state         | ✅ Superseded | The reviewed v0.30.5 recovery is included in the live v0.30.6 production release                                           |
 
 ---
 
@@ -65,7 +65,7 @@ Last updated: 2026-08-03
 | Performance monitoring  | ✅ Complete | Metrics collection, performance timers, automatic alerts for redirect/API/DB operations |
 | Batch operations        | ✅ Complete | Batch insert/update/delete tools; 10-20x performance improvement for bulk operations |
 | Documentation           | ✅ Complete | Troubleshooting, contributing, performance guides added; all documents unified |
-| Release state           | ✅ 0.30.0    | Versioned; pending production deployment (GitHub Variables update required) |
+| Release state           | ✅ Live      | Performance migrations and runtime optimizations are included in the verified v0.30.6 production deployment |
 
 ---
 
