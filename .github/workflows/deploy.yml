@@ -405,8 +405,8 @@ jobs:
             echo ""
             echo "| Role | URL |"
             echo "|---|---|"
-            echo "| Admin dashboard | ${ADMIN_URL:-Not configured â€?recommended: https://admin.example.com} |"
-            echo "| Worker API and short links | ${LINKETRY_API_URL:-Not configured â€?recommended: https://go.example.com} |"
+            echo "| Admin dashboard | ${ADMIN_URL:-Not configured - recommended: https://admin.example.com} |"
+            echo "| Worker API and short links | ${LINKETRY_API_URL:-Not configured - recommended: https://go.example.com} |"
             echo ""
             echo "### LINKETRY_ADMIN_TOKEN"
             if [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "generated" ]; then
