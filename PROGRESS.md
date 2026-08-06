@@ -10,15 +10,15 @@ Last updated: 2026-08-07
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.31.0 prepared    | Security hardening: admin scopes, egress SSRF guard, auth rate limits, PBKDF2 passwords, Demo allow gate, CORS allowlist                                                                            |
-| Admin frontend             | ✅ 0.31.0 prepared    | Settings sections, Advanced nav groups, skip-to-content, longer backup/health timeouts, Demo preview copy                                                                                           |
+| Worker backend             | ✅ 0.31.0 live        | Security hardening: admin scopes, egress SSRF guard, auth rate limits, PBKDF2 passwords, Demo allow gate, CORS allowlist                                                                            |
+| Admin frontend             | ✅ 0.31.0 live        | Settings sections, Advanced nav groups, skip-to-content, longer backup/health timeouts, Demo preview copy                                                                                           |
 | Database schema            | ✅ Migration ready    | Performance indexes migration (0003) prepared and versioned; V6 analytics migration applied in production                                                                                           |
 | Documentation              | ✅ 0.31.0 synchronized | AGENTS/CLAUDE/ARCHITECTURE/SECURITY/KNOWN_ISSUES/QUICK_START/SELF_HOSTING and site isolation narrative aligned                                                                                     |
-| Deployment                 | 🟡 0.31.0 prepared   | Production remains on verified v0.30.6 until release approval variables are updated and the protected workflow is run; then ship 0.31.0                                                             |
-| End-to-end test            | 🟡 Verify locally    | Worker security tests and deployment contracts updated; run full suites before protected deploy                                                                                                     |
+| Deployment                 | ✅ 0.31.0 live        | Production run `31125426247` and Demo run `31124712930` shipped v0.31.0; `go.uukk.de/health` and `demoapi.linketry.com/health` report 0.31.0                                                         |
+| End-to-end test            | ✅ Deploy verified   | Protected production and isolated Demo workflows passed for the 0.31.0 release commit                                                                                                               |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                                                   |
-| Current version            | ✅ 0.31.0 prepared    | Local source and release metadata are v0.31.0; production Worker/Admin remain verified on v0.30.6                                                                                                    |
-| Repository update target   | 🟡 0.31.0 local       | Prefer deploying 0.31.0 after reviewing this security release; prior 0.30.7 preparation is superseded locally                                                                                        |
+| Current version            | ✅ 0.31.0 live        | Source, production Worker/Admin, and official Demo advertise v0.31.0                                                                                                                                |
+| Repository update target   | ✅ 0.31.0 shipped     | Deep optimization release is live; continue Pre-1.0 validation evidence                                                                                                                             |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, AT checklist pass, private vulnerability reporting, Demo optional R2                                                                    |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
@@ -38,7 +38,7 @@ Last updated: 2026-08-07
 | Demo misconfig gate      | ✅ Complete | `LINKETRY_DEMO_ALLOW=1` required; preflight/one-click refuse Demo mode                                                       |
 | CORS / site version      | ✅ Complete | `LINKETRY_CORS_ORIGINS`; site `softwareVersion` injected from package.json                                                   |
 | Admin IA / a11y          | ✅ Complete | Settings sections, nav groups, skip-to-content                                                                               |
-| Production state         | 🟡 Pending  | Deploy through protected workflow after approval                                                                              |
+| Production state         | ✅ Live     | Production `31125426247` + Demo `31124712930`; health endpoints report v0.31.0                                              |
 
 ---
 
