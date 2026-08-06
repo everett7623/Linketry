@@ -1,4 +1,4 @@
-import { apiPost, apiGet, downloadFile } from './client';
+import { apiPost, apiGet, downloadFile, API_LONG_TIMEOUT_MS } from './client';
 import type { ImportFieldMapping, ImportJob } from '@linketry/shared';
 
 export interface PreviewResult {
@@ -38,7 +38,6 @@ export interface ConfirmResult {
 }
 
 export type ImportConflictStrategy = 'skip' | 'rename' | 'overwrite';
-const IMPORT_CONFIRM_TIMEOUT_MS = 60_000;
 
 export function confirmImport(
   content: string,
@@ -50,7 +49,7 @@ export function confirmImport(
   return apiPost(
     '/api/v1/import/confirm',
     { content, source, filename, conflictStrategy, fieldMapping },
-    IMPORT_CONFIRM_TIMEOUT_MS
+    API_LONG_TIMEOUT_MS
   );
 }
 
@@ -96,7 +95,7 @@ export function exportVisitsCSV(): Promise<void> {
 }
 
 export function exportBackup(filename = `linketry-backup-${timestampForFilename()}.json`): Promise<void> {
-  return downloadFile('/api/v1/export/backup.json', filename);
+  return downloadFile('/api/v1/export/backup.json', filename, API_LONG_TIMEOUT_MS);
 }
 
 export function exportPreImportBackup(): Promise<void> {

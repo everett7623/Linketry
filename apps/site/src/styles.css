@@ -343,6 +343,13 @@ h1 em {
   margin: 0 7px;
   color: #3c536b;
 }
+.demo-isolation {
+  margin: 10px 0 0;
+  max-width: 36rem;
+  color: #8fa3b8;
+  font-size: 13px;
+  line-height: 1.45;
+}
 .proof {
   display: flex;
   flex-wrap: wrap;

@@ -373,6 +373,8 @@ test('Demo workflow keeps its gate before all Cloudflare writes and uses Demo-on
   assert.match(workflow, /scripts\/cloudflare-pages-domain\.mjs/);
   assert.match(workflow, /workers_dev = true/);
   assert.match(workflow, /LINKETRY_DEMO_MODE = "read-only"/);
+  assert.match(workflow, /LINKETRY_DEMO_ALLOW = "1"/);
+  assert.match(workflow, /LINKETRY_DEMO_ALLOW = "1"/);
   assert.match(workflow, /LINKETRY_DAILY_CRON = "15 3 \* \* \*"/);
   assert.match(workflow, /LINKETRY_HEALTH_CRON = "15 \* \* \* \*"/);
   assert.match(workflow, /name = "DEMO_RATE_LIMITER"/);

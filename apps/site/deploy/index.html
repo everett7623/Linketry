@@ -163,9 +163,13 @@
           </p>
           <h1 data-i18n="deploy.title">Deploy Linketry with the right amount of control.</h1>
           <p class="deploy-hero-lede" data-i18n="deploy.lede">
-            Create a normal production instance in your own Cloudflare account. Quick Deploy bundles
-            the Admin with one Worker; the reviewed repository workflow keeps the separate Pages
-            architecture and stricter approval gates.
+            Create a normal production instance in your own Cloudflare account. Quick Deploy is the
+            fastest path (one Worker + Admin at /admin/). The reviewed repository workflow keeps
+            separate Pages Admin hosting, dry-runs, and exact confirmation phrases before any write.
+          </p>
+          <p class="demo-isolation" data-i18n="deploy.demoIsolation">
+            Demo is not your instance. Never enable LINKETRY_DEMO_MODE on a real deployment, and never
+            reuse Demo credentials, accounts, or synthetic data for production.
           </p>
           <div class="actions">
             <a
@@ -173,14 +177,14 @@
               href="https://deploy.workers.cloudflare.com/?url=https://github.com/everett7623/Linketry"
               target="_blank"
               rel="noopener noreferrer"
-              ><span data-i18n="deploy.quickAction">Deploy production on Cloudflare</span>
+              ><span data-i18n="deploy.quickAction">Quick Deploy on Cloudflare</span>
               <span aria-hidden="true">↗</span></a
             >
             <a
               class="button secondary"
-              href="https://github.com/everett7623/Linketry/blob/main/docs/SELF_HOSTING.md"
-              ><span data-i18n="deploy.guideAction">Read self-hosting guide</span>
-              <span aria-hidden="true">↗</span></a
+              href="#deploy-options"
+              ><span data-i18n="deploy.compareAction">Compare Quick vs Reviewed</span>
+              <span aria-hidden="true">↓</span></a
             >
           </div>
         </div>
@@ -191,13 +195,13 @@
           <div class="deploy-track-grid">
             <article class="deploy-track quick-track">
               <p class="route-label" data-i18n="deploy.quickLabel">
-                A · Cloudflare production deploy
+                A · Quick Deploy
               </p>
-              <h2 data-i18n="deploy.quickTitle">Create one complete production Worker.</h2>
+              <h2 data-i18n="deploy.quickTitle">Fastest path: one Worker with Admin at /admin/.</h2>
               <p class="route-summary" data-i18n="deploy.quickText">
                 Cloudflare forks the repository, provisions a new D1 database and KV namespace,
                 builds the Admin into the Worker, and applies the production migrations in your
-                account.
+                account. One secret: LINKETRY_ADMIN_TOKEN. Demo mode stays off.
               </p>
               <ol class="route-steps">
                 <li>
@@ -243,11 +247,12 @@
               <p class="route-label" data-i18n="deploy.reviewedLabel">
                 B · Reviewed repository workflow
               </p>
-              <h2 data-i18n="deploy.reviewedTitle">Provision exactly what you approve.</h2>
+              <h2 data-i18n="deploy.reviewedTitle">More control: dry-runs, Pages Admin, approval gates.</h2>
               <p class="route-summary" data-i18n="deploy.reviewedText">
                 Fork the repository and use Linketry's maintained dry runs. The scripts show the
                 D1/KV plan and require an exact confirmation phrase before any Cloudflare or GitHub
-                write.
+                write. Prefer this path for custom domains, separate Pages Admin hosting, backups,
+                and upgrades.
               </p>
               <ol class="route-steps">
                 <li>

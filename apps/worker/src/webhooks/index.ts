@@ -2,6 +2,7 @@ import type { Env } from '../types';
 import { getRuntimeVersion } from '../config/runtime';
 import { getSettings, setSetting } from '../db/index';
 import { generateId, now } from '../utils/id';
+import { assertSafeEgressUrl, safeEgressFetch } from '../utils/egress';
 import {
   buildWebhookRequest,
   DEFAULT_WEBHOOK_EVENTS,
@@ -195,10 +196,15 @@ async function sendWebhookRequest(
   url: string,
   request: WebhookRequest
 ): Promise<WebhookDeliveryResult> {
+  const egress = assertSafeEgressUrl(url);
+  if (!egress.ok) {
+    return { ok: false, error: 'network_error' };
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5000);
   try {
-    const response = await fetch(url, {
+    const response = await safeEgressFetch(url, {
       method: 'POST',
       headers: request.headers,
       body: request.body,

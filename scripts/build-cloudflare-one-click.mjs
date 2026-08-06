@@ -12,6 +12,12 @@ if (!npmCli) {
   throw new Error('Run the Cloudflare one-click build through npm so the npm CLI is available.');
 }
 
+if (process.env.LINKETRY_DEMO_MODE?.trim()) {
+  throw new Error(
+    'LINKETRY_DEMO_MODE must not be set for Cloudflare Quick Deploy / one-click builds.'
+  );
+}
+
 const build = spawnSync(process.execPath, [npmCli, 'run', 'build', '--workspace=apps/admin'], {
   cwd: repositoryRoot,
   env: {
@@ -40,4 +46,12 @@ if (build.status !== 0) {
     throw new Error('Cloudflare one-click Admin build is not rooted at /admin/.');
   }
   console.log('Cloudflare one-click Admin prepared at /admin/.');
+  console.log(`
+Next steps after Cloudflare Deploy finishes:
+  1. Ensure LINKETRY_ADMIN_TOKEN is set (Cloudflare Deploy form or: wrangler secret put LINKETRY_ADMIN_TOKEN)
+  2. curl https://<your-worker>.workers.dev/health
+  3. Open https://<your-worker>.workers.dev/admin/
+  Demo mode is forced off for this production profile (VITE_LINKETRY_DEMO_MODE=false).
+  See docs/QUICK_START.md if login or health checks fail.
+`);
 }

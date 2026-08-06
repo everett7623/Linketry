@@ -5,6 +5,7 @@ import { getExistingSlugs } from '../db/index';
 import { jsonError, jsonOk } from '../utils/response';
 import { validateLongUrl, validateSlug } from '@linketry/shared';
 import type { LinkSuggestionResult } from '@linketry/shared';
+import { assertSafeEgressUrl, safeEgressFetch } from '../utils/egress';
 
 const metadata = new Hono<{ Bindings: Env }>();
 
@@ -28,7 +29,7 @@ interface PagePreview { title: string | null; description: string | null; image:
 const EMPTY_PAGE_METADATA: PageMetadata = { keywords: [] };
 
 metadata.use('*', async (c, next) => {
-  const authError = await requireAuth(c);
+  const authError = await requireAuth(c, 'admin');
   if (authError) return authError;
   await next();
 });
@@ -44,20 +45,21 @@ metadata.post('/title', async (c) => {
   const url = typeof body.url === 'string' ? body.url.trim() : '';
   const validation = validateLongUrl(url);
   if (!validation.valid) return jsonError(validation.error!, 400);
+  const egress = assertSafeEgressUrl(url);
+  if (!egress.ok) return jsonError(egress.error, 400);
 
   let response: Response;
   try {
     const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
-    response = await fetch(url, {
-      redirect: 'follow',
+    response = await safeEgressFetch(url, {
       signal,
       headers: {
         Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1',
         'User-Agent': 'Linketry/0.1 (+https://github.com/everett7623/Linketry)',
       },
     });
-  } catch {
-    return jsonError('Unable to fetch URL', 400);
+  } catch (error) {
+    return jsonError(error instanceof Error ? error.message : 'Unable to fetch URL', 400);
   }
 
   if (!response.ok) {
@@ -106,15 +108,17 @@ metadata.post('/preview', async (c) => {
   const url = typeof body.url === 'string' ? body.url.trim() : '';
   const validation = validateLongUrl(url);
   if (!validation.valid) return jsonError(validation.error!, 400);
+  const egress = assertSafeEgressUrl(url);
+  if (!egress.ok) return jsonError(egress.error, 400);
   try {
-    const response = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(FETCH_TIMEOUT_MS), headers: { Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1', 'User-Agent': 'Linketry/0.1 preview (+https://github.com/everett7623/Linketry)' } });
+    const response = await safeEgressFetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS), headers: { Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1', 'User-Agent': 'Linketry/0.1 preview (+https://github.com/everett7623/Linketry)' } });
     if (!response.ok) return jsonError(`Target URL returned HTTP ${response.status}`, 400);
     const contentType = response.headers.get('Content-Type') ?? '';
     if (contentType && !/\b(html|xhtml|xml)\b/i.test(contentType)) return jsonError('Target URL did not return an HTML page', 400);
     const contentLength = Number(response.headers.get('Content-Length') ?? '0');
     if (contentLength > MAX_CONTENT_LENGTH) return jsonError('Target page is too large to inspect', 400);
     return jsonOk(await extractPreview(response, response.url || url));
-  } catch { return jsonError('Unable to fetch URL preview', 400); }
+  } catch (error) { return jsonError(error instanceof Error ? error.message : 'Unable to fetch URL preview', 400); }
 });
 
 async function extractPreview(response: Response, finalUrl: string): Promise<PagePreview> {
@@ -173,8 +177,11 @@ async function fetchSuggestionMetadata(url: string): Promise<{
 }> {
   try {
     const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
-    const response = await fetch(url, {
-      redirect: 'follow',
+    const egress = assertSafeEgressUrl(url);
+    if (!egress.ok) {
+      return { finalUrl: url, pageMetadata: EMPTY_PAGE_METADATA, metadataFetched: false, error: egress.error };
+    }
+    const response = await safeEgressFetch(url, {
       signal,
       headers: {
         Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1',

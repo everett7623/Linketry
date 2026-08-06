@@ -62,6 +62,13 @@ function LayoutContent() {
       data-sidebar-density={sidebarDensity}
       data-table-density={tableDensity}
     >
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:outline-none focus:ring-2 focus:ring-brand-400"
+      >
+        {t('skipToContent')}
+      </a>
+
       <div className="hidden h-full lg:block">
         <Sidebar collapsed={sidebarCollapsed} />
       </div>
@@ -88,7 +95,7 @@ function LayoutContent() {
         </div>
       )}
 
-      <main className="min-w-0 flex-1 overflow-y-auto bg-slate-950">
+      <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 overflow-y-auto bg-slate-950 outline-none">
         <div
           data-testid="desktop-toolbar"
           className="sticky top-0 z-30 hidden h-16 items-center gap-3 border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur lg:flex"

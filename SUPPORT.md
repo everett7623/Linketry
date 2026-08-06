@@ -72,6 +72,17 @@ Include the Linketry version, deployment track, browser or Node version, redacte
 
 For an unpatched security issue, follow [SECURITY.md](SECURITY.md) instead of opening a public issue.
 
+### Quick Deploy vs reviewed workflow
+
+Pick the matching docs before opening an issue:
+
+| Path | Start here | If it breaks |
+| --- | --- | --- |
+| **Quick Deploy** (one Worker + `/admin/`, single `LINKETRY_ADMIN_TOKEN`) | [docs/QUICK_START.md](docs/QUICK_START.md) | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) → Cloudflare Quick Deploy / Worker access |
+| **Reviewed repository workflow** (dry-runs, confirmation phrases, Pages Admin) | [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md) | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md), [docs/DEPLOYMENT_PREFLIGHT.md](docs/DEPLOYMENT_PREFLIGHT.md), [docs/FRESH_ACCOUNT_REHEARSAL.md](docs/FRESH_ACCOUNT_REHEARSAL.md) |
+
+Do not mix Demo troubleshooting with production: the public Demo is an isolated track (`LINKETRY_DEMO_MODE` + `LINKETRY_DEMO_ALLOW`) and is not your instance.
+
 ## Scope Limits
 
 Best-effort project support covers the unmodified repository, documented Cloudflare architecture, and maintained deployment workflows. Custom forks, third-party proxies, unsupported runtimes, provider outages, DNS ownership disputes, custom migrations, and recovery from missing backups may require independent investigation.

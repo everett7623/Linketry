@@ -135,6 +135,28 @@ export function Overview() {
         </Link>
       </div>
 
+      {(stats?.totalLinks ?? 0) === 0 && (
+        <div className="rounded-xl border border-dashed border-slate-700 bg-slate-900/60 px-6 py-10 text-center">
+          <h2 className="text-lg font-semibold text-slate-100">{t('overviewEmptyTitle')}</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">{t('overviewEmptyHint')}</p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              to="/links/create"
+              className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+            >
+              <Plus size={16} aria-hidden="true" />
+              {t('createLink')}
+            </Link>
+            <Link
+              to="/setup"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-slate-600 hover:bg-slate-800"
+            >
+              {t('setup')}
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard

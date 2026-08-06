@@ -40,6 +40,10 @@ export const settingsPageMessages = {
     leaveBlankToKeep: 'Leave blank to keep the stored credential',
     removeCredential: 'Remove Credential',
     dangerZone: 'Danger Zone',
+    appearance: 'Appearance',
+    integrations: 'Integrations',
+    releaseSection: 'Release',
+    settingsSections: 'Settings sections',
     resetHelp:
       'Reset this Linketry instance to a clean initial state. Backups and the environment admin token are preserved.',
     resetInstance: 'Reset Instance',
@@ -124,6 +128,10 @@ export const settingsPageMessages = {
     leaveBlankToKeep: '留空则保留已保存的凭据',
     removeCredential: '移除凭据',
     dangerZone: '危险区域',
+    appearance: '外观',
+    integrations: '集成',
+    releaseSection: '发布',
+    settingsSections: '设置分区',
     resetHelp: '将 Linketry 实例重置为干净的初始状态。备份和环境管理员令牌会保留。',
     resetInstance: '重置实例',
     resetWarning:

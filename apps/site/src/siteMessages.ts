@@ -62,9 +62,11 @@ const homeMessages = {
     'home.heroLede':
       'Short links, analytics, health monitoring, imports, backups and automation—deployed inside your own Cloudflare account.',
     'home.liveDemo': 'Open live demo',
-    'home.deploy': 'Explore deployment options',
+    'home.deploy': 'Deploy your instance',
     'home.github': 'View on GitHub',
     'home.demoStatus': 'Read only · Synthetic data · No token required',
+    'home.demoIsolation':
+      'Demo is not your instance. The public Demo uses an isolated account and never shares your production data, tokens, or domains.',
     'home.proofData': 'Your data',
     'home.proofDomains': 'Your domains',
     'home.proofPricing': 'No per-click fee',
@@ -164,9 +166,11 @@ const homeMessages = {
     'home.heroLede':
       '短链接、分析、健康监控、导入、备份与自动化，都部署在你自己的 Cloudflare 账户中。',
     'home.liveDemo': '打开在线演示',
-    'home.deploy': '查看部署方案',
+    'home.deploy': '部署你的实例',
     'home.github': '在 GitHub 查看',
     'home.demoStatus': '只读 · 合成数据 · 无需令牌',
+    'home.demoIsolation':
+      '演示不是你的实例。公共 Demo 使用隔离账户，不会共享你的生产数据、令牌或域名。',
     'home.proofData': '你的数据',
     'home.proofDomains': '你的域名',
     'home.proofPricing': '没有按点击收费',
@@ -259,13 +263,16 @@ const deployMessages = {
     'deploy.eyebrow': 'Cloudflare deployment',
     'deploy.title': 'Deploy Linketry with the right amount of control.',
     'deploy.lede':
-      'Create a normal production instance in your own Cloudflare account. Quick Deploy bundles the Admin with one Worker; the reviewed repository workflow keeps the separate Pages architecture and stricter approval gates.',
-    'deploy.quickAction': 'Deploy production on Cloudflare',
+      'Create a normal production instance in your own Cloudflare account. Quick Deploy is the fastest path (one Worker + Admin at /admin/). The reviewed repository workflow keeps separate Pages Admin hosting, dry-runs, and exact confirmation phrases before any write.',
+    'deploy.demoIsolation':
+      'Demo is not your instance. Never enable LINKETRY_DEMO_MODE on a real deployment, and never reuse Demo credentials, accounts, or synthetic data for production.',
+    'deploy.quickAction': 'Quick Deploy on Cloudflare',
+    'deploy.compareAction': 'Compare Quick vs Reviewed',
     'deploy.guideAction': 'Read self-hosting guide',
-    'deploy.quickLabel': 'A · Cloudflare production deploy',
-    'deploy.quickTitle': 'Create one complete production Worker.',
+    'deploy.quickLabel': 'A · Quick Deploy',
+    'deploy.quickTitle': 'Fastest path: one Worker with Admin at /admin/.',
     'deploy.quickText':
-      'Cloudflare forks the repository, provisions a new D1 database and KV namespace, builds the Admin into the Worker, and applies the production migrations in your account.',
+      'Cloudflare forks the repository, provisions a new D1 database and KV namespace, builds the Admin into the Worker, and applies the production migrations in your account. One secret: LINKETRY_ADMIN_TOKEN. Demo mode stays off.',
     'deploy.quickStepOne':
       'Sign in to the Cloudflare account that will own this production instance.',
     'deploy.quickStepTwo':
@@ -277,9 +284,9 @@ const deployMessages = {
     'deploy.quickNote':
       'The quick profile never enables Demo mode and never asks for LINKETRY_DEMO_* values. It starts on workers.dev; add a custom domain later when you are ready.',
     'deploy.reviewedLabel': 'B · Reviewed repository workflow',
-    'deploy.reviewedTitle': 'Provision exactly what you approve.',
+    'deploy.reviewedTitle': 'More control: dry-runs, Pages Admin, approval gates.',
     'deploy.reviewedText':
-      "Fork the repository and use Linketry's maintained dry runs. The scripts show the D1/KV plan and require an exact confirmation phrase before any Cloudflare or GitHub write.",
+      "Fork the repository and use Linketry's maintained dry runs. The scripts show the D1/KV plan and require an exact confirmation phrase before any Cloudflare or GitHub write. Prefer this path for custom domains, separate Pages Admin hosting, backups, and upgrades.",
     'deploy.reviewedStepOne':
       'Fork Linketry into the GitHub account that will own future upgrades.',
     'deploy.reviewedStepTwo': 'Run the bootstrap and repository configuration dry runs.',
@@ -319,13 +326,16 @@ const deployMessages = {
     'deploy.eyebrow': 'Cloudflare 部署',
     'deploy.title': '用恰当的控制力部署 Linketry。',
     'deploy.lede':
-      '在你自己的 Cloudflare 账户中创建正常生产实例。快速部署会把 Admin 与一个 Worker 打包；经过审查的仓库工作流则保留独立 Pages 架构和更严格的审批门。',
-    'deploy.quickAction': '在 Cloudflare 部署生产实例',
+      '在你自己的 Cloudflare 账户中创建正常生产实例。快速部署是最快路径（一个 Worker + /admin/ 后台）。经过审查的仓库工作流保留独立 Pages Admin、预演和写入前的精确确认短语。',
+    'deploy.demoIsolation':
+      '演示不是你的实例。切勿在真实部署上启用 LINKETRY_DEMO_MODE，也切勿把 Demo 凭证、账户或合成数据用于生产。',
+    'deploy.quickAction': '在 Cloudflare 快速部署',
+    'deploy.compareAction': '对比快速部署与审查工作流',
     'deploy.guideAction': '阅读自托管指南',
-    'deploy.quickLabel': 'A · Cloudflare 生产部署',
-    'deploy.quickTitle': '创建一个完整的生产 Worker。',
+    'deploy.quickLabel': 'A · 快速部署',
+    'deploy.quickTitle': '最快路径：一个 Worker，Admin 位于 /admin/。',
     'deploy.quickText':
-      'Cloudflare 会 Fork 仓库，在你的账户中新建 D1 数据库和 KV 命名空间，把 Admin 构建进 Worker，并应用生产迁移。',
+      'Cloudflare 会 Fork 仓库，在你的账户中新建 D1 数据库和 KV 命名空间，把 Admin 构建进 Worker，并应用生产迁移。只需一个密钥：LINKETRY_ADMIN_TOKEN。Demo 模式保持关闭。',
     'deploy.quickStepOne': '登录将拥有此生产实例的 Cloudflare 账户。',
     'deploy.quickStepTwo': '选择 Worker、D1 和 KV 名称，再输入私有 Admin 登录令牌。',
     'deploy.quickStepThree':
@@ -335,9 +345,9 @@ const deployMessages = {
     'deploy.quickNote':
       '快速配置不会开启 Demo 模式，也不会要求填写任何 LINKETRY_DEMO_* 值。实例先运行在 workers.dev，准备好后再添加自定义域名。',
     'deploy.reviewedLabel': 'B · 经过审查的仓库工作流',
-    'deploy.reviewedTitle': '只配置你明确批准的资源。',
+    'deploy.reviewedTitle': '更多控制：预演、Pages Admin、审批门。',
     'deploy.reviewedText':
-      'Fork 仓库并使用 Linketry 维护的预演命令。脚本会展示 D1/KV 计划，并要求精确确认短语后才会写入 Cloudflare 或 GitHub。',
+      'Fork 仓库并使用 Linketry 维护的预演命令。脚本会展示 D1/KV 计划，并要求精确确认短语后才会写入 Cloudflare 或 GitHub。自定义域名、独立 Pages Admin、备份与升级请优先选择此路径。',
     'deploy.reviewedStepOne': '将 Linketry Fork 到将来拥有升级权限的 GitHub 账户。',
     'deploy.reviewedStepTwo': '运行资源初始化和仓库配置的预演。',
     'deploy.reviewedStepThree': '检查计划、确认精确短语，再启动受保护的工作流。',

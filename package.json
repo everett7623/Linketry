@@ -1,6 +1,6 @@
 {
   "name": "linketry",
-  "version": "0.30.7",
+  "version": "0.31.0",
   "description": "Linketry is a self-hosted link management, analytics and monitoring platform.",
   "author": "everettlabs",
   "homepage": "https://linketry.com",
@@ -21,7 +21,7 @@
   "scripts": {
     "build": "node scripts/build-cloudflare-one-click.mjs",
     "deploy": "wrangler deploy",
-    "postdeploy": "wrangler d1 migrations apply DB --remote",
+    "postdeploy": "wrangler d1 migrations apply DB --remote && node scripts/postdeploy-hint.mjs",
     "dev:worker": "npm run dev --workspace=apps/worker",
     "dev:admin": "npm run dev --workspace=apps/admin",
     "build:admin": "npm run build --workspace=apps/admin",

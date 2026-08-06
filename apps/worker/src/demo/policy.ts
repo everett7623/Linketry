@@ -21,6 +21,21 @@ export function isPublicReadOnlyDemo(env: Pick<Env, 'LINKETRY_DEMO_MODE'>): bool
   return env.LINKETRY_DEMO_MODE?.trim().toLowerCase() === 'read-only';
 }
 
+export function isDemoModeExplicitlyAllowed(env: Pick<Env, 'LINKETRY_DEMO_ALLOW'>): boolean {
+  const value = env.LINKETRY_DEMO_ALLOW?.trim().toLowerCase();
+  return value === '1' || value === 'true' || value === 'yes';
+}
+
+/**
+ * Fail closed when Demo mode is set without an explicit Demo-track allow flag.
+ * Official Demo workflows must set LINKETRY_DEMO_ALLOW=1.
+ */
+export function isDemoModeMisconfigured(
+  env: Pick<Env, 'LINKETRY_DEMO_MODE' | 'LINKETRY_DEMO_ALLOW'>
+): boolean {
+  return isPublicReadOnlyDemo(env) && !isDemoModeExplicitlyAllowed(env);
+}
+
 export function isReadOnlyMethod(method: string): boolean {
   return READ_ONLY_METHODS.has(method.toUpperCase());
 }

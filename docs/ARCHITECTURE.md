@@ -2,9 +2,9 @@
 
 This document describes the current runtime architecture. It is derived from the deployed Worker, Admin route tree, D1 migrations, and maintained operational documents. Historical plans are useful for product intent, but they do not override this document or the code.
 
-**Last updated**: 2026-07-30  
-**Current version**: v0.29.20+optimization (local)  
-**Production version**: v0.29.18
+**Last updated**: 2026-08-07  
+**Current version**: v0.31.0 (local)  
+**Production version**: v0.30.6
 
 ---
 
@@ -86,7 +86,7 @@ The current fallback_url field is available to Admin and monitoring workflows. I
 
 - D1 remains authoritative on both cache misses and normal cache hits.
 - Cache keys use linketry:slug:<domain>:<slug>.
-- Cache entries expire after 24 hours.
+- Cache entries use Smart TTL (1 hour–7 days) based on click volume, further compressed by `expires_at` and `max_clicks`.
 - Active, non-password links can populate KV after a successful D1 read.
 - Create and update operations refresh affected entries after D1 succeeds.
 - Disable, delete, archive, domain migration, and relevant bulk operations clear affected entries.
@@ -156,7 +156,7 @@ Optional in-app upgrades use an Admin-authenticated Worker endpoint. The Worker 
 | visit_targets     | Resolved smart/A-B destination attribution               |
 | conversion_events | Authenticated goal and value events                      |
 
-Schema sources are migrations/0001_init.sql and migrations/0002_analytics_depth.sql. Production changes must use reviewed incremental migrations and must not recreate existing resources or re-run initialization SQL.
+Schema sources are `migrations/0001_init.sql`, `migrations/0002_analytics_depth.sql`, and `migrations/0003_performance_indexes.sql`. Production changes must use reviewed incremental migrations and must not recreate existing resources or re-run initialization SQL.
 
 ## Failure Isolation
 

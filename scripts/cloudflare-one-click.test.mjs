@@ -10,11 +10,12 @@ async function read(path) {
 }
 
 test('Cloudflare one-click profile provisions only a normal production instance', async () => {
-  const [configSource, rootEnv, adminEnv, packageSource] = await Promise.all([
+  const [configSource, rootEnv, adminEnv, packageSource, postdeployHint] = await Promise.all([
     read('wrangler.jsonc'),
     read('.env.example'),
     read('apps/admin/.env.example'),
     read('package.json'),
+    read('scripts/postdeploy-hint.mjs'),
   ]);
   const parsedConfig = ts.parseConfigFileTextToJson('wrangler.jsonc', configSource);
   assert.equal(parsedConfig.error, undefined);
@@ -39,6 +40,7 @@ test('Cloudflare one-click profile provisions only a normal production instance'
   assert.equal(config.assets.directory, 'apps/admin/dist');
   assert.equal(config.assets.binding, 'ASSETS');
   assert.doesNotMatch(configSource, /DEMO|demo|pages/i);
+  assert.doesNotMatch(configSource, /LINKETRY_DEMO_MODE|LINKETRY_DEMO_ALLOW/);
 
   assert.deepEqual(
     rootEnv
@@ -50,7 +52,13 @@ test('Cloudflare one-click profile provisions only a normal production instance'
   assert.doesNotMatch(`${rootEnv}\n${adminEnv}`, /LINKETRY_DEMO_|demo/i);
   assert.equal(packageJson.scripts.build, 'node scripts/build-cloudflare-one-click.mjs');
   assert.equal(packageJson.scripts.deploy, 'wrangler deploy');
-  assert.equal(packageJson.scripts.postdeploy, 'wrangler d1 migrations apply DB --remote');
+  assert.match(
+    packageJson.scripts.postdeploy,
+    /wrangler d1 migrations apply DB --remote && node scripts\/postdeploy-hint\.mjs/
+  );
+  assert.match(postdeployHint, /LINKETRY_ADMIN_TOKEN/);
+  assert.match(postdeployHint, /\/admin\//);
+  assert.match(postdeployHint, /\/health/);
   assert.match(packageJson.cloudflare.bindings.LINKETRY_ADMIN_TOKEN.description, /production/i);
 });
 
@@ -73,4 +81,12 @@ test('bundled Admin is isolated under /admin before the slug catch-all', async (
   assert.match(buildScript, /VITE_LINKETRY_API_URL: ''/);
   assert.match(buildScript, /VITE_LINKETRY_DEMO_MODE: 'false'/);
   assert.match(buildScript, /VITE_LINKETRY_DEMO_ACCESS_CODE: ''/);
+  assert.match(
+    buildScript,
+    /LINKETRY_DEMO_MODE must not be set for Cloudflare Quick Deploy/
+  );
+  assert.doesNotMatch(buildScript, /VITE_LINKETRY_DEMO_MODE:\s*'true'/);
+  assert.doesNotMatch(buildScript, /VITE_LINKETRY_DEMO_ACCESS_CODE:\s*'[^']+'/);
+  assert.match(buildScript, /\/admin\//);
+  assert.match(buildScript, /QUICK_START/);
 });

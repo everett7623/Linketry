@@ -3,6 +3,7 @@ import type { Env } from '../types';
 import type { ApiTokenScope } from '@linketry/shared';
 import { getActiveApiTokenByHash, parseApiTokenScopes, touchApiTokenLastUsed } from '../db/index';
 import { now, sha256 } from '../utils/id';
+import { timingSafeEqualString } from '../utils/password';
 import { getAdminToken } from '../config/runtime';
 import { isPublicReadOnlyDemo, isReadOnlyMethod } from '../demo/policy';
 
@@ -22,7 +23,7 @@ export async function requireAuth(
   const token = authHeader.slice(7);
   const adminToken = getAdminToken(c.env);
 
-  if (adminToken && token === adminToken) {
+  if (adminToken && timingSafeEqualString(token, adminToken)) {
     return null;
   }
 
@@ -66,5 +67,5 @@ export function isAdminToken(c: Context<{ Bindings: Env }>): boolean {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
   const token = authHeader.slice(7);
   const adminToken = getAdminToken(c.env);
-  return !!adminToken && token === adminToken;
+  return !!adminToken && timingSafeEqualString(token, adminToken);
 }

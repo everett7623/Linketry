@@ -1,15 +1,27 @@
 # Linketry Quick Start
 
-Deploy your own Linketry instance in 3 steps using the Cloudflare Deploy Button.
+Deploy your own Linketry instance in a few minutes with the Cloudflare Deploy Button.
 
 ---
 
 ## What you need
 
 - A Cloudflare account (free tier works)
-- 5 minutes
+- About 5 minutes
 
 No custom domain required to start — your instance gets a `*.workers.dev` URL automatically.
+
+---
+
+## One secret: `LINKETRY_ADMIN_TOKEN`
+
+Quick Deploy asks for a single Worker secret: **`LINKETRY_ADMIN_TOKEN`**.
+
+- Choose a long random string (20+ characters) and store it in a password manager.
+- That value is your Admin login. There is no separate default password.
+- Do not reuse the public Demo preview code, and do not enable Demo mode on your instance.
+
+Demo mode is **forced off** on this production profile (`VITE_LINKETRY_DEMO_MODE=false`). The official Demo at [demo.linketry.com](https://demo.linketry.com) is a separate track with synthetic data — it is not your deployment.
 
 ---
 
@@ -17,40 +29,40 @@ No custom domain required to start — your instance gets a `*.workers.dev` URL 
 
 Visit [linketry.com/deploy](https://linketry.com/deploy) and click **Deploy to Cloudflare**.
 
-Cloudflare will automatically create in your account:
-- A Worker (short-link redirects + Admin API)
-- A D1 database (stores your links)
-- A KV namespace (redirect cache layer)
+Cloudflare creates in your account:
 
-During setup you will be asked to set **`LINKETRY_ADMIN_TOKEN`** — this is your Admin login password. Choose a long random string (20+ characters) and keep it in a password manager.
+- A Worker (short-link redirects + Admin API + bundled Admin at `/admin/`)
+- A D1 database (source of truth for your links)
+- A KV namespace (redirect cache only)
 
----
-
-## Step 2 — Verify
-
-After deployment finishes, check that your instance is healthy:
-
-```
-https://<your-worker-name>.workers.dev/health
-```
-
-You should see `{"status":"ok","version":"0.30.7"}`.
-
-If you get an error, wait 30 seconds and retry — Workers can take a moment to propagate.
+Enter `LINKETRY_ADMIN_TOKEN` when Cloudflare prompts for it.
 
 ---
 
-## Step 3 — Log in
+## Step 2 — Verify health
 
-Open the Admin panel:
+After deployment finishes:
+
+```bash
+curl https://<your-worker-name>.workers.dev/health
+```
+
+You should see a JSON envelope with `"status":"ok"` and the deployed version.
+
+If you get an error, wait about 30 seconds and retry — Workers can take a moment to propagate. More checks: [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
+---
+
+## Step 3 — Open Admin at `/admin/`
 
 ```
-https://<your-worker-name>.workers.dev/admin
+https://<your-worker-name>.workers.dev/admin/
 ```
 
-Enter the `LINKETRY_ADMIN_TOKEN` from Step 1.
+Use the trailing `/admin/` path (same-origin Admin assets live under that prefix). Log in with the `LINKETRY_ADMIN_TOKEN` from Step 1.
 
-The **Setup** page will guide you through:
+The **Setup** page guides you through:
+
 1. Confirming the Worker API is reachable
 2. Optionally adding a custom short domain
 3. Creating your first short link
@@ -75,9 +87,19 @@ From the Admin sidebar → version status → **Upgrade**. Linketry can update i
 
 ---
 
+## Troubleshooting
+
+If `/health` fails, Admin will not load, or login returns 401:
+
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — Quick Deploy, Worker access, CORS, and migration failures
+- [SUPPORT.md](../SUPPORT.md) — supported release line and how to ask for help
+
+---
+
 ## Need more control?
 
-For deployments with a dedicated Admin domain, R2 backups, Queue-based visit processing, and full GitHub Actions automation, see:
+For a dedicated Admin domain, R2 backups, Queue-based visit processing, and full GitHub Actions automation (reviewed dry-runs + confirmation phrases), see:
 
-- [SELF_HOSTING.md](SELF_HOSTING.md) — complete self-hosting guide
+- [SELF_HOSTING.md](SELF_HOSTING.md) — complete self-hosting guide (Quick vs Reviewed)
 - [DEPLOYMENT_PREFLIGHT.md](DEPLOYMENT_PREFLIGHT.md) — pre-deployment safety checks
+- [FRESH_ACCOUNT_REHEARSAL.md](FRESH_ACCOUNT_REHEARSAL.md) — owner checklist for a fresh Cloudflare account

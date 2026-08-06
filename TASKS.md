@@ -5,7 +5,24 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Online Upgrade Target And State Isolation (v0.30.7)
+## 🟡 In Progress — Ship Deep Optimization Release (v0.31.0)
+
+- [x] Phase 0 docs/agent truth alignment (AGENTS, CLAUDE, ARCHITECTURE, KNOWN_ISSUES, AT checklist)
+- [x] Phase 1 security: admin scopes, egress SSRF, rate limits, PBKDF2, security headers
+- [x] Phase 2 isolation: DEMO_ALLOW gate, CORS origins, site version inject, Demo workflow allow flag
+- [x] Phase 3 deploy UX: Quick Start, postdeploy hint, one-click Demo refusal, preflight non-demo check
+- [x] Phase 4 Admin IA: Settings sections, sidebar groups, skip-to-content, timeouts, Demo copy
+- [x] Phase 5 site/docs narrative: Demo ≠ instance, SECURITY/SELF_HOSTING updates
+- [x] Admin API error localization helper (Settings + unit coverage)
+- [ ] Update GitHub release approval variables for v0.31.0 and deploy via protected production workflow
+- [ ] Verify production Worker/Admin parity and authenticated online-upgrade after deploy
+- [ ] Archive fresh-account rehearsal evidence in PROGRESS; complete AT checklist; enable private vuln reporting
+
+Task record: `.codex/tasks/deep-optimization-2026-08-07.md`
+
+---
+
+## ✅ Completed — Online Upgrade Target And State Isolation (v0.30.7)
 
 - [x] Bind the Admin-confirmed version to the configured GitHub branch release before dispatch
 - [x] Resolve the exact target commit and pass release/commit expectations into the protected workflow
@@ -16,8 +33,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Cover duplicate confirmation, request payload, mobile modal ownership, Tab trapping, and focus restoration
 - [x] Synchronize v0.30.7 workspace versions, runtime examples, CI fallbacks, CHANGELOG, PROGRESS, and task records
 - [x] Complete the full affected regression suite
-- [ ] Update GitHub release approval variables and deploy through the protected production workflow
-- [ ] Verify production Worker/Admin parity, canonical assets, and authenticated online-upgrade capability
+- [ ] Update GitHub release approval variables and deploy through the protected production workflow *(superseded by 0.31.0 ship task)*
+- [ ] Verify production Worker/Admin parity, canonical assets, and authenticated online-upgrade capability *(superseded by 0.31.0 ship task)*
 
 Task record: `.codex/tasks/online-upgrade-target-binding-2026-08-06.md`
 

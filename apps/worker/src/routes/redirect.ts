@@ -11,9 +11,11 @@ import { resolveRedirectDecision, type RedirectDecision } from '../redirectRules
 import { notFound, disabledPage, expiredPage, passwordPage, warningPage } from '../utils/response';
 import { resolvePublicLocale, type PublicLocale } from '../utils/publicPages';
 import { redirectResponse } from '../utils/redirectResponse';
-import { sha256 } from '../utils/id';
+import { verifyLinkPassword } from '../utils/password';
+import { checkAuthRateLimit } from '../auth/rateLimit';
 import type { KVCacheEntry, Link } from '@linketry/shared';
 import { getPublicPageMessage } from '../utils/pageTemplates';
+import { jsonError } from '../utils/jsonResponse';
 
 function toCacheEntry(link: Link): KVCacheEntry {
   return {
@@ -122,8 +124,7 @@ async function readSubmittedPassword(c: Context<{ Bindings: Env }>): Promise<str
 }
 
 async function passwordMatches(storedHash: string, password: string): Promise<boolean> {
-  const hash = await sha256(password);
-  return storedHash === `sha256:${hash}` || storedHash === hash;
+  return verifyLinkPassword(storedHash, password);
 }
 
 async function accessGate(
@@ -135,6 +136,12 @@ async function accessGate(
   if (inactiveResponse) return inactiveResponse;
 
   if (link.password_hash) {
+    if (c.req.method === 'POST') {
+      const rate = await checkAuthRateLimit(c.env, c.req.raw, 'link-password');
+      if (!rate.allowed) {
+        return jsonError('Too many password attempts. Please try again shortly.', 429);
+      }
+    }
     const submittedPassword = await readSubmittedPassword(c);
     if (!submittedPassword || !(await passwordMatches(link.password_hash, submittedPassword))) {
       return passwordPage(link.slug, c.req.method === 'POST', locale);

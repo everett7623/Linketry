@@ -17,7 +17,7 @@ const backupRoutes = new Hono<{ Bindings: Env }>();
 const MAX_ONE_CLICK_RESTORE_BYTES = 25 * 1024 * 1024;
 
 backupRoutes.use('*', async (c, next) => {
-  const authError = await requireAuth(c);
+  const authError = await requireAuth(c, 'admin');
   if (authError) return authError;
   await next();
 });

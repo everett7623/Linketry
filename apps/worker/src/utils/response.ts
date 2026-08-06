@@ -9,7 +9,15 @@ import {
 } from './publicPages';
 export { jsonCreated, jsonError, jsonOk } from './jsonResponse';
 
-const htmlHeaders = { 'Content-Type': 'text/html; charset=utf-8', Vary: 'Accept-Language' };
+const htmlHeaders = {
+  'Content-Type': 'text/html; charset=utf-8',
+  Vary: 'Accept-Language',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Content-Security-Policy':
+    "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+};
 
 export function notFound(message?: string, locale: PublicLocale = 'en'): Response {
   return new Response(renderNotFoundPage(locale, message), { status: 404, headers: htmlHeaders });

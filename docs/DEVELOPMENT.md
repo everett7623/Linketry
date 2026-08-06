@@ -2,9 +2,11 @@
 
 This guide explains how to make safe, maintainable changes to Linketry. Read docs/ARCHITECTURE.md first for runtime behavior and failure boundaries.
 
-**Last updated**: 2026-07-30  
-**Current version**: v0.29.20+optimization (local)  
-**Production version**: v0.29.18
+**Last updated**: 2026-08-07  
+**Current version**: v0.31.0 (local)  
+**Production version**: v0.30.6
+
+Version authority: root `package.json` and `PROGRESS.md`. Capability matrix: `AGENTS.md`.
 
 ---
 
@@ -15,10 +17,11 @@ This guide explains how to make safe, maintainable changes to Linketry. Read doc
 Summary:
 1. Redirect stability is #1 priority
 2. Stats failures must not break redirects
-3. Only implement the requested version
+3. Only implement the requested scope (see AGENTS capability matrix; do not invent V10 teams)
 4. KV is cache only, D1 is source of truth
 5. Never silently overwrite existing slugs
 6. Never commit secrets
+7. Keep site / production / Demo tracks isolated
 
 ---
 

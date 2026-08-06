@@ -1,3 +1,5 @@
+import { printGitHubEnvDraft } from './github-env-draft.mjs';
+
 function parseArgs(argv) {
   const options = {
     prefix: '',
@@ -57,8 +59,11 @@ function printReport(report) {
     console.log(`  --apply --confirm ${report.confirmation}`);
   }
   if (report.bindingOutputReady) {
-    console.log('GitHub repository variables:');
-    for (const [key, value] of Object.entries(report.bindings)) console.log(`  ${key}=${value}`);
+    printGitHubEnvDraft({
+      variables: report.bindings,
+      secrets: report.requiredSecrets ?? [],
+      confirmation: report.confirmation,
+    });
     console.log('Wrangler TOML bindings:');
     console.log(report.wranglerToml);
   }

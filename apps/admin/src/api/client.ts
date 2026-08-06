@@ -12,7 +12,12 @@ export { normalizeApiBase } from '../utils/apiBase';
 const BUILD_API_BASE = normalizeApiBase(
   import.meta.env.VITE_LINKETRY_API_URL ?? import.meta.env.VITE_API_URL ?? ''
 );
-const API_TIMEOUT_MS = 15_000;
+
+/** Default request timeout for Admin API calls. */
+export const API_TIMEOUT_MS = 15_000;
+
+/** Longer timeout for slow operations (import, backup restore, health checks). */
+export const API_LONG_TIMEOUT_MS = 60_000;
 
 export class ApiError extends Error {
   constructor(
@@ -107,11 +112,20 @@ export async function apiFetch<T>(
   return res.json() as Promise<T>;
 }
 
-export async function apiGet<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const result = await apiFetch<{ success: boolean; data: T }>(path, {
-    cache: 'no-store',
-    ...options,
-  });
+export async function apiGet<T>(
+  path: string,
+  options: RequestInit = {},
+  timeoutMs = API_TIMEOUT_MS
+): Promise<T> {
+  const result = await apiFetch<{ success: boolean; data: T }>(
+    path,
+    {
+      cache: 'no-store',
+      ...options,
+    },
+    getApiBase(),
+    timeoutMs
+  );
   return result.data;
 }
 
@@ -132,27 +146,48 @@ export async function apiPost<T>(
   return result.data;
 }
 
-export async function apiPut<T>(path: string, body?: unknown): Promise<T> {
-  const result = await apiFetch<{ success: boolean; data: T }>(path, {
-    method: 'PUT',
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+export async function apiPut<T>(
+  path: string,
+  body?: unknown,
+  timeoutMs = API_TIMEOUT_MS
+): Promise<T> {
+  const result = await apiFetch<{ success: boolean; data: T }>(
+    path,
+    {
+      method: 'PUT',
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    },
+    getApiBase(),
+    timeoutMs
+  );
   return result.data;
 }
 
-export async function apiDelete<T>(path: string): Promise<T> {
-  const result = await apiFetch<{ success: boolean; data: T }>(path, {
-    method: 'DELETE',
-  });
+export async function apiDelete<T>(
+  path: string,
+  timeoutMs = API_TIMEOUT_MS
+): Promise<T> {
+  const result = await apiFetch<{ success: boolean; data: T }>(
+    path,
+    {
+      method: 'DELETE',
+    },
+    getApiBase(),
+    timeoutMs
+  );
   return result.data;
 }
 
-export async function downloadFile(path: string, filename: string): Promise<void> {
+export async function downloadFile(
+  path: string,
+  filename: string,
+  timeoutMs = API_TIMEOUT_MS
+): Promise<void> {
   const token = readBrowserSetting('token');
   const headers: Record<string, string> = {};
   if (token && !IS_PUBLIC_DEMO) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetchWithTimeout(`${getApiBase()}${path}`, { headers });
+  const res = await fetchWithTimeout(`${getApiBase()}${path}`, { headers }, timeoutMs);
   if (!res.ok) throw new ApiError(res.status, `Download failed: HTTP ${res.status}`);
 
   const blob = await res.blob();

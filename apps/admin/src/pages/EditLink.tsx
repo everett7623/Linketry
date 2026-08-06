@@ -148,7 +148,7 @@ export function EditLink() {
       const maxClicks = Number(form.max_clicks);
       if (!Number.isInteger(maxClicks) || maxClicks < 1) errs.max_clicks = t('invalidMaxClicks');
     }
-    if (!form.clear_password && form.password && form.password.trim().length < 4) {
+    if (!form.clear_password && form.password && form.password.trim().length < 8) {
       errs.password = t('shortPassword');
     }
     setErrors(errs);

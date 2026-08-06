@@ -1,3 +1,5 @@
+import { printGitHubEnvDraft } from './github-env-draft.mjs';
+
 function parseArgs(argv) {
   const options = {
     repository: '',
@@ -44,9 +46,11 @@ function printReport(report) {
   console.log(`Cloudflare account: ${report.accountId}`);
   console.log(`Prefix: ${report.prefix}`);
   console.log(`Domain: ${report.domain}`);
-  console.log('Repository variable plan:');
-  for (const [name, value] of Object.entries(report.variables)) console.log(`  ${name}=${value}`);
-  console.log(`Required apply confirmation: ${report.confirmation}`);
+  printGitHubEnvDraft({
+    variables: report.variables,
+    secrets: report.requiredSecrets ?? ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID'],
+    confirmation: report.confirmation,
+  });
   console.log(
     report.mutations.length > 0
       ? `Applied: ${report.mutations.join(', ')}`

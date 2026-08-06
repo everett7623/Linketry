@@ -35,7 +35,7 @@ interface NavGroup {
 
 export const NAV_GROUPS: NavGroup[] = [
   {
-    label: 'navDaily',
+    label: 'navLinks',
     items: [
       { to: '/overview', icon: <LayoutDashboard size={18} />, label: 'overview' },
       { to: '/links', icon: <Link2 size={18} />, label: 'links' },
@@ -66,7 +66,7 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: 'navInsightsAutomation',
+    label: 'navTraffic',
     items: [
       {
         to: '/analytics',
@@ -92,7 +92,7 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: 'navOperations',
+    label: 'navOps',
     items: [
       {
         to: '/operations',

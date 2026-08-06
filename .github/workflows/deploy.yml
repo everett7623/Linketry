@@ -195,7 +195,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.30.7'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.31.0'}"`,
             `LINKETRY_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
             `LINKETRY_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             `LINKETRY_UPDATE_REPOSITORY = ${JSON.stringify(env.LINKETRY_UPDATE_REPOSITORY)}`,
@@ -405,8 +405,8 @@ jobs:
             echo ""
             echo "| Role | URL |"
             echo "|---|---|"
-            echo "| Admin dashboard | ${ADMIN_URL:-Not configured â€” recommended: https://admin.example.com} |"
-            echo "| Worker API and short links | ${LINKETRY_API_URL:-Not configured â€” recommended: https://go.example.com} |"
+            echo "| Admin dashboard | ${ADMIN_URL:-Not configured â€?recommended: https://admin.example.com} |"
+            echo "| Worker API and short links | ${LINKETRY_API_URL:-Not configured â€?recommended: https://go.example.com} |"
             echo ""
             echo "### LINKETRY_ADMIN_TOKEN"
             if [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "generated" ]; then

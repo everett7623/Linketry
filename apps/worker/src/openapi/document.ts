@@ -5,7 +5,7 @@ export type ApiOperation = {
   path: string;
   summary: string;
   tag: string;
-  scope?: 'read' | 'write';
+  scope?: 'read' | 'write' | 'admin';
 };
 
 export const API_OPERATIONS: ApiOperation[] = [
@@ -21,10 +21,10 @@ export const API_OPERATIONS: ApiOperation[] = [
   ['get', '/links/duplicates', 'Find links with the same normalized destination', 'Links', 'read'],
   ['post', '/links', 'Create a link', 'Links', 'write'],
   ['post', '/links/bulk-create', 'Create up to 100 links', 'Links', 'write'],
-  ['post', '/links/bulk', 'Apply a bulk link action', 'Links', 'write'],
+  ['post', '/links/bulk', 'Apply a bulk link action (delete requires admin)', 'Links', 'write'],
   ['post', '/links/bulk-tag', 'Update tags in bulk', 'Links', 'write'],
   ['post', '/links/bulk-replace-url/preview', 'Preview destination replacements', 'Links', 'write'],
-  ['post', '/links/bulk-replace-url/confirm', 'Confirm destination replacements', 'Links', 'write'],
+  ['post', '/links/bulk-replace-url/confirm', 'Confirm destination replacements', 'Links', 'admin'],
   ['post', '/links/migrate-domain/preview', 'Preview a short-domain migration', 'Links', 'write'],
   ['post', '/links/migrate-domain/confirm', 'Confirm a short-domain migration', 'Links', 'write'],
   ['post', '/links/bulk-utm/preview', 'Preview bulk UTM changes', 'Links', 'write'],
@@ -76,14 +76,14 @@ export const API_OPERATIONS: ApiOperation[] = [
   ['post', '/analytics-alerts/run', 'Run traffic anomaly detection', 'Analytics', 'write'],
   ['post', '/conversions', 'Record a conversion', 'Analytics', 'write'],
   ['get', '/audit', 'List audit events', 'Operations', 'read'],
-  ['get', '/backups', 'List backups', 'Backups', 'read'],
-  ['post', '/backups/create', 'Create a backup', 'Backups', 'write'],
-  ['get', '/backups/{id}/download', 'Download a backup', 'Backups', 'read'],
-  ['post', '/backups/{id}/restore-preview', 'Preview a restore', 'Backups', 'write'],
-  ['post', '/backups/{id}/restore', 'Restore a backup', 'Backups', 'write'],
+  ['get', '/backups', 'List backups', 'Backups', 'admin'],
+  ['post', '/backups/create', 'Create a backup', 'Backups', 'admin'],
+  ['get', '/backups/{id}/download', 'Download a backup', 'Backups', 'admin'],
+  ['post', '/backups/{id}/restore-preview', 'Preview a restore', 'Backups', 'admin'],
+  ['post', '/backups/{id}/restore', 'Restore a backup', 'Backups', 'admin'],
   ['post', '/import/shlink-api/fetch', 'Fetch a Shlink API export', 'Import and export', 'write'],
   ['post', '/import/preview', 'Preview an import', 'Import and export', 'write'],
-  ['post', '/import/confirm', 'Confirm an import', 'Import and export', 'write'],
+  ['post', '/import/confirm', 'Confirm an import', 'Import and export', 'admin'],
   ['get', '/import/jobs', 'List import jobs', 'Import and export', 'read'],
   ['get', '/import/jobs/{id}', 'Read an import job', 'Import and export', 'read'],
   ['get', '/import/jobs/{id}/report.csv', 'Download an import report', 'Import and export', 'read'],
@@ -92,14 +92,14 @@ export const API_OPERATIONS: ApiOperation[] = [
   ['get', '/export/visits.csv', 'Export visits as CSV', 'Import and export', 'read'],
   ['get', '/export/analytics.csv', 'Export analytics as CSV', 'Import and export', 'read'],
   ['get', '/export/backup.json', 'Export a portable backup', 'Import and export', 'read'],
-  ['post', '/metadata/title', 'Resolve a destination title', 'Metadata', 'write'],
-  ['post', '/metadata/suggestions', 'Generate local link suggestions', 'Metadata', 'write'],
-  ['post', '/metadata/preview', 'Read destination preview metadata', 'Metadata', 'write'],
-  ['get', '/health-checks/alerts', 'List health alerts', 'Monitoring', 'read'],
-  ['get', '/health-checks/history', 'List health history', 'Monitoring', 'read'],
-  ['post', '/health-checks/url', 'Check a target URL', 'Monitoring', 'write'],
-  ['post', '/health-checks/links/{id}', 'Check a stored link', 'Monitoring', 'write'],
-  ['post', '/health-checks/batch', 'Check links in a batch', 'Monitoring', 'write'],
+  ['post', '/metadata/title', 'Resolve a destination title', 'Metadata', 'admin'],
+  ['post', '/metadata/suggestions', 'Generate local link suggestions', 'Metadata', 'admin'],
+  ['post', '/metadata/preview', 'Read destination preview metadata', 'Metadata', 'admin'],
+  ['get', '/health-checks/alerts', 'List health alerts', 'Monitoring', 'admin'],
+  ['get', '/health-checks/history', 'List health history', 'Monitoring', 'admin'],
+  ['post', '/health-checks/url', 'Check a target URL', 'Monitoring', 'admin'],
+  ['post', '/health-checks/links/{id}', 'Check a stored link', 'Monitoring', 'admin'],
+  ['post', '/health-checks/batch', 'Check links in a batch', 'Monitoring', 'admin'],
   ['get', '/notifications/config', 'Read notification configuration', 'Notifications', 'read'],
   [
     'put',
@@ -233,7 +233,7 @@ export function createOpenApiDocument(_env: Env, version = '0.29.20') {
           type: 'http',
           scheme: 'bearer',
           description:
-            'Admin token or a scoped Linketry API token. Tokens are never included in this document.',
+            'Admin token or a scoped Linketry API token (read, write, or admin). Backup, import confirm, metadata/health egress, and bulk URL replace confirm require admin. Tokens are never included in this document.',
         },
       },
       schemas: {

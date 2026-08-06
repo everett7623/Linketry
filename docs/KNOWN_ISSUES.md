@@ -6,7 +6,17 @@
 
 ## 当前问题
 
-_(暂无已知未修复问题)_
+### H1. 安全 hardening 跟踪（Deep Optimization）
+
+- **状态**：✅ Addressed in v0.31.0 (code)
+- **说明**：admin 作用域、egress SSRF、登录/密码限流、PBKDF2、Demo allow 门、CORS 白名单已落地。XSS→localStorage token 仍依赖 CSP + 作用域缓解（本版本不迁 cookie 会话）。
+- **仍开放（产品边界）**：官方 Demo API 故意公开只读；预览码仅 UI 门。
+
+### H2. Pre-1.0 外部证据门（运维）
+
+- **状态**：🟡 Pending operator evidence
+- **项**：v0.31.0 生产 parity；GitHub private vulnerability reporting；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；手工 AT（`docs/AT_AUDIT_CHECKLIST.md`）；Demo 可选 R2（Cloudflare `10042`）
+- **代码侧**：清单与文档已就绪；关闭需仓库/账号侧操作
 
 ---
 

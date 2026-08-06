@@ -154,7 +154,7 @@ routes = [
 ]
 
 [vars]
-LINKETRY_VERSION = "0.30.7"
+LINKETRY_VERSION = "0.31.0"
 
 [[d1_databases]]
 binding = "DB"
@@ -195,7 +195,7 @@ curl https://go.example.com/health
 Expected response:
 
 ```json
-{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.30.7" } }
+{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.31.0" } }
 ```
 
 ---
@@ -309,7 +309,7 @@ Defined in `apps/worker/wrangler.toml`:
 
 | Name                   | Example      |
 | ---------------------- | ------------ |
-| `LINKETRY_VERSION`     | `0.30.7`     |
+| `LINKETRY_VERSION`     | `0.31.0`     |
 | `LINKETRY_DAILY_CRON`  | `0 18 * * *` |
 | `LINKETRY_HEALTH_CRON` | `0 * * * *`  |
 
@@ -365,7 +365,7 @@ Every Cloudflare-enabled workflow run also requires exact deployment approvals:
 | Name                                  | Example              | Purpose                                                                   |
 | ------------------------------------- | -------------------- | ------------------------------------------------------------------------- |
 | `LINKETRY_DEPLOYMENT_TRACK`           | `upgrade`            | Allows only the reviewed `fresh` or `upgrade` path; Demo is rejected here |
-| `LINKETRY_APPROVED_RELEASE`           | `0.30.7`             | Must match the root package version                                       |
+| `LINKETRY_APPROVED_RELEASE`           | `0.31.0`             | Must match the root package version                                       |
 | `LINKETRY_APPROVED_COMMIT`            | `<40-character SHA>` | Must match the commit being deployed                                      |
 | `LINKETRY_APPROVED_MIGRATIONS_SHA256` | `<digest>`           | Must match `npm run deploy:migration-digest`                              |
 
@@ -461,7 +461,7 @@ Cutover:
 
 - Add the old Shlink domain to the Worker route/custom domain
 - Change DNS from Shlink to Cloudflare Worker if needed
-- Update Admin **Settings â†’ Default Domain** to the old Shlink domain
+- Update Admin **Settings â†?Default Domain** to the old Shlink domain
 - Test several high-traffic slugs
 
 Rollback:

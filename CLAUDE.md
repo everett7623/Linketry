@@ -2,9 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**最后更新**：2026-07-30  
-**当前版本**：v0.29.20+optimization（本地）  
-**生产版本**：v0.29.18
+**最后更新**：2026-08-07  
+**当前版本**：v0.31.0（本地）  
+**生产版本**：v0.30.6  
+
+版本权威以根目录 `package.json` 与 `PROGRESS.md` 为准。详细 Agent 规则见 `AGENTS.md`。
 
 ---
 
@@ -20,10 +22,11 @@ Linketry 是自托管短链接管理、访问分析与健康监控平台，运�
 
 1. **重定向稳定性是第一优先级** — 未经明确指示不要触碰重定向逻辑
 2. **统计失败绝不能破坏重定向** — 分析必须通过 `ctx.waitUntil()` 运行
-3. **只实现请求的版本** — 除非明确要求，不要编写 V2/V3/V4 功能
+3. **只实现请求的范围** — 不要擅自做 V10 多用户/团队等未请求能力；已上线的进阶功能（域名、批量、分析图、密码/过期等）应正常维护
 4. **KV 只是缓存** — D1 是真实数据源，绝不让 KV 成为主数据源
 5. **导入时绝不静默覆盖现有 slug** — 默认冲突策略是 `skip`
 6. **绝不提交 secrets** — `LINKETRY_ADMIN_TOKEN` 等密钥放在 `.dev.vars` 或 Wrangler secrets 中
+7. **官网 / 生产 / Demo 三轨隔离** — 禁止在真实实例启用 `LINKETRY_DEMO_MODE=read-only`
 
 ---
 
@@ -89,7 +92,8 @@ linketry/
 │
 ├── migrations/          # D1 数据库迁移
 │   ├── 0001_init.sql
-│   └── 0002_analytics_depth.sql
+│   ├── 0002_analytics_depth.sql
+│   └── 0003_performance_indexes.sql
 │
 ├── scripts/             # 部署脚本
 └── docs/                # 扩展文档

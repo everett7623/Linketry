@@ -3,11 +3,20 @@ import type { Env } from '../types';
 import { jsonOk, jsonError } from '../utils/response';
 import { getAdminToken } from '../config/runtime';
 import { isPublicReadOnlyDemo } from '../demo/policy';
+import { timingSafeEqualString } from '../utils/password';
+import { checkAuthRateLimit } from '../auth/rateLimit';
 
 const auth = new Hono<{ Bindings: Env }>();
 
 auth.post('/login', async (c) => {
   try {
+    const rate = await checkAuthRateLimit(c.env, c.req.raw, 'login');
+    c.header('X-RateLimit-Limit', String(rate.limit));
+    if (!rate.allowed) {
+      c.header('Retry-After', String(rate.retryAfterSeconds));
+      return jsonError('Too many login attempts. Please try again shortly.', 429);
+    }
+
     const body = await c.req.json<{ token?: string }>();
     const token = body?.token;
 
@@ -16,7 +25,7 @@ auth.post('/login', async (c) => {
     }
 
     const adminToken = getAdminToken(c.env);
-    if (!adminToken || token !== adminToken) {
+    if (!adminToken || !timingSafeEqualString(token, adminToken)) {
       return jsonError('Invalid token', 401);
     }
 
@@ -37,7 +46,7 @@ auth.get('/me', (c) => {
   }
   const token = authHeader.slice(7);
   const adminToken = getAdminToken(c.env);
-  if (!adminToken || token !== adminToken) {
+  if (!adminToken || !timingSafeEqualString(token, adminToken)) {
     return jsonError('Unauthorized', 401);
   }
   return jsonOk({ authenticated: true, role: 'admin' });

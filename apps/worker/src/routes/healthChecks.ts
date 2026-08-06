@@ -27,6 +27,7 @@ import {
 import { buildHealthAlertStatus } from '../health/alertStatus';
 import { appendHealthHistory, parseHealthHistory } from '../health/history';
 import { emitHealthNotifications } from '../notifications/index';
+import { assertSafeEgressUrl, safeEgressFetch } from '../utils/egress';
 
 const healthChecks = new Hono<{ Bindings: Env }>();
 
@@ -35,7 +36,7 @@ const MAX_BATCH_SIZE = 50;
 const RETRY_WITH_GET_STATUSES = new Set([403, 405, 406, 501]);
 
 healthChecks.use('*', async (c, next) => {
-  const authError = await requireAuth(c);
+  const authError = await requireAuth(c, 'admin');
   if (authError) return authError;
   await next();
 });
@@ -266,9 +267,12 @@ async function checkUrl(url: string): Promise<LinkHealthCheckResult> {
 }
 
 async function fetchForHealth(url: string, method: LinkHealthMethod): Promise<Response> {
-  return fetch(url, {
+  const egress = assertSafeEgressUrl(url);
+  if (!egress.ok) {
+    throw new Error(egress.error);
+  }
+  return safeEgressFetch(url, {
     method,
-    redirect: 'follow',
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     headers: {
       Accept: method === 'HEAD' ? '*/*' : 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1',

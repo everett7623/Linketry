@@ -18,6 +18,10 @@ Use the Deploy to Cloudflare button for a new self-hosted production instance wh
 
 The quick profile does **not** enable `LINKETRY_DEMO_MODE`, request any `LINKETRY_DEMO_*` variable, create the official Demo Worker/Pages projects, or seed synthetic data. Its Admin build explicitly disables Demo mode and uses the deployed Worker as its same-origin API. The official Demo workflow is guarded to the upstream Linketry repository, so repositories created through Quick Deploy skip it. The quick profile also does not create a separate Pages project because Cloudflare Deploy Buttons support one Worker application; the Admin is bundled as Worker static assets instead.
 
+**Demo is not your instance.** Never copy Demo credentials, accounts, `LINKETRY_DEMO_MODE=read-only`, or `LINKETRY_DEMO_ALLOW` onto a real self-hosted Worker. The public Demo is an isolated track with synthetic data only.
+
+When Admin and the Worker use **separate origins** (reviewed Pages path), set Worker variable `LINKETRY_CORS_ORIGINS` to a comma-separated allowlist of Admin origins. If unset, CORS falls back to `*` with a warning. Quick Deploy same-origin `/admin/` does not need a custom CORS list for browser login.
+
 1. Open the Cloudflare deployment button and sign in to the account that will own the instance.
 2. Choose unique Worker, D1, and KV names. Enter a long random `LINKETRY_ADMIN_TOKEN` and save it in a password manager.
 3. Deploy. Cloudflare binds the new D1/KV resources, builds the Admin, deploys the Worker, and applies the production migrations.

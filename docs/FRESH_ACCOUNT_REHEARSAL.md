@@ -1,8 +1,12 @@
 # Fresh Cloudflare Account Rehearsal
 
-Updated: 2026-07-20
+Updated: 2026-08-07
 
 Use this checklist after reading [Self-hosting](SELF_HOSTING.md). It captures the complete owner workflow that should pass before a Linketry release is considered beginner-deployable.
+
+## Status note
+
+Completing this rehearsal is an **owner-run evidence task**, not a documentation checkbox. Record workflow run IDs, checked URLs, and outcomes in [`PROGRESS.md`](../PROGRESS.md) (or the active release task). Do **not** mark the rehearsal complete in progress docs without archiving that evidence. Do not invent or copy another account's results.
 
 ## Safety Rules
 

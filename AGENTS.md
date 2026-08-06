@@ -2,9 +2,11 @@
 
 This file tells AI coding agents (Cascade, Codex, Copilot, etc.) how to work on this codebase safely and correctly.
 
-**Last updated**: 2026-08-06
-**Current version**: v0.30.7 (local)
+**Last updated**: 2026-08-07
+**Current version**: v0.31.0 (local)
 **Production version**: v0.30.6
+
+Version authority: root `package.json` and `PROGRESS.md`. Prefer those over older stamps in historical docs.
 
 ---
 
@@ -14,6 +16,8 @@ Linketry is a **self-hosted link management, analytics and monitoring platform**
 
 - `apps/worker` — Cloudflare Workers backend (redirects + admin API)
 - `apps/admin` — React + Vite + Tailwind CSS admin panel
+- `apps/site` — official marketing / deploy site (`linketry.com`)
+- `apps/demo-api` — branded Demo API Pages proxy
 - `packages/shared` — shared TypeScript types and validators
 
 Public progress and planning live in `PROGRESS.md`, `TASKS.md`, and `docs/ROADMAP.md`. **Read them before making major changes.**
@@ -24,7 +28,7 @@ Public progress and planning live in `PROGRESS.md`, `TASKS.md`, and `docs/ROADMA
 
 | Layer    | Technology                              |
 | -------- | --------------------------------------- |
-| Backend  | Cloudflare Workers + TypeScript         |
+| Backend  | Cloudflare Workers + TypeScript + Hono  |
 | Database | Cloudflare D1 (SQLite)                  |
 | Cache    | Cloudflare KV                           |
 | Frontend | React + Vite + Tailwind CSS             |
@@ -32,12 +36,12 @@ Public progress and planning live in `PROGRESS.md`, `TASKS.md`, and `docs/ROADMA
 
 ## Requirements
 
-| Tool       | Version              |
-|------------|----------------------|
-| Node.js    | 24.x (recommended), >=20 |
-| npm        | 10+                  |
-| TypeScript | 5.4+                 |
-| Wrangler   | 4                    |
+| Tool       | Version                      |
+|------------|------------------------------|
+| Node.js    | 24.x (`>=24 <25` in engines) |
+| npm        | 10+                          |
+| TypeScript | 5.4+                         |
+| Wrangler   | 4                            |
 | Cloudflare | Account with D1, KV, Worker, Pages |
 
 ---
@@ -46,10 +50,45 @@ Public progress and planning live in `PROGRESS.md`, `TASKS.md`, and `docs/ROADMA
 
 1. **Redirect stability is the #1 priority.** Never touch redirect logic without explicit instruction.
 2. **Stats failures must not break redirects.** Analytics runs via `ctx.waitUntil()` — keep it that way.
-3. **Only implement the requested version.** Do not write V2/V3/V4 features unless explicitly asked.
+3. **Only implement the requested scope.** Do not invent V10 multi-user/teams or unrelated roadmap items unless explicitly asked.
 4. **KV is cache only.** D1 is the source of truth. Never make KV the primary data source.
 5. **Never silently overwrite existing slugs** during import. Default conflict strategy is `skip`.
 6. **Never commit secrets.** `LINKETRY_ADMIN_TOKEN` and other secrets go in `.dev.vars` or Wrangler secrets — never in code.
+7. **Keep site / production / Demo tracks isolated.** Never reuse Demo credentials, accounts, or `LINKETRY_DEMO_MODE=read-only` on a real instance.
+
+---
+
+## Capability Matrix (shipped)
+
+Treat these as **already implemented**. Do not refuse to maintain them because older “V1 only” notes said otherwise.
+
+| Area | Status |
+|------|--------|
+| Redirects, KV+D1, CRUD, import/export | Shipped |
+| Expiry, max clicks, password links, QR | Shipped |
+| Bulk ops, UTM templates, multi-domain | Shipped |
+| Smart redirect rules, groups | Shipped |
+| Analytics depth, heatmap, world map, conversions | Shipped |
+| Backups/R2, health checks, webhooks, notifications | Shipped |
+| API tokens (read/write/admin), audit, online upgrade | Shipped |
+| Simple/Advanced Admin, i18n en/zh-CN, first-run wizard | Shipped |
+| Official Demo (read-only), Quick Deploy, OpenAPI | Shipped |
+
+**Not started / future:** V10 multi-user/roles/teams; additional locales beyond en/zh-CN unless requested; Cloudflare Access (optional Pre-1.0).
+
+---
+
+## Hard Limits (What NOT to Do)
+
+- Do **not** break redirect stability or move analytics onto the redirect critical path.
+- Do **not** make KV authoritative or skip D1 re-verification on cache hits.
+- Do **not** change the default import conflict strategy away from `skip`.
+- Do **not** remove `archived`, `source`, `source_id` from `links` (importers depend on them).
+- Do **not** change the `visits` table schema without an explicit migration task.
+- Do **not** add multi-user / team / RBAC product features unless the task is V10-scoped.
+- Do **not** enable `LINKETRY_DEMO_MODE` outside the isolated Demo track.
+- Do **not** commit secrets, live tokens, or production resource IDs.
+- Do **not** add new D1 migrations without explicit instruction.
 
 ---
 
@@ -71,6 +110,8 @@ Do not leave code, workflow, config, or documentation changes without matching v
 
 See `PROGRESS.md` for what is built and what is pending.
 See `TASKS.md` for the active task list.
+See `docs/KNOWN_ISSUES.md` for open hardening / limitations.
+See `docs/ROADMAP.md` for product sequencing.
 
 ---
 
@@ -91,13 +132,13 @@ User visits /:slug
 
 **Key principle**: D1 is the source of truth. KV is a disposable acceleration layer. Even on cache hits, D1 status is re-checked to ensure disable, delete, expiry, and click-limit changes take effect immediately.
 
-### Admin API Auth (V1)
+### Admin API Auth
 
 ```
 Authorization: Bearer <LINKETRY_ADMIN_TOKEN>
 ```
 
-All `/api/v1/*` routes require this header. The token is compared in `apps/worker/src/auth/index.ts`.
+All `/api/v1/*` routes require this header (except the official Demo read-only exception). Scoped API tokens use `read` / `write` / `admin`. Destructive ops (backups restore, import confirm, bulk destroy, SSRF-capable fetches) require `admin`.
 
 ### KV Cache Keys
 
@@ -117,6 +158,15 @@ linketry:slug:<domain>:<slug>
 
 **Smart TTL**: Hot links (>1000 clicks) = 7 days, warm links (>100 clicks) = 3 days, default = 24 hours, cold links (<10 clicks) = 1 hour. Automatically adjusted for expires_at and max_clicks.
 
+### Deployment tracks
+
+| Track | Purpose |
+|-------|---------|
+| Production / self-host | Owner instance; never Demo mode |
+| Official Demo | Isolated account; `LINKETRY_DEMO_MODE=read-only`; synthetic data |
+| Project site | Static marketing/docs only |
+| Quick Deploy | Same-origin Worker + `/admin/`; Demo forced off |
+
 ---
 
 ## Code Conventions
@@ -127,6 +177,7 @@ linketry:slug:<domain>:<slug>
 - Use `src/cache/index.ts` for all KV operations
 - Use `src/utils/response.ts` for standardized JSON responses
 - Use `src/utils/id.ts` for ID generation and slug generation
+- Use `src/utils/egress.ts` for Worker-initiated outbound URL fetches
 - Routes live in `src/routes/` — one file per resource
 - Each route handler authenticates via `src/auth/index.ts`
 
@@ -147,28 +198,16 @@ linketry:slug:<domain>:<slug>
 
 ---
 
-## What NOT to Do
-
-- Do NOT add multi-user, team, or role features — that is V4+
-- Do NOT add complex analytics charts — that is V3+
-- Do NOT add `expires_at`, `max_clicks`, `password_hash` UI fields — that is V2+
-- Do NOT add AI slug or UTM templates — that is V4+
-- Do NOT add Bulk Actions UI — that is V2+
-- Do NOT add `domains` table or multi-domain UI — that is V2/V3+
-- Do NOT change the `visits` table schema — it is stable for V1
-- Do NOT remove the `archived`, `source`, `source_id` columns from `links` — they are used by the importer
-
----
-
 ## Import System
 
 All importers implement the `ImportAdapter` interface from `packages/shared`.
 
-V1 adapters (already implemented):
-- `apps/worker/src/importers/shlink.ts` — Shlink JSON / JSONL / CSV
-- `apps/worker/src/importers/generic.ts` — Generic CSV / JSON
+Implemented adapters (non-exhaustive):
+- `shlink.ts` — Shlink JSON / JSONL / CSV / API
+- `generic.ts` — Generic CSV / JSON
+- `mainstream.ts` / `platforms.ts` — Bitly, Short.io, Sink, YOURLS, Dub, and related
 
-When adding a new importer in V2:
+When adding a new importer:
 1. Create `apps/worker/src/importers/<name>.ts`
 2. Implement `ImportAdapter`
 3. Register in `apps/worker/src/routes/importRoutes.ts`
@@ -177,16 +216,12 @@ When adding a new importer in V2:
 
 ## Database
 
-Schema is in `migrations/0001_init.sql`. All tables for V1–V4 are defined there.
+Base schema: `migrations/0001_init.sql`. Incremental:
 
-V1 active tables:
-- `links` — main short link table
-- `visits` — visit records
-- `tags` — tag list
-- `import_jobs` — import history
-- `settings` — system settings
+- `0002_analytics_depth.sql`
+- `0003_performance_indexes.sql`
 
-V2/V3/V4 tables exist in the schema but are not used in V1 code.
+Active tables include links, visits, tags, domains, import_jobs, settings, api_tokens, audit_logs, backups, redirect_rules, visit_targets, conversion_events, and related analytics tables.
 
 **Do not add new migrations without explicit instruction.**
 
@@ -202,8 +237,9 @@ V2/V3/V4 tables exist in the schema but are not used in V1 code.
 - [ ] Creating a link writes to KV
 - [ ] Disabling/deleting a link removes from KV
 - [ ] Import preview shows correct counts (valid / conflict / invalid)
-- [ ] Import confirm does not overwrite existing slugs
+- [ ] Import confirm does not overwrite existing slugs by default
 - [ ] Export downloads a valid file
+- [ ] Demo (if touched): mutating APIs still 403; production paths never set Demo mode
 
 ---
 

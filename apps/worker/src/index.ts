@@ -20,7 +20,8 @@ import { healthCors } from './health/cors';
 import { getDailyCron, getHealthCron, getRuntimeVersion } from './config/runtime';
 import { registerAdminApiRoutes } from './routes/api';
 import { isLegacyApiPath } from './routes/apiVersion';
-import { checkDemoRateLimit, isPublicReadOnlyDemo, isReadOnlyMethod } from './demo/policy';
+import { checkDemoRateLimit, isDemoModeMisconfigured, isPublicReadOnlyDemo, isReadOnlyMethod } from './demo/policy';
+import { resolveCorsOrigin } from './health/corsOrigins';
 
 const RESERVED_PATHS = new Set([
   'admin',
@@ -37,18 +38,28 @@ const RESERVED_PATHS = new Set([
 
 const app = new Hono<{ Bindings: Env }>();
 
+app.use('*', async (c, next) => {
+  if (isDemoModeMisconfigured(c.env)) {
+    return jsonError(
+      'LINKETRY_DEMO_MODE=read-only requires LINKETRY_DEMO_ALLOW=1 on the isolated Demo track.',
+      503
+    );
+  }
+  await next();
+});
+
 // Public runtime-version checks are read-only and may come from a separately hosted Admin.
 app.use('/health', healthCors);
 
 // CORS for admin frontend
-app.use(
-  '/api/*',
-  cors({
-    origin: '*',
+app.use('/api/*', async (c, next) => {
+  const origin = resolveCorsOrigin(c);
+  return cors({
+    origin,
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+  })(c, next);
+});
 
 app.use('/api/*', async (c, next) => {
   if (!isPublicReadOnlyDemo(c.env)) {
@@ -82,6 +93,10 @@ app.use('/api/*', async (c, next) => {
     );
     return jsonError('The public Demo is temporarily unavailable.', 503);
   }
+
+  // Synthetic Demo reads should not be cached by intermediaries.
+  c.header('Cache-Control', 'private, no-store');
+  c.header('X-Linketry-Demo', 'synthetic-readonly');
 
   await next();
 });

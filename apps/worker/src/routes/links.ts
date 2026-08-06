@@ -21,7 +21,8 @@ import { recordAudit } from '../audit/index';
 import { emitWebhook } from '../webhooks/index';
 import { setCachedLink, deleteCachedLink } from '../cache/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
-import { generateId, now, sha256 } from '../utils/id';
+import { generateId, now } from '../utils/id';
+import { hashLinkPassword, validateLinkPasswordInput } from '../utils/password';
 import { validateSlug, validateLongUrl, validateDomain } from '@linketry/shared';
 import type { Link, KVCacheEntry } from '@linketry/shared';
 import { normalizeFallbackUrl } from '../links/fallbackUrl';
@@ -121,16 +122,10 @@ function parseOptionalDomain(value: unknown): { value?: string; error?: string }
 }
 
 async function parsePasswordHash(value: unknown): Promise<{ value: string | null; error?: string }> {
-  if (value === undefined) return { value: null };
-  if (value === null || value === '') return { value: null };
-  if (typeof value !== 'string') return { value: null, error: 'password must be a string' };
-
-  const password = value.trim();
-  if (!password) return { value: null };
-  if (password.length < 4) return { value: null, error: 'password must be at least 4 characters' };
-  if (password.length > 200) return { value: null, error: 'password must be 200 characters or less' };
-
-  return { value: `sha256:${await sha256(password)}` };
+  const parsed = validateLinkPasswordInput(value);
+  if (parsed.error) return { value: null, error: parsed.error };
+  if (!parsed.password) return { value: null };
+  return { value: await hashLinkPassword(parsed.password) };
 }
 
 function parseTagsInput(value: unknown): { tags: string[]; error?: string } {
@@ -524,6 +519,11 @@ links.post('/bulk', async (c) => {
     return jsonError('Invalid bulk action', 400);
   }
 
+  if (action === 'delete') {
+    const adminAuthError = await requireAuth(c, 'admin');
+    if (adminAuthError) return adminAuthError;
+  }
+
   const fallbackDomain = requestDomain(c.req.url);
   const existing = await getLinksByIds(c.env, ids);
   const ts = now();
@@ -661,6 +661,8 @@ links.post('/bulk-replace-url/preview', async (c) => {
 });
 
 links.post('/bulk-replace-url/confirm', async (c) => {
+  const adminAuthError = await requireAuth(c, 'admin');
+  if (adminAuthError) return adminAuthError;
   let body: { items?: unknown };
   try { body = await c.req.json(); } catch { return jsonError('Invalid JSON body', 400); }
   const requested = Array.isArray(body.items) ? body.items.slice(0, 100) as Array<{ id?: unknown; current_url?: unknown; next_url?: unknown }> : [];

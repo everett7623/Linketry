@@ -1,8 +1,18 @@
 # Product Gap Audit
 
-Updated: 2026-07-22
+Updated: 2026-08-07
 
 This document tracks what Linketry still needs as a practical open-source, self-hosted short-link platform. It complements `ROADMAP.md`, `SHLINK_FEATURE_GAP.md`, and `SINK_COMPARISON.md` without weakening redirect stability.
+
+**Authority note:** For current shipped capability and versions, prefer `PROGRESS.md`, root `package.json`, and `AGENTS.md`. Historical sections below may describe older milestones.
+
+## Current focus (Pre-1.0)
+
+- External evidence gates: fresh-account Quick Deploy rehearsal, remote D1 scale, AT checklist (`docs/AT_AUDIT_CHECKLIST.md`), GitHub private vulnerability reporting
+- Optional Demo R2 activation (`10042`) when the isolated Demo account supports it
+- Ship/verify **v0.31.0** security and isolation hardening on production after approval
+
+Dependency advisories: React Router RSC advisory remains acknowledged as unused SPA surface. Wrangler/Sharp toolchain findings from mid-2026 were refreshed in the 0.29.19 line; re-audit before public 1.0 if needed.
 
 ## Audit Basis
 

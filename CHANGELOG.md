@@ -7,6 +7,37 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.0] - 2026-08-07
+
+### Security
+
+- Destructive and egress-capable Admin APIs now require the `admin` API scope (or the primary admin token): backups, import confirm, bulk delete, bulk URL replace confirm, metadata fetches, and health-check probes
+- Worker egress fetches (metadata, health, webhooks) reject localhost, private, link-local, metadata, and credentialed URLs, and re-validate redirects
+- Admin login and password-protected short-link POSTs are rate-limited (binding, then KV fallback)
+- Admin token comparisons use constant-time equality; new link passwords use PBKDF2-SHA256 (min length 8) with legacy `sha256:` verify support
+- Public HTML pages and public stats responses add stricter security headers; Demo reads set `Cache-Control: private, no-store`
+
+### Added
+
+- `LINKETRY_DEMO_ALLOW` gate: `LINKETRY_DEMO_MODE=read-only` without allow fails closed (503); official Demo workflow sets both
+- Optional `LINKETRY_CORS_ORIGINS` allowlist (falls back to `*` with a warning); Demo may keep `*`
+- Fresh/upgrade preflight rejects `LINKETRY_DEMO_MODE`; Quick Deploy build refuses Demo mode env
+- Quick Deploy `postdeploy` hint script; Settings section navigation; Advanced sidebar groups (Links / Traffic / Ops / System); skip-to-content
+- Site build injects `softwareVersion` from `package.json`; Deploy/home copy clarifies Demo ≠ your instance
+- `docs/AT_AUDIT_CHECKLIST.md` for Pre-1.0 assistive-technology evidence
+
+### Changed
+
+- AGENTS.md / CLAUDE.md aligned to the shipped capability matrix; ARCHITECTURE documents Smart TTL and migration `0003`
+- SECURITY / SELF_HOSTING / QUICK_START document scopes, egress, CORS, Demo isolation, and token rotation
+- Admin Demo preview copy clarifies the access code unlocks UI only; Demo API remains publicly readable by design
+
+### Fixed
+
+- Known hardening gaps tracked in `docs/KNOWN_ISSUES.md` (external Pre-1.0 evidence gates remain operator-owned)
+
+---
+
 ## [0.30.7] - 2026-08-06
 
 ### Fixed

@@ -778,6 +778,9 @@ async function runQueuedImportJob(
 
 // POST /api/v1/import/confirm
 importRoutes.post('/confirm', async (c) => {
+  const adminAuthError = await requireAuth(c, 'admin');
+  if (adminAuthError) return adminAuthError;
+
   let body: {
     content?: string;
     source?: string;

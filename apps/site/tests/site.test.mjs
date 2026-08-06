@@ -48,11 +48,12 @@ test('project site exposes a dedicated deployment route from primary actions', (
 
 test('deployment page presents a Cloudflare launch and guarded repository workflow', () => {
   for (const content of [
-    'A · Cloudflare production deploy',
-    'Create one complete production Worker',
+    'A · Quick Deploy',
+    'Fastest path: one Worker with Admin at /admin/',
     'B · Reviewed repository workflow',
-    'Provision exactly what you approve',
+    'More control: dry-runs, Pages Admin, approval gates',
     'Production only. No Demo resources or synthetic data',
+    'Demo is not your instance',
     'docs/SELF_HOSTING.md',
     'UPGRADING_PRE_0_10.md',
   ]) {
@@ -68,6 +69,8 @@ test('deployment page presents a Cloudflare launch and guarded repository workfl
   assert.match(script, /navigator\.clipboard\.writeText\(promptText\)/);
   assert.doesNotMatch(deployPage, /100% free|free forever|zero configuration/i);
   assert.match(deployPage, /never asks for LINKETRY_DEMO_\*/);
+  assert.match(messages, /deploy\.demoIsolation/);
+  assert.match(messages, /home\.demoIsolation/);
 });
 
 test('project site uses canonical Linketry identity and public links', () => {
@@ -78,19 +81,26 @@ test('project site uses canonical Linketry identity and public links', () => {
   assert.match(page, /https:\/\/demo\.linketry\.com/);
   assert.match(page, /https:\/\/everettlabs\.dev\/coffee\//);
   assert.match(page, /No token required/);
+  assert.match(page, /Demo is not your instance/);
   assert.match(page, /docs\/SELF_HOSTING\.md/);
   assert.match(page, /docs\/ROADMAP\.md/);
   assert.doesNotMatch(page, /Linkora/i);
 });
 
-test('project site exposes grounded machine-readable facts for search and AI discovery', () => {
+test('project site exposes grounded machine-readable facts for search and AI discovery', async () => {
+  const packageJson = JSON.parse(
+    await readFile(new URL('../../../package.json', import.meta.url), 'utf8')
+  );
+  const expectedVersion = packageJson.version;
   const [homeData] = structuredData(page);
   const [deployData] = structuredData(deployPage);
   const software = homeData['@graph'].find((item) => item['@type'] === 'WebApplication');
   const facts = homeData['@graph'].find((item) => item['@type'] === 'FAQPage');
 
   assert.equal(software.name, 'Linketry');
-  assert.equal(software.softwareVersion, '0.30.7');
+  assert.equal(software.softwareVersion, expectedVersion);
+  assert.match(viteConfig, /__LINKETRY_SOFTWARE_VERSION__/);
+  assert.match(viteConfig, /transformIndexHtml/);
   assert.equal(software.isAccessibleForFree, true);
   assert.equal(software.offers.price, '0');
   assert.match(software.codeRepository, /github\.com\/everett7623\/Linketry/);
@@ -106,7 +116,7 @@ test('project site exposes grounded machine-readable facts for search and AI dis
   assert.match(robots, /User-agent: OAI-SearchBot/);
   assert.match(robots, /User-agent: GPTBot[\s\S]*Disallow: \//);
   assert.match(robots, /Content-Signal: search=yes, ai-input=yes, ai-train=no, use=reference/);
-  assert.match(llms, /Current documented version: 0\.30\.7/);
+  assert.match(llms, new RegExp(`Current documented version: ${expectedVersion.replace(/\./g, '\\.')}`));
   assert.match(llms, /D1 is the source of truth/);
   assert.match(llms, /does not require Demo mode/);
 });

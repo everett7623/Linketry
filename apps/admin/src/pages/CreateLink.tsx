@@ -89,7 +89,7 @@ export function CreateLink() {
       const maxClicks = Number(form.max_clicks);
       if (!Number.isInteger(maxClicks) || maxClicks < 1) errs.max_clicks = t('invalidMaxClicks');
     }
-    if (form.password && form.password.trim().length < 4) errs.password = t('shortPassword');
+    if (form.password && form.password.trim().length < 8) errs.password = t('shortPassword');
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };

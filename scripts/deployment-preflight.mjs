@@ -261,6 +261,17 @@ function validateCoreConfiguration(env, targets, checks) {
 }
 
 function validateTrack(track, env, targets, checks) {
+  if (track === 'fresh' || track === 'upgrade') {
+    const demoMode = (readEnv(env, 'LINKETRY_DEMO_MODE') || '').trim();
+    addCheck(
+      checks,
+      !demoMode,
+      'non-demo-mode',
+      'LINKETRY_DEMO_MODE is unset for production/self-host tracks.',
+      'Never set LINKETRY_DEMO_MODE on fresh or upgrade deployments; use the isolated Demo track only.'
+    );
+  }
+
   if (track === 'fresh') {
     addCheck(
       checks,

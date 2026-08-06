@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-08-06
+Last updated: 2026-08-07
 
 ---
 
@@ -10,19 +10,35 @@ Last updated: 2026-08-06
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.30.7 prepared    | Online upgrades resolve and bind an exact GitHub release/commit before dispatch; redirect, analytics, D1, and KV behavior are unchanged                                                              |
-| Admin frontend             | ✅ 0.30.7 prepared    | Upgrade operations are generation-isolated and mobile version-center entry preserves one modal and deterministic focus restoration                                                                   |
+| Worker backend             | ✅ 0.31.0 prepared    | Security hardening: admin scopes, egress SSRF guard, auth rate limits, PBKDF2 passwords, Demo allow gate, CORS allowlist                                                                            |
+| Admin frontend             | ✅ 0.31.0 prepared    | Settings sections, Advanced nav groups, skip-to-content, longer backup/health timeouts, Demo preview copy                                                                                           |
 | Database schema            | ✅ Migration ready    | Performance indexes migration (0003) prepared and versioned; V6 analytics migration applied in production                                                                                           |
-| Documentation              | ✅ 0.30.7 synchronized | Workspace versions, deployment examples, CI fallbacks, changelog, progress, and task status are aligned                                                                                            |
-| Deployment                 | 🟡 0.30.7 prepared   | Production remains on verified v0.30.6 until release approval variables are updated and the protected workflow is run                                                                                |
-| End-to-end test            | ✅ Complete          | 92 deployment, 112 Worker, 6 Demo API, 64 Admin unit, 26 Admin browser, 1 production browser, and 10 site tests pass; type-check and affected builds pass                                          |
-| Known issues               | ✅ Tracked            | All known issues resolved or documented in `docs/KNOWN_ISSUES.md`                                                                      |
-| Current version            | ✅ 0.30.7 prepared    | Local source and release metadata are v0.30.7; production Worker/Admin remain verified on v0.30.6                                                                                                    |
-| Repository update target   | 🟡 0.30.7 local       | Production approvals remain bound to deployed v0.30.6 until the reviewed v0.30.7 commit and unchanged migration digest are approved                                                                 |
-| Next planned work          | 🟡 Pre-1.0 validation | Deploy performance optimizations, fresh-account rehearsal, remote-D1 scale evidence, assistive-technology review, private vulnerability reporting |
+| Documentation              | ✅ 0.31.0 synchronized | AGENTS/CLAUDE/ARCHITECTURE/SECURITY/KNOWN_ISSUES/QUICK_START/SELF_HOSTING and site isolation narrative aligned                                                                                     |
+| Deployment                 | 🟡 0.31.0 prepared   | Production remains on verified v0.30.6 until release approval variables are updated and the protected workflow is run; then ship 0.31.0                                                             |
+| End-to-end test            | 🟡 Verify locally    | Worker security tests and deployment contracts updated; run full suites before protected deploy                                                                                                     |
+| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                                                   |
+| Current version            | ✅ 0.31.0 prepared    | Local source and release metadata are v0.31.0; production Worker/Admin remain verified on v0.30.6                                                                                                    |
+| Repository update target   | 🟡 0.31.0 local       | Prefer deploying 0.31.0 after reviewing this security release; prior 0.30.7 preparation is superseded locally                                                                                        |
+| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, AT checklist pass, private vulnerability reporting, Demo optional R2                                                                    |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system, batch operations shipped in 0.30.0 |
+| Deep optimization          | ✅ 0.31.0 code landed | Phases 0–5 implemented in-repo; operator Pre-1.0 gates still open                                                                                                                                   |
+
+---
+
+## Linketry 0.31.0 Deep Optimization (Security, Isolation, Deploy UX, Admin IA, Site Docs)
+
+| Area                     | Status      | Notes                                                                                                                        |
+| ------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Agent/docs truth         | ✅ Complete | AGENTS capability matrix; CLAUDE/ARCHITECTURE/KNOWN_ISSUES/AT checklist                                                      |
+| API admin scopes         | ✅ Complete | Backups, import confirm, bulk destroy/replace confirm, metadata, health                                                      |
+| SSRF egress              | ✅ Complete | `utils/egress.ts` + webhook/metadata/health usage                                                                            |
+| Auth hardening           | ✅ Complete | Rate limits, constant-time compare, PBKDF2 passwords                                                                         |
+| Demo misconfig gate      | ✅ Complete | `LINKETRY_DEMO_ALLOW=1` required; preflight/one-click refuse Demo mode                                                       |
+| CORS / site version      | ✅ Complete | `LINKETRY_CORS_ORIGINS`; site `softwareVersion` injected from package.json                                                   |
+| Admin IA / a11y          | ✅ Complete | Settings sections, nav groups, skip-to-content                                                                               |
+| Production state         | 🟡 Pending  | Deploy through protected workflow after approval                                                                              |
 
 ---
 
