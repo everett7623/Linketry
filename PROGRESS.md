@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-08-07
+Last updated: 2026-08-10
 
 ---
 
@@ -19,7 +19,7 @@ Last updated: 2026-08-07
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                                                   |
 | Current version            | ✅ 0.31.0 live        | Source, production Worker/Admin, and official Demo advertise v0.31.0                                                                                                                                |
 | Repository update target   | ✅ 0.31.0 shipped     | Deep optimization release is live; continue Pre-1.0 validation evidence                                                                                                                             |
-| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, AT checklist pass, private vulnerability reporting, Demo optional R2                                                                    |
+| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, AT checklist pass, Demo optional R2; private vulnerability reporting enabled 2026-08-10                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system, batch operations shipped in 0.30.0 |
@@ -39,6 +39,7 @@ Last updated: 2026-08-07
 | CORS / site version      | ✅ Complete | `LINKETRY_CORS_ORIGINS`; site `softwareVersion` injected from package.json                                                   |
 | Admin IA / a11y          | ✅ Complete | Settings sections, nav groups, skip-to-content                                                                               |
 | Production state         | ✅ Live     | Production `31125426247` + Demo `31124712930`; health endpoints report v0.31.0                                              |
+| Private vuln reporting   | ✅ Enabled  | GitHub API `enabled: true` recorded 2026-08-10                                                                              |
 
 ---
 
@@ -122,7 +123,7 @@ Last updated: 2026-08-07
 | Admin browser stability | ✅ Focused  | The default eight-worker 25-test browser suite passes with bounded lazy-route cold-start waits and result-scoped assertions                     |
 | Security exception      | ✅ Reviewed | The remaining npm advisory affects only unstable React Router RSC APIs, which the declarative Linketry BrowserRouter application does not use    |
 | Cloudflare impact       | ✅ None     | No Worker, Pages, D1, KV, DNS, migration, secret, production, or Demo resource was changed                                                       |
-| Release gate            | 🟡 External | Local regression is complete; rehearse Quick Deploy in a fresh Cloudflare account and enable private vulnerability reporting before public 1.0 |
+| Release gate            | 🟡 External | Local regression is complete; rehearse Quick Deploy in a fresh Cloudflare account before public 1.0 (private vulnerability reporting enabled 2026-08-10) |
 
 ---
 
@@ -349,7 +350,7 @@ Last updated: 2026-08-07
 | Update discovery        | ✅ Verified | Admin reads the configured repository branch's `package.json`; GitHub Release/tag creation is not required for a newer-version notification |
 | Optional Demo resources | 🟡 Pending  | Queue is configured, but R2 bucket variables remain unset until the isolated Cloudflare account enables the optional R2 capability          |
 | Production Admin cache  | ✅ Fixed    | Canonical assets are checked without cache bypass, long-lived custom caching is rejected, and the Admin CNAME is maintained as DNS-only     |
-| Public 1.0 gates        | 🟡 Pending  | Independent fresh-account, remote-D1 scale, assistive-technology, and private vulnerability-reporting evidence remains                      |
+| Public 1.0 gates        | 🟡 Pending  | Independent fresh-account, remote-D1 scale, and assistive-technology evidence remain; private vulnerability reporting enabled 2026-08-10 |
 | Redirect/data impact    | ✅ None     | Admin delivery and DNS proxy mode change; redirect logic, migrations, D1/KV ownership, production records, and stored data remain unchanged |
 
 ---
@@ -442,7 +443,7 @@ Last updated: 2026-08-07
 
 | Area                 | Status      | Notes                                                                                                                      |
 | -------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Security reporting   | 🟡 External | Policy and advisory URL are complete; GitHub activation is an external pre-1.0 gate and currently reports `enabled: false` |
+| Security reporting   | ✅ Enabled  | Policy and advisory URL complete; GitHub private vulnerability reporting enabled 2026-08-10 (`enabled: true`)               |
 | Compatibility        | ✅ Complete | Patch/minor pre-1.0 behavior, `/api/v1`, and forward-only migration expectations are explicit                              |
 | Supported toolchain  | ✅ Complete | Node 24, npm 10+, Wrangler 4.111+ within major 4, current browsers, and protected workflows form the maintained contract   |
 | Backup and rollback  | ✅ Complete | One operator checklist covers backups, post-upgrade evidence, migration-aware rollback, and D1/KV ownership                |

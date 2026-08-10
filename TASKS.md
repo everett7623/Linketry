@@ -5,18 +5,18 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Ship Deep Optimization Release (v0.31.0)
+## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.0)
 
-- [x] Phase 0 docs/agent truth alignment (AGENTS, CLAUDE, ARCHITECTURE, KNOWN_ISSUES, AT checklist)
-- [x] Phase 1 security: admin scopes, egress SSRF, rate limits, PBKDF2, security headers
-- [x] Phase 2 isolation: DEMO_ALLOW gate, CORS origins, site version inject, Demo workflow allow flag
-- [x] Phase 3 deploy UX: Quick Start, postdeploy hint, one-click Demo refusal, preflight non-demo check
-- [x] Phase 4 Admin IA: Settings sections, sidebar groups, skip-to-content, timeouts, Demo copy
-- [x] Phase 5 site/docs narrative: Demo ≠ instance, SECURITY/SELF_HOSTING updates
-- [x] Admin API error localization helper (Settings + unit coverage)
-- [ ] Update GitHub release approval variables for v0.31.0 and deploy via protected production workflow
-- [ ] Verify production Worker/Admin parity and authenticated online-upgrade after deploy
-- [ ] Archive fresh-account rehearsal evidence in PROGRESS; complete AT checklist; enable private vuln reporting
+- [x] Phase 0–5 deep optimization code + release metadata (v0.31.0)
+- [x] Update GitHub release approval variables and deploy via protected production workflow (`31125426247`)
+- [x] Deploy isolated Demo via protected Demo workflow (`31124712930`)
+- [x] Verify production/Demo Worker health parity (`go.uukk.de` / `demoapi.linketry.com` → 0.31.0)
+- [ ] Verify authenticated online-upgrade capability on production Admin
+- [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS
+- [ ] Complete AT checklist (`docs/AT_AUDIT_CHECKLIST.md`) and archive evidence
+- [x] Enable GitHub private vulnerability reporting
+- [ ] Optional: Demo R2 (`10042`) when isolated account capability allows
+- [ ] Optional: remote-D1 scale evidence for public 1.0
 
 Task record: `.codex/tasks/deep-optimization-2026-08-07.md`
 

@@ -8,9 +8,10 @@ This document tracks what Linketry still needs as a practical open-source, self-
 
 ## Current focus (Pre-1.0)
 
-- External evidence gates: fresh-account Quick Deploy rehearsal, remote D1 scale, AT checklist (`docs/AT_AUDIT_CHECKLIST.md`), GitHub private vulnerability reporting
+- External evidence gates: fresh-account Quick Deploy rehearsal, remote D1 scale, AT checklist (`docs/AT_AUDIT_CHECKLIST.md`)
+- GitHub private vulnerability reporting: ✅ enabled 2026-08-10 (non-maintainer advisory-form spot-check still recommended)
 - Optional Demo R2 activation (`10042`) when the isolated Demo account supports it
-- Ship/verify **v0.31.0** security and isolation hardening on production after approval
+- **v0.31.0** is live on production and the isolated Demo; remaining work is operator evidence, not code ship
 
 Dependency advisories: React Router RSC advisory remains acknowledged as unused SPA surface. Wrangler/Sharp toolchain findings from mid-2026 were refreshed in the 0.29.19 line; re-audit before public 1.0 if needed.
 
@@ -146,7 +147,7 @@ The official full-tree dependency audit currently reports three high-severity fi
 
 ### Private vulnerability reporting activation
 
-The repository policy and canonical advisory URL are documented and tested in v0.28.3, but the GitHub repository setting is external state. A read-only API check on 2026-07-21 returned `enabled: false`. Before public 1.0, enable **Settings → Security → Code security → Private vulnerability reporting**, verify the advisory form opens for a non-maintainer, and retain the evidence. Until then, public issues may request private contact only and must contain no vulnerability details.
+The repository policy and canonical advisory URL are documented and tested in v0.28.3. GitHub private vulnerability reporting was enabled on 2026-08-10 (`GET /repos/.../private-vulnerability-reporting` → `enabled: true`). Before public 1.0, spot-check that a non-maintainer can open the advisory form, and retain that evidence. Public issues must still request private contact only and must contain no vulnerability details.
 
 ### Fresh-account deployment rehearsal
 
