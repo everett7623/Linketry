@@ -10,20 +10,32 @@ Last updated: 2026-08-19
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | 🟡 0.31.1 local       | Hardening: SSRF title/Shlink fetches, unique daily clicks, password hash redaction, settings key isolation, batched tag rewrites                                                                    |
-| Admin frontend             | 🟡 0.31.1 local       | 401 logout, storage fallback, redirect-rule pagination, lazy world map, clipboard/search races                                                                                                      |
+| Worker backend             | 🟡 0.31.2 local       | Same runtime as 0.31.1; docs/token-guidance patch pending protected deploy                                                                                                                          |
+| Admin frontend             | 🟡 0.31.2 local       | Login token help now matches fail-closed GitHub Actions secrets                                                                                                                                     |
 | Database schema            | ✅ Migration ready    | Performance indexes migration (0003) prepared and versioned; V6 analytics migration applied in production                                                                                           |
-| Documentation              | 🟡 0.31.1 synchronized | CHANGELOG/PROGRESS/AGENTS/CLAUDE/ARCHITECTURE aligned to the hardening patch                                                                                                                       |
-| Deployment                 | ✅ 0.31.0 live        | Production run `31125426247` and Demo run `31124712930` shipped v0.31.0; `go.uukk.de/health` and `demoapi.linketry.com/health` report 0.31.0                                                         |
-| End-to-end test            | 🟡 Pending deploy    | v0.31.1 is local; production/Demo remain on 0.31.0 until the protected workflows run                                                                                                                |
+| Documentation              | 🟡 0.31.2 synchronized | README, SELF_HOSTING, Quick Start, site HTML, and Admin login copy aligned to current deploy contracts                                                                                             |
+| Deployment                 | ✅ 0.31.1 live        | Production and isolated Demo health report v0.31.1; source is v0.31.2 until the next protected deploy                                                                                               |
+| End-to-end test            | 🟡 Pending deploy    | v0.31.2 is local; production/Demo remain on 0.31.1 until the protected workflows run                                                                                                                |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                                            |
-| Current version            | 🟡 0.31.1 local       | Source advertises v0.31.1; production Worker/Admin and official Demo still advertise v0.31.0                                                                                                        |
-| Repository update target   | 🟡 0.31.1 pending     | Hardening patch is in-repo; deploy after review                                                                                                                                                     |
+| Current version            | 🟡 0.31.2 local       | Source advertises v0.31.2; production Worker/Admin and official Demo still advertise v0.31.1                                                                                                        |
+| Repository update target   | 🟡 0.31.2 pending     | Docs and site encoding patch is in-repo; deploy after review                                                                                                                                        |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, AT checklist pass, Demo optional R2; private vulnerability reporting enabled 2026-08-10                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system, batch operations shipped in 0.30.0 |
 | Deep optimization          | ✅ 0.31.0 code landed | Phases 0–5 implemented in-repo; operator Pre-1.0 gates still open                                                                                                                                   |
+
+---
+
+## Linketry 0.31.2 Docs, Token Guidance, And Site Encoding
+
+| Area                     | Status      | Notes                                                                                                                        |
+| ------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Reviewed-token contract  | ✅ Complete | GitHub Actions requires `LINKETRY_ADMIN_TOKEN` before first deploy and never prints it                                       |
+| Site Unicode             | ✅ Complete | Homepage titles, arrows, and decorative glyphs restored                                                                      |
+| Public beginner docs     | ✅ Complete | README, Quick Start, SELF_HOSTING, deploy assistant prompt, and Admin login help agree                                       |
+| Docker claim             | ✅ Complete | README no longer advertises a non-existent Docker image                                                                      |
+| Production state         | 🟡 Pending  | Source is v0.31.2; production/Demo remain on v0.31.1 until protected deploy                                                  |
 
 ---
 
@@ -37,7 +49,7 @@ Last updated: 2026-08-19
 | Admin session            | ✅ Complete | 401 auto-logout, `localStorage` memory fallback, login loading `finally`                                                     |
 | Redirect-rule picker     | ✅ Complete | Link selector pages through the API 100-item cap (up to 2,000 links)                                                         |
 | Deploy safety            | ✅ Complete | No token auto-print; job timeouts; production concurrency does not cancel in-flight deploys                                  |
-| Production state         | 🟡 Pending  | Source is v0.31.1; production/Demo remain on v0.31.0 until protected deploy                                                  |
+| Production state         | ✅ Live     | Production and Demo health report v0.31.1                                                                                    |
 
 ---
 

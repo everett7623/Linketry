@@ -48,7 +48,8 @@ if (build.status !== 0) {
   console.log('Cloudflare one-click Admin prepared at /admin/.');
   console.log(`
 Next steps after Cloudflare Deploy finishes:
-  1. Ensure LINKETRY_ADMIN_TOKEN is set (Cloudflare Deploy form or: wrangler secret put LINKETRY_ADMIN_TOKEN)
+  1. Log in with the LINKETRY_ADMIN_TOKEN you entered in the Cloudflare form
+     (manual fallback: wrangler secret put LINKETRY_ADMIN_TOKEN)
   2. curl https://<your-worker>.workers.dev/health
   3. Open https://<your-worker>.workers.dev/admin/
   Demo mode is forced off for this production profile (VITE_LINKETRY_DEMO_MODE=false).

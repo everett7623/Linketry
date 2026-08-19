@@ -168,6 +168,26 @@ Error: Resource already exists
 
 ---
 
+### 1b. GitHub Actions 首次部署缺少 Admin token
+
+**症状**：
+- **Prepare Worker secrets** 失败
+- 日志出现 `No LINKETRY_ADMIN_TOKEN exists for Worker`
+
+从 v0.31.1 起，审查工作流**不会**自动生成或打印 Admin token。公开仓库的 Actions 日志不能安全交付密钥。
+
+**解决**：
+
+```powershell
+# 生成本地随机值，保存到密码管理器，然后：
+gh secret set LINKETRY_ADMIN_TOKEN --repo OWNER/REPOSITORY
+gh workflow run deploy.yml --repo OWNER/REPOSITORY --ref main --field confirm_release=true
+```
+
+Cloudflare Quick Deploy 路径不受影响：在 Cloudflare 表单里填写同一个 token 即可。
+
+---
+
 ### 2. 数据库迁移失败
 
 **症状**：

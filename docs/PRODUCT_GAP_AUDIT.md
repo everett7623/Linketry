@@ -11,7 +11,7 @@ This document tracks what Linketry still needs as a practical open-source, self-
 - External evidence gates: fresh-account Quick Deploy rehearsal, remote D1 scale, AT checklist (`docs/AT_AUDIT_CHECKLIST.md`)
 - GitHub private vulnerability reporting: ✅ enabled 2026-08-10 (non-maintainer advisory-form spot-check still recommended)
 - Optional Demo R2 activation (`10042`) when the isolated Demo account supports it
-- **v0.31.0** is live on production and the isolated Demo; remaining work is operator evidence, not code ship
+- **v0.31.1** is live on production and the isolated Demo; remaining work is operator evidence plus the v0.31.2 docs/token-guidance patch
 
 Dependency advisories: React Router RSC advisory remains acknowledged as unused SPA surface. Wrangler/Sharp toolchain findings from mid-2026 were refreshed in the 0.29.19 line; re-audit before public 1.0 if needed.
 

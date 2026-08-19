@@ -17,8 +17,8 @@ test('security reports use a private channel and prohibit credential disclosure'
     /https:\/\/github\.com\/everett7623\/Linketry\/security\/advisories\/new/
   );
   assert.match(security, /Do not open a public issue/i);
-  assert.match(security, /must enable.*Private vulnerability reporting/is);
-  assert.match(security, /minimal public issue requesting a private security contact/i);
+  assert.match(security, /Private vulnerability reporting is enabled/i);
+  assert.match(security, /Submit the advisory form instead of a public issue/i);
   assert.match(security, /Do not include the vulnerability/i);
   assert.match(security, /revoke or rotate/i);
   assert.match(security, /Cloudflare API token/);

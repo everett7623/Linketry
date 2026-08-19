@@ -195,7 +195,7 @@ Manual deployment and GitHub Actions intentionally handle `LINKETRY_ADMIN_TOKEN`
 | Path | First deployment | Later deployment |
 |---|---|---|
 | Manual Wrangler | Run `npx wrangler secret put LINKETRY_ADMIN_TOKEN --cwd apps/worker` and enter a long random value | Leave it unchanged unless intentionally rotating it |
-| GitHub Actions fresh install | Leave the repository secret unset; the workflow creates the Worker secret and shows the value once in the first deployment log | The workflow preserves the existing Worker secret |
-| GitHub Actions recovery | Set repository secret `LINKETRY_ADMIN_TOKEN` only when the saved value was lost or an intentional rotation is required | Rerun once, save the replacement, then remove the override if desired |
+| GitHub Actions fresh install | Generate a long random token, save it, then `gh secret set LINKETRY_ADMIN_TOKEN`. The **Prepare Worker secrets** step copies it into the Worker and never prints it | The workflow preserves the existing Worker secret |
+| GitHub Actions recovery | Set repository secret `LINKETRY_ADMIN_TOKEN` only when the saved value was lost or an intentional rotation is required | Rerun once, then remove the override if desired |
 
 Never put the real Admin token in repository variables, code, `wrangler.toml`, screenshots, or preflight output.

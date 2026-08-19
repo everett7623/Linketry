@@ -3,8 +3,8 @@
 This guide explains how to make safe, maintainable changes to Linketry. Read docs/ARCHITECTURE.md first for runtime behavior and failure boundaries.
 
 **Last updated**: 2026-08-19  
-**Current version**: v0.31.1 (local)  
-**Production version**: v0.31.0
+**Current version**: v0.31.2 (local)  
+**Production version**: v0.31.1
 
 Version authority: root `package.json` and `PROGRESS.md`. Capability matrix: `AGENTS.md`.
 
@@ -45,7 +45,7 @@ Security reports follow `SECURITY.md`; compatibility, supported tooling, backups
 
 | Tool       | Version              | Notes |
 |------------|----------------------|-------|
-| Node.js    | 24.x (recommended), >=20 | Pinned in `.node-version` |
+| Node.js    | 24.x (`>=24 <25`) | Pinned in `.node-version` |
 | npm        | 10+                  | Package manager |
 | TypeScript | 5.4+                 | Language version |
 | Wrangler   | 4                    | Installed from repo dependencies |

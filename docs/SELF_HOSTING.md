@@ -156,6 +156,8 @@ Set your fork once in PowerShell, then add the Cloudflare API token through GitH
 ```powershell
 $repo = 'OWNER/REPOSITORY'
 gh secret set CLOUDFLARE_API_TOKEN --repo $repo
+# Generate a long random Admin token, save it in a password manager, then:
+gh secret set LINKETRY_ADMIN_TOKEN --repo $repo
 gh api --method PUT "repos/$repo/environments/production"
 ```
 
@@ -180,7 +182,7 @@ gh workflow run deploy.yml --repo $repo --ref main --field confirm_release=true
 gh run watch --repo $repo
 ```
 
-The workflow runs the deployment tests and safety gate before Cloudflare writes. It creates the Admin Pages project only when missing, generates the first Admin token when needed, deploys Worker secrets alongside the first Worker deployment, applies D1 migrations, and deploys Admin. Continue at [First Login](#first-login) after it succeeds.
+The workflow runs the deployment tests and safety gate before Cloudflare writes. It creates the Admin Pages project only when missing, deploys Worker secrets alongside the first Worker deployment without printing `LINKETRY_ADMIN_TOKEN`, applies D1 migrations, and deploys Admin. Continue at [First Login](#first-login) after it succeeds.
 
 ## Advanced Manual Deployment
 
@@ -220,7 +222,7 @@ cd ../..
 Use a long random value. Do not commit `.dev.vars` or real secrets.
 Do not deploy with someone else's Cloudflare resource IDs.
 
-Do not repeat this manual token step when using the GitHub Actions first-deployment path below: that path generates the Worker secret once and reports it in the deployment log. A GitHub repository secret named `LINKETRY_ADMIN_TOKEN` is only a recovery or intentional-rotation override.
+Do not repeat this `wrangler secret put` step when using the GitHub Actions path: set repository secret `LINKETRY_ADMIN_TOKEN` with `gh secret set` instead. The workflow copies that value into the Worker and never prints it.
 
 ### Apply D1 Migrations
 
@@ -252,7 +254,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.29.20" } }
+{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.31.2" } }
 ```
 
 ### Build and Deploy Admin
@@ -285,16 +287,18 @@ The included workflow can apply D1 migrations and deploy on pushes to `main`. Th
 
 ### Required for any deployment
 
-The basic deployment uses two repository secrets:
+The basic deployment uses these repository secrets:
 
 ```txt
 CLOUDFLARE_API_TOKEN
-CLOUDFLARE_ACCOUNT_ID
+LINKETRY_ADMIN_TOKEN
 ```
 
-Enter `CLOUDFLARE_API_TOKEN` through the hidden `gh secret set` prompt. `deploy:configure --apply` writes `CLOUDFLARE_ACCOUNT_ID` through standard input after verifying the exact repository.
+Enter both through the hidden `gh secret set` prompt. Generate `LINKETRY_ADMIN_TOKEN` yourself (for example `openssl rand -hex 32`), store it in a password manager, then set the repository secret before the first workflow run. Public GitHub Actions logs are not a safe place to deliver credentials, so the workflow never prints the token.
 
-`LINKETRY_ADMIN_TOKEN` does not need to be created manually. On the first deployment, the workflow generates it as a Worker secret and prints it once in the deployment log. A repository secret with the same name is only an optional recovery override if the generated value is lost.
+`deploy:configure --apply` writes `CLOUDFLARE_ACCOUNT_ID` through standard input after verifying the exact repository.
+
+A later `LINKETRY_ADMIN_TOKEN` repository secret is only a recovery or intentional-rotation override: rerun deployment once to replace the Worker secret.
 
 For in-app one-click upgrades, add the optional repository secret `LINKETRY_GITHUB_UPDATE_TOKEN`. Use a fine-grained GitHub token restricted to this Linketry repository with only **Actions: write** repository permission. The deployment workflow copies it into the Worker secret store; it is never included in the Admin build. The Worker records this deployment's own repository and branch, so an installation created from your fork upgrades your production instance from that fork rather than from the official Demo or another owner's deployment. If omitted, the Admin keeps the manual GitHub Actions fallback.
 
@@ -318,7 +322,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.29.20
+LINKETRY_APPROVED_RELEASE=0.31.2
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
@@ -336,7 +340,7 @@ Normal `push` deployments remain bound to `LINKETRY_APPROVED_RELEASE` and `LINKE
 
 The completed workflow includes a **Linketry access** summary with the Admin and API URLs.
 
-> On the first deployment, the workflow automatically generates `LINKETRY_ADMIN_TOKEN`. Open GitHub **Actions** → the first successful **Deploy Linketry** run → **Prepare Worker secrets**, copy the one-time token from that step log, and save it to your password manager. Later deployments detect and preserve the existing Worker secret instead of rotating it. If the value is lost, create a new repository secret named `LINKETRY_ADMIN_TOKEN` and rerun deployment once to replace the Worker token.
+> Create `LINKETRY_ADMIN_TOKEN` before the first deployment (`gh secret set LINKETRY_ADMIN_TOKEN --repo OWNER/REPOSITORY`). Open GitHub **Actions** → the first successful **Deploy Linketry** run → **Prepare Worker secrets** only to confirm that the secret was configured or preserved. That step does not print the token. Later deployments keep the existing Worker secret unless you set a replacement repository secret and rerun once.
 
 ### Optional advanced variables
 
@@ -375,15 +379,14 @@ Open the automatic Pages Admin URL shown in the deployment summary:
 https://linketry-alice-admin.pages.dev
 ```
 
-To find the token after an automatic deployment:
+To confirm the token after an automatic deployment:
 
 1. Open the forked repository on GitHub.
 2. Select **Actions**, then the latest successful **Deploy Linketry** run.
-3. Open the **Prepare Worker secrets** step.
-4. Copy the generated `linketry_...` value from the one-time log.
-5. Save it in a password manager. Later deployments preserve it automatically.
+3. Open the **Prepare Worker secrets** step and confirm it configured or preserved the Worker secret. It will not print the token.
+4. Log in with the value you saved in a password manager before running the workflow.
 
-If the generated value is lost, add a new value under **Settings → Secrets and variables → Actions → Secrets → LINKETRY_ADMIN_TOKEN** and rerun deployment once. This recovery override replaces the Worker secret.
+If that value is lost, add a new value under **Settings → Secrets and variables → Actions → Secrets → LINKETRY_ADMIN_TOKEN** and rerun deployment once. This recovery override replaces the Worker secret.
 
 Log in with `LINKETRY_ADMIN_TOKEN`, then open Settings and set:
 

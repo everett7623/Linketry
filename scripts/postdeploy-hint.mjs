@@ -6,9 +6,11 @@
 console.log(`
 Linketry post-deploy next steps
 -------------------------------
-1. Set the Admin login secret (once per instance):
-   npx wrangler secret put LINKETRY_ADMIN_TOKEN
-   Use one long random token. This is the only required secret for Quick Deploy.
+1. Confirm the Admin login secret is already set:
+   Quick Deploy: use the LINKETRY_ADMIN_TOKEN you entered in the Cloudflare form.
+   Manual Wrangler: npx wrangler secret put LINKETRY_ADMIN_TOKEN
+   Reviewed GitHub Actions: gh secret set LINKETRY_ADMIN_TOKEN --repo OWNER/REPOSITORY
+   Use one long random token. Never paste it into chat, source files, or Actions logs.
 
 2. Confirm the Worker is healthy:
    curl https://<your-worker>.workers.dev/health

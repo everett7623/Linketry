@@ -16,7 +16,7 @@ Linketry is a self-hosted link management, analytics and monitoring platform.
 | Author                | `everettlabs`                                                   |
 | Website               | [linketry.com](https://linketry.com)                            |
 | GitHub                | [everett7623/Linketry](https://github.com/everett7623/Linketry) |
-| Docker image          | `everett7623/linketry`                                          |
+| Hosting               | Cloudflare Workers + D1 + KV (no official Docker image)         |
 | API namespace         | `/api/v1`                                                       |
 | Environment prefix    | `LINKETRY_`                                                     |
 | Fresh-install D1 name | `linketry`                                                      |
@@ -91,7 +91,8 @@ linketry/
 │   └── shared/          # Shared types & validators
 ├── migrations/
 │   ├── 0001_init.sql    # Base D1 schema
-│   └── 0002_analytics_depth.sql
+│   ├── 0002_analytics_depth.sql
+│   └── 0003_performance_indexes.sql
 └── docs/                # Extended documentation
 ```
 
@@ -114,7 +115,7 @@ Pull requests run a read-only GitHub Actions validation matrix before merge. It 
 
 ### Prerequisites
 
-- Node.js 24.x (推荐) 或 >=20
+- Node.js 24.x (`>=24 <25`)
 - npm 10+
 - Wrangler 4, installed locally by `npm install`
 - Cloudflare account
@@ -259,7 +260,7 @@ linketry-admin.pages.dev Admin UI (automatic)
 go.example.com          Worker API + short links (the only custom hostname)
 ```
 
-The basic profile requires Worker, D1, KV, Pages, and only the `go.example.com` custom hostname. The first deployment automatically generates `LINKETRY_ADMIN_TOKEN`; a branded Admin domain, R2 backups, Queues, Cron, and a separate public short-link domain remain optional advanced features.
+The basic profile requires Worker, D1, KV, Pages, and only the `go.example.com` custom hostname. Create `LINKETRY_ADMIN_TOKEN` yourself before the first workflow run; a branded Admin domain, R2 backups, Queues, Cron, and a separate public short-link domain remain optional advanced features.
 
 The maintained beginner path is:
 
@@ -270,15 +271,17 @@ npm run deploy:bootstrap -- --prefix linketry-alice --domain go.example.com --ac
 # Review the dry-run, then repeat it with --apply --confirm <printed-phrase>.
 $repo = 'OWNER/REPOSITORY'
 gh secret set CLOUDFLARE_API_TOKEN --repo $repo
+# Generate a long random Admin token, save it in a password manager, then:
+gh secret set LINKETRY_ADMIN_TOKEN --repo $repo
 gh api --method PUT "repos/$repo/environments/production"
 npm run deploy:configure -- --repo $repo --prefix linketry-alice --domain go.example.com --account-id <account-id>
 # Review the dry-run, then repeat it with --apply --confirm <printed-phrase>.
 gh workflow run deploy.yml --repo $repo --ref main --field confirm_release=true
 ```
 
-`deploy:bootstrap` creates or reuses only the required D1 and KV resources. `deploy:configure` safely writes the account secret and complete minimum repository variables, including the exact release, commit, and migration approvals. The deployment workflow creates the Pages project when missing, uploads first-deploy Worker secrets with the Worker, applies migrations, and deploys both services.
+`deploy:bootstrap` creates or reuses only the required D1 and KV resources. `deploy:configure` safely writes the account secret and complete minimum repository variables, including the exact release, commit, and migration approvals. The deployment workflow creates the Pages project when missing, copies `LINKETRY_ADMIN_TOKEN` into the Worker during **Prepare Worker secrets** without printing it, applies migrations, and deploys both services.
 
-After the first deploy, open the automatic `https://linketry-alice-admin.pages.dev` URL shown in the workflow summary. The same summary points to the automatically generated token in the **Prepare Worker secrets** step. Existing installations can use **Sync Online Upgrade Secret** to enable in-app upgrades without deploying a new release. A branded `admin.example.com` domain can be added later, but is not part of the beginner flow.
+After the first deploy, open the automatic `https://linketry-alice-admin.pages.dev` URL shown in the workflow summary and log in with the token you saved. Existing installations can use **Sync Online Upgrade Secret** to enable in-app upgrades without deploying a new release. A branded `admin.example.com` domain can be added later, but is not part of the beginner flow.
 
 For the advanced profile, optionally add `LINKETRY_WORKER_DOMAINS`, R2 bucket variables, and `LINKETRY_VISITS_QUEUE` as described in [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
 
@@ -351,9 +354,9 @@ The Admin includes an **Overview** dashboard, a filterable **Analytics** dashboa
 | **V4** ✅          | Smart redirects (country/device/browser/referer/language/A-B), local smart suggestions, UTM templates, campaigns, health checks |
 | **V5** ✅          | Open-source packaging, self-hosting docs, template config, reusable deploy workflow                                             |
 | **V6** ✅          | Analytics depth: per-link pages, filters, UTM, A/B targets, conversions, reports, retention                                     |
-| **V7** In Progress | Operations: one-click restore, backup retention, target monitoring, alerts, custom status pages                                 |
+| **V7** ✅          | Operations: one-click restore, backup retention, target monitoring, alerts, custom status pages                                 |
 | **V8** ✅          | Usability: Simple / Advanced mode, first-run wizard, EN/ZH, themes, density, card view, and update notices                      |
-| **V9** In Progress | Growth: bulk URL/UTM operations, public stats, notes, OpenGraph previews, scheduled reports, attribution, and lifecycle tools   |
+| **V9** In Progress | Growth: remaining attribution, deep links, and branded QR work after the shipped bulk/public-stats tools                        |
 | **V10** Future     | Collaboration: multi-user, roles, teams, governance, optional managed services                                                  |
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for details.

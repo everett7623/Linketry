@@ -5,14 +5,15 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.0)
+## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.1)
 
 - [x] Phase 0–5 deep optimization code + release metadata (v0.31.0)
 - [x] Update GitHub release approval variables and deploy via protected production workflow (`31125426247`)
 - [x] Deploy isolated Demo via protected Demo workflow (`31124712930`)
-- [x] Verify production/Demo Worker health parity (`go.uukk.de` / `demoapi.linketry.com` → 0.31.0)
+- [x] Verify production/Demo Worker health parity (`go.uukk.de` / `demoapi.linketry.com` → 0.31.1)
 - [x] Hardening patch v0.31.1 (SSRF title/Shlink, unique clicks, Admin 401/storage, redirect-rule paging)
-- [ ] Deploy v0.31.1 via protected production and Demo workflows
+- [x] Align public deploy docs, Admin token help, site Unicode, and the AI deploy prompt (v0.31.2)
+- [ ] Deploy v0.31.2 via protected production, Demo, and project-site workflows
 - [ ] Verify authenticated online-upgrade capability on production Admin
 - [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS
 - [ ] Complete AT checklist (`docs/AT_AUDIT_CHECKLIST.md`) and archive evidence
@@ -20,7 +21,7 @@ One item in "In Progress" at a time whenever possible.
 - [ ] Optional: Demo R2 (`10042`) when isolated account capability allows
 - [ ] Optional: remote-D1 scale evidence for public 1.0
 
-Task record: `.codex/tasks/deep-optimization-2026-08-07.md`
+Task records: `.codex/tasks/deep-optimization-2026-08-07.md`, `.codex/tasks/docs-deploy-truth-2026-08-19.md`
 
 ---
 

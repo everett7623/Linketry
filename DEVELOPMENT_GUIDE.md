@@ -8,7 +8,7 @@ This guide covers local setup, architecture decisions, and conventions for contr
 
 | Tool       | Version    |
 |------------|------------|
-| Node.js    | 24 (推荐) 或 >=20 |
+| Node.js    | 24.x (`>=24 <25`) |
 | npm        | 10+        |
 | Wrangler   | 4+         |
 | TypeScript | 5.4+       |

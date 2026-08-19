@@ -20,6 +20,8 @@ test('fresh-account guide keeps credential, repository, DNS, and R2 boundaries e
   assert.match(guide, /deploy:configure/);
   assert.match(guide, /--apply --confirm <phrase-from-dry-run>/);
   assert.match(guide, /Prepare Worker secrets/);
+  assert.match(guide, /gh secret set LINKETRY_ADMIN_TOKEN/);
+  assert.doesNotMatch(guide, /automatically generates/);
   assert.match(guide, /linketry-demo-admin\.pages\.dev/);
   assert.match(guide, /linketry-demo-api\.pages\.dev/);
   assert.match(guide, /DNS only/);
@@ -37,6 +39,10 @@ test('beginner deployment docs keep one automated basic path', async () => {
   assert.match(readme, /deploy:bootstrap/);
   assert.match(readme, /deploy:configure/);
   assert.match(readme, /Prepare Worker secrets/);
+  assert.match(readme, /gh secret set LINKETRY_ADMIN_TOKEN/);
+  assert.doesNotMatch(readme, /automatically generates `LINKETRY_ADMIN_TOKEN`/);
+  assert.doesNotMatch(selfHosting, /automatically generates `LINKETRY_ADMIN_TOKEN`/);
+  assert.match(selfHosting, /gh secret set LINKETRY_ADMIN_TOKEN/);
   assert.doesNotMatch(readme, /LINKETRY_APPROVED_RELEASE=0\.15\.0/);
   assert.match(selfHosting, /Workers Routes Edit/);
   assert.match(selfHosting, /Configure GitHub And Deploy \(Recommended\)/);

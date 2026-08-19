@@ -112,7 +112,12 @@ test('project site exposes grounded machine-readable facts for search and AI dis
   assert.match(deployPage, /rel="alternate" type="text\/plain" href="\/llms\.txt"/);
   assert.match(page, /name="robots"/);
   assert.match(deployPage, /name="robots"/);
-  assert.match(sitemap, /<lastmod>2026-07-25<\/lastmod>/);
+  assert.match(sitemap, /<lastmod>2026-08-19<\/lastmod>/);
+  assert.match(page, /Linketry — Own every link/);
+  assert.doesNotMatch(page, /Linketry \?\?/);
+  assert.match(page, /Authorization: Bearer ••••••••/);
+  assert.match(messages, /gh secret set LINKETRY_ADMIN_TOKEN/);
+  assert.doesNotMatch(messages, /automatically generates/);
   assert.match(robots, /User-agent: OAI-SearchBot/);
   assert.match(robots, /User-agent: GPTBot[\s\S]*Disallow: \//);
   assert.match(robots, /Content-Signal: search=yes, ai-input=yes, ai-train=no, use=reference/);

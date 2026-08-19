@@ -7,6 +7,23 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.2] - 2026-08-19
+
+### Fixed
+
+- Restored official-site Unicode (titles, arrows, and decorative glyphs) that had become `??`
+- Reviewed GitHub Actions docs, Admin login guidance, and the `/deploy/` assistant prompt now require `gh secret set LINKETRY_ADMIN_TOKEN` before the first workflow run; the workflow no longer claims it will print a generated token
+- Quick Deploy post-deploy hints now distinguish the Cloudflare form, Wrangler, and GitHub Actions token paths
+- Node.js docs match `engines`: 24.x (`>=24 <25`)
+- Private vulnerability reporting is documented as enabled
+
+### Changed
+
+- Quick Start and the deployment page distinguish Cloudflare Quick Deploy from the reviewed/AI-assisted GitHub Actions path
+- Production/Demo health state in progress docs now records live v0.31.1
+
+---
+
 ## [0.31.1] - 2026-08-19
 
 ### Security

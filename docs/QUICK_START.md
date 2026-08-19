@@ -81,6 +81,12 @@ Your `*.workers.dev` URL keeps working as a fallback.
 
 ---
 
+## Need GitHub Actions, a custom domain, or AI help?
+
+Use the [deployment options page](https://linketry.com/deploy/). Path B copies a guarded assistant prompt that follows `docs/SELF_HOSTING.md`: dry-runs first, hidden secret prompts, and `gh secret set LINKETRY_ADMIN_TOKEN` before the first workflow run. The prompt must not put tokens in chat, source files, logs, or command arguments.
+
+---
+
 ## Upgrade to a newer version
 
 From the Admin sidebar → version status → **Upgrade**. Linketry can update itself if `LINKETRY_GITHUB_UPDATE_TOKEN` is configured (see `docs/SELF_HOSTING.md`). Otherwise use the **Open deployment** link to trigger a GitHub Actions run manually.

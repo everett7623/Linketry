@@ -8,7 +8,7 @@ Security fixes are provided for the latest Linketry release published from `main
 
 Use [GitHub private vulnerability reporting](https://github.com/everett7623/Linketry/security/advisories/new). Do not open a public issue for an unpatched vulnerability.
 
-The repository owner must enable **Settings → Security → Code security → Private vulnerability reporting** before the public 1.0 launch. Until that external setting is enabled, open only a minimal public issue requesting a private security contact. Do not include the vulnerability, affected route, proof of concept, logs, data, or credentials in that issue.
+Private vulnerability reporting is enabled on this repository. Submit the advisory form instead of a public issue. Do not include the vulnerability, affected route, proof of concept, logs, data, or credentials in any public tracker.
 
 Include:
 

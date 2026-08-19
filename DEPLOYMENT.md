@@ -23,7 +23,7 @@ Do not hard-code these example domains for another deployment. Replace them with
 
 ## 1. Prerequisites
 
-- Node.js 24 recommended
+- Node.js 24.x (`>=24 <25`)
 - npm 10+
 - A Cloudflare account
 - A domain managed by Cloudflare DNS
@@ -365,7 +365,7 @@ Every Cloudflare-enabled workflow run also requires exact deployment approvals:
 | Name                                  | Example              | Purpose                                                                   |
 | ------------------------------------- | -------------------- | ------------------------------------------------------------------------- |
 | `LINKETRY_DEPLOYMENT_TRACK`           | `upgrade`            | Allows only the reviewed `fresh` or `upgrade` path; Demo is rejected here |
-| `LINKETRY_APPROVED_RELEASE`           | `0.31.0`             | Must match the root package version                                       |
+| `LINKETRY_APPROVED_RELEASE`           | `0.31.2`             | Must match the root package version                                       |
 | `LINKETRY_APPROVED_COMMIT`            | `<40-character SHA>` | Must match the commit being deployed                                      |
 | `LINKETRY_APPROVED_MIGRATIONS_SHA256` | `<digest>`           | Must match `npm run deploy:migration-digest`                              |
 
@@ -379,7 +379,7 @@ If either Cloudflare secret is missing, the workflow skips all Cloudflare migrat
 If either Admin variable is missing, the workflow still builds Admin but skips the Pages deploy so it does not publish a build with the wrong API URL.
 If any core Worker variable is missing, the workflow skips Worker deploy instead of relying on a committed production `wrangler.toml`. Missing R2 and Queue variables only disable those advanced bindings.
 
-On the first successful deployment, the workflow generates `LINKETRY_ADMIN_TOKEN` and uploads it alongside the first Worker deployment, then prints it once in the **Prepare Worker secrets** step. Later deployments preserve the existing Worker secret. If the token is lost, set a replacement GitHub repository secret named `LINKETRY_ADMIN_TOKEN` and rerun deployment once.
+Before the first GitHub Actions deployment, generate `LINKETRY_ADMIN_TOKEN` locally, save it in a password manager, and run `gh secret set LINKETRY_ADMIN_TOKEN`. The **Prepare Worker secrets** step copies it into the Worker and never prints it. Later deployments preserve the existing Worker secret. If the token is lost, set a replacement GitHub repository secret named `LINKETRY_ADMIN_TOKEN` and rerun deployment once.
 
 ### Official Project Site
 
@@ -461,7 +461,7 @@ Cutover:
 
 - Add the old Shlink domain to the Worker route/custom domain
 - Change DNS from Shlink to Cloudflare Worker if needed
-- Update Admin **Settings â†?Default Domain** to the old Shlink domain
+- Update Admin **Settings ??Default Domain** to the old Shlink domain
 - Test several high-traffic slugs
 
 Rollback:

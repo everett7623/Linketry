@@ -57,6 +57,8 @@ test('Cloudflare one-click profile provisions only a normal production instance'
     /wrangler d1 migrations apply DB --remote && node scripts\/postdeploy-hint\.mjs/
   );
   assert.match(postdeployHint, /LINKETRY_ADMIN_TOKEN/);
+  assert.match(postdeployHint, /Cloudflare form/);
+  assert.match(postdeployHint, /gh secret set LINKETRY_ADMIN_TOKEN/);
   assert.match(postdeployHint, /\/admin\//);
   assert.match(postdeployHint, /\/health/);
   assert.match(packageJson.cloudflare.bindings.LINKETRY_ADMIN_TOKEN.description, /production/i);
@@ -78,6 +80,7 @@ test('bundled Admin is isolated under /admin before the slug catch-all', async (
   assert.match(brandMark, /import\.meta\.env\.BASE_URL/);
   assert.match(viteConfig, /VITE_LINKETRY_BASE_PATH === '\/admin\/'/);
   assert.match(buildScript, /VITE_LINKETRY_BASE_PATH: '\/admin\/'/);
+  assert.match(buildScript, /Cloudflare form/);
   assert.match(buildScript, /VITE_LINKETRY_API_URL: ''/);
   assert.match(buildScript, /VITE_LINKETRY_DEMO_MODE: 'false'/);
   assert.match(buildScript, /VITE_LINKETRY_DEMO_ACCESS_CODE: ''/);

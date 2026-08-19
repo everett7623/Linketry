@@ -93,11 +93,11 @@ export const messages = {
     workerApiUrlLabel: 'Worker API',
     tokenHowToTitle: 'How to get LINKETRY_ADMIN_TOKEN',
     tokenExistingHint:
-      'The first deployment automatically generates LINKETRY_ADMIN_TOKEN in the Worker; no manual token setup is required.',
+      'Create a long random token before the first deploy and save it in a password manager. Quick Deploy asks for it in Cloudflare’s form; the reviewed GitHub workflow requires `gh secret set LINKETRY_ADMIN_TOKEN`.',
     tokenGeneratedHint:
-      'Open GitHub Actions → the first successful “Deploy Linketry” run → “Prepare Worker secrets”, then copy the generated token from that one-time log.',
+      'The GitHub Actions “Prepare Worker secrets” step copies that repository secret into the Worker. It never prints the value, because public Actions logs are not a safe place for credentials.',
     tokenSaveHint:
-      'Save it in a password manager. Later deployments preserve the Worker token; use a LINKETRY_ADMIN_TOKEN repository secret only to replace a lost token.',
+      'Later deployments preserve the existing Worker token. Set a new LINKETRY_ADMIN_TOKEN repository secret only to replace a lost or rotated token, then rerun deployment once.',
     openTokenGuide: 'Open the first-login guide',
     configureInstance: 'Configure your Linketry instance',
     general: 'General',
@@ -232,11 +232,12 @@ export const messages = {
     adminUrlLabel: '管理后台',
     workerApiUrlLabel: 'Worker API',
     tokenHowToTitle: '如何获取 LINKETRY_ADMIN_TOKEN',
-    tokenExistingHint: '首次部署会在 Worker 中自动生成 LINKETRY_ADMIN_TOKEN，无需手动设置令牌。',
+    tokenExistingHint:
+      '首次部署前先生成一串足够长的随机令牌并保存到密码管理器。Cloudflare 快速部署会在表单中询问该值；审查工作流需要先执行 `gh secret set LINKETRY_ADMIN_TOKEN`。',
     tokenGeneratedHint:
-      '打开 GitHub Actions → 第一次成功的“Deploy Linketry”运行 → “Prepare Worker secrets”，从一次性日志中复制令牌。',
+      'GitHub Actions 的 “Prepare Worker secrets” 步骤会把仓库密钥写入 Worker，但不会在日志中打印，因为公开仓库的 Actions 日志不能安全交付凭证。',
     tokenSaveHint:
-      '把令牌保存到密码管理器。后续部署会保留 Worker 中的令牌；只有丢失令牌时才需要用 LINKETRY_ADMIN_TOKEN 仓库密钥替换。',
+      '后续部署会保留 Worker 中的现有令牌。只有丢失或轮换令牌时，才需要设置新的 LINKETRY_ADMIN_TOKEN 仓库密钥并再跑一次部署。',
     openTokenGuide: '打开首次登录指南',
     configureInstance: '配置 Linketry 实例',
     general: '常规',

@@ -289,7 +289,8 @@ const deployMessages = {
       "Fork the repository and use Linketry's maintained dry runs. The scripts show the D1/KV plan and require an exact confirmation phrase before any Cloudflare or GitHub write. Prefer this path for custom domains, separate Pages Admin hosting, backups, and upgrades.",
     'deploy.reviewedStepOne':
       'Fork Linketry into the GitHub account that will own future upgrades.',
-    'deploy.reviewedStepTwo': 'Run the bootstrap and repository configuration dry runs.',
+    'deploy.reviewedStepTwo':
+      'Run the bootstrap and repository configuration dry runs, then set LINKETRY_ADMIN_TOKEN with gh secret set before the first workflow run.',
     'deploy.reviewedStepThree':
       'Review the plan, confirm the exact phrase, then start the protected workflow.',
     'deploy.copyTitle': 'Guarded assistant prompt',
@@ -301,7 +302,7 @@ const deployMessages = {
     'deploy.copyUnavailable': 'The deployment prompt is unavailable. Open the full guide.',
     'deploy.copyFailure': 'Copy failed. Select the prompt and copy it manually.',
     'deploy.prompt':
-      'Help me deploy Linketry from my fork to my own Cloudflare account.\n\n1. Read AGENTS.md and docs/SELF_HOSTING.md before acting.\n2. Use the basic fresh-install profile: one Worker hostname, D1, KV and the automatic Pages Admin URL. Do not enable optional R2, Queue or branded Admin DNS.\n3. Run deploy:bootstrap and deploy:configure in dry-run mode first. Show me the resource plan and exact confirmation phrase before every apply or deployment.\n4. Keep Cloudflare and GitHub tokens out of source files, logs and command arguments. Ask me to enter them only through supported hidden prompts or secret stores.\n5. Stop on any safety-gate failure. Do not bypass migration, account or domain checks.\n6. After deployment, verify /health, the Admin login page and one test short link.',
+      'Help me deploy Linketry from my fork to my own Cloudflare account.\n\n1. Read AGENTS.md and docs/SELF_HOSTING.md before acting.\n2. Use the basic fresh-install profile: one Worker hostname, D1, KV and the automatic Pages Admin URL. Do not enable optional R2, Queue or branded Admin DNS.\n3. Run deploy:bootstrap and deploy:configure in dry-run mode first. Show me the resource plan and exact confirmation phrase before every apply or deployment.\n4. Keep Cloudflare and GitHub tokens out of source files, logs and command arguments. Ask me to enter them only through supported hidden prompts or secret stores.\n5. Before the first GitHub Actions deploy, have me generate LINKETRY_ADMIN_TOKEN myself, save it in a password manager, and run gh secret set LINKETRY_ADMIN_TOKEN --repo OWNER/REPOSITORY. Do not print, log, or invent that token. The workflow copies it into the Worker and never displays it.\n6. Stop on any safety-gate failure. Do not bypass migration, account or domain checks.\n7. After deployment, verify /health, the Admin login page and one test short link.',
     'deploy.reviewedAction': 'Open full repository guide',
     'deploy.boundaryTitle': 'Choose a path for a fresh installation only.',
     'deploy.boundaryText':
@@ -349,7 +350,8 @@ const deployMessages = {
     'deploy.reviewedText':
       'Fork 仓库并使用 Linketry 维护的预演命令。脚本会展示 D1/KV 计划，并要求精确确认短语后才会写入 Cloudflare 或 GitHub。自定义域名、独立 Pages Admin、备份与升级请优先选择此路径。',
     'deploy.reviewedStepOne': '将 Linketry Fork 到将来拥有升级权限的 GitHub 账户。',
-    'deploy.reviewedStepTwo': '运行资源初始化和仓库配置的预演。',
+    'deploy.reviewedStepTwo':
+      '运行资源初始化和仓库配置的预演，并在第一次工作流运行前用 gh secret set 设置 LINKETRY_ADMIN_TOKEN。',
     'deploy.reviewedStepThree': '检查计划、确认精确短语，再启动受保护的工作流。',
     'deploy.copyTitle': '受控助手提示词',
     'deploy.copyAction': '复制提示词',
@@ -359,7 +361,7 @@ const deployMessages = {
     'deploy.copyUnavailable': '部署提示词不可用，请打开完整指南。',
     'deploy.copyFailure': '复制失败，请选中提示词后手动复制。',
     'deploy.prompt':
-      '请帮助我从自己的 Fork 部署 Linketry 到自己的 Cloudflare 账户。\n\n1. 操作前先阅读 AGENTS.md 和 docs/SELF_HOSTING.md。\n2. 使用基础全新安装配置：一个 Worker 主机名、D1、KV 和自动 Pages Admin URL；不要启用可选 R2、Queue 或品牌化 Admin DNS。\n3. 先以 dry-run 模式运行 deploy:bootstrap 和 deploy:configure；每次 apply 或部署前展示资源计划和精确确认短语。\n4. 不要把 Cloudflare 和 GitHub 令牌放进源码、日志或命令参数；只让我通过受支持的隐藏提示或密钥存储输入。\n5. 任一安全门失败即停止，不要绕过迁移、账户或域名检查。\n6. 部署后验证 /health、Admin 登录页和一条测试短链接。',
+      '请帮助我从自己的 Fork 部署 Linketry 到自己的 Cloudflare 账户。\n\n1. 操作前先阅读 AGENTS.md 和 docs/SELF_HOSTING.md。\n2. 使用基础全新安装配置：一个 Worker 主机名、D1、KV 和自动 Pages Admin URL；不要启用可选 R2、Queue 或品牌化 Admin DNS。\n3. 先以 dry-run 模式运行 deploy:bootstrap 和 deploy:configure；每次 apply 或部署前展示资源计划和精确确认短语。\n4. 不要把 Cloudflare 和 GitHub 令牌放进源码、日志或命令参数；只让我通过受支持的隐藏提示或密钥存储输入。\n5. 第一次 GitHub Actions 部署前，让我自己生成 LINKETRY_ADMIN_TOKEN、保存到密码管理器，并执行 gh secret set LINKETRY_ADMIN_TOKEN --repo OWNER/REPOSITORY。不要打印、记录或编造该令牌。工作流只会把它写入 Worker，不会显示明文。\n6. 任一安全门失败即停止，不要绕过迁移、账户或域名检查。\n7. 部署后验证 /health、Admin 登录页和一条测试短链接。',
     'deploy.reviewedAction': '打开完整仓库指南',
     'deploy.boundaryTitle': '只为全新安装选择此路径。',
     'deploy.boundaryText':

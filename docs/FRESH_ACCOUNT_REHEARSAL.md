@@ -53,6 +53,8 @@ Set the repository once. The explicit `--repo` boundary keeps commands pointed a
 ```powershell
 $repo = 'OWNER/REPOSITORY'
 gh secret set CLOUDFLARE_API_TOKEN --repo $repo
+# Generate a long random Admin token, save it in a password manager, then:
+gh secret set LINKETRY_ADMIN_TOKEN --repo $repo
 gh api --method PUT "repos/$repo/environments/production"
 ```
 
@@ -93,14 +95,15 @@ Verify all of the following:
 
 - The workflow run and deployment history both identify the `production` environment.
 - `GET /health` reports the package version.
-- The Admin Pages URL loads and accepts the one-time generated `LINKETRY_ADMIN_TOKEN`.
+- The Admin Pages URL loads and accepts the `LINKETRY_ADMIN_TOKEN` you stored before deployment.
+- The **Prepare Worker secrets** step reports configured or preserved, and does not print the token.
 - Setup reports a reachable API and the expected default domain.
 - The first link can be created, opened, disabled, restored, exported, and deleted.
 - A missing slug returns the Linketry 404 page.
 - A disabled link returns the disabled page instead of redirecting.
 - An unauthenticated Admin API request returns 401.
 
-Save the generated Admin token from **Prepare Worker secrets** in a password manager before closing the first deployment log.
+Save the Admin token you created before deployment in a password manager. Do not copy it from GitHub Actions logs.
 
 ## 6. Configure Cross-account Pages DNS
 
