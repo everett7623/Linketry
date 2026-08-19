@@ -269,7 +269,7 @@ test('production workflow runs the safety gate before every Cloudflare write', (
     /wrangler deploy --config apps\/worker\/wrangler\.toml --secrets-file/
   );
   assert.match(workflow, /node scripts\/admin-live-smoke\.mjs/);
-  assert.match(workflow, /npx playwright install --with-deps chromium/);
+  assert.match(workflow, /npm exec --workspace=@linketry\/admin -- playwright install --with-deps chromium/);
   assert.match(workflow, /npm run test:production --workspace=apps\/admin/);
   assert.match(workflow, /npm run test:site/);
   assert.match(workflow, /npm run build:site/);

@@ -26,6 +26,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Safari Private Browsing no longer breaks sign-in when `localStorage` throws
 - Site Vite build resolves entry paths correctly on Windows
 - Demo seed artifacts use the repository version instead of a stale `0.25.2` default
+- GitHub Actions pin Node 24.15.0 so Playwright Chromium install does not hang on Node 24.16
 
 ### Changed
 
