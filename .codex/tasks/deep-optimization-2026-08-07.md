@@ -23,7 +23,7 @@ Ship Phases 0–5 of the deep optimization plan: docs truth, security hardening,
 - [x] Deploy isolated Demo (`31124712930`); Worker health parity at 0.31.0
 - [ ] Authenticated online-upgrade verification on production Admin
 - [ ] Fresh-account rehearsal evidence in PROGRESS
-- [ ] AT checklist pass (`docs/AT_AUDIT_CHECKLIST.md`)
+- [x] AT keyboard/axe evidence (`docs/AT_AUDIT_CHECKLIST.md`, v0.31.3); screen-reader pass still pending
 - [x] Enable GitHub private vulnerability reporting (`enabled: true` via API, 2026-08-10)
 - [ ] Optional Demo R2 (`10042`) when account capability allows
 - [ ] Optional remote-D1 scale evidence

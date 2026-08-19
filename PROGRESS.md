@@ -11,19 +11,29 @@ Last updated: 2026-08-19
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker backend             | ✅ 0.31.2 live        | Production health reports v0.31.2; docs/token-guidance patch is on the protected Worker                                                                                                             |
-| Admin frontend             | ✅ 0.31.2 live        | Login token help matches fail-closed GitHub Actions secrets; Pages origin `linketry-admin.pages.dev` advertises v0.31.2                                                                             |
-| Database schema            | ✅ Migration ready    | Performance indexes migration (0003) prepared and versioned; V6 analytics migration applied in production                                                                                           |
-| Documentation              | ✅ 0.31.2 synchronized | README, SELF_HOSTING, Quick Start, site HTML, and Admin login copy aligned to current deploy contracts                                                                                             |
+| Admin frontend             | 🟡 0.31.3 local       | AT keyboard evidence added; production Pages origin still advertises v0.31.2                                                                                                                        |
+| Documentation              | 🟡 0.31.3 synchronized | AT checklist records keyboard/axe evidence; screen-reader pass remains owner-run                                                                                                                    |
 | Deployment                 | ✅ 0.31.2 live        | Production `32267662997`, Demo `32267662969`, project site `32267694633`; GitHub Release `v0.31.2`                                                                                                  |
 | End-to-end test            | ✅ 0.31.2 live        | Production, isolated Demo, and `linketry.com` advertise v0.31.2                                                                                                                                     |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                                            |
-| Current version            | ✅ 0.31.2             | Source, production Worker/Admin, official Demo, and project site advertise v0.31.2                                                                                                                  |
-| Repository update target   | ✅ 0.31.2             | GitHub Release `v0.31.2` points at commit `a2bcf3c`                                                                                                                                                 |
+| Current version            | 🟡 0.31.3 local       | Source advertises v0.31.3; production Worker/Admin, official Demo, and project site still advertise v0.31.2                                                                                        |
+| Repository update target   | 🟡 0.31.3 pending     | AT keyboard evidence is in-repo; deploy after review                                                                                                                                                |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, AT checklist pass, Demo optional R2; private vulnerability reporting enabled 2026-08-10                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system, batch operations shipped in 0.30.0 |
 | Deep optimization          | ✅ 0.31.0 code landed | Phases 0–5 implemented in-repo; operator Pre-1.0 gates still open                                                                                                                                   |
+
+---
+
+## Linketry 0.31.3 Assistive-Technology Keyboard Evidence
+
+| Area                     | Status      | Notes                                                                                                                        |
+| ------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Keyboard / axe           | ✅ Complete | Playwright `at-audit.spec.ts` covers skip-to-content, login alert, first-run wizard, and version-center Tab/Escape restore   |
+| Existing coverage        | ✅ Complete | 1440×900 / 390×844, en/zh-CN, mobile drawer, reduced motion, light-theme contrast, and Axe serious/critical remain in suite |
+| Screen reader            | 🟡 Pending  | NVDA / VoiceOver / TalkBack still needs a human pass against Admin and the official Demo                                     |
+| Production state         | 🟡 Pending  | Source is v0.31.3; production/Demo/site remain on v0.31.2 until the next protected deploy                                    |
 
 ---
 

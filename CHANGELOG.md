@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.3] - 2026-08-19
+
+### Added
+
+- Playwright AT audit covers skip-to-content, login error announcement, first-run wizard, and version-center focus restore
+
+### Fixed
+
+- Decorative icons in the first-run wizard and Overview create CTA are hidden from assistive technology
+
+---
+
 ## [0.31.2] - 2026-08-19
 
 ### Fixed

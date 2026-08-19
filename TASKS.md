@@ -5,7 +5,7 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.2)
+## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.3)
 
 - [x] Phase 0–5 deep optimization code + release metadata (v0.31.0)
 - [x] Update GitHub release approval variables and deploy via protected production workflow (`31125426247`)
@@ -15,13 +15,14 @@ One item in "In Progress" at a time whenever possible.
 - [x] Align public deploy docs, Admin token help, site Unicode, and the AI deploy prompt (v0.31.2)
 - [x] Deploy v0.31.2 via protected production (`32267662997`), Demo (`32267662969`), and project-site (`32267694633`) workflows; GitHub Release `v0.31.2`
 - [x] Verify production online-upgrade gate: unauthenticated `/api/v1/system/upgrade` returns `401`; deploy prepared `LINKETRY_GITHUB_UPDATE_TOKEN`; Demo reports `not_configured`
+- [x] Archive keyboard/axe AT evidence (`apps/admin/tests/at-audit.spec.ts`, v0.31.3)
+- [ ] Complete screen-reader AT pass (NVDA, VoiceOver, or TalkBack) against Admin and Demo
 - [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS
-- [ ] Complete AT checklist (`docs/AT_AUDIT_CHECKLIST.md`) and archive evidence
 - [x] Enable GitHub private vulnerability reporting
 - [ ] Optional: Demo R2 (`10042`) when isolated account capability allows
 - [ ] Optional: remote-D1 scale evidence for public 1.0
 
-Task records: `.codex/tasks/deep-optimization-2026-08-07.md`, `.codex/tasks/docs-deploy-truth-2026-08-19.md`
+Task records: `.codex/tasks/deep-optimization-2026-08-07.md`, `.codex/tasks/docs-deploy-truth-2026-08-19.md`, `.codex/tasks/at-audit-2026-08-19.md`
 
 ---
 

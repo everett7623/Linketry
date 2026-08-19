@@ -51,7 +51,7 @@ export function FirstRunWizard({
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 p-5">
         <div className="flex gap-3">
           <div className="rounded-lg bg-brand-500/10 p-2 text-brand-400">
-            <Rocket size={20} />
+            <Rocket size={20} aria-hidden="true" />
           </div>
           <div>
             <h2 className="font-semibold text-slate-100">{t('wizardTitle')}</h2>
@@ -76,9 +76,13 @@ export function FirstRunWizard({
               }`}
             >
               {step.complete ? (
-                <CheckCircle2 size={18} className="text-emerald-400" />
+                <CheckCircle2 size={18} className="text-emerald-400" aria-hidden="true" />
               ) : (
-                <Circle size={18} className={isNext ? 'text-brand-400' : 'text-slate-600'} />
+                <Circle
+                  size={18}
+                  className={isNext ? 'text-brand-400' : 'text-slate-600'}
+                  aria-hidden="true"
+                />
               )}
               <span className="w-5 text-xs font-medium text-slate-500">{index + 1}</span>
               <div className="min-w-0 flex-1">
@@ -97,7 +101,7 @@ export function FirstRunWizard({
                   }`}
                 >
                   {step.action}
-                  {isNext && <ArrowRight size={12} />}
+                  {isNext && <ArrowRight size={12} aria-hidden="true" />}
                 </Link>
               )}
             </div>
@@ -116,7 +120,7 @@ export function FirstRunWizard({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-brand-400 hover:text-brand-300"
           >
-            {t('wizardAdvancedOptional')} <ExternalLink size={12} />
+            {t('wizardAdvancedOptional')} <ExternalLink size={12} aria-hidden="true" />
           </a>
         )}
       </div>
