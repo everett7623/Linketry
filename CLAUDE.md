@@ -3,8 +3,8 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **最后更新**：2026-08-19 
-**当前版本**：v0.31.3（本地） 
-**生产版本**：v0.31.2
+**当前版本**：v0.31.3 
+**生产版本**：v0.31.3
 
 版本权威以根目录 `package.json` 与 `PROGRESS.md` 为准。详细 Agent 规则见 `AGENTS.md`。
 

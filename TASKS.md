@@ -16,6 +16,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Deploy v0.31.2 via protected production (`32267662997`), Demo (`32267662969`), and project-site (`32267694633`) workflows; GitHub Release `v0.31.2`
 - [x] Verify production online-upgrade gate: unauthenticated `/api/v1/system/upgrade` returns `401`; deploy prepared `LINKETRY_GITHUB_UPDATE_TOKEN`; Demo reports `not_configured`
 - [x] Archive keyboard/axe AT evidence (`apps/admin/tests/at-audit.spec.ts`, v0.31.3)
+- [x] Deploy v0.31.3 via protected production (`32271473486`), Demo (`32271473392`), and project-site (`32271481053`) workflows; GitHub Release `v0.31.3`
 - [ ] Complete screen-reader AT pass (NVDA, VoiceOver, or TalkBack) against Admin and Demo
 - [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS
 - [x] Enable GitHub private vulnerability reporting
