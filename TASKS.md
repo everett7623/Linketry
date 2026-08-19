@@ -5,16 +5,16 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.1)
+## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.2)
 
 - [x] Phase 0–5 deep optimization code + release metadata (v0.31.0)
 - [x] Update GitHub release approval variables and deploy via protected production workflow (`31125426247`)
 - [x] Deploy isolated Demo via protected Demo workflow (`31124712930`)
-- [x] Verify production/Demo Worker health parity (`go.uukk.de` / `demoapi.linketry.com` → 0.31.1)
+- [x] Verify production/Demo Worker health parity (`go.uukk.de` / `demoapi.linketry.com` → 0.31.2)
 - [x] Hardening patch v0.31.1 (SSRF title/Shlink, unique clicks, Admin 401/storage, redirect-rule paging)
 - [x] Align public deploy docs, Admin token help, site Unicode, and the AI deploy prompt (v0.31.2)
-- [ ] Deploy v0.31.2 via protected production, Demo, and project-site workflows
-- [ ] Verify authenticated online-upgrade capability on production Admin
+- [x] Deploy v0.31.2 via protected production (`32267662997`), Demo (`32267662969`), and project-site (`32267694633`) workflows; GitHub Release `v0.31.2`
+- [x] Verify production online-upgrade gate: unauthenticated `/api/v1/system/upgrade` returns `401`; deploy prepared `LINKETRY_GITHUB_UPDATE_TOKEN`; Demo reports `not_configured`
 - [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS
 - [ ] Complete AT checklist (`docs/AT_AUDIT_CHECKLIST.md`) and archive evidence
 - [x] Enable GitHub private vulnerability reporting

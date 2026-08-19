@@ -15,7 +15,7 @@
 ### H2. Pre-1.0 外部证据门（运维）
 
 - **状态**：🟡 Pending operator evidence
-- **项**：v0.31.1 生产/Demo parity（✅ `go.uukk.de` / `demoapi.linketry.com` report 0.31.1）；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；手工 AT（`docs/AT_AUDIT_CHECKLIST.md`）；Demo 可选 R2（Cloudflare `10042`）
+- **项**：v0.31.2 生产/Demo/官网 parity（✅ `go.uukk.de` / `demoapi.linketry.com` / `linketry.com` report 0.31.2）；GitHub Release `v0.31.2`；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；手工 AT（`docs/AT_AUDIT_CHECKLIST.md`）；Demo 可选 R2（Cloudflare `10042`）
 - **代码侧**：清单与文档已就绪；剩余关闭项需独立 Cloudflare 账号 / 手工 AT / 规模证据
 
 ---
