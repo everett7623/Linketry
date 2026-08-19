@@ -39,24 +39,64 @@ const STORAGE_KEYS: Record<BrowserSetting, string> = {
   updateCheck: 'linketry_update_check',
 };
 
+/**
+ * Storage is unavailable in Safari Private Browsing and whenever site data is blocked,
+ * where even reading `window.localStorage` throws. Falling back to memory keeps the
+ * session usable for the current tab instead of breaking sign-in.
+ */
+function memoryFallback(): StorageLike {
+  return {
+    getItem: (key) => inMemoryValues.get(key) ?? null,
+    setItem: (key, value) => void inMemoryValues.set(key, value),
+    removeItem: (key) => void inMemoryValues.delete(key),
+  };
+}
+
+const inMemoryValues = new Map<string, string>();
+
+function resolveStorage(storage?: StorageLike): StorageLike {
+  if (storage) return storage;
+  try {
+    const local = window.localStorage;
+    // Some browsers expose the object but reject every write.
+    local.setItem('linketry_storage_probe', '1');
+    local.removeItem('linketry_storage_probe');
+    return local;
+  } catch {
+    return memoryFallback();
+  }
+}
+
 export function readBrowserSetting(
   setting: BrowserSetting,
-  storage: StorageLike = window.localStorage
+  storage?: StorageLike
 ): string | null {
-  return storage.getItem(STORAGE_KEYS[setting]);
+  try {
+    return resolveStorage(storage).getItem(STORAGE_KEYS[setting]);
+  } catch {
+    return null;
+  }
 }
 
 export function writeBrowserSetting(
   setting: BrowserSetting,
   value: string,
-  storage: StorageLike = window.localStorage
+  storage?: StorageLike
 ): void {
-  storage.setItem(STORAGE_KEYS[setting], value);
+  try {
+    resolveStorage(storage).setItem(STORAGE_KEYS[setting], value);
+  } catch {
+    // Preference is lost for this session; the app still works.
+  }
 }
 
 export function removeBrowserSetting(
   setting: BrowserSetting,
-  storage: StorageLike = window.localStorage
+  storage?: StorageLike
 ): void {
-  storage.removeItem(STORAGE_KEYS[setting]);
+  try {
+    resolveStorage(storage).removeItem(STORAGE_KEYS[setting]);
+  } catch {
+    // Nothing to clean up when storage is unavailable.
+  }
 }

@@ -15,6 +15,7 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
 import { useLocale } from '../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 interface OperationsState {
   settings: Record<string, string>;
@@ -52,11 +53,11 @@ export function Operations() {
       ]);
       setState({ settings, backups, capabilities, alerts, history });
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setLoading(false);
     }
-  }, [error]);
+  }, [error, t]);
 
   useEffect(() => {
     load();
@@ -73,13 +74,24 @@ export function Operations() {
     () => health?.items.filter((item) => item.status !== 'healthy') ?? [],
     [health]
   );
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
 
   const runChecks = async () => {
     setChecking(true);
     try {
       setHealth(await runHealthCheckBatch({ limit: monitoringLimit }));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setChecking(false);
     }
@@ -92,14 +104,6 @@ export function Operations() {
       </div>
     );
   }
-
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 
   return (
     <div className="space-y-6">

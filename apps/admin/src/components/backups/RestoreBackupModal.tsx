@@ -12,6 +12,7 @@ import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
 import { useEffect, useState } from 'react';
 import { useLocale } from '../../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../../utils/apiErrorMessage';
 
 interface RestoreBackupModalProps {
   backup: Backup | null;
@@ -48,7 +49,7 @@ export function RestoreBackupModal({ backup, open, onClose, onRestored }: Restor
     setLoadingPreview(true);
     previewBackupRestore(backup, strategy)
       .then(setPreview)
-      .catch((e) => error(String(e)))
+      .catch((e) => error(formatApiErrorMessage(e, t)))
       .finally(() => setLoadingPreview(false));
   }, [backup?.id, open, strategy]);
 
@@ -67,7 +68,7 @@ export function RestoreBackupModal({ backup, open, onClose, onRestored }: Restor
       onRestored();
       onClose();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setRestoring(false);
     }

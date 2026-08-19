@@ -1,15 +1,18 @@
 import type {
   Link,
-  KVCacheEntry,
   VisitLinkSnapshot,
   VisitQueueMessage,
   VisitRequestSnapshot,
 } from '@linketry/shared';
 import type { Env } from '../types';
 import { generateId, now, sha256 } from '../utils/id';
-import { incrementClicks, insertVisit, upsertDailyStats } from '../db/index';
+import {
+  hasVisitedLinkOnDate,
+  incrementClicks,
+  insertVisit,
+  upsertDailyStats,
+} from '../db/index';
 import { insertVisitTarget } from '../db/analytics';
-import { setCachedLink } from '../cache/index';
 import { isLikelyBot } from './botDetection';
 import { isPublicReadOnlyDemo } from '../demo/policy';
 import { createWebhookEmitter, emitWebhook, type WebhookEmitter } from '../webhooks/index';
@@ -104,6 +107,9 @@ export async function recordVisitMessage(
 
     const visitId = generateId();
     const createdAt = now();
+    const visitDate = createdAt.slice(0, 10);
+    // Probed before the insert below so the row being written cannot mark itself a repeat.
+    const isRepeatVisitor = await hasVisitedLinkOnDate(env, link.id, ipHash, visitDate);
 
     await Promise.all([
       incrementClicks(env, link.id, createdAt),
@@ -122,7 +128,7 @@ export async function recordVisitMessage(
         is_bot: isBot,
         created_at: createdAt,
       }),
-      upsertDailyStats(env, link, createdAt.slice(0, 10), country, referer, createdAt),
+      upsertDailyStats(env, link, visitDate, country, referer, createdAt, isRepeatVisitor),
     ]);
 
     if (message.target?.url) {
@@ -142,21 +148,9 @@ export async function recordVisitMessage(
       }
     }
 
-    if (!link.password_protected) {
-      // Update KV before optional outbound delivery; D1 remains authoritative.
-      const cacheEntry: KVCacheEntry = {
-        id: link.id,
-        slug: link.slug,
-        domain: link.domain ?? undefined,
-        longUrl: link.long_url,
-        redirectType: link.redirect_type as 301 | 302,
-        status: link.status,
-        expiresAt: link.expires_at ?? undefined,
-        maxClicks: link.max_clicks ?? undefined,
-        warningEnabled: link.warning_enabled === 1,
-      };
-      await setCachedLink(env, domain, cacheEntry);
-    }
+    // No KV write here: the redirect path already populated the cache from live D1
+    // state. Rewriting it from this queued snapshot would resurrect entries that an
+    // admin disabled or deleted in the meantime, and burn a KV write on every click.
 
     const clickData = buildClickWebhookData(message, visitId, createdAt, isBot === 1);
     if (batchClickWebhook) await batchClickWebhook(clickData);

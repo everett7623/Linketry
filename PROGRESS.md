@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-08-10
+Last updated: 2026-08-19
 
 ---
 
@@ -10,20 +10,34 @@ Last updated: 2026-08-10
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.31.0 live        | Security hardening: admin scopes, egress SSRF guard, auth rate limits, PBKDF2 passwords, Demo allow gate, CORS allowlist                                                                            |
-| Admin frontend             | ✅ 0.31.0 live        | Settings sections, Advanced nav groups, skip-to-content, longer backup/health timeouts, Demo preview copy                                                                                           |
+| Worker backend             | 🟡 0.31.1 local       | Hardening: SSRF title/Shlink fetches, unique daily clicks, password hash redaction, settings key isolation, batched tag rewrites                                                                    |
+| Admin frontend             | 🟡 0.31.1 local       | 401 logout, storage fallback, redirect-rule pagination, lazy world map, clipboard/search races                                                                                                      |
 | Database schema            | ✅ Migration ready    | Performance indexes migration (0003) prepared and versioned; V6 analytics migration applied in production                                                                                           |
-| Documentation              | ✅ 0.31.0 synchronized | AGENTS/CLAUDE/ARCHITECTURE/SECURITY/KNOWN_ISSUES/QUICK_START/SELF_HOSTING and site isolation narrative aligned                                                                                     |
+| Documentation              | 🟡 0.31.1 synchronized | CHANGELOG/PROGRESS/AGENTS/CLAUDE/ARCHITECTURE aligned to the hardening patch                                                                                                                       |
 | Deployment                 | ✅ 0.31.0 live        | Production run `31125426247` and Demo run `31124712930` shipped v0.31.0; `go.uukk.de/health` and `demoapi.linketry.com/health` report 0.31.0                                                         |
-| End-to-end test            | ✅ Deploy verified   | Protected production and isolated Demo workflows passed for the 0.31.0 release commit                                                                                                               |
-| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                                                   |
-| Current version            | ✅ 0.31.0 live        | Source, production Worker/Admin, and official Demo advertise v0.31.0                                                                                                                                |
-| Repository update target   | ✅ 0.31.0 shipped     | Deep optimization release is live; continue Pre-1.0 validation evidence                                                                                                                             |
+| End-to-end test            | 🟡 Pending deploy    | v0.31.1 is local; production/Demo remain on 0.31.0 until the protected workflows run                                                                                                                |
+| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                                            |
+| Current version            | 🟡 0.31.1 local       | Source advertises v0.31.1; production Worker/Admin and official Demo still advertise v0.31.0                                                                                                        |
+| Repository update target   | 🟡 0.31.1 pending     | Hardening patch is in-repo; deploy after review                                                                                                                                                     |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, AT checklist pass, Demo optional R2; private vulnerability reporting enabled 2026-08-10                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system, batch operations shipped in 0.30.0 |
 | Deep optimization          | ✅ 0.31.0 code landed | Phases 0–5 implemented in-repo; operator Pre-1.0 gates still open                                                                                                                                   |
+
+---
+
+## Linketry 0.31.1 Hardening Patch (SSRF, Unique Clicks, Admin Resilience)
+
+| Area                     | Status      | Notes                                                                                                                        |
+| ------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| SSRF title/Shlink        | ✅ Complete | `pageTitle` and Shlink API fetch use egress guards; title reads are byte-bounded                                             |
+| Unique daily clicks      | ✅ Complete | `daily_stats.unique_clicks` increments only for a new IP hash on that UTC day                                                |
+| Password hash leakage    | ✅ Complete | Overview, lists, and `links.json` export strip `password_hash`                                                               |
+| Admin session            | ✅ Complete | 401 auto-logout, `localStorage` memory fallback, login loading `finally`                                                     |
+| Redirect-rule picker     | ✅ Complete | Link selector pages through the API 100-item cap (up to 2,000 links)                                                         |
+| Deploy safety            | ✅ Complete | No token auto-print; job timeouts; production concurrency does not cancel in-flight deploys                                  |
+| Production state         | 🟡 Pending  | Source is v0.31.1; production/Demo remain on v0.31.0 until protected deploy                                                  |
 
 ---
 

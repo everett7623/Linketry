@@ -7,6 +7,7 @@ import { Input, Textarea } from '../components/ui/Input';
 import { ConfirmDialog, Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { useLocale } from '../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 const DEFAULT_COLOR = '#38bdf8';
 
@@ -104,7 +105,7 @@ export function Tags() {
       setModalOpen(false);
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }
@@ -119,7 +120,7 @@ export function Tags() {
       setDeleteTarget(null);
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }

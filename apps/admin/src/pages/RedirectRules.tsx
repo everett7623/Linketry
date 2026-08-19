@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Edit2, Plus, RefreshCw, Shuffle, Trash2 } from 'lucide-react';
 import type {
   Link as LinkType,
@@ -21,6 +21,7 @@ import { Input, Select, Textarea } from '../components/ui/Input';
 import { ConfirmDialog, Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { useLocale } from '../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 interface RuleForm {
   link_id: string;
@@ -123,6 +124,20 @@ function valuesText(config: RedirectRuleConfig): string {
   return config.values?.length ? config.values.join(', ') : '-';
 }
 
+/** The API caps pageSize at 100, so a single page hides rules owned by older links. */
+const LINK_PAGE_SIZE = 100;
+const MAX_LINK_PAGES = 20;
+
+async function loadSelectableLinks(): Promise<LinkType[]> {
+  const items: LinkType[] = [];
+  for (let page = 1; page <= MAX_LINK_PAGES; page += 1) {
+    const result = await listLinks({ page, pageSize: LINK_PAGE_SIZE, sort: 'created_at_desc' });
+    items.push(...result.items);
+    if (result.items.length < LINK_PAGE_SIZE || items.length >= result.total) break;
+  }
+  return items;
+}
+
 export function RedirectRules() {
   const { success, error } = useToast();
   const { locale, t } = useLocale();
@@ -135,33 +150,45 @@ export function RedirectRules() {
   const [editing, setEditing] = useState<RedirectRule | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<RedirectRule | null>(null);
   const [form, setForm] = useState<RuleForm>(EMPTY_FORM);
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const loadRequestIdRef = useRef(0);
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
 
   const linkById = useMemo(() => new Map(links.map((link) => [link.id, link])), [links]);
+  const configByRuleId = useMemo(
+    () => new Map(rules.map((rule) => [rule.id, parseConfig(rule)])),
+    [rules]
+  );
   const formatRuleType = (type: RedirectRuleType) => {
     const ruleType = RULE_TYPES.find((item) => item.value === type);
     return ruleType ? t(ruleType.labelKey) : type;
   };
 
   const load = useCallback(async () => {
+    const requestId = ++loadRequestIdRef.current;
     setLoading(true);
     try {
-      const [linksResult, rulesResult] = await Promise.all([
-        listLinks({ page: 1, pageSize: 100, sort: 'created_at_desc' }),
+      const [allLinks, rulesResult] = await Promise.all([
+        loadSelectableLinks(),
         listRedirectRules(selectedLinkId || undefined),
       ]);
-      setLinks(linksResult.items);
+      if (requestId !== loadRequestIdRef.current) return;
+      setLinks(allLinks);
       setRules(rulesResult.items);
-    } catch {
-      error(t('rulesLoadFailed'));
+    } catch (e) {
+      if (requestId !== loadRequestIdRef.current) return;
+      error(formatApiErrorMessage(e, t));
     } finally {
-      setLoading(false);
+      if (requestId === loadRequestIdRef.current) setLoading(false);
     }
   }, [error, selectedLinkId, t]);
 
@@ -169,7 +196,10 @@ export function RedirectRules() {
     load();
   }, [load]);
 
-  const enabledCount = rules.filter((rule) => parseConfig(rule).enabled !== false).length;
+  const enabledCount = useMemo(
+    () => [...configByRuleId.values()].filter((config) => config.enabled !== false).length,
+    [configByRuleId]
+  );
   const weightedCount = rules.filter((rule) => rule.rule_type === 'weighted').length;
   const ruleTypesInUse = new Set(rules.map((rule) => rule.rule_type)).size;
 
@@ -269,7 +299,7 @@ export function RedirectRules() {
       closeModal();
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }
@@ -284,7 +314,7 @@ export function RedirectRules() {
       setDeleteTarget(null);
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }
@@ -398,7 +428,7 @@ export function RedirectRules() {
               </thead>
               <tbody className="divide-y divide-slate-800">
                 {rules.map((rule) => {
-                  const config = parseConfig(rule);
+                  const config = configByRuleId.get(rule.id) ?? {};
                   const enabled = config.enabled !== false;
                   return (
                     <tr key={rule.id} className="transition-colors hover:bg-slate-800/50">

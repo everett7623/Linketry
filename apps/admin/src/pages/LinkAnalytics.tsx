@@ -30,6 +30,7 @@ import { getApiBase } from '../api/client';
 import { AnalyticsRefreshControl } from '../components/analytics/AnalyticsRefreshControl';
 import { ConversionInsights } from '../components/analytics/ConversionInsights';
 import { useAnalyticsRefresh } from '../hooks/useAnalyticsRefresh';
+import { copyToClipboard } from '../utils/clipboard';
 
 export function LinkAnalytics() {
   const { id = '' } = useParams();
@@ -76,8 +77,10 @@ export function LinkAnalytics() {
       setShare(config);
       const url = `${getApiBase() || window.location.origin}/stats/${config.token}`;
       setShareUrl(url);
-      await navigator.clipboard.writeText(url);
       success(t('publicStatsCreated'));
+      // Copy after reporting success: a clipboard failure must not look like the
+      // share was never created, or the user retries and creates a duplicate.
+      void copyToClipboard(url);
     } catch {
       error(t('publicStatsCreateFailed'));
     } finally {
@@ -243,7 +246,10 @@ export function LinkAnalytics() {
             <Button
               variant="secondary"
               icon={<Copy size={15} />}
-              onClick={() => navigator.clipboard.writeText(shareUrl)}
+              onClick={async () => {
+                if (await copyToClipboard(shareUrl)) success(t('copied'));
+                else error(t('copyFailed'));
+              }}
             >
               {t('copyAction')}
             </Button>

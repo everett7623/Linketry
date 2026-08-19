@@ -11,6 +11,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Update GitHub release approval variables and deploy via protected production workflow (`31125426247`)
 - [x] Deploy isolated Demo via protected Demo workflow (`31124712930`)
 - [x] Verify production/Demo Worker health parity (`go.uukk.de` / `demoapi.linketry.com` → 0.31.0)
+- [x] Hardening patch v0.31.1 (SSRF title/Shlink, unique clicks, Admin 401/storage, redirect-rule paging)
+- [ ] Deploy v0.31.1 via protected production and Demo workflows
 - [ ] Verify authenticated online-upgrade capability on production Admin
 - [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS
 - [ ] Complete AT checklist (`docs/AT_AUDIT_CHECKLIST.md`) and archive evidence

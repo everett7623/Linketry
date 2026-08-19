@@ -19,6 +19,7 @@ import { emitWebhook } from '../webhooks/index';
 import { deleteCachedLink, setCachedLink } from '../cache/index';
 import { jsonOk, jsonError } from '../utils/response';
 import { generateId, now } from '../utils/id';
+import { assertSafeEgressUrl, safeEgressFetch } from '../utils/egress';
 import { ShlinkAdapter } from '../importers/shlink';
 import { GenericCsvAdapter, GenericJsonAdapter } from '../importers/generic';
 import { BitlyCsvAdapter, ShortIoCsvAdapter } from '../importers/mainstream';
@@ -355,7 +356,7 @@ async function fetchShlinkApiItems(baseUrl: string, apiKey: string): Promise<unk
     url.searchParams.set('page', String(page));
     url.searchParams.set('itemsPerPage', String(pageSize));
 
-    const response = await fetch(url.toString(), {
+    const response = await safeEgressFetch(url.toString(), {
       headers: {
         Accept: 'application/json',
         'X-Api-Key': apiKey,
@@ -409,6 +410,10 @@ function shlinkPagesTotal(pagination?: ShlinkApiPagination): number | undefined 
 
 // POST /api/v1/import/shlink-api/fetch
 importRoutes.post('/shlink-api/fetch', async (c) => {
+  // The caller controls the outbound host, so this is an SSRF-capable fetch and needs admin scope.
+  const authError = await requireAuth(c, 'admin');
+  if (authError) return authError;
+
   let body: { baseUrl?: string; apiKey?: string };
   try {
     body = await c.req.json();
@@ -420,6 +425,9 @@ importRoutes.post('/shlink-api/fetch', async (c) => {
   const apiKey = body.apiKey?.trim();
   if (!baseUrl) return jsonError('baseUrl is required', 400);
   if (!apiKey) return jsonError('apiKey is required', 400);
+
+  const egress = assertSafeEgressUrl(baseUrl);
+  if (!egress.ok) return jsonError(egress.error, 400);
 
   try {
     const items = await fetchShlinkApiItems(baseUrl, apiKey);

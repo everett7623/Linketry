@@ -6,6 +6,7 @@ import { Button } from '../components/ui/Button';
 import { Textarea } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
 import { useLocale } from '../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 function parseCsvLine(line: string): string[] {
   const parts: string[] = [];
@@ -90,7 +91,7 @@ export function BulkCreateLinks() {
       setResult(response);
       success(t('createdLinks', { count: response.success }));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Bot,
   ChevronDown,
@@ -32,7 +32,6 @@ import {
 } from '../api/analytics';
 import { BarList, Metric, RecentVisits } from '../components/analytics/AnalyticsBlocks';
 import { TrafficTrendPanel } from '../components/analytics/TrafficTrendPanel';
-import { WorldTrafficMap } from '../components/analytics/WorldTrafficMap';
 import { AudienceComposition } from '../components/analytics/AudienceComposition';
 import { ActivityHeatmap } from '../components/analytics/ActivityHeatmap';
 import { PeriodComparisonPanel } from '../components/analytics/PeriodComparisonPanel';
@@ -44,12 +43,18 @@ import { useLocale } from '../contexts/LocaleContext';
 import { AnalyticsRefreshControl } from '../components/analytics/AnalyticsRefreshControl';
 import { ConversionInsights } from '../components/analytics/ConversionInsights';
 import { useAnalyticsRefresh } from '../hooks/useAnalyticsRefresh';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 const DEFAULT_FILTERS: AnalyticsFilters = { days: 30 };
+const WorldTrafficMap = lazy(() =>
+  import('../components/analytics/WorldTrafficMap').then((module) => ({
+    default: module.WorldTrafficMap,
+  }))
+);
 
 export function Analytics() {
   const { success, error } = useToast();
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   const [filters, setFilters] = useState<AnalyticsFilters>(DEFAULT_FILTERS);
   const [draft, setDraft] = useState<AnalyticsFilters>(DEFAULT_FILTERS);
   const [data, setData] = useState<AnalyticsSummary | null>(null);
@@ -120,7 +125,7 @@ export function Analytics() {
       setSelectedView(view.id);
       success(t('savedViewCreated'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     }
   };
   const applyView = (id: string) => {
@@ -140,7 +145,7 @@ export function Analytics() {
       setSelectedView('');
       success(t('savedViewDeleted'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     }
   };
   const updateReportConfig = async () => {
@@ -151,7 +156,7 @@ export function Analytics() {
       setReports({ ...reports, config });
       success(t('scheduledReportsSaved'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setReportBusy(false);
     }
@@ -165,7 +170,7 @@ export function Analytics() {
       );
       success(t('scheduledReportCreated'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setReportBusy(false);
     }
@@ -418,7 +423,13 @@ export function Analytics() {
 
       <ActivityHeatmap summary={data} />
 
-      <WorldTrafficMap summary={data} />
+      <Suspense
+        fallback={
+          <div className="h-72 rounded-xl border border-slate-800 bg-slate-900" aria-hidden="true" />
+        }
+      >
+        <WorldTrafficMap summary={data} />
+      </Suspense>
 
       <AudienceComposition summary={data} />
 
@@ -502,7 +513,7 @@ export function Analytics() {
                 {reports.records.slice(0, 10).map((record) => (
                   <tr key={`${record.key}-${record.created_at}`}>
                     <td className="py-3 text-slate-400">
-                      {new Date(record.created_at).toLocaleString()}
+                      {new Date(record.created_at).toLocaleString(locale)}
                     </td>
                     <td className="py-3 text-slate-400">
                       {record.status === 'completed' ? t('completedStatus') : t('failedStatus')}
@@ -513,7 +524,11 @@ export function Analytics() {
                           size="sm"
                           variant="ghost"
                           icon={<Download size={14} />}
-                          onClick={() => downloadScheduledAnalyticsReport(record)}
+                          onClick={() =>
+                            downloadScheduledAnalyticsReport(record).catch((e) =>
+                              error(formatApiErrorMessage(e, t))
+                            )
+                          }
                         >
                           {t('download')}
                         </Button>

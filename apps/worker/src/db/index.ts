@@ -402,22 +402,49 @@ export async function insertVisit(
     .run();
 }
 
+/**
+ * Reports whether this visitor hash was already seen for the link on the given UTC day.
+ * Used to keep `daily_stats.unique_clicks` distinct from `clicks` instead of a duplicate
+ * of it. Returns false when no hash is available, so an unidentifiable visitor counts once.
+ */
+export async function hasVisitedLinkOnDate(
+  env: Env,
+  linkId: string,
+  ipHash: string | undefined,
+  date: string
+): Promise<boolean> {
+  if (!ipHash) return false;
+
+  const dayStart = `${date}T00:00:00.000Z`;
+  const dayEnd = new Date(Date.parse(dayStart) + 86_400_000).toISOString();
+  const existing = await env.DB.prepare(
+    `SELECT 1 AS seen FROM visits
+     WHERE link_id = ? AND ip_hash = ? AND created_at >= ? AND created_at < ?
+     LIMIT 1`
+  )
+    .bind(linkId, ipHash, dayStart, dayEnd)
+    .first<{ seen: number }>();
+
+  return !!existing;
+}
+
 export async function upsertDailyStats(
   env: Env,
   link: Pick<Link, 'id' | 'slug'>,
   date: string,
   country: string | undefined,
   referer: string | undefined,
-  updatedAt: string
+  updatedAt: string,
+  isRepeatVisitor = false
 ): Promise<void> {
   const dailyStatsId = `daily:${link.id}:${date}`;
 
-  await env.DB.prepare(
-    `INSERT OR IGNORE INTO daily_stats
-       (id, link_id, slug, date, clicks, unique_clicks, top_country, top_referer, created_at, updated_at)
-     VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?, ?)`
-  )
-    .bind(
+  await env.DB.batch([
+    env.DB.prepare(
+      `INSERT OR IGNORE INTO daily_stats
+         (id, link_id, slug, date, clicks, unique_clicks, top_country, top_referer, created_at, updated_at)
+       VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?, ?)`
+    ).bind(
       dailyStatsId,
       link.id,
       link.slug,
@@ -426,21 +453,25 @@ export async function upsertDailyStats(
       referer ?? null,
       updatedAt,
       updatedAt
-    )
-    .run();
-
-  await env.DB.prepare(
-    `UPDATE daily_stats
-     SET clicks = clicks + 1,
-         unique_clicks = unique_clicks + 1,
-         slug = ?,
-         top_country = COALESCE(?, top_country),
-         top_referer = COALESCE(?, top_referer),
-         updated_at = ?
-     WHERE id = ?`
-  )
-    .bind(link.slug, country ?? null, referer ?? null, updatedAt, dailyStatsId)
-    .run();
+    ),
+    env.DB.prepare(
+      `UPDATE daily_stats
+       SET clicks = clicks + 1,
+           unique_clicks = unique_clicks + ?,
+           slug = ?,
+           top_country = COALESCE(?, top_country),
+           top_referer = COALESCE(?, top_referer),
+           updated_at = ?
+       WHERE id = ?`
+    ).bind(
+      isRepeatVisitor ? 0 : 1,
+      link.slug,
+      country ?? null,
+      referer ?? null,
+      updatedAt,
+      dailyStatsId
+    ),
+  ]);
 }
 
 export async function getOverviewStats(env: Env, timezoneOffsetMinutes = 0): Promise<{
@@ -550,6 +581,8 @@ export async function renameTagInLinks(env: Env, oldName: string, newName: strin
     .bind(`%"${oldName}"%`)
     .all<{ id: string; tags: string }>();
 
+  const updates: { id: string; tags: string | null }[] = [];
+
   for (const row of result.results ?? []) {
     try {
       const parsed = JSON.parse(row.tags) as unknown;
@@ -571,13 +604,31 @@ export async function renameTagInLinks(env: Env, oldName: string, newName: strin
       }
 
       if (changed) {
-        await env.DB.prepare('UPDATE links SET tags = ?, updated_at = ? WHERE id = ?')
-          .bind(nextTags.length > 0 ? JSON.stringify(nextTags) : null, updatedAt, row.id)
-          .run();
+        updates.push({ id: row.id, tags: nextTags.length > 0 ? JSON.stringify(nextTags) : null });
       }
     } catch {
       // Ignore malformed historical tag payloads.
     }
+  }
+
+  await applyLinkTagUpdates(env, updates, updatedAt);
+}
+
+/**
+ * Batches tag rewrites so a widely used tag cannot exhaust the Workers budget
+ * mid-loop and leave links half-renamed.
+ */
+async function applyLinkTagUpdates(
+  env: Env,
+  updates: { id: string; tags: string | null }[],
+  updatedAt: string
+): Promise<void> {
+  for (let index = 0; index < updates.length; index += 100) {
+    const statements = updates.slice(index, index + 100).map((update) =>
+      env.DB.prepare('UPDATE links SET tags = ?, updated_at = ? WHERE id = ?')
+        .bind(update.tags, updatedAt, update.id)
+    );
+    await env.DB.batch(statements);
   }
 }
 
@@ -600,22 +651,26 @@ export async function removeTagFromLinks(env: Env, name: string, updatedAt: stri
     .bind(`%"${name}"%`)
     .all<{ id: string; tags: string }>();
 
+  const updates: { id: string; tags: string | null }[] = [];
+
   for (const row of result.results ?? []) {
     try {
       const parsed = JSON.parse(row.tags) as unknown;
       if (!Array.isArray(parsed)) continue;
 
-      const nextTags = parsed
-        .map((tag) => String(tag).trim())
-        .filter((tag) => tag && tag !== name);
+      const currentTags = parsed.map((tag) => String(tag).trim()).filter(Boolean);
+      const nextTags = currentTags.filter((tag) => tag !== name);
+      // The LIKE prefilter can match on wildcard characters in the tag name, so
+      // skip rows the removal would not actually change.
+      if (nextTags.length === currentTags.length) continue;
 
-      await env.DB.prepare('UPDATE links SET tags = ?, updated_at = ? WHERE id = ?')
-        .bind(nextTags.length > 0 ? JSON.stringify(nextTags) : null, updatedAt, row.id)
-        .run();
+      updates.push({ id: row.id, tags: nextTags.length > 0 ? JSON.stringify(nextTags) : null });
     } catch {
       // Ignore malformed historical tag payloads.
     }
   }
+
+  await applyLinkTagUpdates(env, updates, updatedAt);
 }
 
 export async function deleteTag(env: Env, id: string): Promise<void> {

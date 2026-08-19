@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useToast } from '../ui/Toast';
 import { useLocale } from '../../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../../utils/apiErrorMessage';
 
 function eventLabel(event: string): string {
   return event
@@ -77,7 +78,7 @@ export function WebhookSettingsPanel() {
       });
       success(t('webhookSaved'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }
@@ -89,7 +90,7 @@ export function WebhookSettingsPanel() {
       await testWebhook();
       success(t('webhookDelivered'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setTesting(false);
     }

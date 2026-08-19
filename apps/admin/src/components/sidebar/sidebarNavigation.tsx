@@ -38,7 +38,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'navLinks',
     items: [
       { to: '/overview', icon: <LayoutDashboard size={18} />, label: 'overview' },
-      { to: '/links', icon: <Link2 size={18} />, label: 'links' },
+      { to: '/links', icon: <Link2 size={18} />, label: 'linksList' },
       { to: '/links/create', icon: <PlusCircle size={18} />, label: 'createLink' },
       {
         to: '/links/bulk-create',
@@ -47,13 +47,7 @@ export const NAV_GROUPS: NavGroup[] = [
         advanced: true,
         module: 'bulk-create',
       },
-      {
-        to: '/domains',
-        icon: <Globe2 size={18} />,
-        label: 'domains',
-        advanced: true,
-        module: 'domains',
-      },
+      { to: '/tags', icon: <Tags size={18} />, label: 'tags' },
       {
         to: '/groups',
         icon: <Folder size={18} />,
@@ -61,7 +55,13 @@ export const NAV_GROUPS: NavGroup[] = [
         advanced: true,
         module: 'groups',
       },
-      { to: '/tags', icon: <Tags size={18} />, label: 'tags' },
+      {
+        to: '/domains',
+        icon: <Globe2 size={18} />,
+        label: 'domains',
+        advanced: true,
+        module: 'domains',
+      },
       { to: '/import-export', icon: <ArrowLeftRight size={18} />, label: 'importExport' },
     ],
   },

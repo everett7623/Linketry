@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Globe2, KeyRound, ShieldAlert } from 'lucide-react';
 import type { Link as LinkType } from '@linketry/shared';
 import { useLocale } from '../../contexts/LocaleContext';
@@ -35,18 +35,26 @@ export function LinkCardGrid({
   onConfirmAction,
 }: LinkCardGridProps) {
   const { locale, t } = useLocale();
-  const createdDateFormatter = new Intl.DateTimeFormat(locale, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-  const limitDateFormatter = new Intl.DateTimeFormat(locale, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const createdDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+    [locale]
+  );
+  const limitDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
 
   return (
     <div className="grid gap-4 p-4 md:grid-cols-2 xl:grid-cols-3" data-link-view="cards">

@@ -7,6 +7,38 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.1] - 2026-08-19
+
+### Security
+
+- Page-title resolution and Shlink API fetches now go through the SSRF egress guard, with bounded HTML reads
+- IPv4-mapped IPv6 literals (`::ffff:127.0.0.1`) are treated as blocked private addresses
+- Demo tag listing no longer writes D1; raw visit/backup exports require admin scope and are disabled on the public Demo
+- Link `password_hash` is stripped from overview, list, and JSON export responses
+- Settings PUT rejects internally managed keys and no longer clears a redacted `webhook_secret` on round-trip
+- Production deploy no longer auto-generates or prints `LINKETRY_ADMIN_TOKEN`; the repository secret is required
+
+### Fixed
+
+- Daily unique clicks no longer increment 1:1 with total clicks
+- Redirect rules can target links beyond the first 100
+- Admin login, clipboard, and API 401 handling no longer leave the UI spinning or signed in after token expiry
+- Safari Private Browsing no longer breaks sign-in when `localStorage` throws
+- Site Vite build resolves entry paths correctly on Windows
+- Demo seed artifacts use the repository version instead of a stale `0.25.2` default
+
+### Changed
+
+- Visit analytics no longer rewrite KV from a queued snapshot, which could resurrect a disabled or deleted cache entry
+- Tag rename/remove updates links in D1 batches instead of one statement per row
+- Admin search and audit log lists debounce URL updates and ignore stale responses
+- World traffic map loads as a separate Admin chunk; date formatters are reused across list pages
+- GitHub deploy jobs set `timeout-minutes` and do not cancel an in-flight production deploy
+- Sidebar group is Manage / 管理; the list item and page title are All Links / 短链列表
+- Manage group order is overview, list, create, bulk create, tags, groups, domains, then import/export
+
+---
+
 ## [0.31.0] - 2026-08-07
 
 ### Security

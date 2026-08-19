@@ -1,7 +1,13 @@
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+
+/** Derived from the repository version so seeded artifacts cannot drift behind a release. */
+const DEFAULT_VERSION = String(
+  JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version ?? ''
+);
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
 const DEMO_BACKUP_LATEST_KEY = 'backups/linketry-demo-snapshot.json';
@@ -569,7 +575,7 @@ ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.upd
 export function buildDemoArtifacts({
   origin: originValue,
   now: nowValue = new Date(),
-  version = '0.25.2',
+  version = DEFAULT_VERSION,
 }) {
   const origin = normalizeOrigin(originValue);
   const now = new Date(nowValue);
@@ -631,7 +637,7 @@ export function buildDemoArtifacts({
 }
 
 function parseArgs(argv) {
-  const result = { origin: '', output: '', artifactDir: '', version: '0.25.2' };
+  const result = { origin: '', output: '', artifactDir: '', version: DEFAULT_VERSION };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === '--origin') result.origin = argv[++index] ?? '';

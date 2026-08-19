@@ -17,6 +17,6 @@ export function formatImportContentLimit(): string {
   return `${IMPORT_CONTENT_MAX_BYTES / (1024 * 1024)} MiB`;
 }
 
-export function formatImportItemLimit(): string {
-  return IMPORT_ITEM_MAX_COUNT.toLocaleString('en-US');
+export function formatImportItemLimit(locale = 'en-US'): string {
+  return IMPORT_ITEM_MAX_COUNT.toLocaleString(locale);
 }

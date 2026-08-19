@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, BellRing, Play, Save } from 'lucide-react';
 import {
   getTrafficAnomalyStatus,
@@ -9,6 +9,7 @@ import {
   type TrafficAnomalyStatus,
 } from '../../api/trafficAnomalies';
 import { useLocale } from '../../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../../utils/apiErrorMessage';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -27,6 +28,18 @@ export function TrafficAnomalyPanel() {
       .catch(() => error(t('trafficAnomalyLoadFailed')));
   }, [error, t]);
 
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
+
   const setConfig = <K extends keyof TrafficAnomalyConfig>(
     key: K,
     value: TrafficAnomalyConfig[K]
@@ -44,7 +57,7 @@ export function TrafficAnomalyPanel() {
       setStatus((current) => (current ? { ...current, config } : current));
       success(t('trafficAnomalySaved'));
     } catch (cause) {
-      error(String(cause));
+      error(formatApiErrorMessage(cause, t));
     } finally {
       setSaving(false);
     }
@@ -58,7 +71,7 @@ export function TrafficAnomalyPanel() {
       setStatus((current) => (current ? { ...current, state: decision.nextState } : current));
       success(t('trafficAnomalyChecked'));
     } catch (cause) {
-      error(String(cause));
+      error(formatApiErrorMessage(cause, t));
     } finally {
       setChecking(false);
     }
@@ -74,13 +87,6 @@ export function TrafficAnomalyPanel() {
 
   const { config, state } = status;
   const snapshot = state.snapshot;
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 
   return (
     <section className="space-y-4 rounded-lg border border-slate-800 bg-slate-900 p-5">

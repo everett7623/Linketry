@@ -181,9 +181,9 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
 
     cached = toCacheEntry(link);
 
-    // Populate cache for future active requests.
+    // Populate cache for future active requests without blocking this redirect.
     if (shouldCacheRedirect(link)) {
-      await setCachedLink(c.env, domain, cached);
+      c.executionCtx.waitUntil(setCachedLink(c.env, domain, cached));
     }
 
     const decision = await getSmartRedirectDecision(c.env, link, c.req.raw);

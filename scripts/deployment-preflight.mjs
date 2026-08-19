@@ -1,5 +1,15 @@
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { parseJsonOutput, runWrangler, stripAnsi } from './lib/wrangler.mjs';
+
+/** Returns the generated Worker config, or null when it has not been written yet. */
+function readGeneratedWorkerConfig() {
+  try {
+    return readFileSync(new URL('../apps/worker/wrangler.toml', import.meta.url), 'utf8');
+  } catch {
+    return null;
+  }
+}
 
 const TRACKS = new Set(['fresh', 'upgrade', 'demo']);
 const TRUE_VALUES = new Set(['1', 'true', 'yes', 'on']);
@@ -7,6 +17,7 @@ const RESOURCE_ID_PATTERN =
   /^(?:[a-f0-9]{32}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/i;
 const ACCOUNT_ID_PATTERN = /^[a-f0-9]{32}$/i;
 const RESOURCE_NAME_PATTERN = /^[a-z0-9][a-z0-9_-]{0,62}$/i;
+const COMPATIBILITY_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const UPGRADE_GATES = [
   'LINKETRY_BACKUP_VERIFIED',
   'LINKETRY_MIGRATIONS_REVIEWED',
@@ -146,6 +157,7 @@ function collectTargets(env) {
     r2Bucket: readEnv(env, 'LINKETRY_R2_BUCKET'),
     r2PreviewBucket: readEnv(env, 'LINKETRY_R2_PREVIEW_BUCKET'),
     visitsQueue: readEnv(env, 'LINKETRY_VISITS_QUEUE'),
+    compatibilityDate: readEnv(env, 'LINKETRY_COMPATIBILITY_DATE'),
   };
 }
 
@@ -240,6 +252,33 @@ function validateCoreConfiguration(env, targets, checks) {
     );
   }
 
+  // These values are interpolated straight into the generated wrangler.toml, so an
+  // unvalidated value can inject an extra TOML line or fail the deploy with an
+  // opaque parse error much later.
+  if (targets.compatibilityDate) {
+    addCheck(
+      checks,
+      COMPATIBILITY_DATE_PATTERN.test(targets.compatibilityDate),
+      'compatibility-date',
+      'Worker compatibility date is a plain YYYY-MM-DD value.',
+      'LINKETRY_COMPATIBILITY_DATE must be exactly YYYY-MM-DD with no quotes or extra characters.'
+    );
+  }
+  for (const [key, value] of [
+    ['LINKETRY_R2_BUCKET', targets.r2Bucket],
+    ['LINKETRY_R2_PREVIEW_BUCKET', targets.r2PreviewBucket],
+    ['LINKETRY_VISITS_QUEUE', targets.visitsQueue],
+  ]) {
+    if (!value) continue;
+    addCheck(
+      checks,
+      RESOURCE_NAME_PATTERN.test(value),
+      `${key.toLowerCase().replace(/_/g, '-')}-name`,
+      `${key} is a valid Cloudflare resource name.`,
+      `${key} must be a valid Cloudflare resource name.`
+    );
+  }
+
   const hasR2 = Boolean(targets.r2Bucket);
   const hasR2Preview = Boolean(targets.r2PreviewBucket);
   addCheck(
@@ -270,6 +309,19 @@ function validateTrack(track, env, targets, checks) {
       'LINKETRY_DEMO_MODE is unset for production/self-host tracks.',
       'Never set LINKETRY_DEMO_MODE on fresh or upgrade deployments; use the isolated Demo track only.'
     );
+
+    // The env check alone cannot see a Demo key that reached the generated config
+    // through an injected repository variable, so inspect the file that ships.
+    const generatedConfig = readGeneratedWorkerConfig();
+    if (generatedConfig !== null) {
+      addCheck(
+        checks,
+        !/^\s*LINKETRY_DEMO_(?:MODE|ALLOW)\s*=/m.test(generatedConfig),
+        'non-demo-config',
+        'The generated Worker config declares no Demo-mode variables.',
+        'apps/worker/wrangler.toml must not declare LINKETRY_DEMO_MODE or LINKETRY_DEMO_ALLOW on production/self-host tracks.'
+      );
+    }
   }
 
   if (track === 'fresh') {

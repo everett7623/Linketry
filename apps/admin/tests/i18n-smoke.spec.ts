@@ -439,9 +439,9 @@ test('English core workflow renders overview, links, create link, and settings',
 
   await page
     .getByRole('navigation')
-    .getByRole('link', { name: messages.en.links, exact: true })
+    .getByRole('link', { name: messages.en.linksList, exact: true })
     .click();
-  await expect(page.getByRole('heading', { name: messages.en.links })).toBeVisible();
+  await expect(page.getByRole('heading', { name: messages.en.linksList })).toBeVisible();
   await expect(page.getByRole('table').getByText('/docs', { exact: true })).toBeVisible();
   await expectNoSeriousAccessibilityViolations(page);
   const migrationTrigger = page.getByRole('button', { name: messages.en.migrateShortDomain });
@@ -525,9 +525,9 @@ test('Simplified Chinese core workflow renders localized navigation and forms', 
 
   await page
     .getByRole('navigation')
-    .getByRole('link', { name: messages['zh-CN'].links, exact: true })
+    .getByRole('link', { name: messages['zh-CN'].linksList, exact: true })
     .click();
-  await expect(page.getByRole('heading', { name: messages['zh-CN'].links })).toBeVisible();
+  await expect(page.getByRole('heading', { name: messages['zh-CN'].linksList })).toBeVisible();
   await expect(page.getByRole('table').getByText('/docs', { exact: true })).toBeVisible();
 
   await page.getByRole('main').getByRole('link', { name: messages['zh-CN'].createLink }).click();
@@ -578,7 +578,7 @@ test('display preferences persist density and hide only optional navigation modu
   await expect(navigation.getByRole('link', { name: messages.en.analytics })).toHaveCount(0);
   await expect(navigation.getByRole('link', { name: messages.en.backups })).toHaveCount(0);
   await expect(
-    navigation.getByRole('link', { name: messages.en.links, exact: true })
+    navigation.getByRole('link', { name: messages.en.linksList, exact: true })
   ).toBeVisible();
   await expect(navigation.getByRole('link', { name: messages.en.settings })).toBeVisible();
 
@@ -587,7 +587,7 @@ test('display preferences persist density and hide only optional navigation modu
   await expect(shell).toHaveAttribute('data-table-density', 'compact');
   await expect(navigation.getByRole('link', { name: messages.en.backups })).toHaveCount(0);
 
-  await navigation.getByRole('link', { name: messages.en.links, exact: true }).click();
+  await navigation.getByRole('link', { name: messages.en.linksList, exact: true }).click();
   await expect(page.getByRole('table')).toBeVisible();
   await page.getByRole('button', { name: messages.en.linkCardView }).click();
   await expect(page.locator('[data-link-view="cards"]')).toContainText('/docs');

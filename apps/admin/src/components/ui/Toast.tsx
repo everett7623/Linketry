@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { CheckCircle, XCircle, AlertCircle, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useLocale } from '../../contexts/LocaleContext';
@@ -22,16 +22,33 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
   const remove = useCallback((id: string) => {
+    const timer = timers.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timers.current.delete(id);
+    }
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  useEffect(
+    () => () => {
+      for (const timer of timers.current.values()) clearTimeout(timer);
+      timers.current.clear();
+    },
+    []
+  );
 
   const toast = useCallback(
     (type: ToastType, message: string) => {
       const id = Math.random().toString(36).slice(2);
       setToasts((prev) => [...prev, { id, type, message }]);
-      setTimeout(() => remove(id), 4000);
+      timers.current.set(
+        id,
+        setTimeout(() => remove(id), 4000)
+      );
     },
     [remove]
   );

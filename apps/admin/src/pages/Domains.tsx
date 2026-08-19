@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Edit2, Globe2, Plus, Star, Trash2 } from 'lucide-react';
 import {
   createDomain,
@@ -13,6 +13,8 @@ import { ConfirmDialog, Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import type { Domain } from '@linketry/shared';
 import { useLocale } from '../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
+import { domainErrorKey } from '../utils/linkFormValidation';
 
 interface DomainForm {
   domain: string;
@@ -36,13 +38,17 @@ export function Domains() {
   const [editing, setEditing] = useState<Domain | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Domain | null>(null);
   const [form, setForm] = useState<DomainForm>(EMPTY_FORM);
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -91,6 +97,11 @@ export function Domains() {
       error(t('domainRequired'));
       return;
     }
+    const domainError = domainErrorKey(domain);
+    if (domainError) {
+      error(t(domainError));
+      return;
+    }
 
     setSaving(true);
     try {
@@ -112,7 +123,7 @@ export function Domains() {
       closeModal();
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }
@@ -125,7 +136,7 @@ export function Domains() {
       success(t('defaultDomainUpdated'));
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }
@@ -140,7 +151,7 @@ export function Domains() {
       setDeleteTarget(null);
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }

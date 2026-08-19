@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search,
@@ -65,8 +65,16 @@ import {
   parseLinkTags,
 } from '../utils/linkPresentation';
 import { readLinkViewPreference, writeLinkViewPreference, type LinkView } from '../utils/linkView';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
+import { downloadText } from '../utils/downloadText';
 
 const PAGE_SIZE = 20;
+const SEARCH_DEBOUNCE_MS = 300;
+
+function normalizePageParam(value: string | null): number {
+  const parsed = Number.parseInt(value ?? '1', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
 
 export function Links() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -91,21 +99,26 @@ export function Links() {
   const [domainMigrationPreview, setDomainMigrationPreview] =
     useState<DomainMigrationPreview | null>(null);
   const [linkView, setLinkView] = useState<LinkView>(readLinkViewPreference);
+  const [searchInput, setSearchInput] = useState(() => searchParams.get('keyword') ?? '');
   const { success, error } = useToast();
   const { isAdvanced } = useAdminMode();
   const { locale, t } = useLocale();
-  const createdDateFormatter = new Intl.DateTimeFormat(locale, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-  const limitDateFormatter = new Intl.DateTimeFormat(locale, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const loadRequestIdRef = useRef(0);
+  const createdDateFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', year: 'numeric' }),
+    [locale]
+  );
+  const limitDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
 
   const keyword = searchParams.get('keyword') ?? '';
   const tag = searchParams.get('tag') ?? '';
@@ -118,7 +131,7 @@ export function Links() {
   const warning = searchParams.get('warning') ?? '';
   const limits = searchParams.get('limits') ?? '';
   const sort = searchParams.get('sort') ?? 'created_at_desc';
-  const page = parseInt(searchParams.get('page') ?? '1', 10);
+  const page = normalizePageParam(searchParams.get('page'));
 
   const changeLinkView = (view: LinkView) => {
     setLinkView(view);
@@ -126,6 +139,8 @@ export function Links() {
   };
 
   const load = useCallback(async () => {
+    // Filters can change faster than the API responds; only the newest result may win.
+    const requestId = ++loadRequestIdRef.current;
     setLoading(true);
     try {
       const data = await listLinks({
@@ -143,11 +158,13 @@ export function Links() {
         page,
         pageSize: PAGE_SIZE,
       });
+      if (requestId !== loadRequestIdRef.current) return;
       setResult(data);
-    } catch {
-      error(t('linksLoadFailed'));
+    } catch (e) {
+      if (requestId !== loadRequestIdRef.current) return;
+      error(formatApiErrorMessage(e, t));
     } finally {
-      setLoading(false);
+      if (requestId === loadRequestIdRef.current) setLoading(false);
     }
   }, [
     keyword,
@@ -192,18 +209,31 @@ export function Links() {
       .catch(() => undefined);
   }, []);
 
+  // Keep the field responsive while collapsing a burst of keystrokes into one query,
+  // and replace history entries so Back leaves the page instead of replaying each letter.
+  useEffect(() => {
+    setSearchInput(keyword);
+  }, [keyword]);
+
+  useEffect(() => {
+    if (searchInput === keyword) return;
+    const timer = window.setTimeout(() => setParam('keyword', searchInput, true), SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
+
   useEffect(() => {
     if (isAdvanced) return;
     const next = stripAdvancedLinkFilters(searchParams);
     if (next) setSearchParams(next, { replace: true });
   }, [isAdvanced, searchParams, setSearchParams]);
 
-  const setParam = (key: string, value: string) => {
+  const setParam = (key: string, value: string, replace = false) => {
     const p = new URLSearchParams(searchParams);
     if (value) p.set(key, value);
     else p.delete(key);
     if (key !== 'page') p.delete('page');
-    setSearchParams(p);
+    setSearchParams(p, { replace });
   };
 
   const clearFilters = () => {
@@ -212,9 +242,13 @@ export function Links() {
     setSearchParams(p);
   };
 
-  const copyLink = (link: LinkType) => {
-    navigator.clipboard.writeText(buildShortUrl(link, defaultDomain));
-    success(t('copied'));
+  const copyLink = async (link: LinkType) => {
+    try {
+      await navigator.clipboard.writeText(buildShortUrl(link, defaultDomain));
+      success(t('copied'));
+    } catch {
+      error(t('copyFailed'));
+    }
   };
 
   const showQr = async (link: LinkType) => {
@@ -262,7 +296,7 @@ export function Links() {
       }
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setActionLoading(false);
       setConfirm(null);
@@ -315,7 +349,7 @@ export function Links() {
       setSelectedIds(new Set());
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setActionLoading(false);
       setBulkConfirm(null);
@@ -360,7 +394,7 @@ export function Links() {
       setTagInput('');
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setActionLoading(false);
     }
@@ -371,7 +405,7 @@ export function Links() {
       const result = await previewBulkUrlReplace([...selectedIds], findText, replaceText);
       setReplacePreview(result.items);
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setActionLoading(false);
     }
@@ -380,20 +414,18 @@ export function Links() {
     setActionLoading(true);
     try {
       const result = await confirmBulkUrlReplace(replacePreview);
-      const blob = new Blob([result.rollback_csv], { type: 'text/csv;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `linketry-url-rollback-${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadText(
+        result.rollback_csv,
+        `linketry-url-rollback-${new Date().toISOString().slice(0, 10)}.csv`,
+        'text/csv;charset=utf-8'
+      );
       success(t('bulkUrlsUpdated', { count: result.changed }));
       setReplaceOpen(false);
       setReplacePreview([]);
       setSelectedIds(new Set());
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setActionLoading(false);
     }
@@ -411,7 +443,7 @@ export function Links() {
     try {
       setDomainMigrationPreview(await previewDomainMigration(sourceDomain, targetDomain));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setActionLoading(false);
     }
@@ -422,19 +454,17 @@ export function Links() {
     setActionLoading(true);
     try {
       const result = await confirmDomainMigration(domainMigrationPreview);
-      const blob = new Blob([result.rollback_csv], { type: 'text/csv;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = `linketry-domain-migration-${new Date().toISOString().slice(0, 10)}.csv`;
-      anchor.click();
-      URL.revokeObjectURL(url);
+      downloadText(
+        result.rollback_csv,
+        `linketry-domain-migration-${new Date().toISOString().slice(0, 10)}.csv`,
+        'text/csv;charset=utf-8'
+      );
       success(t('domainMigrationComplete', { count: result.changed }));
       setDomainMigrationOpen(false);
       setDomainMigrationPreview(null);
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setActionLoading(false);
     }
@@ -445,7 +475,7 @@ export function Links() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">{t('links')}</h1>
+          <h1 className="text-2xl font-bold text-slate-100">{t('linksList')}</h1>
           <p className="text-sm text-slate-400 mt-0.5">
             {result ? t('linksCount', { count: result.total.toLocaleString(locale) }) : '—'}
           </p>
@@ -463,8 +493,8 @@ export function Links() {
             type="text"
             aria-label={t('searchLinks')}
             placeholder={t('searchLinks')}
-            value={keyword}
-            onChange={(e) => setParam('keyword', e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
         </div>

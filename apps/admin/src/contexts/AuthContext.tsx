@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { login as apiLogin, checkMe, type AuthResult } from '../api/auth';
-import { getApiBaseOverride, getBuildApiBase, setApiBaseOverride } from '../api/client';
+import {
+  getApiBaseOverride,
+  getBuildApiBase,
+  setApiBaseOverride,
+  setUnauthorizedHandler,
+} from '../api/client';
 import {
   readBrowserSetting,
   removeBrowserSetting,
@@ -92,6 +97,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     removeBrowserSetting('token');
     setState({ authenticated: false, loading: false });
   }, []);
+
+  // A rotated or revoked token surfaces as a 401 on any API call; drop the session
+  // so the router sends the user back to the login screen.
+  useEffect(() => {
+    if (IS_PUBLIC_DEMO) return;
+    setUnauthorizedHandler(logout);
+    return () => setUnauthorizedHandler(null);
+  }, [logout]);
 
   return (
     <AuthContext.Provider value={{ ...state, login, logout }}>{children}</AuthContext.Provider>

@@ -15,6 +15,7 @@ import { RestoreBackupModal } from '../components/backups/RestoreBackupModal';
 import { useToast } from '../components/ui/Toast';
 import type { Backup } from '@linketry/shared';
 import { useLocale } from '../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 function formatBytes(size: number | null | undefined, locale: string, bytesUnit: string): string {
   if (!size) return '-';
@@ -60,20 +61,28 @@ function StatusPill({ status }: { status: Backup['status'] }) {
 export function Backups() {
   const { success, error } = useToast();
   const { locale, t } = useLocale();
-  const compactDateFormatter = new Intl.DateTimeFormat(locale, {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-  const fullDateFormatter = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
+  const compactDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
+  const fullDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }),
+    [locale]
+  );
   const [data, setData] = useState<BackupsList | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -117,7 +126,7 @@ export function Backups() {
       success(t('backupCreated', { name: backup.filename.split('/').pop() ?? backup.filename }));
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
       await load();
     } finally {
       setCreating(false);
@@ -257,7 +266,7 @@ export function Backups() {
                           size="sm"
                           icon={<Download size={14} />}
                           disabled={backup.status !== 'completed'}
-                          onClick={() => downloadBackup(backup).catch((e) => error(String(e)))}
+                          onClick={() => downloadBackup(backup).catch((e) => error(formatApiErrorMessage(e, t)))}
                         >
                           {t('download')}
                         </Button>

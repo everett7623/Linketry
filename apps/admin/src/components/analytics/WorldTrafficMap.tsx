@@ -1,16 +1,20 @@
-import React, { useMemo, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import type { AnalyticsSummary } from '../../api/analytics';
 import { WORLD_MAP_REGIONS, WORLD_MAP_VIEW_BOX } from '../../assets/worldMapRegions';
 import { useLocale } from '../../contexts/LocaleContext';
 import { worldTrafficColor } from '../../utils/analyticsPalette';
 
-export function WorldTrafficMap({ summary }: { summary: AnalyticsSummary | null }) {
+export const WorldTrafficMap = memo(function WorldTrafficMap({
+  summary,
+}: {
+  summary: AnalyticsSummary | null;
+}) {
   const { locale, t } = useLocale();
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
-  const countries =
-    summary?.geography?.countries ??
-    summary?.topCountries?.filter((item) => item.country.length === 2) ??
-    [];
+  const countries = useMemo(() => {
+    if (summary?.geography?.countries) return summary.geography.countries;
+    return summary?.topCountries?.filter((item) => item.country.length === 2) ?? [];
+  }, [summary]);
   const clicksByCountry = useMemo(
     () => new Map(countries.map((item) => [item.country.toUpperCase(), item.clicks])),
     [countries]
@@ -165,4 +169,4 @@ export function WorldTrafficMap({ summary }: { summary: AnalyticsSummary | null 
       </div>
     </section>
   );
-}
+});

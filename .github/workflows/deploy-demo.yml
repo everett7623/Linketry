@@ -24,6 +24,7 @@ jobs:
     if: github.repository == 'everett7623/Linketry'
     runs-on: ubuntu-latest
     environment: linketry-demo
+    timeout-minutes: 45
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.LINKETRY_DEMO_CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.LINKETRY_DEMO_CLOUDFLARE_ACCOUNT_ID }}
@@ -167,7 +168,7 @@ jobs:
             ...routing,
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.31.0'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.31.1'}"`,
             'LINKETRY_DEMO_MODE = "read-only"',
             'LINKETRY_DEMO_ALLOW = "1"',
             'LINKETRY_DAILY_CRON = "15 3 * * *"',
@@ -221,8 +222,17 @@ jobs:
       - name: Ensure isolated Demo API Pages project
         run: |
           inventory="$(npx wrangler pages project list --json)"
-          if ! printf '%s' "$inventory" |
+          if printf '%s' "$inventory" |
             node scripts/pages-project-inventory.mjs --has "$LINKETRY_API_PAGES_PROJECT"; then
+            echo "Reusing existing Demo API Pages project: $LINKETRY_API_PAGES_PROJECT"
+          else
+            inventory_status=$?
+            # Exit 1 means "absent"; anything else means the inventory was unreadable and
+            # a blind create would fail with a misleading "already exists" error.
+            if [ "$inventory_status" -ne 1 ]; then
+              echo "Could not safely inspect the Pages project inventory."
+              exit "$inventory_status"
+            fi
             npx wrangler pages project create "$LINKETRY_API_PAGES_PROJECT" \
               --production-branch main \
               --compatibility-date "${LINKETRY_COMPATIBILITY_DATE:-2026-07-16}"

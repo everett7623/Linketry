@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
 const packageJson = JSON.parse(
@@ -24,8 +25,9 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        home: new URL('./index.html', import.meta.url).pathname,
-        deploy: new URL('./deploy/index.html', import.meta.url).pathname,
+        // `URL.pathname` yields "/D:/..." on Windows, which is not a usable filesystem path.
+        home: fileURLToPath(new URL('./index.html', import.meta.url)),
+        deploy: fileURLToPath(new URL('./deploy/index.html', import.meta.url)),
       },
     },
   },

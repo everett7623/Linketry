@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/zh-cn';
 import { useLocale } from '../contexts/LocaleContext';
+import { copyToClipboard } from '../utils/clipboard';
 
 dayjs.extend(relativeTime);
 
@@ -37,12 +38,12 @@ function StatCard({ label, value, icon, color }: StatCardProps) {
 }
 
 function LinkRow({ link, defaultDomain }: { link: LinkType; defaultDomain: string }) {
-  const { success } = useToast();
+  const { success, error } = useToast();
   const { locale, t } = useLocale();
   const shortUrl = buildShortUrl(link, defaultDomain);
-  const copy = () => {
-    navigator.clipboard.writeText(shortUrl);
-    success(t('copiedClipboard'));
+  const copy = async () => {
+    if (await copyToClipboard(shortUrl)) success(t('copiedClipboard'));
+    else error(t('copyFailed'));
   };
 
   return (

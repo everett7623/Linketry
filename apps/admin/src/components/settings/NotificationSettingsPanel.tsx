@@ -11,6 +11,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useToast } from '../ui/Toast';
 import { useLocale } from '../../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../../utils/apiErrorMessage';
 
 interface ChannelDraft extends NotificationChannelConfig {
   credential: string;
@@ -56,7 +57,7 @@ export function NotificationSettingsPanel() {
       updateDraft(channel.provider, { ...updated, credential: '' });
       success(t('notificationSaved', { provider: PROVIDER_LABELS[channel.provider] }));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setBusy(null);
     }
@@ -68,7 +69,7 @@ export function NotificationSettingsPanel() {
       await testNotificationChannel(channel.provider);
       success(t('notificationDelivered', { provider: PROVIDER_LABELS[channel.provider] }));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setBusy(null);
     }
@@ -85,7 +86,7 @@ export function NotificationSettingsPanel() {
       updateDraft(channel.provider, { ...updated, credential: '' });
       success(t('notificationCredentialCleared', { provider: PROVIDER_LABELS[channel.provider] }));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setBusy(null);
     }

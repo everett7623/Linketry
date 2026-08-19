@@ -6,6 +6,7 @@ import { useLocale } from '../../contexts/LocaleContext';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useToast } from '../ui/Toast';
+import { formatApiErrorMessage } from '../../utils/apiErrorMessage';
 
 interface MonitoringForm {
   health_monitoring_enabled: string;
@@ -57,7 +58,7 @@ export function HealthMonitoringSettingsPanel() {
       await updateSettings({ ...form });
       success(t('monitoringSettingsSaved'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }

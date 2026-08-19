@@ -21,6 +21,7 @@ import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
 import { useLocale } from '../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 function statusVariant(status: LinkHealthStatus): 'green' | 'yellow' | 'red' {
   if (status === 'healthy') return 'green';
@@ -75,14 +76,18 @@ export function HealthChecks() {
   const [loadingUrl, setLoadingUrl] = useState(false);
   const [results, setResults] = useState<LinkHealthCheckResult[]>([]);
   const [lastRunAt, setLastRunAt] = useState<string | null>(null);
-  const dateTimeFormatter = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
+  const dateTimeFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }),
+    [locale]
+  );
 
   const summary = useMemo<LinkHealthBatchResult>(() => {
     if (results.length === 0) return emptySummary();
@@ -103,7 +108,7 @@ export function HealthChecks() {
       setLastRunAt(new Date().toISOString());
       success(t('checkedLinks', { count: result.total }));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setLoadingBatch(false);
     }
@@ -123,7 +128,7 @@ export function HealthChecks() {
       setLastRunAt(new Date().toISOString());
       success(t('urlChecked'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setLoadingUrl(false);
     }

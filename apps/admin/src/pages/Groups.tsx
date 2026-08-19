@@ -16,6 +16,7 @@ import { ConfirmDialog, Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { useLocale } from '../contexts/LocaleContext';
 import type { MessageKey } from '../i18n/messages';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 interface GroupForm {
   type: LinkGroupType;
@@ -86,13 +87,17 @@ export function Groups() {
   const [editing, setEditing] = useState<LinkGroup | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<LinkGroup | null>(null);
   const [form, setForm] = useState<GroupForm>(EMPTY_FORM);
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -167,7 +172,7 @@ export function Groups() {
       closeModal();
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }
@@ -182,7 +187,7 @@ export function Groups() {
       setDeleteTarget(null);
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }

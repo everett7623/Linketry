@@ -36,21 +36,26 @@ export function Login() {
       setApiBaseOverride(apiOrigin);
     }
     setLoading(true);
-    const result = await login(token.trim());
-    if (result === 'authenticated') {
-      try {
-        const [overview, settings] = await Promise.all([getOverview(), getSettings()]);
-        const needsSetup = !settings.default_domain?.trim() || (overview?.totalLinks ?? 0) === 0;
-        navigate(needsSetup ? '/setup' : '/overview', { replace: true });
-      } catch {
-        navigate('/overview', { replace: true });
+    try {
+      const result = await login(token.trim());
+      if (result === 'authenticated') {
+        try {
+          const [overview, settings] = await Promise.all([getOverview(), getSettings()]);
+          const needsSetup = !settings.default_domain?.trim() || (overview?.totalLinks ?? 0) === 0;
+          navigate(needsSetup ? '/setup' : '/overview', { replace: true });
+        } catch {
+          navigate('/overview', { replace: true });
+        }
+      } else if (result === 'unreachable') {
+        error(t('unreachableApi'));
+      } else {
+        error(t(IS_PUBLIC_DEMO ? 'invalidDemoAccessCode' : 'invalidToken'));
       }
-    } else if (result === 'unreachable') {
+    } catch {
       error(t('unreachableApi'));
-    } else {
-      error(t(IS_PUBLIC_DEMO ? 'invalidDemoAccessCode' : 'invalidToken'));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

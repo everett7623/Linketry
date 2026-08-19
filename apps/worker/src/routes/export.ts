@@ -1,10 +1,13 @@
 import { Hono } from 'hono';
+import type { Context } from 'hono';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { getAllLinks, getAllVisits } from '../db/index';
 import { getAnalyticsSummary, parseAnalyticsFilters } from '../db/analytics';
 import { analyticsCsv } from '../export/analyticsCsv';
 import { buildBackupPayload } from '../backups/index';
+import { sanitizeLinks } from '../utils/linkSanitize';
+import { isPublicReadOnlyDemo } from '../demo/policy';
 import type { Link, Visit } from '@linketry/shared';
 
 const exportRoutes = new Hono<{ Bindings: Env }>();
@@ -14,6 +17,20 @@ exportRoutes.use('*', async (c, next) => {
   if (authError) return authError;
   await next();
 });
+
+/**
+ * Raw dumps carry password hashes and visitor IP hashes, so they need admin scope.
+ * Demo mode short-circuits read auth entirely, so it is refused outright there.
+ */
+async function requireRawDumpAccess(c: Context<{ Bindings: Env }>): Promise<Response | null> {
+  if (isPublicReadOnlyDemo(c.env)) {
+    return new Response(JSON.stringify({ success: false, error: 'Raw exports are disabled on the public demo' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+  return requireAuth(c, 'admin');
+}
 
 exportRoutes.get('/links.csv', async (c) => {
   const links = await getAllLinks(c.env);
@@ -49,7 +66,7 @@ exportRoutes.get('/links.csv', async (c) => {
 });
 
 exportRoutes.get('/links.json', async (c) => {
-  const links = await getAllLinks(c.env);
+  const links = sanitizeLinks(await getAllLinks(c.env));
   const today = new Date().toISOString().slice(0, 10);
   return new Response(JSON.stringify(links, null, 2), {
     headers: {
@@ -60,6 +77,9 @@ exportRoutes.get('/links.json', async (c) => {
 });
 
 exportRoutes.get('/visits.csv', async (c) => {
+  const denied = await requireRawDumpAccess(c);
+  if (denied) return denied;
+
   const visits = await getAllVisits(c.env);
   const header =
     'id,link_id,slug,domain,referer,country,user_agent,browser,os,device_type,ip_hash,is_bot,created_at\r\n';
@@ -105,6 +125,9 @@ exportRoutes.get('/analytics.csv', async (c) => {
 });
 
 exportRoutes.get('/backup.json', async (c) => {
+  const denied = await requireRawDumpAccess(c);
+  if (denied) return denied;
+
   const backup = await buildBackupPayload(c.env);
   const today = new Date().toISOString().slice(0, 10);
   return new Response(JSON.stringify(backup, null, 2), {

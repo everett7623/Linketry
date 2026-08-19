@@ -20,15 +20,21 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+
+# Never cancel a production deploy mid-flight: a run killed between the D1 migration
+# and the Worker deploy leaves the schema ahead of the running code.
 concurrency:
   group: deploy-linketry
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
     if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip production]')
     runs-on: ubuntu-latest
     environment: production
+    timeout-minutes: 45
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_DNS_API_TOKEN: ${{ secrets.CLOUDFLARE_DNS_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
@@ -195,7 +201,7 @@ jobs:
             ']',
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.31.0'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.31.1'}"`,
             `LINKETRY_DAILY_CRON = ${JSON.stringify(dailyCron)}`,
             `LINKETRY_HEALTH_CRON = ${JSON.stringify(healthCron)}`,
             `LINKETRY_UPDATE_REPOSITORY = ${JSON.stringify(env.LINKETRY_UPDATE_REPOSITORY)}`,
@@ -245,22 +251,23 @@ jobs:
             echo "LINKETRY_ADMIN_TOKEN_SOURCE=configured" >> "$GITHUB_ENV"
             ADMIN_TOKEN_VALUE="$LINKETRY_ADMIN_TOKEN_OVERRIDE"
           else
-            EXISTING_SECRETS="$(npx wrangler secret list --name "$LINKETRY_WORKER_NAME" --format json 2>/dev/null || true)"
-            if printf '%s' "$EXISTING_SECRETS" | grep -q '"name"[[:space:]]*:[[:space:]]*"LINKETRY_ADMIN_TOKEN"'; then
+            set +e
+            EXISTING_SECRETS="$(npx wrangler secret list --name "$LINKETRY_WORKER_NAME" --format json 2>&1)"
+            SECRET_LIST_STATUS=$?
+            set -e
+            if [ "$SECRET_LIST_STATUS" -eq 0 ] && printf '%s' "$EXISTING_SECRETS" | grep -q '"name"[[:space:]]*:[[:space:]]*"LINKETRY_ADMIN_TOKEN"'; then
               echo "Existing Worker LINKETRY_ADMIN_TOKEN found; preserving it."
               echo "LINKETRY_ADMIN_TOKEN_SOURCE=preserved" >> "$GITHUB_ENV"
+            elif [ "$SECRET_LIST_STATUS" -eq 0 ] || printf '%s' "$EXISTING_SECRETS" | grep -qiE 'script not found|10007|10090'; then
+              # Fail closed rather than minting a replacement token. Actions logs are public
+              # on public repositories, so a generated credential cannot be delivered safely.
+              echo "::error::No LINKETRY_ADMIN_TOKEN exists for Worker \"$LINKETRY_WORKER_NAME\" yet. Generate one locally (for example: openssl rand -hex 32), store it in a password manager, then run: gh secret set LINKETRY_ADMIN_TOKEN --repo <owner>/<repo>. Re-run this deploy afterwards."
+              exit 1
             else
-              echo "No Worker admin token found; generating one for the first deployment."
-              GENERATED_TOKEN="linketry_$(openssl rand -hex 32)"
-              echo "LINKETRY_ADMIN_TOKEN_SOURCE=generated" >> "$GITHUB_ENV"
-              ADMIN_TOKEN_VALUE="$GENERATED_TOKEN"
-              echo ""
-              echo "============================================================"
-              echo "Generated LINKETRY_ADMIN_TOKEN: $GENERATED_TOKEN"
-              echo "============================================================"
-              echo "This value is shown only in this first-deployment log."
-              echo "Save it in a password manager. Later deployments preserve the Worker secret."
-              echo ""
+              # A transient API failure must not be mistaken for "no token yet"; treating it
+              # that way would silently rotate the live admin credential.
+              echo "::error::Could not read the existing Worker secrets (wrangler exited $SECRET_LIST_STATUS). Refusing to continue so the live LINKETRY_ADMIN_TOKEN is not replaced. Re-run once Cloudflare is reachable."
+              exit 1
             fi
           fi
           export ADMIN_TOKEN_VALUE
@@ -393,6 +400,10 @@ jobs:
               --probe-before-canonical
           fi
 
+      - name: Remove Worker secrets file
+        if: always()
+        run: rm -f "$RUNNER_TEMP/linketry-worker-secrets.json"
+
       - name: Write deployment access summary
         if: always()
         run: |
@@ -409,10 +420,8 @@ jobs:
             echo "| Worker API and short links | ${LINKETRY_API_URL:-Not configured - recommended: https://go.example.com} |"
             echo ""
             echo "### LINKETRY_ADMIN_TOKEN"
-            if [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "generated" ]; then
-              echo "A token was generated automatically during this first deployment. Open the **Prepare Worker secrets** step log, copy the one-time token, and save it in a password manager. Later deployments preserve the existing Worker secret."
-            elif [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "preserved" ]; then
-              echo "The existing automatically generated Worker token was preserved. Use the value saved from the first deployment. If it was lost, set a new repository secret named **LINKETRY_ADMIN_TOKEN** and rerun deployment once to replace it."
+            if [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "preserved" ]; then
+              echo "The existing Worker token was preserved. Use the value you saved when the instance was first configured. If it was lost, set a new repository secret named **LINKETRY_ADMIN_TOKEN** and rerun deployment once to replace it."
             elif [ "$LINKETRY_ADMIN_TOKEN_SOURCE" = "configured" ]; then
               echo "The optional repository secret **LINKETRY_ADMIN_TOKEN** replaced the Worker token for recovery. Use the original value you saved; GitHub cannot display it later."
             else

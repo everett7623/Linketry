@@ -61,6 +61,23 @@ export function setApiBaseOverride(value: string): string {
   return normalized;
 }
 
+type UnauthorizedHandler = () => void;
+
+let unauthorizedHandler: UnauthorizedHandler | null = null;
+
+/**
+ * Lets AuthProvider react to a token that was rotated or revoked while the tab was open,
+ * instead of leaving every page failing against a signed-in-looking shell.
+ */
+export function setUnauthorizedHandler(handler: UnauthorizedHandler | null): void {
+  unauthorizedHandler = handler;
+}
+
+/** The auth endpoints report their own 401s; a failed sign-in must not trigger a logout loop. */
+function isAuthEndpoint(path: string): boolean {
+  return path.startsWith('/api/v1/auth/');
+}
+
 async function fetchWithTimeout(
   input: RequestInfo | URL,
   init: RequestInit = {},
@@ -69,7 +86,10 @@ async function fetchWithTimeout(
   const controller = new AbortController();
   const timeoutId = globalThis.setTimeout(() => controller.abort(), timeoutMs);
   try {
-    return await fetch(input, { ...init, signal: init.signal ?? controller.signal });
+    const signal = init.signal
+      ? AbortSignal.any([init.signal, controller.signal])
+      : controller.signal;
+    return await fetch(input, { ...init, signal });
   } finally {
     globalThis.clearTimeout(timeoutId);
   }
@@ -103,6 +123,9 @@ export async function apiFetch<T>(
       message = body.error ?? message;
     } catch {
       // ignore
+    }
+    if (res.status === 401 && !IS_PUBLIC_DEMO && !isAuthEndpoint(path)) {
+      unauthorizedHandler?.();
     }
     throw new ApiError(res.status, message);
   }

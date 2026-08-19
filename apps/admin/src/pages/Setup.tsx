@@ -14,6 +14,7 @@ import { SetupCheckList, SetupSummary, type SetupCheck } from '../components/set
 import { AdvancedCapabilitiesPanel } from '../components/setup/AdvancedCapabilitiesPanel';
 import { FirstRunWizard } from '../components/setup/FirstRunWizard';
 import { useLocale } from '../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 interface SetupState {
   settings: Record<string, string>;
@@ -56,7 +57,7 @@ export function Setup() {
       ]);
       setData({ settings, domains, backups, overview, capabilities });
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setLoading(false);
     }

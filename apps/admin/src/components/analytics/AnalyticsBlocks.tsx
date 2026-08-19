@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Visit } from '@linketry/shared';
 import { useLocale } from '../../contexts/LocaleContext';
@@ -85,7 +85,10 @@ export function BarList({
 export function DailyBars({ items }: { items: Array<{ date: string; clicks: number }> }) {
   const { locale, t } = useLocale();
   const max = Math.max(...items.map((item) => item.clicks), 1);
-  const dateFormatter = new Intl.DateTimeFormat(locale, { month: 'numeric', day: 'numeric' });
+  const dateFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { month: 'numeric', day: 'numeric' }),
+    [locale]
+  );
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
       <h2 className="mb-4 text-sm font-semibold text-slate-300">{t('dailyClicks')}</h2>
@@ -117,12 +120,16 @@ export function DailyBars({ items }: { items: Array<{ date: string; clicks: numb
 
 export function RecentVisits({ visits }: { visits: Visit[] }) {
   const { locale, t } = useLocale();
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
       <h2 className="mb-4 text-sm font-semibold text-slate-300">{t('recentVisits')}</h2>

@@ -23,6 +23,7 @@ import { setCachedLink, deleteCachedLink } from '../cache/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
 import { generateId, now } from '../utils/id';
 import { hashLinkPassword, validateLinkPasswordInput } from '../utils/password';
+import { sanitizeLink, sanitizeLinks } from '../utils/linkSanitize';
 import { validateSlug, validateLongUrl, validateDomain } from '@linketry/shared';
 import type { Link, KVCacheEntry } from '@linketry/shared';
 import { normalizeFallbackUrl } from '../links/fallbackUrl';
@@ -112,8 +113,10 @@ function parseOptionalBoolean(value: unknown): number | undefined {
   return undefined;
 }
 
-function parseOptionalDomain(value: unknown): { value?: string; error?: string } {
-  if (value === undefined || value === null || value === '') return {};
+/** `undefined` means "leave as is"; `null`/empty means "clear the domain binding". */
+function parseOptionalDomain(value: unknown): { value?: string | null; error?: string } {
+  if (value === undefined) return {};
+  if (value === null || value === '') return { value: null };
   if (typeof value !== 'string') return { error: 'domain must be a string' };
 
   const validation = validateDomain(value);
@@ -149,18 +152,6 @@ function parseTagsInput(value: unknown): { tags: string[]; error?: string } {
 
   if (tags.length > 50) return { tags: [], error: 'A link can have at most 50 tags' };
   return { tags };
-}
-
-function sanitizeLink(link: Link): Link {
-  return {
-    ...link,
-    password_hash: null,
-    password_protected: !!link.password_hash,
-  };
-}
-
-function sanitizeLinks(items: Link[]): Link[] {
-  return items.map(sanitizeLink);
 }
 
 async function generateUniqueSlug(env: Env, reservedSlugs: Set<string>): Promise<string> {
@@ -824,7 +815,7 @@ links.put('/:id', async (c) => {
   if (body.domain !== undefined) {
     const parsedDomain = parseOptionalDomain(body.domain);
     if (parsedDomain.error) return jsonError(parsedDomain.error, 400);
-    fields.domain = parsedDomain.value ?? fallbackDomain;
+    fields.domain = parsedDomain.value ?? null;
   }
 
   if (body.title !== undefined) fields.title = body.title;
@@ -880,7 +871,7 @@ links.put('/:id', async (c) => {
   const slugChanged = fields.slug !== undefined && fields.slug !== existing.slug;
   if (domainChanged || slugChanged) {
     await deleteCachedLink(c.env, cacheDomainForLink(existing, fallbackDomain), existing.slug);
-    const nextDomain = fields.domain ?? existing.domain ?? fallbackDomain;
+    const nextDomain = (fields.domain !== undefined ? fields.domain : existing.domain) ?? fallbackDomain;
     const nextSlug = fields.slug ?? existing.slug;
     fields.short_url = `https://${nextDomain}/${nextSlug}`;
   }

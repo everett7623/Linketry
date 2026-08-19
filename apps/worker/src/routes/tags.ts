@@ -15,6 +15,7 @@ import {
 } from '../db/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
 import { generateId, now } from '../utils/id';
+import { isPublicReadOnlyDemo } from '../demo/policy';
 import type { Tag } from '@linketry/shared';
 
 const tags = new Hono<{ Bindings: Env }>();
@@ -26,7 +27,8 @@ tags.use('*', async (c, next) => {
 });
 
 tags.get('/', async (c) => {
-  await syncTagsFromLinks(c.env);
+  // Demo reads are unauthenticated, so the write-back sync must not be reachable there.
+  if (!isPublicReadOnlyDemo(c.env)) await syncTagsFromLinks(c.env);
   const allTags = await getAllTags(c.env);
   return jsonOk(allTags);
 });

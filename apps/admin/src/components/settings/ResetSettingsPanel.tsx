@@ -6,6 +6,7 @@ import { Input } from '../ui/Input';
 import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
 import { useLocale } from '../../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../../utils/apiErrorMessage';
 
 const RESET_PHRASE = 'RESET LINKETRY';
 
@@ -61,7 +62,7 @@ export function ResetSettingsPanel() {
     try {
       setPreview(await getResetPreview());
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setLoadingPreview(false);
     }
@@ -79,7 +80,7 @@ export function ResetSettingsPanel() {
       );
       setOpen(false);
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setResetting(false);
     }

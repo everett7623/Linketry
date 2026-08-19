@@ -23,6 +23,9 @@ import { useLocale } from '../contexts/LocaleContext';
 import { getLinkNote, saveLinkNote } from '../api/linkNotes';
 import { DuplicateDestinationWarning } from '../components/links/DuplicateDestinationWarning';
 import { resolvePasswordUpdate } from '../utils/linkPassword';
+import { parseLinkTags } from '../utils/linkPresentation';
+import { domainErrorKey, longUrlErrorKey, slugErrorKey } from '../utils/linkFormValidation';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 function toDatetimeLocal(value?: string | null): string {
   if (!value) return '';
@@ -74,7 +77,7 @@ export function EditLink() {
       .then((l) => {
         setLink(l);
         setPasswordTouched(false);
-        const tags = l.tags ? (JSON.parse(l.tags) as string[]).join(', ') : '';
+        const tags = parseLinkTags(l.tags).join(', ');
         setForm({
           long_url: l.long_url,
           slug: l.slug,
@@ -110,7 +113,7 @@ export function EditLink() {
       setNote(result.note);
       success(t('noteSaved'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setNoteSaving(false);
     }
@@ -135,13 +138,20 @@ export function EditLink() {
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!form.long_url.trim()) errs.long_url = t('destinationRequired');
-    else if (!/^https?:\/\//i.test(form.long_url.trim())) errs.long_url = t('invalidHttpUrl');
+    const longUrlError = longUrlErrorKey(form.long_url);
+    if (longUrlError) errs.long_url = t(longUrlError);
     if (!form.slug.trim()) errs.slug = t('slugRequired');
-    else if (!/^[a-zA-Z0-9_-]+$/.test(form.slug)) errs.slug = t('invalidSlug');
+    else {
+      const slugError = slugErrorKey(form.slug);
+      if (slugError) errs.slug = t(slugError);
+    }
+    const domainError = domainErrorKey(form.domain);
+    if (domainError) errs.domain = t(domainError);
     if (form.description.length > 240) errs.description = t('descriptionTooLong');
-    if (form.fallback_url && !/^https?:\/\//i.test(form.fallback_url.trim()))
-      errs.fallback_url = t('invalidHttpUrl');
+    if (form.fallback_url.trim()) {
+      const fallbackError = longUrlErrorKey(form.fallback_url);
+      if (fallbackError) errs.fallback_url = t(fallbackError);
+    }
     if (form.expires_at && Number.isNaN(new Date(form.expires_at).getTime()))
       errs.expires_at = t('invalidDateTime');
     if (form.max_clicks) {
@@ -172,7 +182,7 @@ export function EditLink() {
       set('title', result.title);
       success(t('titleFetched'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setTitleLoading(false);
     }
@@ -195,7 +205,7 @@ export function EditLink() {
       setSuggestions(result);
       success(t('suggestionsReady'));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSuggestionLoading(false);
     }
@@ -204,7 +214,7 @@ export function EditLink() {
     try {
       setPreview(await fetchPagePreview(form.long_url));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     }
   };
 
@@ -270,7 +280,7 @@ export function EditLink() {
       success(t('linkUpdated'));
       navigate('/links');
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setSaving(false);
     }

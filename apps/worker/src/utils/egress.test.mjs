@@ -16,6 +16,10 @@ test('assertSafeEgressUrl rejects private and metadata targets', () => {
     'http://localhost/admin',
     'http://user:pass@example.com/',
     'ftp://example.com/',
+    'http://[::1]/',
+    'http://[::]/',
+    'http://[::ffff:127.0.0.1]/',
+    'http://[::ffff:7f00:1]/',
   ]) {
     const result = assertSafeEgressUrl(url);
     assert.equal(result.ok, false, url);

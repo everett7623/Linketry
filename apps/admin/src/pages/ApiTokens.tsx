@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Check, Copy, KeyRound, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 import { createApiToken, listApiTokens, revokeApiToken } from '../api/tokens';
 import { Button } from '../components/ui/Button';
@@ -8,6 +8,8 @@ import { useToast } from '../components/ui/Toast';
 import type { ApiToken, ApiTokenScope } from '@linketry/shared';
 import { useLocale } from '../contexts/LocaleContext';
 import type { MessageKey } from '../i18n/messages';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
+import { copyToClipboard } from '../utils/clipboard';
 
 const SCOPE_OPTIONS: Array<{ value: ApiTokenScope; labelKey: MessageKey }> = [
   { value: 'read', labelKey: 'readScope' },
@@ -43,13 +45,17 @@ export function ApiTokens() {
   const [newToken, setNewToken] = useState<string | null>(null);
   const [revokeTarget, setRevokeTarget] = useState<ApiToken | null>(null);
   const [revoking, setRevoking] = useState(false);
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -95,7 +101,7 @@ export function ApiTokens() {
       success(t('tokenCreated'));
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setCreating(false);
     }
@@ -110,7 +116,7 @@ export function ApiTokens() {
       setRevokeTarget(null);
       await load();
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setRevoking(false);
     }
@@ -118,8 +124,9 @@ export function ApiTokens() {
 
   const copyNewToken = async () => {
     if (!newToken) return;
-    await navigator.clipboard.writeText(newToken);
-    success(t('tokenCopied'));
+    // The token is shown exactly once, so a silent clipboard failure would lose it.
+    if (await copyToClipboard(newToken)) success(t('tokenCopied'));
+    else error(t('copyFailed'));
   };
 
   return (

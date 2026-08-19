@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { listAuditLogs } from '../api/audit';
 import { Button } from '../components/ui/Button';
@@ -9,6 +9,7 @@ import { useLocale } from '../contexts/LocaleContext';
 import type { MessageKey } from '../i18n/messages';
 
 const PAGE_SIZE = 50;
+const SEARCH_DEBOUNCE_MS = 300;
 const ACTION_OPTIONS: Array<{ value: string; label: MessageKey }> = [
   { value: 'link.create', label: 'auditActionLinkCreate' },
   { value: 'link.update', label: 'auditActionLinkUpdate' },
@@ -35,26 +36,35 @@ export function AuditLogs() {
   const [result, setResult] = useState<PaginatedResult<AuditLog> | null>(null);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [action, setAction] = useState('');
   const [page, setPage] = useState(1);
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
+  const requestIdRef = useRef(0);
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }),
+    [locale]
+  );
 
   const load = useCallback(async () => {
+    // Only the newest query may write results; earlier slow ones are discarded.
+    const requestId = ++requestIdRef.current;
     setLoading(true);
     try {
       const data = await listAuditLogs({ keyword, action, page, pageSize: PAGE_SIZE });
+      if (requestId !== requestIdRef.current) return;
       setResult(data);
     } catch {
-      error(t('auditLoadFailed'));
+      if (requestId === requestIdRef.current) error(t('auditLoadFailed'));
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) setLoading(false);
     }
   }, [keyword, action, page, error, t]);
 
@@ -62,10 +72,14 @@ export function AuditLogs() {
     load();
   }, [load]);
 
-  const updateKeyword = (value: string) => {
-    setKeyword(value);
-    setPage(1);
-  };
+  useEffect(() => {
+    if (searchInput === keyword) return;
+    const timer = window.setTimeout(() => {
+      setKeyword(searchInput);
+      setPage(1);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [searchInput, keyword]);
 
   const updateAction = (value: string) => {
     setAction(value);
@@ -87,8 +101,8 @@ export function AuditLogs() {
           <input
             type="text"
             placeholder={t('searchAudit')}
-            value={keyword}
-            onChange={(e) => updateKeyword(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
         </div>

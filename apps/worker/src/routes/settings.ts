@@ -57,6 +57,8 @@ settings.put('/', async (c) => {
   const updates: Promise<void>[] = [];
   for (const [key, value] of Object.entries(body)) {
     if (typeof value === 'string') {
+      // GET redacts webhook_secret to '', so an unchanged round trip must not clear it.
+      if (key === 'webhook_secret' && value === '') continue;
       const normalized = normalizeSetting(key, value);
       if (normalized.error) return jsonError(normalized.error, 400);
       updates.push(setSetting(c.env, key, normalized.value, ts));
@@ -67,14 +69,32 @@ settings.put('/', async (c) => {
   return jsonOk({ message: 'Settings updated' });
 });
 
+/**
+ * State owned by dedicated APIs or background jobs. `GET /settings` strips these,
+ * so a read-modify-write round trip must not be able to blank or corrupt them.
+ */
+const INTERNALLY_MANAGED_KEYS = new Set([
+  'analytics_report_records',
+  'analytics_saved_views',
+  'health_alert_state',
+  'health_check_history',
+  'health_monitoring_cursor',
+  'link_notes',
+  'notification_channels',
+  'public_stats_shares',
+  'traffic_anomaly_config',
+  'traffic_anomaly_state',
+  'utm_templates',
+]);
+
 function normalizeSetting(key: string, value: string): { value: string; error?: string } {
   if (key === 'admin_hidden_modules') {
     return normalizeHiddenAdminModules(value);
   }
-  if (key === 'notification_channels') {
+  if (INTERNALLY_MANAGED_KEYS.has(key)) {
     return {
       value: '',
-      error: 'notification_channels must be updated through the notifications API',
+      error: `${key} must be updated through its dedicated API`,
     };
   }
   if (/^public_page_(404|disabled|expired|warning)_message$/.test(key)) {

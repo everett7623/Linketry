@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   Upload,
   Download,
@@ -32,6 +32,7 @@ import {
 } from '@linketry/shared';
 import type { ImportConflictStrategy } from '../api/importExport';
 import { useLocale } from '../contexts/LocaleContext';
+import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 export function ImportExport() {
   const { success, error } = useToast();
@@ -56,12 +57,16 @@ export function ImportExport() {
     ? preview.valid + (conflictStrategy === 'skip' ? 0 : preview.conflicts)
     : 0;
   const hasImportableLinks = importableCount > 0;
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale]
+  );
 
   const parseFieldMapping = (): ImportFieldMapping | undefined => {
     const trimmed = fieldMappingText.trim();
@@ -147,7 +152,7 @@ export function ImportExport() {
       setShowPreview(false);
       success(t('fetchedShlink', { count: result.total }));
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setShlinkFetching(false);
     }
@@ -164,7 +169,7 @@ export function ImportExport() {
       setPreview(result);
       setShowPreview(true);
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
     } finally {
       setPreviewing(false);
     }
@@ -215,7 +220,7 @@ export function ImportExport() {
         if (cancelled) return;
         setImportJobId(null);
         setConfirming(false);
-        error(String(e));
+        error(formatApiErrorMessage(e, t));
       }
     };
 
@@ -261,7 +266,7 @@ export function ImportExport() {
       }
       setImportJobId(result.jobId);
     } catch (e) {
-      error(String(e));
+      error(formatApiErrorMessage(e, t));
       setConfirming(false);
     }
   };
@@ -513,7 +518,7 @@ export function ImportExport() {
                 variant="secondary"
                 size="sm"
                 icon={<Download size={14} />}
-                onClick={() => exportLinksCSV().catch((e) => error(String(e)))}
+                onClick={() => exportLinksCSV().catch((e) => error(formatApiErrorMessage(e, t)))}
               >
                 {t('download')}
               </Button>
@@ -527,7 +532,7 @@ export function ImportExport() {
                 variant="secondary"
                 size="sm"
                 icon={<Download size={14} />}
-                onClick={() => exportLinksJSON().catch((e) => error(String(e)))}
+                onClick={() => exportLinksJSON().catch((e) => error(formatApiErrorMessage(e, t)))}
               >
                 {t('download')}
               </Button>
@@ -541,7 +546,7 @@ export function ImportExport() {
                 variant="secondary"
                 size="sm"
                 icon={<Download size={14} />}
-                onClick={() => exportVisitsCSV().catch((e) => error(String(e)))}
+                onClick={() => exportVisitsCSV().catch((e) => error(formatApiErrorMessage(e, t)))}
               >
                 {t('download')}
               </Button>
@@ -555,7 +560,7 @@ export function ImportExport() {
                 variant="secondary"
                 size="sm"
                 icon={<Download size={14} />}
-                onClick={() => exportBackup().catch((e) => error(String(e)))}
+                onClick={() => exportBackup().catch((e) => error(formatApiErrorMessage(e, t)))}
               >
                 {t('download')}
               </Button>
@@ -627,7 +632,7 @@ export function ImportExport() {
                         <button
                           onClick={() =>
                             downloadImportReport(job.id, job.created_at.slice(0, 10)).catch((e) =>
-                              error(String(e))
+                              error(formatApiErrorMessage(e, t))
                             )
                           }
                           className="text-xs text-brand-400 hover:text-brand-300"

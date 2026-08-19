@@ -4,6 +4,7 @@ import { requireAuth } from '../auth/index';
 import { getOverviewStats } from '../db/index';
 import { parseTimezoneOffset } from '../analytics/timeRange';
 import { jsonOk } from '../utils/response';
+import { sanitizeLinks } from '../utils/linkSanitize';
 import analyticsReportRoutes from './analyticsReports';
 import analyticsRoutes from './analytics';
 import analyticsViewRoutes from './analyticsViews';
@@ -65,9 +66,12 @@ export function registerAdminApiRoutes(app: Hono<{ Bindings: Env }>): void {
     app.get(`${prefix}/overview`, async (c) => {
       const authError = await requireAuth(c);
       if (authError) return authError;
-      return jsonOk(
-        await getOverviewStats(c.env, parseTimezoneOffset(c.req.query('timezone_offset')))
-      );
+      const stats = await getOverviewStats(c.env, parseTimezoneOffset(c.req.query('timezone_offset')));
+      return jsonOk({
+        ...stats,
+        recentLinks: sanitizeLinks(stats.recentLinks),
+        topLinks: sanitizeLinks(stats.topLinks),
+      });
     });
   }
 }
