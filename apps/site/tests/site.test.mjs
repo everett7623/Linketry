@@ -42,7 +42,7 @@ test('project site publishes the complete public-launch content contract', () =>
 test('project site exposes a dedicated deployment route from primary actions', () => {
   assert.match(page, /href="\/deploy\/"/);
   assert.doesNotMatch(page, /id="deploy"/);
-  assert.match(viteConfig, /deploy:\s*new URL\('\.\/deploy\/index\.html'/);
+  assert.match(viteConfig, /deploy:\s*fileURLToPath\(new URL\('\.\/deploy\/index\.html'/);
   assert.match(sitemap, /https:\/\/linketry\.com\/deploy\//);
 });
 
