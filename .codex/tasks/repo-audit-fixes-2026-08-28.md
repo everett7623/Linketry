@@ -13,7 +13,18 @@ logic changed; Admin app unchanged.
 - [x] Correct KV / Smart-TTL description in `ARCHITECTURE.md`, `AGENTS.md`, `CLAUDE.md`; mark the click-tiered TTL in `PERFORMANCE.md` as an unimplemented proposal
 - [x] Add Worker tests: `utils/csv.test.mjs`, `utils/userAgent.test.mjs`, `utils/htmlInspect.test.mjs`, analytics-CSV formula-guard case; 133 Worker tests pass, Worker + Admin type-check pass
 - [x] Synchronize v0.31.4 release metadata (packages, lockfile, `version.ts`, `wrangler.toml.example`, CI fallbacks, OpenAPI default, CHANGELOG, PROGRESS, TASKS, deploy docs)
-- [ ] Update GitHub release approval variables and deploy v0.31.4 through the protected production / Demo / project-site workflows (owner-controlled)
+- [x] Deploy v0.31.4: production `33153940731`, Demo `33153100735` (automatic main sync), project site `33153713263`
+- [x] Verify parity on `go.uukk.de`, `admin.uukk.de`, `linketry-admin.pages.dev`, `demoapi.linketry.com`, and `linketry.com`
+
+## Deployment approval note
+
+The production deploy ran as an authenticated `workflow_dispatch` with `expected_release=0.31.4`
+and `expected_commit=62cee9e…`. `scripts/deployment-release-approval.mjs` writes those into
+`GITHUB_ENV`, overriding the repository approval variables before `deploy:gate` reads them —
+so a manual dispatch does not require pre-editing `LINKETRY_APPROVED_RELEASE` /
+`LINKETRY_APPROVED_COMMIT`. Those variables are only authoritative on the `push` path.
+`LINKETRY_APPROVED_COMMIT` therefore still points at the v0.31.3 commit; that is harmless
+for dispatch deploys but must be refreshed before relying on a push-triggered production run.
 
 ## Residual (not in this batch)
 

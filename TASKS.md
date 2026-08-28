@@ -8,7 +8,8 @@ One item in "In Progress" at a time whenever possible.
 ## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.4)
 
 - [x] Repository audit fixes + release metadata (v0.31.4): streaming exports, CSV-injection guard, bounded metadata fetch, shared UA parsing, reserved-path source, atomic default domain, dead-code removal, KV/TTL doc accuracy
-- [ ] Update GitHub release approval variables and deploy v0.31.4 via protected production / Demo / project-site workflows
+- [x] Deploy v0.31.4 via protected production (`33153940731`), Demo (`33153100735`), and project-site (`33153713263`) workflows
+- [x] Verify v0.31.4 parity: `go.uukk.de`, `admin.uukk.de`, `linketry-admin.pages.dev`, `demoapi.linketry.com`, and `linketry.com`
 - [x] Phase 0–5 deep optimization code + release metadata (v0.31.0)
 - [x] Update GitHub release approval variables and deploy via protected production workflow (`31125426247`)
 - [x] Deploy isolated Demo via protected Demo workflow (`31124712930`)
