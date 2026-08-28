@@ -1,4 +1,5 @@
 import type { Link, RedirectRule, RedirectRuleConfig, RedirectRuleTarget, RedirectRuleType } from '@linketry/shared';
+import { detectBrowserId, detectDevice } from '../utils/userAgent';
 
 interface RedirectContext {
   country?: string;
@@ -108,7 +109,7 @@ function buildRedirectContext(request: Request): RedirectContext {
   return {
     country: cf.cf?.country?.toLowerCase(),
     device: detectDevice(ua),
-    browser: detectBrowser(ua),
+    browser: detectBrowserId(ua),
     referer: request.headers.get('Referer') ?? undefined,
     languages: parseLanguages(languageHeader),
     userKey: `${ip}:${ua}`,
@@ -183,20 +184,4 @@ function parseLanguages(header: string): string[] {
     languages.add(language.split('-')[0]);
   }
   return [...languages];
-}
-
-function detectBrowser(ua: string): string {
-  if (/Edg\//i.test(ua)) return 'edge';
-  if (/Chrome/i.test(ua)) return 'chrome';
-  if (/Firefox/i.test(ua)) return 'firefox';
-  if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) return 'safari';
-  if (/MSIE|Trident/i.test(ua)) return 'ie';
-  if (/Opera|OPR/i.test(ua)) return 'opera';
-  return 'other';
-}
-
-function detectDevice(ua: string): string {
-  if (/Tablet|iPad/i.test(ua)) return 'tablet';
-  if (/Mobile|Android|iPhone|iPod/i.test(ua)) return 'mobile';
-  return 'desktop';
 }

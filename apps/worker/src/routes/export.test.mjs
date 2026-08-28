@@ -1,6 +1,21 @@
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+import { extname } from 'node:path';
+import { registerHooks } from 'node:module';
 import test from 'node:test';
-import { analyticsCsv } from '../export/analyticsCsv.ts';
+
+// Resolve the codebase's extensionless relative imports when type-stripping .ts.
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier.startsWith('.') && !extname(specifier) && context.parentURL) {
+      const candidate = new URL(`${specifier}.ts`, context.parentURL);
+      if (existsSync(candidate)) return nextResolve(candidate.href, context);
+    }
+    return nextResolve(specifier, context);
+  },
+});
+
+const { analyticsCsv } = await import('../export/analyticsCsv.ts');
 
 test('analytics CSV keeps the human-click basis and currency-separated conversion value', () => {
   const csv = analyticsCsv({
@@ -55,4 +70,51 @@ test('analytics CSV keeps the human-click basis and currency-separated conversio
   assert.match(csv, /activity_heatmap,1:09,3,human=2;bot=1/);
   assert.match(csv, /conversion_events,signup,4,USD:54/);
   assert.match(csv, /conversion_values,USD,54,4 events/);
+});
+
+test('analytics CSV neutralizes spreadsheet formula payloads in attacker-influenced fields', () => {
+  const csv = analyticsCsv({
+    days: 1,
+    timezoneOffsetMinutes: 0,
+    rangeStart: '2026-06-22T00:00:00.000Z',
+    rangeEnd: '2026-06-23T00:00:00.000Z',
+    totalClicks: 1,
+    botClicks: 0,
+    uniqueVisitors: 1,
+    uniqueLinks: 1,
+    eligibleClicks: 1,
+    conversionsTotal: 0,
+    conversionRate: 0,
+    conversionAttributionAvailable: false,
+    daily: [],
+    previousPeriod: {
+      rangeStart: '2026-06-21T00:00:00.000Z',
+      rangeEnd: '2026-06-22T00:00:00.000Z',
+      totalClicks: 0,
+      humanClicks: 0,
+      botClicks: 0,
+      uniqueVisitors: 0,
+      daily: [],
+    },
+    hourlyHeatmap: [],
+    topLinks: [],
+    topCountries: [],
+    geography: { countries: [], mappedClicks: 0, unknownClicks: 0 },
+    topReferrers: [{ referer: '=cmd|calc', clicks: 1 }],
+    topBrowsers: [],
+    topDevices: [],
+    topOperatingSystems: [],
+    topUtmSources: [],
+    topUtmMediums: [],
+    topUtmCampaigns: [],
+    topUtmTerms: [],
+    topUtmContents: [],
+    topTargets: [],
+    topConversionEvents: [],
+    conversionValues: [],
+    recentVisits: [],
+  });
+
+  assert.match(csv, /top_referrers,"'=cmd\|calc",1,clicks/);
+  assert.doesNotMatch(csv, /,=cmd\|calc,/);
 });

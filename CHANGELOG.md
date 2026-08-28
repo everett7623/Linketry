@@ -7,6 +7,28 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.4] - 2026-08-28
+
+### Security
+
+- CSV exports no longer let visitor-controlled text execute as spreadsheet formulas. A shared `csvCell` helper prefixes any cell that begins with `=`, `+`, `-`, `@`, tab, or CR (and is not a plain number) with a quote, and forces quoting. It now covers `links.csv` / `visits.csv`, the analytics CSV, the bulk-URL-replace and domain-migration rollback CSV, and the asynchronous import report.
+- `/api/v1/metadata/{title,suggestions,preview}` cap the fetched page at 1 MiB even when the target omits `Content-Length` (previously only the header was checked, so a hostile page that streamed a large chunked body could exhaust Worker memory). The three endpoints now share one egress-guarded, byte-bounded `fetchBoundedHtml` helper.
+
+### Fixed
+
+- Raw exports (`/export/visits.csv`, `/export/links.csv`, `/export/links.json`, `/export/backup.json`) stream page-by-page from D1 using keyset pagination instead of loading the whole table into memory, so instances with large `visits` / `links` tables no longer risk a Worker out-of-memory failure. `getAllVisits` is removed.
+- Visit analytics and smart redirect rules now classify device and browser through one shared `utils/userAgent` module, so a request can no longer be recorded as one device while a redirect rule matches another. Modern Opera is detected as Opera instead of Chrome, and iOS / Android are no longer reported as macOS / Linux. Historical rows keep their earlier labels.
+- `setDefaultDomain` clears the previous default and sets the new one in a single `env.DB.batch()` transaction, so a mid-operation failure can no longer leave an instance with no default domain.
+- The Worker redirect router and `@linketry/shared` slug validation now share one `RESERVED_PATHS` list instead of two hardcoded copies that could drift apart.
+
+### Changed
+
+- Removed the unused `apps/worker/src/db/batch.ts` helper module (406 lines). Import confirmation, tag rename/remove, and bulk URL replace already batch D1 writes through `createLinksBatch` and bounded `env.DB.batch()` calls; the generic helper was never wired into any route.
+- Scheduled R2 backups serialize without pretty-print indentation (halves peak memory; the restore contract is unchanged).
+- Documentation now describes KV as a disposable cache that is re-validated against D1 on every hit — its role is to keep redirects working during brief D1 unavailability, not to reduce D1 query volume. The "Smart TTL (1h–7d based on click volume)" description in `ARCHITECTURE.md`, `AGENTS.md`, and `CLAUDE.md` is corrected to the actual behavior: a fixed 24-hour TTL, shortened to `expires_at` when sooner, skipped once `expires_at` has passed. `PERFORMANCE.md` marks the click-tiered TTL as an unimplemented proposal.
+
+---
+
 ## [0.31.3] - 2026-08-19
 
 ### Added

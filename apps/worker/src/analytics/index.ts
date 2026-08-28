@@ -17,31 +17,7 @@ import { isLikelyBot } from './botDetection';
 import { isPublicReadOnlyDemo } from '../demo/policy';
 import { createWebhookEmitter, emitWebhook, type WebhookEmitter } from '../webhooks/index';
 import { buildClickWebhookData } from './clickWebhook';
-
-function detectBrowser(ua: string): string {
-  if (/Edg\//i.test(ua)) return 'Edge';
-  if (/Chrome/i.test(ua)) return 'Chrome';
-  if (/Firefox/i.test(ua)) return 'Firefox';
-  if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) return 'Safari';
-  if (/MSIE|Trident/i.test(ua)) return 'IE';
-  if (/Opera|OPR/i.test(ua)) return 'Opera';
-  return 'Other';
-}
-
-function detectOS(ua: string): string {
-  if (/Windows/i.test(ua)) return 'Windows';
-  if (/Macintosh|Mac OS X/i.test(ua)) return 'macOS';
-  if (/Linux/i.test(ua)) return 'Linux';
-  if (/Android/i.test(ua)) return 'Android';
-  if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS';
-  return 'Other';
-}
-
-function detectDevice(ua: string): string {
-  if (/Mobile/i.test(ua)) return 'mobile';
-  if (/Tablet/i.test(ua)) return 'tablet';
-  return 'desktop';
-}
+import { detectBrowserLabel, detectDevice, detectOS } from '../utils/userAgent';
 
 export async function recordVisit(
   env: Env,
@@ -121,7 +97,7 @@ export async function recordVisitMessage(
         referer,
         country,
         user_agent: ua,
-        browser: detectBrowser(ua),
+        browser: detectBrowserLabel(ua),
         os: detectOS(ua),
         device_type: detectDevice(ua),
         ip_hash: ipHash,

@@ -5,11 +5,14 @@ import {
   getAllLinks,
   getAllRedirectRules,
   getAllTags,
+  getLinksPage,
   getSettings,
 } from '../db/index';
 import { generateId, now } from '../utils/id';
 import { getRuntimeVersion } from '../config/runtime';
 import { LINKETRY_BACKUP_NAME } from '../importers/backupFormat';
+
+const BACKUP_LINK_PAGE_SIZE = 500;
 
 export interface LinketryBackupPayload {
   name: typeof LINKETRY_BACKUP_NAME;
@@ -42,6 +45,63 @@ export async function buildBackupPayload(env: Env): Promise<LinketryBackupPayloa
   };
 }
 
+/**
+ * Streams the same backup JSON as `buildBackupPayload` without holding every link
+ * in memory. Used by the `/export/backup.json` download; the `links` array is paged
+ * from D1 while the bounded tag / rule / setting collections are emitted whole.
+ */
+export function streamBackupJson(env: Env): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      try {
+        const [tags, redirectRules, settings] = await Promise.all([
+          getAllTags(env),
+          getAllRedirectRules(env),
+          getSettings(env),
+        ]);
+
+        controller.enqueue(
+          encoder.encode(
+            '{' +
+              `"name":${JSON.stringify(LINKETRY_BACKUP_NAME)},` +
+              `"version":${JSON.stringify(getRuntimeVersion(env))},` +
+              `"exportedAt":${JSON.stringify(now())},` +
+              '"links":['
+          )
+        );
+
+        let cursor: { createdAt: string; id: string } | null = null;
+        let first = true;
+        for (;;) {
+          const page = await getLinksPage(env, cursor, BACKUP_LINK_PAGE_SIZE);
+          if (page.length === 0) break;
+          for (const link of page) {
+            controller.enqueue(encoder.encode((first ? '' : ',') + JSON.stringify(link)));
+            first = false;
+          }
+          if (page.length < BACKUP_LINK_PAGE_SIZE) break;
+          const last = page[page.length - 1];
+          cursor = { createdAt: last.created_at, id: last.id };
+        }
+
+        controller.enqueue(
+          encoder.encode(
+            ']' +
+              `,"tags":${JSON.stringify(tags)}` +
+              `,"redirectRules":${JSON.stringify(redirectRules)}` +
+              `,"settings":${JSON.stringify(redactBackupSettings(settings))}` +
+              '}'
+          )
+        );
+        controller.close();
+      } catch (error) {
+        controller.error(error);
+      }
+    },
+  });
+}
+
 export async function createR2Backup(env: Env, trigger: BackupTrigger = 'manual'): Promise<Backup> {
   const createdAt = now();
   const objectKey = createBackupObjectKey(createdAt);
@@ -60,7 +120,7 @@ export async function createR2Backup(env: Env, trigger: BackupTrigger = 'manual'
   }
 
   const payload = await buildBackupPayload(env);
-  const body = JSON.stringify(payload, null, 2);
+  const body = JSON.stringify(payload);
   const size = new TextEncoder().encode(body).byteLength;
 
   try {

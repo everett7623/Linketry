@@ -102,6 +102,8 @@ export default {
 
 #### B. 智能 TTL 策略
 
+> **状态**：提案，尚未实现。当前 `calculateTTL` 为固定 24 小时，仅按 `expires_at` 压缩（不按点击量分级，也不按 `max_clicks` 压缩）。下方为按点击量分级的参考实现。
+
 ```typescript
 // apps/worker/src/cache/index.ts
 export async function setCachedLinkWithSmartTTL(

@@ -22,19 +22,9 @@ import { registerAdminApiRoutes } from './routes/api';
 import { isLegacyApiPath } from './routes/apiVersion';
 import { checkDemoRateLimit, isDemoModeMisconfigured, isPublicReadOnlyDemo, isReadOnlyMethod } from './demo/policy';
 import { resolveCorsOrigin } from './health/corsOrigins';
+import { RESERVED_PATHS as RESERVED_PATH_LIST } from '@linketry/shared';
 
-const RESERVED_PATHS = new Set([
-  'admin',
-  'api',
-  'health',
-  'login',
-  'settings',
-  'assets',
-  'static',
-  'favicon.ico',
-  'robots.txt',
-  'sitemap.xml',
-]);
+const RESERVED_PATHS = new Set<string>(RESERVED_PATH_LIST);
 
 const app = new Hono<{ Bindings: Env }>();
 

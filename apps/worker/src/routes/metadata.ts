@@ -5,14 +5,16 @@ import { getExistingSlugs } from '../db/index';
 import { jsonError, jsonOk } from '../utils/response';
 import { validateLongUrl, validateSlug } from '@linketry/shared';
 import type { LinkSuggestionResult } from '@linketry/shared';
-import { assertSafeEgressUrl, safeEgressFetch } from '../utils/egress';
+import { DEFAULT_HTML_INSPECT_BYTES, fetchBoundedHtml } from '../utils/htmlInspect';
 
 const metadata = new Hono<{ Bindings: Env }>();
 
-const MAX_CONTENT_LENGTH = 1024 * 1024;
+const MAX_CONTENT_LENGTH = DEFAULT_HTML_INSPECT_BYTES;
 const MAX_TITLE_LENGTH = 200;
-const FETCH_TIMEOUT_MS = 6000;
 const MAX_DESCRIPTION_LENGTH = 240;
+const TITLE_USER_AGENT = 'Linketry/0.1 (+https://github.com/everett7623/Linketry)';
+const PREVIEW_USER_AGENT = 'Linketry/0.1 preview (+https://github.com/everett7623/Linketry)';
+const SUGGESTIONS_USER_AGENT = 'Linketry/0.1 suggestions (+https://github.com/everett7623/Linketry)';
 const STOP_WORDS = new Set([
   'about', 'after', 'also', 'and', 'are', 'but', 'can', 'com', 'for', 'from',
   'get', 'has', 'have', 'how', 'into', 'learn', 'more', 'not', 'official',
@@ -45,43 +47,16 @@ metadata.post('/title', async (c) => {
   const url = typeof body.url === 'string' ? body.url.trim() : '';
   const validation = validateLongUrl(url);
   if (!validation.valid) return jsonError(validation.error!, 400);
-  const egress = assertSafeEgressUrl(url);
-  if (!egress.ok) return jsonError(egress.error, 400);
 
-  let response: Response;
-  try {
-    const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
-    response = await safeEgressFetch(url, {
-      signal,
-      headers: {
-        Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1',
-        'User-Agent': 'Linketry/0.1 (+https://github.com/everett7623/Linketry)',
-      },
-    });
-  } catch (error) {
-    return jsonError(error instanceof Error ? error.message : 'Unable to fetch URL', 400);
-  }
+  const inspected = await fetchBoundedHtml(url, { userAgent: TITLE_USER_AGENT });
+  if (!inspected.ok) return jsonError(inspected.error, inspected.status);
 
-  if (!response.ok) {
-    return jsonError(`Target URL returned HTTP ${response.status}`, 400);
-  }
-
-  const contentType = response.headers.get('Content-Type') ?? '';
-  if (contentType && !/\b(html|xhtml|xml)\b/i.test(contentType)) {
-    return jsonError('Target URL did not return an HTML page', 400);
-  }
-
-  const contentLength = Number(response.headers.get('Content-Length') ?? '0');
-  if (contentLength > MAX_CONTENT_LENGTH) {
-    return jsonError('Target page is too large to inspect', 400);
-  }
-
-  const title = await extractTitle(response);
+  const title = await extractTitle(inspected.response);
   if (!title) return jsonError('No page title found', 404);
 
   return jsonOk({
     title,
-    final_url: response.url || url,
+    final_url: inspected.finalUrl,
   });
 });
 
@@ -108,17 +83,11 @@ metadata.post('/preview', async (c) => {
   const url = typeof body.url === 'string' ? body.url.trim() : '';
   const validation = validateLongUrl(url);
   if (!validation.valid) return jsonError(validation.error!, 400);
-  const egress = assertSafeEgressUrl(url);
-  if (!egress.ok) return jsonError(egress.error, 400);
-  try {
-    const response = await safeEgressFetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS), headers: { Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1', 'User-Agent': 'Linketry/0.1 preview (+https://github.com/everett7623/Linketry)' } });
-    if (!response.ok) return jsonError(`Target URL returned HTTP ${response.status}`, 400);
-    const contentType = response.headers.get('Content-Type') ?? '';
-    if (contentType && !/\b(html|xhtml|xml)\b/i.test(contentType)) return jsonError('Target URL did not return an HTML page', 400);
-    const contentLength = Number(response.headers.get('Content-Length') ?? '0');
-    if (contentLength > MAX_CONTENT_LENGTH) return jsonError('Target page is too large to inspect', 400);
-    return jsonOk(await extractPreview(response, response.url || url));
-  } catch (error) { return jsonError(error instanceof Error ? error.message : 'Unable to fetch URL preview', 400); }
+
+  const inspected = await fetchBoundedHtml(url, { userAgent: PREVIEW_USER_AGENT });
+  if (!inspected.ok) return jsonError(inspected.error, inspected.status);
+
+  return jsonOk(await extractPreview(inspected.response, inspected.finalUrl));
 });
 
 async function extractPreview(response: Response, finalUrl: string): Promise<PagePreview> {
@@ -175,42 +144,20 @@ async function fetchSuggestionMetadata(url: string): Promise<{
   metadataFetched: boolean;
   error?: string | null;
 }> {
+  const inspected = await fetchBoundedHtml(url, { userAgent: SUGGESTIONS_USER_AGENT });
+  if (!inspected.ok) {
+    return { finalUrl: url, pageMetadata: EMPTY_PAGE_METADATA, metadataFetched: false, error: inspected.error };
+  }
+
   try {
-    const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
-    const egress = assertSafeEgressUrl(url);
-    if (!egress.ok) {
-      return { finalUrl: url, pageMetadata: EMPTY_PAGE_METADATA, metadataFetched: false, error: egress.error };
-    }
-    const response = await safeEgressFetch(url, {
-      signal,
-      headers: {
-        Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1',
-        'User-Agent': 'Linketry/0.1 suggestions (+https://github.com/everett7623/Linketry)',
-      },
-    });
-
-    if (!response.ok) {
-      return { finalUrl: response.url || url, pageMetadata: EMPTY_PAGE_METADATA, metadataFetched: false, error: `Target URL returned HTTP ${response.status}` };
-    }
-
-    const contentType = response.headers.get('Content-Type') ?? '';
-    if (contentType && !/\b(html|xhtml|xml)\b/i.test(contentType)) {
-      return { finalUrl: response.url || url, pageMetadata: EMPTY_PAGE_METADATA, metadataFetched: false, error: 'Target URL did not return an HTML page' };
-    }
-
-    const contentLength = Number(response.headers.get('Content-Length') ?? '0');
-    if (contentLength > MAX_CONTENT_LENGTH) {
-      return { finalUrl: response.url || url, pageMetadata: EMPTY_PAGE_METADATA, metadataFetched: false, error: 'Target page is too large to inspect' };
-    }
-
     return {
-      finalUrl: response.url || url,
-      pageMetadata: await extractMetadata(response),
+      finalUrl: inspected.finalUrl,
+      pageMetadata: await extractMetadata(inspected.response),
       metadataFetched: true,
       error: null,
     };
   } catch {
-    return { finalUrl: url, pageMetadata: EMPTY_PAGE_METADATA, metadataFetched: false, error: 'Unable to fetch URL metadata' };
+    return { finalUrl: inspected.finalUrl, pageMetadata: EMPTY_PAGE_METADATA, metadataFetched: false, error: 'Unable to fetch URL metadata' };
   }
 }
 

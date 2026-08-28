@@ -1,4 +1,5 @@
 import type { AnalyticsSummary } from '../db/analytics';
+import { csvRow } from '../utils/csv';
 
 export function analyticsCsv(summary: AnalyticsSummary): string {
   const rows: Array<Array<string | number | null | undefined>> = [
@@ -95,13 +96,5 @@ export function analyticsCsv(summary: AnalyticsSummary): string {
     ]);
   }
 
-  return rows.map((row) => row.map(csv).join(',')).join('\r\n');
-}
-
-function csv(value: string | number | null | undefined): string {
-  const text = value === null || value === undefined ? '' : String(value);
-  if (text.includes(',') || text.includes('"') || text.includes('\n') || text.includes('\r')) {
-    return `"${text.replace(/"/g, '""')}"`;
-  }
-  return text;
+  return rows.map((row) => csvRow(row)).join('\r\n');
 }

@@ -27,6 +27,7 @@ import { sanitizeLink, sanitizeLinks } from '../utils/linkSanitize';
 import { validateSlug, validateLongUrl, validateDomain } from '@linketry/shared';
 import type { Link, KVCacheEntry } from '@linketry/shared';
 import { normalizeFallbackUrl } from '../links/fallbackUrl';
+import { csvRow } from '../utils/csv';
 import { domainMigrationSample, migratedShortUrl } from '../links/domainMigration';
 import { resolvePageTitle } from '../utils/pageTitle';
 import { normalizeDestinationUrl } from '../links/duplicateDestination';
@@ -668,7 +669,10 @@ links.post('/bulk-replace-url/confirm', async (c) => {
     changed.push({ id: link.id, slug: link.slug, old_url: oldUrl, new_url: nextUrl });
   }
   await recordAudit(c.env, c.req.raw, 'link.bulk_replace_url', 'link', undefined, { changed: changed.length, skipped, ids: changed.map((item) => item.id) });
-  const csv = ['id,slug,old_url,new_url', ...changed.map((item) => [item.id,item.slug,item.old_url,item.new_url].map((value) => `"${value.replace(/"/g,'""')}"`).join(','))].join('\r\n');
+  const csv = [
+    csvRow(['id', 'slug', 'old_url', 'new_url']),
+    ...changed.map((item) => csvRow([item.id, item.slug, item.old_url, item.new_url])),
+  ].join('\r\n');
   return jsonOk({ changed: changed.length, skipped, rollback_csv: csv });
 });
 
@@ -763,14 +767,16 @@ links.post('/migrate-domain/confirm', async (c) => {
     changed,
   });
   const csv = [
-    'slug,old_domain,new_domain,old_short_url,new_short_url',
-    ...slugs.map((slug) => [
-      slug,
-      sourceDomain,
-      targetDomain,
-      migratedShortUrl(sourceDomain, slug),
-      migratedShortUrl(targetDomain, slug),
-    ].map((value) => `"${value.replace(/"/g, '""')}"`).join(',')),
+    csvRow(['slug', 'old_domain', 'new_domain', 'old_short_url', 'new_short_url']),
+    ...slugs.map((slug) =>
+      csvRow([
+        slug,
+        sourceDomain,
+        targetDomain,
+        migratedShortUrl(sourceDomain, slug),
+        migratedShortUrl(targetDomain, slug),
+      ])
+    ),
   ].join('\r\n');
   return jsonOk({ changed, source_domain: sourceDomain, target_domain: targetDomain, rollback_csv: csv });
 });

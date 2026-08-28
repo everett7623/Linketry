@@ -2,8 +2,8 @@
 
 This document describes the current runtime architecture. It is derived from the deployed Worker, Admin route tree, D1 migrations, and maintained operational documents. Historical plans are useful for product intent, but they do not override this document or the code.
 
-**Last updated**: 2026-08-19  
-**Current version**: v0.31.3  
+**Last updated**: 2026-08-28  
+**Current version**: v0.31.4 (local)  
 **Production version**: v0.31.3
 
 ---
@@ -27,7 +27,7 @@ These 6 immutable rules govern all changes:
 These architectural principles expand on the Golden Rules and guide system design:
 
 1. Redirect stability comes before analytics, automation, and presentation.
-2. D1 is the source of truth. KV is a disposable acceleration layer.
+2. D1 is the source of truth. KV is a disposable cache, re-validated against D1 on every hit, that keeps redirects working while D1 is briefly unavailable.
 3. Statistics, Webhooks, notifications, backups, and monitoring must not block redirects.
 4. Import conflicts default to skip and must never silently overwrite an existing slug.
 5. High-risk operations use preview, explicit confirmation, and a backup or change record where practical.
@@ -86,7 +86,8 @@ The current fallback_url field is available to Admin and monitoring workflows. I
 
 - D1 remains authoritative on both cache misses and normal cache hits.
 - Cache keys use linketry:slug:<domain>:<slug>.
-- Cache entries use Smart TTL (1 hour–7 days) based on click volume, further compressed by `expires_at` and `max_clicks`.
+- Cache entries use a 24-hour TTL, shortened to `expires_at` when that is sooner (floored at the 60-second KV minimum). Once `expires_at` has passed the write is skipped so the next redirect reads fresh D1 state.
+- A Cron job (`cache/warmup.ts`) batch-loads the most-clicked active links into KV.
 - Active, non-password links can populate KV after a successful D1 read.
 - Create and update operations refresh affected entries after D1 succeeds.
 - Disable, delete, archive, domain migration, and relevant bulk operations clear affected entries.

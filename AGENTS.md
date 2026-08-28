@@ -2,8 +2,8 @@
 
 This file tells AI coding agents (Cascade, Codex, Copilot, etc.) how to work on this codebase safely and correctly.
 
-**Last updated**: 2026-08-19
-**Current version**: v0.31.3
+**Last updated**: 2026-08-28
+**Current version**: v0.31.4 (local)
 **Production version**: v0.31.3
 
 Version authority: root `package.json` and `PROGRESS.md`. Prefer those over older stamps in historical docs.
@@ -130,7 +130,7 @@ User visits /:slug
 → async ctx.waitUntil(): record visit stats (never blocks redirect)
 ```
 
-**Key principle**: D1 is the source of truth. KV is a disposable acceleration layer. Even on cache hits, D1 status is re-checked to ensure disable, delete, expiry, and click-limit changes take effect immediately.
+**Key principle**: D1 is the source of truth. KV is a disposable cache that is re-validated against D1 on every hit, so its role is to keep redirects working while D1 is briefly unavailable — not to reduce D1 query volume. Even on cache hits, D1 status is re-checked so disable, delete, expiry, and click-limit changes take effect immediately.
 
 ### Admin API Auth
 
@@ -148,15 +148,15 @@ linketry:slug:<domain>:<slug>
 
 ### KV Cache Rules
 
-| Event          | KV Action              | TTL Strategy |
-|----------------|------------------------|--------------|
-| Create link    | Write to KV            | Smart TTL (1h-7d based on usage) |
-| Update link    | Delete old, write new  | Smart TTL |
+| Event          | KV Action              | TTL |
+|----------------|------------------------|-----|
+| Create link    | Write to KV            | 24h (see below) |
+| Update link    | Delete old, write new  | 24h |
 | Disable link   | Delete from KV         | - |
 | Delete link    | Delete from KV         | - |
-| Visit link     | Read; write on miss    | Smart TTL |
+| Visit link     | Read; write on miss    | 24h |
 
-**Smart TTL**: Hot links (>1000 clicks) = 7 days, warm links (>100 clicks) = 3 days, default = 24 hours, cold links (<10 clicks) = 1 hour. Automatically adjusted for expires_at and max_clicks.
+**Cache TTL** (`calculateTTL` in `cache/index.ts`): 24 hours by default. When `expires_at` is sooner, the TTL is shortened to that moment (floored at the 60s KV minimum); once `expires_at` has passed the write is skipped so the next redirect reads fresh D1 state. `cache/warmup.ts` separately batch-loads the most-clicked active links from a Cron job.
 
 ### Deployment tracks
 

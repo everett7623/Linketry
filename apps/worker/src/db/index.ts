@@ -510,8 +510,46 @@ export async function getAllLinks(env: Env): Promise<Link[]> {
   return result.results ?? [];
 }
 
-export async function getAllVisits(env: Env): Promise<Visit[]> {
-  const result = await env.DB.prepare('SELECT * FROM visits ORDER BY created_at DESC').all<Visit>();
+/** Cursor position for keyset pagination: the last row already returned. */
+export interface RowCursor {
+  createdAt: string;
+  id: string;
+}
+
+/**
+ * Keyset page of links ordered `created_at DESC, id DESC`. Used by streaming
+ * exports so a large instance never loads the whole table into Worker memory.
+ */
+export async function getLinksPage(
+  env: Env,
+  after: RowCursor | null,
+  limit: number
+): Promise<Link[]> {
+  const stmt = after
+    ? env.DB.prepare(
+        `SELECT * FROM links
+         WHERE created_at < ? OR (created_at = ? AND id < ?)
+         ORDER BY created_at DESC, id DESC LIMIT ?`
+      ).bind(after.createdAt, after.createdAt, after.id, limit)
+    : env.DB.prepare('SELECT * FROM links ORDER BY created_at DESC, id DESC LIMIT ?').bind(limit);
+  const result = await stmt.all<Link>();
+  return result.results ?? [];
+}
+
+/** Keyset page of visits ordered `created_at DESC, id DESC`. */
+export async function getVisitsPage(
+  env: Env,
+  after: RowCursor | null,
+  limit: number
+): Promise<Visit[]> {
+  const stmt = after
+    ? env.DB.prepare(
+        `SELECT * FROM visits
+         WHERE created_at < ? OR (created_at = ? AND id < ?)
+         ORDER BY created_at DESC, id DESC LIMIT ?`
+      ).bind(after.createdAt, after.createdAt, after.id, limit)
+    : env.DB.prepare('SELECT * FROM visits ORDER BY created_at DESC, id DESC LIMIT ?').bind(limit);
+  const result = await stmt.all<Visit>();
   return result.results ?? [];
 }
 
@@ -717,10 +755,13 @@ export async function clearDefaultDomains(env: Env, updatedAt: string): Promise<
 }
 
 export async function setDefaultDomain(env: Env, id: string, updatedAt: string): Promise<void> {
-  await clearDefaultDomains(env, updatedAt);
-  await env.DB.prepare('UPDATE domains SET is_default = 1, status = "active", updated_at = ? WHERE id = ?')
-    .bind(updatedAt, id)
-    .run();
+  // One batch so a failure cannot leave the instance with no default domain.
+  await env.DB.batch([
+    env.DB.prepare('UPDATE domains SET is_default = 0, updated_at = ? WHERE is_default = 1')
+      .bind(updatedAt),
+    env.DB.prepare("UPDATE domains SET is_default = 1, status = 'active', updated_at = ? WHERE id = ?")
+      .bind(updatedAt, id),
+  ]);
 }
 
 export async function deleteDomain(env: Env, id: string): Promise<void> {

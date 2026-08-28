@@ -168,7 +168,7 @@ jobs:
             ...routing,
             '',
             '[vars]',
-            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.31.3'}"`,
+            `LINKETRY_VERSION = "${env.RESOLVED_LINKETRY_VERSION || '0.31.4'}"`,
             'LINKETRY_DEMO_MODE = "read-only"',
             'LINKETRY_DEMO_ALLOW = "1"',
             'LINKETRY_DAILY_CRON = "15 3 * * *"',

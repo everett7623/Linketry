@@ -1,4 +1,8 @@
-const RESERVED_SLUGS = new Set([
+/**
+ * Paths the Worker serves itself; they must never be treated as a short-link slug.
+ * Single source of truth for both slug validation and the Worker's redirect router.
+ */
+export const RESERVED_PATHS = [
   'admin',
   'api',
   'health',
@@ -9,7 +13,9 @@ const RESERVED_SLUGS = new Set([
   'favicon.ico',
   'robots.txt',
   'sitemap.xml',
-]);
+] as const;
+
+const RESERVED_SLUGS = new Set<string>(RESERVED_PATHS);
 
 const SLUG_PATTERN = /^[a-zA-Z0-9_-]+$/;
 

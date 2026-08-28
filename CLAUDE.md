@@ -2,8 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**最后更新**：2026-08-19 
-**当前版本**：v0.31.3 
+**最后更新**：2026-08-28 
+**当前版本**：v0.31.4（本地） 
 **生产版本**：v0.31.3
 
 版本权威以根目录 `package.json` 与 `PROGRESS.md` 为准。详细 Agent 规则见 `AGENTS.md`。
@@ -117,7 +117,7 @@ GET /:slug
 ```
 
 **关键规则**：
-- D1 是真实数据源，KV 是可丢弃的加速层
+- D1 是真实数据源，KV 是可丢弃的缓存层；每次命中都会重新校验 D1，因此 KV 的作用是"D1 短暂不可用时仍能重定向"，而非减少 D1 查询
 - KV 命中后仍需重新验证 D1 状态（处理禁用/删除/过期/点击限制）
 - 所有分析写入必须包在 `ctx.waitUntil()` 中
 - 访问统计失败不能传播到重定向响应
@@ -301,7 +301,8 @@ npm run deploy:preflight -- --track fresh --check-cloudflare
 #### 缓存 (`apps/worker/src/cache/index.ts`)
 - 所有 KV 读写在此文件
 - 函数：`getCachedLink`, `setCachedLink`, `deleteCachedLink`
-- Smart TTL：热门（>1000 点击）= 7天，活跃（>100）= 3天，默认 = 24小时，冷门（<10）= 1小时；`expires_at` 和 `max_clicks` 会进一步压缩 TTL
+- 缓存 TTL（`calculateTTL`）：默认 24 小时；当 `expires_at` 更早时压缩到该时间点，已过期则跳过写入，交由重定向路径读 D1 最新状态
+- 缓存预热（`cache/warmup.ts`）：Cron 按点击量倒序把热门活跃链接批量写入 KV
 
 #### 响应 (`apps/worker/src/utils/response.ts`)
 - `jsonOk(data)` — `{ success: true, data }`

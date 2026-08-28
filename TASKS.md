@@ -5,8 +5,10 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.3)
+## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.4)
 
+- [x] Repository audit fixes + release metadata (v0.31.4): streaming exports, CSV-injection guard, bounded metadata fetch, shared UA parsing, reserved-path source, atomic default domain, dead-code removal, KV/TTL doc accuracy
+- [ ] Update GitHub release approval variables and deploy v0.31.4 via protected production / Demo / project-site workflows
 - [x] Phase 0–5 deep optimization code + release metadata (v0.31.0)
 - [x] Update GitHub release approval variables and deploy via protected production workflow (`31125426247`)
 - [x] Deploy isolated Demo via protected Demo workflow (`31124712930`)
@@ -23,7 +25,7 @@ One item in "In Progress" at a time whenever possible.
 - [ ] Optional: Demo R2 (`10042`) when isolated account capability allows
 - [ ] Optional: remote-D1 scale evidence for public 1.0
 
-Task records: `.codex/tasks/deep-optimization-2026-08-07.md`, `.codex/tasks/docs-deploy-truth-2026-08-19.md`, `.codex/tasks/at-audit-2026-08-19.md`
+Task records: `.codex/tasks/repo-audit-fixes-2026-08-28.md`, `.codex/tasks/deep-optimization-2026-08-07.md`, `.codex/tasks/docs-deploy-truth-2026-08-19.md`, `.codex/tasks/at-audit-2026-08-19.md`
 
 ---
 
@@ -84,7 +86,7 @@ Task record: `.codex/tasks/online-upgrade-readiness-state-2026-07-21.md`
 - [x] 实现 KV 缓存过期感知 TTL 和键格式安全校验（`apps/worker/src/cache/index.ts`）
 - [x] 添加缓存预热功能（`apps/worker/src/cache/warmup.ts`）
 - [x] 新增性能监控系统（`apps/worker/src/utils/metrics.ts`）
-- [x] 实现批量操作工具（`apps/worker/src/db/batch.ts`）
+- [x] ~~实现批量操作工具（`apps/worker/src/db/batch.ts`）~~ — 该通用模块从未被路由引用，v0.31.4 已删除；批量写入实际通过 `createLinksBatch` 和 `env.DB.batch()` 完成
 - [x] Admin 路由预加载 + Vite 代码分割（`apps/admin/src/App.tsx`，`vite.config.ts`）
 - [x] 修复 deploy.sh 命令注入漏洞；修复 vite.config 依赖配置问题
 - [x] 新增 `docs/QUICK_START.md`（小白三步一键部署指南）

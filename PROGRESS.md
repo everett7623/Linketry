@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-08-19
+Last updated: 2026-08-28
 
 ---
 
@@ -10,19 +10,38 @@ Last updated: 2026-08-19
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.31.3 live        | Production health reports v0.31.3                                                                                                                                                                   |
-| Admin frontend             | ✅ 0.31.3 live        | AT keyboard evidence is on production Pages origin `linketry-admin.pages.dev`                                                                                                                       |
-| Documentation              | ✅ 0.31.3 synchronized | AT checklist records keyboard/axe evidence; screen-reader pass remains owner-run                                                                                                                    |
-| Deployment                 | ✅ 0.31.3 live        | Production `32271473486`, Demo `32271473392`, project site `32271481053`; GitHub Release `v0.31.3`                                                                                                  |
+| Worker backend             | 🟡 0.31.4 local       | Source bumped to v0.31.4 (repo audit fixes); production health still reports v0.31.3 pending owner deploy                                                                                            |
+| Admin frontend             | ✅ 0.31.3 live        | AT keyboard evidence is on production Pages origin `linketry-admin.pages.dev`; v0.31.4 has no Admin changes                                                                                          |
+| Documentation              | ✅ 0.31.4 synchronized | KV cache / TTL description corrected to match `calculateTTL`; AT checklist records keyboard/axe evidence; screen-reader pass remains owner-run                                                        |
+| Deployment                 | ✅ 0.31.3 live        | Production `32271473486`, Demo `32271473392`, project site `32271481053`; GitHub Release `v0.31.3`; v0.31.4 not yet deployed                                                                         |
 | End-to-end test            | ✅ 0.31.3 live        | Production, isolated Demo, and `linketry.com` advertise v0.31.3                                                                                                                                     |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                                            |
-| Current version            | ✅ 0.31.3             | Source, production Worker/Admin, official Demo, and project site advertise v0.31.3                                                                                                                  |
-| Repository update target   | ✅ 0.31.3             | GitHub Release `v0.31.3` points at commit `6cea8bd`                                                                                                                                                 |
-| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, AT checklist pass, Demo optional R2; private vulnerability reporting enabled 2026-08-10                                                 |
+| Current version            | 🟡 0.31.4 local       | Source, `package.json`, and `packages/shared/src/version.ts` at v0.31.4; production Worker/Admin, official Demo, and project site still advertise v0.31.3                                             |
+| Repository update target   | ✅ 0.31.3             | GitHub Release `v0.31.3` points at commit `6cea8bd`; v0.31.4 approval variables not yet updated                                                                                                     |
+| Next planned work          | 🟡 Pre-1.0 validation | Deploy v0.31.4; fresh-account rehearsal evidence, remote-D1 scale evidence, AT checklist pass, Demo optional R2; private vulnerability reporting enabled 2026-08-10                                  |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
-| Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system, batch operations shipped in 0.30.0 |
+| Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system; bulk/import paths use bounded `env.DB.batch()`. Unused generic `db/batch.ts` helper removed in 0.31.4                  |
+| Repo audit fixes           | ✅ 0.31.4 code landed | Streaming exports, CSV-injection guard, bounded metadata fetch, shared UA parsing, reserved-path source of truth, atomic default-domain switch                                                       |
 | Deep optimization          | ✅ 0.31.0 code landed | Phases 0–5 implemented in-repo; operator Pre-1.0 gates still open                                                                                                                                   |
+
+---
+
+## Linketry 0.31.4 Repository Audit Fixes (Exports, CSV Safety, SSRF Bounds, Consistency)
+
+| Area                        | Status      | Notes                                                                                                                                                             |
+| --------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Streaming exports           | ✅ Complete | `/export/{visits.csv,links.csv,links.json,backup.json}` stream page-by-page from D1 via keyset pagination; `getAllVisits` removed. Large instances no longer risk Worker OOM |
+| CSV formula-injection guard | ✅ Complete | New `utils/csv.ts`; every export cell (visits/links/analytics CSV, bulk-URL and domain-migration rollback CSV, import report) neutralizes `= + - @` / tab / CR leads |
+| Bounded metadata fetch      | ✅ Complete | New `utils/htmlInspect.ts` caps `/metadata/*` response bodies at 1 MiB regardless of `Content-Length`; three endpoints share one egress-guarded helper             |
+| Shared UA parsing           | ✅ Complete | New `utils/userAgent.ts`; analytics and smart redirect rules classify device/browser identically. Opera is no longer misreported as Chrome; iOS/Android OS labels fixed |
+| Reserved-path source        | ✅ Complete | Worker router imports `RESERVED_PATHS` from `@linketry/shared` instead of a second hardcoded list                                                                  |
+| Atomic default domain       | ✅ Complete | `setDefaultDomain` clears + sets in one `env.DB.batch()` so a failure cannot leave zero default domains                                                            |
+| Dead code removal           | ✅ Complete | Unused `apps/worker/src/db/batch.ts` (406 lines) removed; import/bulk paths already use `createLinksBatch` / bounded `env.DB.batch()`                               |
+| Doc accuracy                | ✅ Complete | KV described as a D1-failover cache (re-validated on every hit); "Smart TTL 1h–7d" corrected to the real fixed 24h / `expires_at` compression                        |
+| Redirect / data impact      | ✅ None      | Redirect evaluation, analytics scheduling, D1/KV ownership, migrations, secrets, and stored data contracts are unchanged                                            |
+| Regression                  | ✅ Complete | 133 Worker tests (was 112) pass; Worker + Admin type-check pass                                                                                                    |
+| Production state            | 🟡 Local    | Prepared on top of v0.31.3; production, Demo, and site remain on v0.31.3 until the owner-controlled protected deploy                                                |
 
 ---
 

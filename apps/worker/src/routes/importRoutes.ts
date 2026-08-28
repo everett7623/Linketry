@@ -34,6 +34,7 @@ import {
 import { normalizeDomain } from '../importers/domain';
 import { runAfterImportQueueBoundary } from '../importers/queue';
 import { chunkImportItems } from '../importers/batching';
+import { csvRow } from '../utils/csv';
 import {
   makeUniqueSlug,
   parseConflictStrategy,
@@ -484,6 +485,13 @@ importRoutes.post('/preview', async (c) => {
   return jsonOk({ source: adapter.source, ...result });
 });
 
+const IMPORT_REPORT_HEADER = 'slug,status,reason';
+
+/** One import-report row with RFC 4180 + spreadsheet-formula-safe escaping. */
+function reportLine(slug: string, status: string, reason: string): string {
+  return csvRow([slug, status, reason]);
+}
+
 async function runImportJob(
   env: Env,
   jobId: string,
@@ -498,7 +506,7 @@ async function runImportJob(
   let skippedCount = 0;
   let conflictCount = 0;
   let failedCount = 0;
-  const reportRows: string[] = ['slug,status,reason'];
+  const reportRows: string[] = [IMPORT_REPORT_HEADER];
 
   try {
     if (adapter.source === 'linketry-backup') {
@@ -522,7 +530,7 @@ async function runImportJob(
       const validation = adapter.validate(item);
       if (!validation.valid) {
         failedCount++;
-        reportRows.push(`${item.slug},failed,"${validation.errors.join('; ')}"`);
+        reportRows.push(reportLine(item.slug, 'failed', validation.errors.join('; ')));
         continue;
       }
 
@@ -532,7 +540,7 @@ async function runImportJob(
       if (hasConflict && conflictStrategy === 'skip') {
         conflictCount++;
         skippedCount++;
-        reportRows.push(`${item.slug},skipped,slug already exists`);
+        reportRows.push(reportLine(item.slug, 'skipped', 'slug already exists'));
         continue;
       }
 
@@ -596,7 +604,9 @@ async function runImportJob(
           }
           successCount++;
           reportRows.push(
-            link.slug === item.slug ? `${item.slug},success,` : `${item.slug},renamed,${link.slug}`
+            link.slug === item.slug
+              ? reportLine(item.slug, 'success', '')
+              : reportLine(item.slug, 'renamed', link.slug)
           );
         }
       } catch (batchError) {
@@ -615,12 +625,12 @@ async function runImportJob(
             successCount++;
             reportRows.push(
               link.slug === item.slug
-                ? `${item.slug},success,`
-                : `${item.slug},renamed,${link.slug}`
+                ? reportLine(item.slug, 'success', '')
+                : reportLine(item.slug, 'renamed', link.slug)
             );
           } catch (error) {
             failedCount++;
-            reportRows.push(`${item.slug},failed,"${String(error)}"`);
+            reportRows.push(reportLine(item.slug, 'failed', String(error)));
           }
         }
       }
@@ -638,7 +648,7 @@ async function runImportJob(
         const existing = await getLinkBySlug(env, item.slug);
         if (!existing) {
           failedCount++;
-          reportRows.push(`${item.slug},failed,conflicting link disappeared before overwrite`);
+          reportRows.push(reportLine(item.slug, 'failed', 'conflicting link disappeared before overwrite'));
           continue;
         }
 
@@ -653,10 +663,10 @@ async function runImportJob(
           replaceRuleLinkIds.add(existing.id);
         }
         successCount++;
-        reportRows.push(`${item.slug},overwritten,slug already existed`);
+        reportRows.push(reportLine(item.slug, 'overwritten', 'slug already existed'));
       } catch (error) {
         failedCount++;
-        reportRows.push(`${item.slug},failed,"${String(error)}"`);
+        reportRows.push(reportLine(item.slug, 'failed', String(error)));
       }
       if ((index + 1) % 10 === 0 || index === plannedOverwrites.length - 1) {
         await persistProgress();
@@ -713,8 +723,8 @@ async function runImportJob(
 }
 
 function importFailureReport(error: unknown): string {
-  const reason = (error instanceof Error ? error.message : String(error)).replace(/"/g, '""');
-  return `slug,status,reason\n,failed,"${reason}"`;
+  const reason = error instanceof Error ? error.message : String(error);
+  return `${IMPORT_REPORT_HEADER}\n${reportLine('', 'failed', reason)}`;
 }
 
 async function runQueuedImportJob(
@@ -872,7 +882,7 @@ importRoutes.get('/jobs/:id/report.csv', async (c) => {
   const job = await getImportJobById(c.env, c.req.param('id'));
   if (!job) return jsonError('Import job not found', 404);
 
-  const report = job.report ?? 'slug,status,reason\n';
+  const report = job.report ?? `${IMPORT_REPORT_HEADER}\n`;
   const date = job.created_at.slice(0, 10);
   return new Response(report, {
     headers: {
