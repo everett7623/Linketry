@@ -15,8 +15,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Admin `downloadFile` 401 + error body + long timeout; Settings nav ARIA
 - [x] Log silent visit-accounting failures; OpenAPI version required at call site
 - [x] Synchronize v0.31.5 release metadata
-- [ ] Deploy v0.31.5 via protected production, Demo, and project-site workflows
-- [ ] Verify v0.31.5 parity: `go.uukk.de`, `admin.uukk.de`, `demoapi.linketry.com`, and `linketry.com`
+- [x] Deploy v0.31.5 via protected production (`35355841144`), Demo (`35355826954`), and project-site (`35355847328`) workflows
+- [x] Verify v0.31.5 parity: `go.uukk.de`, `admin.uukk.de`, `demoapi.linketry.com`, and `linketry.com`
 - [ ] Complete screen-reader AT pass (NVDA, VoiceOver, or TalkBack) against Admin and Demo
 - [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS
 - [ ] Optional: Demo R2 (`10042`) when isolated account capability allows

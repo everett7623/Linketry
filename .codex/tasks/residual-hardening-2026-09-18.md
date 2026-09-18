@@ -13,7 +13,9 @@ Follow-up to the v0.31.4 repository audit residuals, plus a second local/remote 
 - [x] Egress guard + tests for integer/hex IPv4 literals
 - [x] OpenAPI document version is required at the call site
 - [x] Synchronize v0.31.5 release metadata
-- [ ] Deploy v0.31.5 through protected production / Demo / project-site workflows
+- [x] Deploy v0.31.5 through protected production / Demo / project-site workflows
+- [x] Verify live parity: `go.uukk.de`, `admin.uukk.de`, `demoapi.linketry.com`, `linketry.com`
+- [x] GitHub Release `v0.31.5` at commit `53c4b8c`
 
 ## Intentionally not in this batch
 
