@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   hashLinkPassword,
+  importedPasswordHashError,
+  isAcceptableStoredPasswordHash,
   timingSafeEqualString,
   validateLinkPasswordInput,
   verifyLinkPassword,
@@ -27,6 +29,26 @@ test('legacy sha256 password hashes still verify', async () => {
     .join('');
   assert.equal(await verifyLinkPassword(`sha256:${hex}`, 'legacy-pass'), true);
   assert.equal(await verifyLinkPassword(`sha256:${hex}`, 'nope'), false);
+});
+
+test('pbkdf2 verification rejects oversized iteration counts without deriving', async () => {
+  const started = Date.now();
+  assert.equal(
+    await verifyLinkPassword('pbkdf2:1000000000:00:00', 'correct-horse'),
+    false
+  );
+  assert.ok(Date.now() - started < 200);
+});
+
+test('imported password hashes reject hostile PBKDF2 parameters', async () => {
+  const valid = await hashLinkPassword('correct-horse');
+  assert.equal(isAcceptableStoredPasswordHash(valid), true);
+  assert.equal(importedPasswordHashError(valid), undefined);
+  assert.match(
+    importedPasswordHashError('pbkdf2:1000000000:aabb:ccdd') ?? '',
+    /supported Linketry hash/
+  );
+  assert.equal(importedPasswordHashError('sha256:not-hex'), 'password_hash is not a supported Linketry hash');
 });
 
 test('timingSafeEqualString compares equal and unequal secrets', () => {

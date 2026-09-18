@@ -5,6 +5,7 @@ import type {
   ImportValidationResult,
 } from '@linketry/shared';
 import { validateSlug, validateLongUrl } from '@linketry/shared';
+import { importedPasswordHashError } from '../utils/password';
 import { domainFromUrl, normalizeDomain } from './domain';
 import { parseCsvRecords } from './mainstreamCore';
 
@@ -202,6 +203,17 @@ function parseGenericCsv(input: string, mapping?: ImportFieldMapping): Normalize
   return parseCsvRecords(input).map((row) => normalizeGenericRow(row, mapping));
 }
 
+function validateGenericItem(item: NormalizedImportItem): ImportValidationResult {
+  const errors: string[] = [];
+  const slugResult = validateSlug(item.slug);
+  if (!slugResult.valid) errors.push(`Invalid slug: ${slugResult.error}`);
+  const urlResult = validateLongUrl(item.longUrl);
+  if (!urlResult.valid) errors.push(`Invalid URL: ${urlResult.error}`);
+  const passwordError = importedPasswordHashError(item.passwordHash);
+  if (passwordError) errors.push(passwordError);
+  return { valid: errors.length === 0, errors };
+}
+
 export const GenericCsvAdapter: ImportAdapter = {
   source: 'generic-csv',
 
@@ -217,14 +229,7 @@ export const GenericCsvAdapter: ImportAdapter = {
     return parseGenericCsv(rawInput, fieldMapping);
   },
 
-  validate(item: NormalizedImportItem): ImportValidationResult {
-    const errors: string[] = [];
-    const slugResult = validateSlug(item.slug);
-    if (!slugResult.valid) errors.push(`Invalid slug: ${slugResult.error}`);
-    const urlResult = validateLongUrl(item.longUrl);
-    if (!urlResult.valid) errors.push(`Invalid URL: ${urlResult.error}`);
-    return { valid: errors.length === 0, errors };
-  },
+  validate: validateGenericItem,
 };
 
 export const GenericJsonAdapter: ImportAdapter = {
@@ -299,12 +304,5 @@ export const GenericJsonAdapter: ImportAdapter = {
     return items.map((item) => normalizeGenericRow(item, fieldMapping));
   },
 
-  validate(item: NormalizedImportItem): ImportValidationResult {
-    const errors: string[] = [];
-    const slugResult = validateSlug(item.slug);
-    if (!slugResult.valid) errors.push(`Invalid slug: ${slugResult.error}`);
-    const urlResult = validateLongUrl(item.longUrl);
-    if (!urlResult.valid) errors.push(`Invalid URL: ${urlResult.error}`);
-    return { valid: errors.length === 0, errors };
-  },
+  validate: validateGenericItem,
 };

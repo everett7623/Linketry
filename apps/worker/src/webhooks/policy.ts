@@ -1,3 +1,5 @@
+import { assertSafeEgressUrl } from '../utils/egress';
+
 export const DEFAULT_WEBHOOK_EVENTS = [
   'link.created',
   'link.updated',
@@ -91,6 +93,22 @@ export function webhookFailureLog(event: WebhookEvent, result: WebhookDeliveryRe
     error: result.error,
     attempts: result.attempts,
   });
+}
+
+export function normalizeWebhookUrl(value: unknown): string {
+  if (value === undefined || value === null || value === '') return '';
+  if (typeof value !== 'string') throw new Error('Webhook URL must be a string');
+
+  const url = value.trim();
+  if (!url) return '';
+  if (url.length > 2048) throw new Error('Webhook URL is too long');
+
+  const egress = assertSafeEgressUrl(url);
+  if (!egress.ok) {
+    throw new Error(egress.error === 'Invalid egress URL' ? 'Webhook URL is invalid' : egress.error);
+  }
+
+  return egress.url.toString();
 }
 
 function delay(milliseconds: number): Promise<void> {

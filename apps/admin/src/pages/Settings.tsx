@@ -138,15 +138,12 @@ export function Settings() {
         aria-label={t('settingsSections')}
         className="sticky top-14 z-20 -mx-1 border-b border-slate-800 bg-slate-950/95 px-1 py-2 backdrop-blur lg:top-16"
       >
-        <div role="tablist" className="flex gap-1 overflow-x-auto scrollbar-thin">
+        <div className="flex gap-1 overflow-x-auto scrollbar-thin">
           {visibleSections.map((section) => (
             <button
               key={section.id}
               type="button"
-              role="tab"
-              aria-selected={activeSection === section.id}
-              aria-controls={`settings-${section.id}`}
-              id={`settings-tab-${section.id}`}
+              aria-current={activeSection === section.id ? 'true' : undefined}
               onClick={() => goToSection(section.id)}
               className={clsx(
                 'shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
@@ -163,8 +160,6 @@ export function Settings() {
 
       <section
         id="settings-general"
-        role="tabpanel"
-        aria-labelledby="settings-tab-general"
         className="scroll-mt-28 space-y-5 lg:scroll-mt-24"
       >
         <form
@@ -269,8 +264,6 @@ export function Settings() {
 
       <section
         id="settings-appearance"
-        role="tabpanel"
-        aria-labelledby="settings-tab-appearance"
         className="scroll-mt-28 space-y-8 lg:scroll-mt-24"
       >
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
@@ -292,8 +285,6 @@ export function Settings() {
       {isAdvanced && (
         <section
           id="settings-integrations"
-          role="tabpanel"
-          aria-labelledby="settings-tab-integrations"
           className="scroll-mt-28 space-y-8 lg:scroll-mt-24"
         >
           <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
@@ -309,8 +300,6 @@ export function Settings() {
       {isAdvanced && (
         <section
           id="settings-danger-zone"
-          role="tabpanel"
-          aria-labelledby="settings-tab-danger-zone"
           className="scroll-mt-28 space-y-8 lg:scroll-mt-24"
         >
           <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
@@ -322,8 +311,6 @@ export function Settings() {
 
       <section
         id="settings-release"
-        role="tabpanel"
-        aria-labelledby="settings-tab-release"
         className="scroll-mt-28 space-y-8 lg:scroll-mt-24"
       >
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">

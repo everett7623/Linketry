@@ -100,7 +100,8 @@ function isBlockedIpLiteral(hostname: string): boolean {
 
   const parts = hostname.split('.').map((part) => Number(part));
   if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
-    return false;
+    const dotted = decimalOrHexIpv4(hostname);
+    return dotted ? isBlockedIpLiteral(dotted) : false;
   }
 
   const [a, b] = parts;
@@ -112,6 +113,16 @@ function isBlockedIpLiteral(hostname: string): boolean {
   if (a === 192 && b === 168) return true;
   if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT
   return false;
+}
+
+/** Maps a decimal or hex IPv4 hostname (e.g. 2130706433, 0x7f000001) to dotted-quad. */
+function decimalOrHexIpv4(hostname: string): string | null {
+  if (!/^(?:0x[0-9a-f]+|\d+)$/i.test(hostname)) return null;
+  const value = hostname.toLowerCase().startsWith('0x')
+    ? Number.parseInt(hostname.slice(2), 16)
+    : Number.parseInt(hostname, 10);
+  if (!Number.isInteger(value) || value < 0 || value > 0xffffffff) return null;
+  return `${(value >>> 24) & 255}.${(value >>> 16) & 255}.${(value >>> 8) & 255}.${value & 255}`;
 }
 
 /** Returns the dotted-quad an IPv4-mapped or IPv4-compatible IPv6 literal points at, if any. */

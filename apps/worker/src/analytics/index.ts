@@ -119,8 +119,8 @@ export async function recordVisitMessage(
           redirect_rule_type: message.target.redirect_rule_type ?? null,
           created_at: createdAt,
         });
-      } catch {
-        // Target analytics must never affect core visit accounting.
+      } catch (error) {
+        console.error('Linketry visit target accounting failed', error);
       }
     }
 
@@ -131,8 +131,8 @@ export async function recordVisitMessage(
     const clickData = buildClickWebhookData(message, visitId, createdAt, isBot === 1);
     if (batchClickWebhook) await batchClickWebhook(clickData);
     else await emitWebhook(env, 'link.clicked', clickData);
-  } catch {
-    // Statistics must never affect redirect
+  } catch (error) {
+    console.error('Linketry visit accounting failed', error);
   }
 }
 

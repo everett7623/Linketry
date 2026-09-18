@@ -2,8 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**最后更新**：2026-08-28 
-**当前版本**：v0.31.4 
+**最后更新**：2026-09-18 
+**当前版本**：v0.31.5 
 **生产版本**：v0.31.4
 
 版本权威以根目录 `package.json` 与 `PROGRESS.md` 为准。详细 Agent 规则见 `AGENTS.md`。
@@ -59,45 +59,17 @@ Linketry 是自托管短链接管理、访问分析与健康监控平台，运�
 
 ## 项目结构
 
-```
-linketry/
-├── apps/
-│   ├── worker/          # Cloudflare Worker (重定向 + API)
-│   │   ├── src/
-│   │   │   ├── index.ts          # 入口点、路由注册
-│   │   │   ├── auth/             # Bearer token 认证
-│   │   │   ├── cache/            # KV 操作
-│   │   │   ├── db/               # D1 查询函数
-│   │   │   ├── analytics/        # 访问追踪
-│   │   │   ├── routes/           # API 路由处理器
-│   │   │   ├── importers/        # 导入适配器
-│   │   │   └── utils/            # ID 生成、响应辅助
-│   │   ├── wrangler.toml.example
-│   │   └── package.json
-│   │
-│   ├── admin/           # React 管理面板
-│   │   ├── src/
-│   │   │   ├── App.tsx           # 根组件 + 路由
-│   │   │   ├── api/              # API 客户端
-│   │   │   ├── components/       # 共享 UI 组件
-│   │   │   ├── contexts/         # AuthContext
-│   │   │   ├── pages/            # 页面组件
-│   │   │   └── i18n/             # 英文/简体中文翻译
-│   │   └── vite.config.ts
-│   │
-│   └── site/            # 官方 Linketry 项目网站
-│
-├── packages/
-│   └── shared/          # 共享类型 + 验证器
-│
-├── migrations/          # D1 数据库迁移
-│   ├── 0001_init.sql
-│   ├── 0002_analytics_depth.sql
-│   └── 0003_performance_indexes.sql
-│
-├── scripts/             # 部署脚本
-└── docs/                # 扩展文档
-```
+npm workspaces monorepo。目录树用 `ls` / Glob 自查，这里只记各 workspace 的职责边界：
+
+| Workspace | 职责 |
+|-----------|------|
+| `apps/worker` | Cloudflare Worker：公开重定向 + Admin API + Queue 消费者 + Cron |
+| `apps/admin` | React + Vite 管理面板（部署到 Pages） |
+| `apps/site` | 官网 `linketry.com`（纯静态，独立手动工作流发布） |
+| `apps/demo-api` | Demo 的 Pages Function API 网关（Service Binding 到 Demo Worker） |
+| `packages/shared` | 跨端共享类型与校验器，以 `@linketry/shared` 导入 |
+| `migrations/` | D1 迁移，**禁止修改已存在的迁移文件** |
+| `scripts/` | 部署门禁、bootstrap、preflight（`.mjs`，有独立契约测试） |
 
 ---
 
@@ -225,18 +197,65 @@ npm run build --workspace=apps/admin
 ### 测试
 
 ```bash
-# Admin 测试（单元测试 via Node test runner + Playwright smoke/无障碍测试）
-npm run test:admin
-
-# Site 测试
-npm run test:site
-
-# Worker 测试
-npm run test:worker
-
-# 部署测试套件
-npm run test:deployment
+npm run test:worker      # Worker
+npm run test:admin       # Admin
+npm run test:deployment  # 部署契约
+npm run test:site        # Site
 ```
+
+**跑单个测试**（注意各 workspace 的 runner 不同）：
+
+```bash
+# Worker：.test.mjs 导入 .ts 源码，必须带 --experimental-strip-types
+cd apps/worker && node --experimental-strip-types --test src/utils/csv.test.mjs
+
+# 只跑一个用例
+cd apps/worker && node --experimental-strip-types --test --test-name-pattern="negative numbers" src/utils/csv.test.mjs
+
+# Admin 单元测试：.test.ts
+cd apps/admin && node --experimental-strip-types --test src/utils/theme.test.ts
+
+# Admin 浏览器测试（首次需 npx playwright install 下载 Chromium）
+cd apps/admin && npx playwright test tests/at-audit.spec.ts
+
+# 部署契约 / Site：纯 .mjs，不需要 strip-types
+node --test scripts/support-policy.test.mjs
+cd apps/site && node --test tests/site.test.mjs
+```
+
+#### 两个必踩的坑
+
+**1. 新增测试文件必须手动注册**
+
+`apps/worker/package.json` 与 `apps/admin/package.json` 的 `test` 脚本是**显式文件列表**，不是 glob。漏加的测试永远不会执行，CI 也不会提醒。
+
+**2. `.mjs` 测试导入 `.ts` 源码的解析规则**
+
+- 源码内部相对导入**一律不带扩展名**（`from '../utils/csv'`），依赖 esbuild + `moduleResolution: "Bundler"` 在构建时解析
+- 测试导入源码**必须带 `.ts`**（`from './csv.ts'`）
+- Node 的类型擦除 loader **解析不了源码内部的无扩展名导入** → `ERR_MODULE_NOT_FOUND`
+
+因此**只有叶子模块**（自身没有相对 value 导入，如 `utils/csv.ts`、`utils/userAgent.ts`）能被测试直接导入。被测模块若有相对 value 导入（如 `htmlInspect.ts` → `./egress`），测试必须先注册解析垫片，再用动态 `import()`：
+
+```js
+import { existsSync } from 'node:fs';
+import { extname } from 'node:path';
+import { registerHooks } from 'node:module';
+
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier.startsWith('.') && !extname(specifier) && context.parentURL) {
+      const candidate = new URL(`${specifier}.ts`, context.parentURL);
+      if (existsSync(candidate)) return nextResolve(candidate.href, context);
+    }
+    return nextResolve(specifier, context);
+  },
+});
+
+const { fetchBoundedHtml } = await import('./htmlInspect.ts');
+```
+
+参考实现：`apps/worker/src/utils/htmlInspect.test.mjs`、`src/routes/export.test.mjs`、`src/db/analyticsSummary.test.mjs`
 
 ### 构建
 
@@ -286,6 +305,29 @@ npm run deploy:bootstrap -- --prefix linketry-alice --domain go.example.com --ac
 # Preflight 检查
 npm run deploy:preflight -- --track fresh --check-cloudflare
 ```
+
+#### 部署审批的两条路径（极易混淆）
+
+生产工作流 `Deploy Linketry` 有两种触发方式，**审批依据完全不同**：
+
+| 触发方式 | 审批依据 | 需要预先改仓库变量？ |
+|---------|---------|-------------------|
+| `push` 到 `main` | 仓库变量 `LINKETRY_APPROVED_RELEASE` / `LINKETRY_APPROVED_COMMIT` 必须分别等于 `package.json` 版本和 `GITHUB_SHA` | **需要** |
+| `workflow_dispatch` | 认证发起人在表单填的 `expected_release` / `expected_commit`；`scripts/deployment-release-approval.mjs` 将其写入 `GITHUB_ENV` **覆盖**仓库变量，门禁再读取 | **不需要** |
+
+日常发版走 dispatch 最省事，不必改任何仓库变量：
+
+```bash
+gh workflow run deploy.yml --ref main -f confirm_release=true -f expected_release=0.31.5 -f expected_commit=<40位SHA>
+```
+
+#### `[skip production]` 只跳过生产
+
+commit message 含 `[skip production]` 时：
+
+- `Deploy Linketry`（生产）→ skip
+- `Deploy Isolated Linketry Demo` → **仍然执行**。Demo 自动跟随 `main`，其门禁对 push 同步自动放行，版本从推送的 commit 派生
+- `Deploy Linketry Project Site`（官网）→ 纯手动 `workflow_dispatch`，需确认短语 `DEPLOY LINKETRY SITE` + 精确 commit SHA，不受 push 影响
 
 ---
 
@@ -411,39 +453,17 @@ interface ImportAdapter {
 | `docs/IMPORT_ADAPTERS.md` | 导入适配器合约 |
 | `docs/ANALYTICS.md` | 追踪、隐私、报告 |
 | `AGENTS.md` | AI agent 指令 |
+| `docs/TROUBLESHOOTING.md` | 常见故障排查 |
+| `.codex/tasks/*.md` | 历次任务记录（做了什么、遗留什么） |
+| `.codex/references/case-*.md` | **线上事故根因案例库**——排查 Admin 升级卡死、Pages 缓存、CORS、GitHub Actions environment 等问题前先翻这里 |
 
 ---
 
 ## 环境变量
 
-### Worker Secrets
-- `LINKETRY_ADMIN_TOKEN` — Admin API 认证令牌
+完整清单以 `apps/worker/wrangler.toml.example` 和 `.dev.vars.example` 为准，不在此重复。
 
-### Worker Variables (wrangler.toml)
-- `LINKETRY_VERSION` — 当前版本
-- `LINKETRY_DAILY_CRON` — 每日备份 Cron（可选）
-- `LINKETRY_HEALTH_CRON` — 健康检查 Cron（可选）
-- `LINKETRY_UPDATE_REPOSITORY` — GitHub owner/repo，用于版本检查（如 `user/linketry`）
-- `LINKETRY_UPDATE_BRANCH` — 版本检查分支（需与 Admin `VITE_LINKETRY_UPDATE_BRANCH` 一致）
+只记两条不看示例文件看不出来的约束：
 
-### Worker Secrets（可选）
-- `LINKETRY_GITHUB_UPDATE_TOKEN` — 应用内升级令牌（私有仓库时需要）
-
-### Admin Build Variables
-- `VITE_LINKETRY_API_URL` — Worker API 基础 URL（Admin 和 Worker 分离域时必需）
-- `VITE_LINKETRY_UPDATE_BRANCH` — Admin 版本检查分支（必须匹配 Worker 配置）
-- `VITE_LINKETRY_DEMO_ACCESS_CODE` — Demo 公开预览码（仅 Demo）
-
----
-
-## 技术约束
-
-- **Node.js**: 24.x（`>=24 <25`，不支持其他版本）
-- **npm**: 10+
-- **TypeScript**: 5.4+
-- **Wrangler**: 4
-- **Cloudflare 账号**：D1, KV, Worker, Pages
-
----
-
-## 项目结构详解
+- `VITE_LINKETRY_UPDATE_BRANCH`（Admin 构建期）**必须**与 Worker 的 `LINKETRY_UPDATE_BRANCH` 一致，否则版本检查会指向不同分支
+- `VITE_LINKETRY_API_URL` 在 Admin 与 Worker 分离域部署时必填；同源 Quick Deploy 留空

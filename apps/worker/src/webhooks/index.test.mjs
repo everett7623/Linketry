@@ -1,15 +1,30 @@
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
+import { existsSync } from 'node:fs';
+import { extname } from 'node:path';
+import { registerHooks } from 'node:module';
 import test from 'node:test';
-import {
+
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier.startsWith('.') && !extname(specifier) && context.parentURL) {
+      const candidate = new URL(`${specifier}.ts`, context.parentURL);
+      if (existsSync(candidate)) return nextResolve(candidate.href, context);
+    }
+    return nextResolve(specifier, context);
+  },
+});
+
+const {
   buildWebhookRequest,
   DEFAULT_WEBHOOK_EVENTS,
   deliverWebhookWithRetry,
+  normalizeWebhookUrl,
   shouldRetryWebhook,
   WEBHOOK_EVENTS,
   webhookFailureLog,
-} from './policy.ts';
-import { buildClickWebhookData } from '../analytics/clickWebhook.ts';
+} = await import('./policy.ts');
+const { buildClickWebhookData } = await import('../analytics/clickWebhook.ts');
 
 test('link.clicked is available but excluded from the default high-volume event set', () => {
   assert.equal(WEBHOOK_EVENTS.includes('link.clicked'), true);
@@ -78,6 +93,13 @@ test('webhook request signs one stable event envelope', async () => {
     version: '0.28.4',
     data: { click: { id: 'visit-1' } },
   });
+});
+
+test('webhook URL save rejects private and credentialed targets', () => {
+  assert.equal(normalizeWebhookUrl(''), '');
+  assert.equal(normalizeWebhookUrl('https://hooks.example.com/linketry'), 'https://hooks.example.com/linketry');
+  assert.throws(() => normalizeWebhookUrl('http://127.0.0.1/hooks'), /private or link-local/);
+  assert.throws(() => normalizeWebhookUrl('http://user:pass@example.com/hooks'), /credentials/);
 });
 
 test('retry policy is bounded to transient transport and HTTP failures', () => {

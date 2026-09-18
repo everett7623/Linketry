@@ -7,6 +7,7 @@ import {
   buildWebhookRequest,
   DEFAULT_WEBHOOK_EVENTS,
   deliverWebhookWithRetry,
+  normalizeWebhookUrl,
   WEBHOOK_EVENTS,
   webhookFailureLog,
   type WebhookDeliveryResult,
@@ -124,28 +125,6 @@ function shouldDeliver(config: InternalWebhookConfig, event: WebhookEvent): bool
 
 function parseBoolean(value: unknown): boolean {
   return value === true || value === 1 || value === '1' || value === 'true';
-}
-
-function normalizeWebhookUrl(value: unknown): string {
-  if (value === undefined || value === null || value === '') return '';
-  if (typeof value !== 'string') throw new Error('Webhook URL must be a string');
-
-  const url = value.trim();
-  if (!url) return '';
-  if (url.length > 2048) throw new Error('Webhook URL is too long');
-
-  let parsed: URL;
-  try {
-    parsed = new URL(url);
-  } catch {
-    throw new Error('Webhook URL is invalid');
-  }
-
-  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-    throw new Error('Webhook URL must use http or https');
-  }
-
-  return parsed.toString();
 }
 
 function normalizeSecret(value: unknown): string {

@@ -7,6 +7,30 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.5] - 2026-09-18
+
+### Security
+
+- Public password checks refuse PBKDF2 iteration counts above 200,000 (and oversized hex payloads) instead of deriving them, so a restored or imported hostile hash cannot turn `POST /:slug` into a CPU exhaustion path. Import and backup restore reject those hashes instead of storing an unlockable protected link.
+- Webhook URLs are now checked with the same egress guard at save time, so private, metadata, and credentialed targets fail in Settings rather than only when a delivery is attempted.
+- Restore reports and bulk-UTM change CSVs go through the shared `csvCell` formula guard, matching the v0.31.4 export coverage.
+
+### Fixed
+
+- Admin file downloads now treat `401` like other API calls (session logout) and surface the Worker error body instead of a generic English HTTP status.
+- Export downloads use the long API timeout by default, so large `visits.csv` / `links.csv` exports are less likely to abort at 15 seconds.
+- Settings section buttons are in-page navigation (`aria-current`) rather than a fake ARIA tablist whose panels all stay visible.
+- Integer and hex IPv4 literals (`http://2130706433`, `http://0x7f000001`) are blocked by the egress guard even if a runtime leaves the hostname uncanonicalized.
+
+### Changed
+
+- Link → KV cache mapping lives in one `toCacheEntry` helper shared by redirect, link mutation, import, and restore.
+- Scheduled and manual R2 backups stream the same paged JSON as `/export/backup.json` instead of loading every link into memory.
+- Visit accounting logs `console.error` when a queued write fails, without throwing back into the redirect or queue-ack path.
+- OpenAPI document version is required at the call site (`getRuntimeVersion`); the previous hardcoded default could drift from `LINKETRY_VERSION`.
+
+---
+
 ## [0.31.4] - 2026-08-28
 
 ### Security

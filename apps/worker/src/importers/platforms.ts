@@ -8,6 +8,7 @@ import type {
   Tag,
 } from '@linketry/shared';
 import { validateLongUrl, validateSlug } from '@linketry/shared';
+import { importedPasswordHashError } from '../utils/password';
 import { domainFromUrl, normalizeDomain } from './domain';
 import { isSupportedBackupPayload } from './backupFormat';
 
@@ -103,6 +104,8 @@ function validateImportItem(item: NormalizedImportItem): ImportValidationResult 
   if (!slugResult.valid) errors.push(`Invalid slug: ${slugResult.error}`);
   const urlResult = validateLongUrl(item.longUrl);
   if (!urlResult.valid) errors.push(`Invalid URL: ${urlResult.error}`);
+  const passwordError = importedPasswordHashError(item.passwordHash);
+  if (passwordError) errors.push(passwordError);
   return { valid: errors.length === 0, errors };
 }
 

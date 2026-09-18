@@ -5,7 +5,28 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Pre-1.0 Validation Evidence (post v0.31.4)
+## 🟡 In Progress — Residual Hardening (v0.31.5)
+
+- [x] Cap PBKDF2 iterations / hex size on the public password gate; reject hostile hashes on import/restore
+- [x] Stream R2 backups with the same paged JSON as `/export/backup.json`
+- [x] Share `toCacheEntry` across redirect, links, import, and restore
+- [x] CSV formula guard for restore reports and bulk-UTM CSVs
+- [x] Webhook URL egress check at save; integer/hex IPv4 egress tests
+- [x] Admin `downloadFile` 401 + error body + long timeout; Settings nav ARIA
+- [x] Log silent visit-accounting failures; OpenAPI version required at call site
+- [x] Synchronize v0.31.5 release metadata
+- [ ] Deploy v0.31.5 via protected production, Demo, and project-site workflows
+- [ ] Verify v0.31.5 parity: `go.uukk.de`, `admin.uukk.de`, `demoapi.linketry.com`, and `linketry.com`
+- [ ] Complete screen-reader AT pass (NVDA, VoiceOver, or TalkBack) against Admin and Demo
+- [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS
+- [ ] Optional: Demo R2 (`10042`) when isolated account capability allows
+- [ ] Optional: remote-D1 scale evidence for public 1.0
+
+Task records: `.codex/tasks/residual-hardening-2026-09-18.md`, `.codex/tasks/repo-audit-fixes-2026-08-28.md`, `.codex/tasks/deep-optimization-2026-08-07.md`
+
+---
+
+## ✅ Completed — Pre-1.0 Validation Evidence (post v0.31.4)
 
 - [x] Repository audit fixes + release metadata (v0.31.4): streaming exports, CSV-injection guard, bounded metadata fetch, shared UA parsing, reserved-path source, atomic default domain, dead-code removal, KV/TTL doc accuracy
 - [x] Deploy v0.31.4 via protected production (`33153940731`), Demo (`33153100735`), and project-site (`33153713263`) workflows
@@ -20,11 +41,11 @@ One item in "In Progress" at a time whenever possible.
 - [x] Verify production online-upgrade gate: unauthenticated `/api/v1/system/upgrade` returns `401`; deploy prepared `LINKETRY_GITHUB_UPDATE_TOKEN`; Demo reports `not_configured`
 - [x] Archive keyboard/axe AT evidence (`apps/admin/tests/at-audit.spec.ts`, v0.31.3)
 - [x] Deploy v0.31.3 via protected production (`32271473486`), Demo (`32271473392`), and project-site (`32271481053`) workflows; GitHub Release `v0.31.3`
-- [ ] Complete screen-reader AT pass (NVDA, VoiceOver, or TalkBack) against Admin and Demo
-- [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS
 - [x] Enable GitHub private vulnerability reporting
-- [ ] Optional: Demo R2 (`10042`) when isolated account capability allows
-- [ ] Optional: remote-D1 scale evidence for public 1.0
+- [ ] Complete screen-reader AT pass *(tracked in v0.31.5 in-progress)*
+- [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS *(tracked in v0.31.5 in-progress)*
+- [ ] Optional: Demo R2 (`10042`) *(tracked in v0.31.5 in-progress)*
+- [ ] Optional: remote-D1 scale evidence for public 1.0 *(tracked in v0.31.5 in-progress)*
 
 Task records: `.codex/tasks/repo-audit-fixes-2026-08-28.md`, `.codex/tasks/deep-optimization-2026-08-07.md`, `.codex/tasks/docs-deploy-truth-2026-08-19.md`, `.codex/tasks/at-audit-2026-08-19.md`
 

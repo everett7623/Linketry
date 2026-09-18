@@ -204,14 +204,26 @@ export async function apiDelete<T>(
 export async function downloadFile(
   path: string,
   filename: string,
-  timeoutMs = API_TIMEOUT_MS
+  timeoutMs = API_LONG_TIMEOUT_MS
 ): Promise<void> {
   const token = readBrowserSetting('token');
   const headers: Record<string, string> = {};
   if (token && !IS_PUBLIC_DEMO) headers['Authorization'] = `Bearer ${token}`;
 
   const res = await fetchWithTimeout(`${getApiBase()}${path}`, { headers }, timeoutMs);
-  if (!res.ok) throw new ApiError(res.status, `Download failed: HTTP ${res.status}`);
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const body = (await res.json()) as { error?: string };
+      message = body.error ?? message;
+    } catch {
+      // ignore
+    }
+    if (res.status === 401 && !IS_PUBLIC_DEMO && !isAuthEndpoint(path)) {
+      unauthorizedHandler?.();
+    }
+    throw new ApiError(res.status, message);
+  }
 
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);

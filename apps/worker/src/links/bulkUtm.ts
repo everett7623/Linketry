@@ -1,3 +1,5 @@
+import { csvRow } from '../utils/csv';
+
 export const BULK_UTM_KEYS = [
   'utm_source',
   'utm_medium',
@@ -180,17 +182,18 @@ export function bulkUtmCsv(
   policy: BulkUtmPolicy,
   changedAt: string
 ): string {
-  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
   return [
-    'id,slug,old_url,new_url,mode,parameters,changed_at',
-    ...rows.map((row) => [
-      row.id,
-      row.slug,
-      row.oldUrl,
-      row.newUrl,
-      policy.mode,
-      policy.parameters.join('|'),
-      changedAt,
-    ].map(escape).join(',')),
+    csvRow(['id', 'slug', 'old_url', 'new_url', 'mode', 'parameters', 'changed_at']),
+    ...rows.map((row) =>
+      csvRow([
+        row.id,
+        row.slug,
+        row.oldUrl,
+        row.newUrl,
+        policy.mode,
+        policy.parameters.join('|'),
+        changedAt,
+      ])
+    ),
   ].join('\r\n');
 }

@@ -1,4 +1,4 @@
-import type { KVCacheEntry } from '@linketry/shared';
+import type { KVCacheEntry, Link } from '@linketry/shared';
 import type { Env } from '../types';
 
 const KV_TTL_DEFAULT = 60 * 60 * 24; // 24 小时（默认）
@@ -46,6 +46,20 @@ function calculateTTL(entry: KVCacheEntry): number | null {
   }
 
   return ttl;
+}
+
+export function toCacheEntry(link: Link, status: Link['status'] = link.status): KVCacheEntry {
+  return {
+    id: link.id,
+    slug: link.slug,
+    domain: link.domain ?? undefined,
+    longUrl: link.long_url,
+    redirectType: link.redirect_type,
+    status,
+    expiresAt: link.expires_at ?? undefined,
+    maxClicks: link.max_clicks ?? undefined,
+    warningEnabled: link.warning_enabled === 1,
+  };
 }
 
 export async function getCachedLink(

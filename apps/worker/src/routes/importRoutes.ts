@@ -16,9 +16,10 @@ import {
 } from '../db/index';
 import { recordAudit } from '../audit/index';
 import { emitWebhook } from '../webhooks/index';
-import { deleteCachedLink, setCachedLink } from '../cache/index';
+import { deleteCachedLink, setCachedLink, toCacheEntry } from '../cache/index';
 import { jsonOk, jsonError } from '../utils/response';
 import { generateId, now } from '../utils/id';
+import { normalizeImportedPasswordHash } from '../utils/password';
 import { assertSafeEgressUrl, safeEgressFetch } from '../utils/egress';
 import { ShlinkAdapter } from '../importers/shlink';
 import { GenericCsvAdapter, GenericJsonAdapter } from '../importers/generic';
@@ -57,7 +58,6 @@ import type {
   Link,
   NormalizedImportItem,
   ImportAdapter,
-  KVCacheEntry,
   RedirectRule,
 } from '@linketry/shared';
 
@@ -153,20 +153,6 @@ async function ensureImportedTags(env: Env, item: NormalizedImportItem, ts: stri
   );
 }
 
-function cacheEntryFromLink(link: Link): KVCacheEntry {
-  return {
-    id: link.id,
-    slug: link.slug,
-    domain: link.domain ?? undefined,
-    longUrl: link.long_url,
-    redirectType: link.redirect_type,
-    status: link.status,
-    expiresAt: link.expires_at ?? undefined,
-    maxClicks: link.max_clicks ?? undefined,
-    warningEnabled: link.warning_enabled === 1,
-  };
-}
-
 async function syncImportCache(env: Env, domain: string, link: Link): Promise<void> {
   const cacheDomain = normalizeDomain(link.domain) ?? domain;
   const isExpired = !!link.expires_at && Date.parse(link.expires_at) < Date.now();
@@ -179,7 +165,7 @@ async function syncImportCache(env: Env, domain: string, link: Link): Promise<vo
     !isExpired &&
     !reachedMaxClicks
   ) {
-    await setCachedLink(env, cacheDomain, cacheEntryFromLink(link));
+    await setCachedLink(env, cacheDomain, toCacheEntry(link));
   } else {
     await deleteCachedLink(env, cacheDomain, link.slug);
   }
@@ -214,7 +200,7 @@ function linkFromImportItem(
     last_clicked_at: item.lastClickedAt ?? null,
     expires_at: item.expiresAt ?? null,
     max_clicks: item.maxClicks ?? null,
-    password_hash: item.passwordHash ?? null,
+    password_hash: normalizeImportedPasswordHash(item.passwordHash),
     warning_enabled: item.warningEnabled ? 1 : 0,
     fallback_url: item.fallbackUrl ?? null,
     archived: item.archived ?? 0,
@@ -242,7 +228,9 @@ function overwriteFieldsFromImportItem(
     last_clicked_at: item.lastClickedAt ?? existing.last_clicked_at,
     expires_at: item.expiresAt ?? existing.expires_at,
     max_clicks: item.maxClicks ?? existing.max_clicks,
-    password_hash: item.passwordHash ?? existing.password_hash,
+    password_hash: item.passwordHash
+      ? (normalizeImportedPasswordHash(item.passwordHash) ?? existing.password_hash)
+      : existing.password_hash,
     warning_enabled:
       item.warningEnabled === undefined ? existing.warning_enabled : item.warningEnabled ? 1 : 0,
     fallback_url: item.fallbackUrl ?? existing.fallback_url,

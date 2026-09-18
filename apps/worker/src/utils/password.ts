@@ -1,5 +1,10 @@
 const PBKDF2_ITERATIONS = 100_000;
+/** Imported hashes may be slightly stronger than current defaults; anything above this is treated as hostile. */
+const MAX_PBKDF2_ITERATIONS = 200_000;
+const MIN_PBKDF2_ITERATIONS = 10_000;
 const PBKDF2_SALT_BYTES = 16;
+/** Caps hex decoding so a stored hash cannot force a large allocation on the public password gate. */
+const MAX_PBKDF2_HEX_CHARS = 256;
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_PASSWORD_LENGTH = 200;
 
@@ -39,7 +44,7 @@ export async function verifyLinkPassword(stored: string, password: string): Prom
     const iterations = Number(parts[1]);
     const saltHex = parts[2] ?? '';
     const hashHex = parts[3] ?? '';
-    if (!Number.isInteger(iterations) || iterations < 10_000 || !saltHex || !hashHex) return false;
+    if (!isAcceptablePbkdf2Params(iterations, saltHex, hashHex)) return false;
     const salt = hexToBytes(saltHex);
     const expected = hexToBytes(hashHex);
     if (!salt || !expected) return false;
@@ -69,6 +74,51 @@ export function validateLinkPasswordInput(
     return { error: `password must be ${MAX_PASSWORD_LENGTH} characters or less` };
   }
   return { password };
+}
+
+/** True when a stored PBKDF2/sha256 hash is safe to persist or verify. */
+export function isAcceptableStoredPasswordHash(stored: string): boolean {
+  if (stored.startsWith('pbkdf2:')) {
+    const parts = stored.split(':');
+    if (parts.length !== 4) return false;
+    return isAcceptablePbkdf2Params(Number(parts[1]), parts[2] ?? '', parts[3] ?? '');
+  }
+  if (stored.startsWith('sha256:')) {
+    const hex = stored.slice('sha256:'.length);
+    return isSha256Hex(hex);
+  }
+  return isSha256Hex(stored);
+}
+
+export function importedPasswordHashError(value: string | null | undefined): string | undefined {
+  if (value === null || value === undefined || value === '') return undefined;
+  if (isAcceptableStoredPasswordHash(value)) return undefined;
+  return 'password_hash is not a supported Linketry hash';
+}
+
+export function normalizeImportedPasswordHash(value: string | null | undefined): string | null {
+  if (!value) return null;
+  return isAcceptableStoredPasswordHash(value) ? value : null;
+}
+
+function isAcceptablePbkdf2Params(iterations: number, saltHex: string, hashHex: string): boolean {
+  return (
+    Number.isInteger(iterations) &&
+    iterations >= MIN_PBKDF2_ITERATIONS &&
+    iterations <= MAX_PBKDF2_ITERATIONS &&
+    isHex(saltHex) &&
+    isHex(hashHex) &&
+    saltHex.length <= MAX_PBKDF2_HEX_CHARS &&
+    hashHex.length <= MAX_PBKDF2_HEX_CHARS
+  );
+}
+
+function isSha256Hex(value: string): boolean {
+  return isHex(value) && value.length === 64;
+}
+
+function isHex(value: string): boolean {
+  return value.length > 0 && value.length % 2 === 0 && /^[0-9a-fA-F]+$/.test(value);
 }
 
 async function derivePbkdf2(

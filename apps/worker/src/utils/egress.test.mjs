@@ -20,6 +20,9 @@ test('assertSafeEgressUrl rejects private and metadata targets', () => {
     'http://[::]/',
     'http://[::ffff:127.0.0.1]/',
     'http://[::ffff:7f00:1]/',
+    'http://2130706433/',
+    'http://0x7f000001/',
+    'http://127.1/',
   ]) {
     const result = assertSafeEgressUrl(url);
     assert.equal(result.ok, false, url);

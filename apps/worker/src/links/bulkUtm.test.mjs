@@ -1,13 +1,27 @@
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+import { extname } from 'node:path';
+import { registerHooks } from 'node:module';
 import test from 'node:test';
-import {
+
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier.startsWith('.') && !extname(specifier) && context.parentURL) {
+      const candidate = new URL(`${specifier}.ts`, context.parentURL);
+      if (existsSync(candidate)) return nextResolve(candidate.href, context);
+    }
+    return nextResolve(specifier, context);
+  },
+});
+
+const {
   applyBulkUtmPolicy,
   bulkUtmCsv,
   MAX_BULK_UTM_LINKS,
   parseBulkUtmPolicy,
-} from './bulkUtm.ts';
-import { updateBulkUtmLinks } from '../db/bulkUtm.ts';
-import { bulkUtmCacheTargets } from './bulkUtmCache.ts';
+} = await import('./bulkUtm.ts');
+const { updateBulkUtmLinks } = await import('../db/bulkUtm.ts');
+const { bulkUtmCacheTargets } = await import('./bulkUtmCache.ts');
 
 function policy(mode, parameters, values = {}) {
   const parsed = parseBulkUtmPolicy(mode, parameters, values);
@@ -86,7 +100,7 @@ test('change CSV contains all required fields and escapes values', () => {
   ], policy('replace_selected', ['utm_source'], { utm_source: 'newsletter' }), '2026-07-15T00:00:00.000Z');
   assert.match(csv, /^id,slug,old_url,new_url,mode,parameters,changed_at\r\n/);
   assert.match(csv, /""old""/);
-  assert.match(csv, /"replace_selected","utm_source","2026-07-15T00:00:00.000Z"/);
+  assert.match(csv, /replace_selected,utm_source,2026-07-15T00:00:00.000Z/);
 });
 
 test('D1 updates use optimistic URL matching and report only changed rows', async () => {

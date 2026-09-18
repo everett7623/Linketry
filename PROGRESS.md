@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-08-28
+Last updated: 2026-09-18
 
 ---
 
@@ -10,20 +10,39 @@ Last updated: 2026-08-28
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.31.4 live        | Production health reports v0.31.4                                                                                                                                                                   |
-| Admin frontend             | ✅ 0.31.4 live        | `admin.uukk.de` and Pages origin `linketry-admin.pages.dev` both advertise v0.31.4                                                                                                                  |
-| Documentation              | ✅ 0.31.4 synchronized | KV cache / TTL description corrected to match `calculateTTL`; AT checklist records keyboard/axe evidence; screen-reader pass remains owner-run                                                        |
-| Deployment                 | ✅ 0.31.4 live        | Production `33153940731`, Demo `33153100735`, project site `33153713263`                                                                                                                            |
-| End-to-end test            | ✅ 0.31.4 live        | Production, isolated Demo, and `linketry.com` advertise v0.31.4                                                                                                                                     |
-| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                                     |
-| Current version            | ✅ 0.31.4             | Source, production Worker/Admin, official Demo, and project site advertise v0.31.4                                                                                                                  |
-| Repository update target   | ✅ 0.31.4             | `main` is at commit `62cee9e`; the authenticated dispatch approved that exact release and commit                                                                                                    |
-| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; private vulnerability reporting enabled 2026-08-10                                             |
+| Worker backend             | 🟡 0.31.5 source      | Source is v0.31.5; production health still reports v0.31.4 until the protected deploy                                                                                                               |
+| Admin frontend             | 🟡 0.31.5 source      | Source is v0.31.5; `admin.uukk.de` still advertises v0.31.4 until Pages publish                                                                                                                     |
+| Documentation              | ✅ 0.31.5 synchronized | PBKDF2 cap, shared KV mapper, streaming R2 backups, download 401, Settings nav ARIA                                                                                                                 |
+| Deployment                 | 🟡 Pending 0.31.5     | Production remains `33153940731` / v0.31.4 until dispatch                                                                                                                                           |
+| End-to-end test            | 🟡 Pending 0.31.5     | Production, Demo, and `linketry.com` still advertise v0.31.4                                                                                                                                        |
+| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
+| Current version            | ✅ 0.31.5             | Source advertises v0.31.5; production Worker/Admin, official Demo, and project site remain v0.31.4 until deploy                                                                                     |
+| Repository update target   | 🟡 0.31.5             | Dispatch after merge with `expected_release=0.31.5` and the release commit SHA                                                                                                                      |
+| Next planned work          | 🟡 Pre-1.0 validation | Deploy v0.31.5; fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system; bulk/import paths use bounded `env.DB.batch()`. Unused generic `db/batch.ts` helper removed in 0.31.4                  |
 | Repo audit fixes           | ✅ 0.31.4 code landed | Streaming exports, CSV-injection guard, bounded metadata fetch, shared UA parsing, reserved-path source of truth, atomic default-domain switch                                                       |
 | Deep optimization          | ✅ 0.31.0 code landed | Phases 0–5 implemented in-repo; operator Pre-1.0 gates still open                                                                                                                                   |
+
+---
+
+## Linketry 0.31.5 Residual Hardening (Password DoS, Streaming R2, Shared Cache Map)
+
+| Area                        | Status      | Notes                                                                                                                                                             |
+| --------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PBKDF2 iteration cap        | ✅ Complete | `verifyLinkPassword` refuses iterations above 200k and oversized hex; import/restore reject unsupported hashes                                                     |
+| Webhook save egress         | ✅ Complete | `normalizeWebhookUrl` uses `assertSafeEgressUrl` so private/credentialed URLs fail at Settings save                                                                |
+| CSV leftover writers        | ✅ Complete | Restore reports and bulk-UTM CSVs use `utils/csv` `csvCell` / `csvRow`                                                                                             |
+| Shared KV mapper            | ✅ Complete | `cache/toCacheEntry` is the single Link → KVCacheEntry conversion                                                                                                  |
+| Streaming R2 backups        | ✅ Complete | `createR2Backup` puts `streamBackupJson` instead of `getAllLinks` + `JSON.stringify`                                                                               |
+| Visit error logs            | ✅ Complete | `recordVisitMessage` logs `console.error` and still swallows so analytics cannot affect redirects                                                                  |
+| Admin download 401          | ✅ Complete | `downloadFile` calls the unauthorized handler and parses Worker error JSON; default timeout is the long export window                                              |
+| Settings nav ARIA           | ✅ Complete | Section picker is in-page navigation with `aria-current`, not a tablist whose panels all stay visible                                                              |
+| Egress integer/hex IPv4     | ✅ Complete | Guard + regression tests cover `2130706433` / `0x7f000001` / `127.1`                                                                                               |
+| OpenAPI version default     | ✅ Complete | `createOpenApiDocument` requires the runtime version at the call site instead of a hardcoded default                                                              |
+| Redirect / data impact      | ✅ None      | Redirect evaluation, query forwarding, analytics scheduling, D1/KV ownership, migrations, secrets, and stored data contracts are unchanged                         |
+| Production state            | 🟡 Pending  | Source is v0.31.5; production/Demo/site remain v0.31.4 until protected dispatch                                                                                    |
 
 ---
 

@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import type { Env } from '../types';
-import { getCachedLink, setCachedLink } from '../cache/index';
+import { getCachedLink, setCachedLink, toCacheEntry } from '../cache/index';
 import {
   getDomainlessLinkBySlug,
   getLinkByDomainAndSlug,
@@ -16,20 +16,6 @@ import { checkAuthRateLimit } from '../auth/rateLimit';
 import type { KVCacheEntry, Link } from '@linketry/shared';
 import { getPublicPageMessage } from '../utils/pageTemplates';
 import { jsonError } from '../utils/jsonResponse';
-
-function toCacheEntry(link: Link): KVCacheEntry {
-  return {
-    id: link.id,
-    slug: link.slug,
-    domain: link.domain ?? undefined,
-    longUrl: link.long_url,
-    redirectType: link.redirect_type as 301 | 302,
-    status: link.status,
-    expiresAt: link.expires_at ?? undefined,
-    maxClicks: link.max_clicks ?? undefined,
-    warningEnabled: link.warning_enabled === 1,
-  };
-}
 
 async function redirectForLink(env: Env, link: Link, locale: PublicLocale): Promise<Response | null> {
   if (link.status === 'disabled') return disabledPage(locale, { message: await getPublicPageMessage(env, 'disabled', { slug: link.slug }) });

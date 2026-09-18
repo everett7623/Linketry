@@ -47,8 +47,9 @@ export async function buildBackupPayload(env: Env): Promise<LinketryBackupPayloa
 
 /**
  * Streams the same backup JSON as `buildBackupPayload` without holding every link
- * in memory. Used by the `/export/backup.json` download; the `links` array is paged
- * from D1 while the bounded tag / rule / setting collections are emitted whole.
+ * in memory. Used by `/export/backup.json` and scheduled/manual R2 backups; the
+ * `links` array is paged from D1 while the bounded tag / rule / setting collections
+ * are emitted whole.
  */
 export function streamBackupJson(env: Env): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
@@ -119,9 +120,15 @@ export async function createR2Backup(env: Env, trigger: BackupTrigger = 'manual'
     throw new Error('R2 backup bucket is not configured');
   }
 
-  const payload = await buildBackupPayload(env);
-  const body = JSON.stringify(payload);
-  const size = new TextEncoder().encode(body).byteLength;
+  let size = 0;
+  const body = streamBackupJson(env).pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        size += chunk.byteLength;
+        controller.enqueue(chunk);
+      },
+    })
+  );
 
   try {
     await env.BACKUPS.put(objectKey, body, {
@@ -129,7 +136,7 @@ export async function createR2Backup(env: Env, trigger: BackupTrigger = 'manual'
       customMetadata: {
         trigger,
         created_at: createdAt,
-        version: payload.version,
+        version: getRuntimeVersion(env),
       },
     });
 

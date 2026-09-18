@@ -19,13 +19,13 @@ import {
 } from '../db/index';
 import { recordAudit } from '../audit/index';
 import { emitWebhook } from '../webhooks/index';
-import { setCachedLink, deleteCachedLink } from '../cache/index';
+import { setCachedLink, deleteCachedLink, toCacheEntry } from '../cache/index';
 import { jsonOk, jsonError, jsonCreated } from '../utils/response';
 import { generateId, now } from '../utils/id';
 import { hashLinkPassword, validateLinkPasswordInput } from '../utils/password';
 import { sanitizeLink, sanitizeLinks } from '../utils/linkSanitize';
 import { validateSlug, validateLongUrl, validateDomain } from '@linketry/shared';
-import type { Link, KVCacheEntry } from '@linketry/shared';
+import type { Link } from '@linketry/shared';
 import { normalizeFallbackUrl } from '../links/fallbackUrl';
 import { csvRow } from '../utils/csv';
 import { domainMigrationSample, migratedShortUrl } from '../links/domainMigration';
@@ -283,20 +283,6 @@ function applyTagMode(existingTags: string[], incomingTags: string[], mode: Bulk
     }
   }
   return merged;
-}
-
-function toCacheEntry(link: Link, status: Link['status'] = link.status): KVCacheEntry {
-  return {
-    id: link.id,
-    slug: link.slug,
-    domain: link.domain ?? undefined,
-    longUrl: link.long_url,
-    redirectType: link.redirect_type,
-    status,
-    expiresAt: link.expires_at ?? undefined,
-    maxClicks: link.max_clicks ?? undefined,
-    warningEnabled: link.warning_enabled === 1,
-  };
 }
 
 function isPastDate(value?: string | null): boolean {
