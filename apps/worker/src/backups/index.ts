@@ -8,6 +8,7 @@ import {
   getLinksPage,
   getSettings,
 } from '../db/index';
+import { streamText } from '../utils/stream';
 import { generateId, now } from '../utils/id';
 import { getRuntimeVersion } from '../config/runtime';
 import { LINKETRY_BACKUP_NAME } from '../importers/backupFormat';
@@ -48,66 +49,47 @@ export async function buildBackupPayload(env: Env): Promise<LinketryBackupPayloa
 /**
  * Streams the same backup JSON as `buildBackupPayload` without holding every link
  * in memory. Used by `/export/backup.json` and scheduled/manual R2 backups; the
- * `links` array is paged from D1 while the bounded tag / rule / setting collections
+ * `links` array is paged on consumer demand while tag / rule / setting collections
  * are emitted whole.
  */
 export function streamBackupJson(env: Env): ReadableStream<Uint8Array> {
-  const encoder = new TextEncoder();
-  return new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        const [tags, redirectRules, settings] = await Promise.all([
-          getAllTags(env),
-          getAllRedirectRules(env),
-          getSettings(env),
-        ]);
+  return streamText(backupChunks(env));
+}
 
-        controller.enqueue(
-          encoder.encode(
-            '{' +
-              `"name":${JSON.stringify(LINKETRY_BACKUP_NAME)},` +
-              `"version":${JSON.stringify(getRuntimeVersion(env))},` +
-              `"exportedAt":${JSON.stringify(now())},` +
-              '"links":['
-          )
-        );
-
-        let cursor: { createdAt: string; id: string } | null = null;
-        let first = true;
-        for (;;) {
-          const page = await getLinksPage(env, cursor, BACKUP_LINK_PAGE_SIZE);
-          if (page.length === 0) break;
-          for (const link of page) {
-            controller.enqueue(encoder.encode((first ? '' : ',') + JSON.stringify(link)));
-            first = false;
-          }
-          if (page.length < BACKUP_LINK_PAGE_SIZE) break;
-          const last = page[page.length - 1];
-          cursor = { createdAt: last.created_at, id: last.id };
-        }
-
-        controller.enqueue(
-          encoder.encode(
-            ']' +
-              `,"tags":${JSON.stringify(tags)}` +
-              `,"redirectRules":${JSON.stringify(redirectRules)}` +
-              `,"settings":${JSON.stringify(redactBackupSettings(settings))}` +
-              '}'
-          )
-        );
-        controller.close();
-      } catch (error) {
-        controller.error(error);
-      }
-    },
-  });
+async function* backupChunks(env: Env): AsyncGenerator<string> {
+  const [tags, redirectRules, settings] = await Promise.all([
+    getAllTags(env), getAllRedirectRules(env), getSettings(env),
+  ]);
+  yield '{' +
+    '"name":' + JSON.stringify(LINKETRY_BACKUP_NAME) + ',' +
+    '"version":' + JSON.stringify(getRuntimeVersion(env)) + ',' +
+    '"exportedAt":' + JSON.stringify(now()) + ',' + '"links":[';
+  let cursor: { createdAt: string; id: string } | null = null;
+  let first = true;
+  for (;;) {
+    const page = await getLinksPage(env, cursor, BACKUP_LINK_PAGE_SIZE);
+    if (page.length === 0) break;
+    yield page.map(link => {
+      const text = (first ? '' : ',') + JSON.stringify(link);
+      first = false;
+      return text;
+    }).join('');
+    if (page.length < BACKUP_LINK_PAGE_SIZE) break;
+    const last = page[page.length - 1];
+    cursor = { createdAt: last.created_at, id: last.id };
+  }
+  yield ']' +
+    ',"tags":' + JSON.stringify(tags) +
+    ',"redirectRules":' + JSON.stringify(redirectRules) +
+    ',"settings":' + JSON.stringify(redactBackupSettings(settings)) + '}';
 }
 
 export async function createR2Backup(env: Env, trigger: BackupTrigger = 'manual'): Promise<Backup> {
   const createdAt = now();
-  const objectKey = createBackupObjectKey(createdAt);
+  const id = generateId();
+  const objectKey = createBackupObjectKey(createdAt, id);
   const baseBackup: Backup = {
-    id: generateId(),
+    id,
     filename: objectKey,
     storage: 'r2',
     size: null,
@@ -162,9 +144,9 @@ export function backupDownloadName(filename: string): string {
   return parts[parts.length - 1] || filename;
 }
 
-function createBackupObjectKey(createdAt: string): string {
+function createBackupObjectKey(createdAt: string, id: string): string {
   const stamp = createdAt.slice(0, 19).replace(/[-:T]/g, '');
-  return `backups/linketry-backup-${stamp}.json`;
+  return `backups/linketry-backup-${stamp}-${id}.json`;
 }
 
 function redactBackupSettings(settings: Record<string, string>): Record<string, string> {

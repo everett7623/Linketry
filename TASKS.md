@@ -5,6 +5,19 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed — Audit Optimization (v0.31.6, local)
+
+- [x] Fix same-second R2 backup object collisions
+- [x] Apply consumer backpressure and cancellation to link/visit exports and backup streams
+- [x] Rebuild renamed restore short URLs
+- [x] Atomically update domain flags and the default-domain setting
+- [x] Add behavioural regression coverage and synchronize release metadata
+- [ ] Commit, push and deploy via protected production/Demo/site workflows (authorized 2026-10-13)
+
+Task record: `.codex/tasks/audit-optimization-2026-10-13.md`
+
+---
+
 ## 🟡 In Progress — Residual Hardening (v0.31.5)
 
 - [x] Cap PBKDF2 iterations / hex size on the public password gate; reject hostile hashes on import/restore

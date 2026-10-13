@@ -7,6 +7,7 @@ import { getAnalyticsSummary, parseAnalyticsFilters } from '../db/analytics';
 import { analyticsCsv } from '../export/analyticsCsv';
 import { streamBackupJson } from '../backups/index';
 import { sanitizeLink } from '../utils/linkSanitize';
+import { streamText } from '../utils/stream';
 import { csvRow } from '../utils/csv';
 import { isPublicReadOnlyDemo } from '../demo/policy';
 import type { Link, Visit } from '@linketry/shared';
@@ -47,27 +48,17 @@ function streamCsv<T extends { created_at: string; id: string }>(
   fetchPage: (cursor: RowCursor | null) => Promise<T[]>,
   toColumns: (row: T) => Array<string | number | null | undefined>
 ): Response {
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        controller.enqueue(encoder.encode(csvRow(headerColumns) + '\r\n'));
-        let cursor: RowCursor | null = null;
-        for (;;) {
-          const rows = await fetchPage(cursor);
-          if (rows.length === 0) break;
-          controller.enqueue(
-            encoder.encode(rows.map((row) => csvRow(toColumns(row))).join('\r\n') + '\r\n')
-          );
-          if (rows.length < EXPORT_PAGE_SIZE) break;
-          cursor = toRowCursor(rows[rows.length - 1]);
-        }
-        controller.close();
-      } catch (error) {
-        controller.error(error);
-      }
-    },
-  });
+  const stream = streamText((async function* () {
+    yield csvRow(headerColumns) + '\r\n';
+    let cursor: RowCursor | null = null;
+    for (;;) {
+      const rows = await fetchPage(cursor);
+      if (rows.length === 0) break;
+      yield rows.map(row => csvRow(toColumns(row))).join('\r\n') + '\r\n';
+      if (rows.length < EXPORT_PAGE_SIZE) break;
+      cursor = toRowCursor(rows[rows.length - 1]);
+    }
+  })());
   return new Response(stream, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
@@ -98,30 +89,23 @@ exportRoutes.get('/links.csv', (c) => {
 });
 
 exportRoutes.get('/links.json', (c) => {
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        controller.enqueue(encoder.encode('['));
-        let cursor: RowCursor | null = null;
-        let first = true;
-        for (;;) {
-          const rows = await getLinksPage(c.env, cursor, EXPORT_PAGE_SIZE);
-          if (rows.length === 0) break;
-          for (const link of rows) {
-            controller.enqueue(encoder.encode((first ? '' : ',') + JSON.stringify(sanitizeLink(link))));
-            first = false;
-          }
-          if (rows.length < EXPORT_PAGE_SIZE) break;
-          cursor = toRowCursor(rows[rows.length - 1]);
-        }
-        controller.enqueue(encoder.encode(']'));
-        controller.close();
-      } catch (error) {
-        controller.error(error);
-      }
-    },
-  });
+  const stream = streamText((async function* () {
+    yield '[';
+    let cursor: RowCursor | null = null;
+    let first = true;
+    for (;;) {
+      const rows = await getLinksPage(c.env, cursor, EXPORT_PAGE_SIZE);
+      if (rows.length === 0) break;
+      yield rows.map(link => {
+        const text = (first ? '' : ',') + JSON.stringify(sanitizeLink(link));
+        first = false;
+        return text;
+      }).join('');
+      if (rows.length < EXPORT_PAGE_SIZE) break;
+      cursor = toRowCursor(rows[rows.length - 1]);
+    }
+    yield ']';
+  })());
   return new Response(stream, {
     headers: {
       'Content-Type': 'application/json',

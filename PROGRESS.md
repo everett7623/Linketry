@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-09-18
+Last updated: 2026-10-13
 
 ---
 
@@ -16,7 +16,7 @@ Last updated: 2026-09-18
 | Deployment                 | ✅ 0.31.5 live        | Production `35355841144`, Demo `35355826954`, project site `35355847328`                                                                                                                            |
 | End-to-end test            | ✅ 0.31.5 live        | Production, isolated Demo, and `linketry.com` advertise v0.31.5                                                                                                                                     |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | ✅ 0.31.5             | Source, production Worker/Admin, official Demo, and project site advertise v0.31.5                                                                                                                  |
+| Current version            | ✅ 0.31.6 (local)     | Source metadata updated; production, Demo and site remain v0.31.5 until deployment |
 | Repository update target   | ✅ 0.31.5             | Authenticated dispatch approved release `0.31.5` and commit `53c4b8c`                                                                                                                               |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
@@ -24,6 +24,16 @@ Last updated: 2026-09-18
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system; bulk/import paths use bounded `env.DB.batch()`. Unused generic `db/batch.ts` helper removed in 0.31.4                  |
 | Repo audit fixes           | ✅ 0.31.4 code landed | Streaming exports, CSV-injection guard, bounded metadata fetch, shared UA parsing, reserved-path source of truth, atomic default-domain switch                                                       |
 | Deep optimization          | ✅ 0.31.0 code landed | Phases 0–5 implemented in-repo; operator Pre-1.0 gates still open                                                                                                                                   |
+
+---
+
+## Linketry 0.31.6 Audit Fixes (local; not deployed)
+
+- Consumer-driven CSV/JSON/backup streams bound link/visit page accumulation and stop subsequent queries after cancellation.
+- Unique R2 object keys prevent same-second backup overwrites; renamed restores rebuild short URLs.
+- Domain mutations and the default-domain setting share a transactional D1 batch, including rollback and missing-target protection.
+- Release metadata and current deployment examples are synchronized to v0.31.6. Live production/Demo/site remain v0.31.5.
+- Verification: recorded in `.codex/tasks/audit-optimization-2026-10-13.md`.
 
 ---
 

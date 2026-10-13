@@ -23,7 +23,9 @@ export function linkFromBackupItem(item: NormalizedImportItem, id: string, slug:
     slug,
     domain: restoredDomain,
     long_url: item.longUrl,
-    short_url: item.shortUrl ?? `https://${restoredDomain}/${slug}`,
+    short_url: slug === item.slug && item.shortUrl
+      ? item.shortUrl
+      : `https://${restoredDomain}/${slug}`,
     title: item.title ?? null,
     description: item.description ?? null,
     tags: itemTags(item).length > 0 ? JSON.stringify(itemTags(item)) : null,

@@ -730,12 +730,17 @@ export async function getDomainByName(env: Env, domain: string): Promise<Domain 
   return result ?? null;
 }
 
+/** Domain changes and the default-domain setting commit together. */
 export async function createDomain(env: Env, domain: Domain): Promise<void> {
-  await env.DB.prepare(
+  const statements = [];
+  if (domain.is_default === 1) {
+    statements.push(env.DB.prepare('UPDATE domains SET is_default = 0, updated_at = ? WHERE is_default = 1').bind(domain.updated_at));
+  }
+  statements.push(env.DB.prepare(
     'INSERT INTO domains (id, domain, is_default, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
-  )
-    .bind(domain.id, domain.domain, domain.is_default, domain.status, domain.created_at, domain.updated_at)
-    .run();
+  ).bind(domain.id, domain.domain, domain.is_default, domain.status, domain.created_at, domain.updated_at));
+  if (domain.is_default === 1) statements.push(defaultDomainSetting(env, domain.domain, domain.updated_at));
+  await env.DB.batch(statements);
 }
 
 export async function updateDomain(
@@ -743,29 +748,53 @@ export async function updateDomain(
   id: string,
   fields: Pick<Domain, 'domain' | 'is_default' | 'status' | 'updated_at'>
 ): Promise<void> {
-  await env.DB.prepare('UPDATE domains SET domain = ?, is_default = ?, status = ?, updated_at = ? WHERE id = ?')
-    .bind(fields.domain, fields.is_default, fields.status, fields.updated_at, id)
-    .run();
-}
-
-export async function clearDefaultDomains(env: Env, updatedAt: string): Promise<void> {
-  await env.DB.prepare('UPDATE domains SET is_default = 0, updated_at = ? WHERE is_default = 1')
-    .bind(updatedAt)
-    .run();
+  const statements = [];
+  if (fields.is_default === 1) {
+    statements.push(env.DB.prepare(
+      'UPDATE domains SET is_default = 0, updated_at = ? WHERE is_default = 1 AND EXISTS (SELECT 1 FROM domains WHERE id = ?)'
+    ).bind(fields.updated_at, id));
+  } else {
+    statements.push(clearDomainSetting(env, id, fields.updated_at));
+  }
+  statements.push(env.DB.prepare('UPDATE domains SET domain = ?, is_default = ?, status = ?, updated_at = ? WHERE id = ?')
+    .bind(fields.domain, fields.is_default, fields.status, fields.updated_at, id));
+  if (fields.is_default === 1) statements.push(defaultDomainSettingFromId(env, id, fields.updated_at));
+  await env.DB.batch(statements);
 }
 
 export async function setDefaultDomain(env: Env, id: string, updatedAt: string): Promise<void> {
-  // One batch so a failure cannot leave the instance with no default domain.
   await env.DB.batch([
-    env.DB.prepare('UPDATE domains SET is_default = 0, updated_at = ? WHERE is_default = 1')
-      .bind(updatedAt),
+    env.DB.prepare('UPDATE domains SET is_default = 0, updated_at = ? WHERE is_default = 1 AND EXISTS (SELECT 1 FROM domains WHERE id = ?)')
+      .bind(updatedAt, id),
     env.DB.prepare("UPDATE domains SET is_default = 1, status = 'active', updated_at = ? WHERE id = ?")
       .bind(updatedAt, id),
+    defaultDomainSettingFromId(env, id, updatedAt),
   ]);
 }
 
 export async function deleteDomain(env: Env, id: string): Promise<void> {
-  await env.DB.prepare('DELETE FROM domains WHERE id = ?').bind(id).run();
+  await env.DB.batch([
+    clearDomainSetting(env, id, new Date().toISOString()),
+    env.DB.prepare('DELETE FROM domains WHERE id = ?').bind(id),
+  ]);
+}
+
+function defaultDomainSetting(env: Env, domain: string, updatedAt: string): D1PreparedStatement {
+  return env.DB.prepare(
+    "INSERT INTO settings (key, value, updated_at) VALUES ('default_domain', ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at"
+  ).bind(domain, updatedAt);
+}
+
+function defaultDomainSettingFromId(env: Env, id: string, updatedAt: string): D1PreparedStatement {
+  return env.DB.prepare(
+    "INSERT INTO settings (key, value, updated_at) SELECT 'default_domain', domain, ? FROM domains WHERE id = ? ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at"
+  ).bind(updatedAt, id);
+}
+
+function clearDomainSetting(env: Env, id: string, updatedAt: string): D1PreparedStatement {
+  return env.DB.prepare(
+    "UPDATE settings SET value = '', updated_at = ? WHERE key = 'default_domain' AND EXISTS (SELECT 1 FROM domains WHERE id = ? AND is_default = 1)"
+  ).bind(updatedAt, id);
 }
 
 export async function listRedirectRules(env: Env, linkId?: string): Promise<RedirectRule[]> {

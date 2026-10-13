@@ -4,14 +4,12 @@ import { validateDomain } from '@linketry/shared';
 import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import {
-  clearDefaultDomains,
   createDomain,
   deleteDomain,
   getDomainById,
   getDomainByName,
   listDomains,
   setDefaultDomain,
-  setSetting,
   updateDomain,
 } from '../db/index';
 import { recordAudit } from '../audit/index';
@@ -46,7 +44,6 @@ domainRoutes.post('/', async (c) => {
   if (existing) return jsonError(`Domain "${parsed.domain}" already exists`, 409);
 
   const ts = now();
-  if (parsed.is_default) await clearDefaultDomains(c.env, ts);
 
   const domain: Domain = {
     id: generateId(),
@@ -58,9 +55,6 @@ domainRoutes.post('/', async (c) => {
   };
 
   await createDomain(c.env, domain);
-  if (domain.is_default === 1) {
-    await setSetting(c.env, 'default_domain', domain.domain, ts);
-  }
   await recordAudit(c.env, c.req.raw, 'domain.create', 'domain', domain.id, {
     domain: domain.domain,
     is_default: domain.is_default,
@@ -88,7 +82,6 @@ domainRoutes.put('/:id', async (c) => {
   if (conflict && conflict.id !== id) return jsonError(`Domain "${parsed.domain}" already exists`, 409);
 
   const ts = now();
-  if (parsed.is_default) await clearDefaultDomains(c.env, ts);
 
   const updated: Domain = {
     ...existing,
@@ -99,9 +92,6 @@ domainRoutes.put('/:id', async (c) => {
   };
 
   await updateDomain(c.env, id, updated);
-  if (updated.is_default === 1) {
-    await setSetting(c.env, 'default_domain', updated.domain, ts);
-  }
   await recordAudit(c.env, c.req.raw, 'domain.update', 'domain', id, {
     domain: updated.domain,
     is_default: updated.is_default,
@@ -116,9 +106,6 @@ domainRoutes.delete('/:id', async (c) => {
   if (!existing) return jsonError('Domain not found', 404);
 
   await deleteDomain(c.env, existing.id);
-  if (existing.is_default === 1) {
-    await setSetting(c.env, 'default_domain', '', now());
-  }
   await recordAudit(c.env, c.req.raw, 'domain.delete', 'domain', existing.id, {
     domain: existing.domain,
   });
@@ -131,7 +118,6 @@ domainRoutes.post('/:id/set-default', async (c) => {
 
   const ts = now();
   await setDefaultDomain(c.env, existing.id, ts);
-  await setSetting(c.env, 'default_domain', existing.domain, ts);
   await recordAudit(c.env, c.req.raw, 'domain.set_default', 'domain', existing.id, {
     domain: existing.domain,
   });

@@ -7,6 +7,19 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.6] - 2026-10-13
+
+### Fixed
+
+- R2 backups include a unique record ID in their object keys so backups created in the same second cannot overwrite each other.
+- Restoring a link with the rename conflict strategy rebuilds its short URL using the new slug.
+- Domain creation, editing, deletion, and default switching commit domain flags and the default-domain setting in one D1 batch; failed writes preserve the previous state.
+
+### Changed
+
+- Link/visit CSV exports, link JSON exports, and backup streams fetch pages on consumer demand. Slow readers no longer cause all pages to accumulate in memory; cancellation stops subsequent queries.
+- Regression coverage exercises slow and cancelled streams, complete paginated exports, backup collisions, renamed URLs, and database rollback.
+
 ## [0.31.5] - 2026-09-18
 
 ### Security
