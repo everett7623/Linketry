@@ -5,14 +5,15 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## ✅ Completed — Audit Optimization (v0.31.6, local)
+## ✅ Completed — Audit Optimization (v0.31.6, deployed)
 
 - [x] Fix same-second R2 backup object collisions
 - [x] Apply consumer backpressure and cancellation to link/visit exports and backup streams
 - [x] Rebuild renamed restore short URLs
 - [x] Atomically update domain flags and the default-domain setting
 - [x] Add behavioural regression coverage and synchronize release metadata
-- [ ] Commit, push and deploy via protected production/Demo/site workflows (authorized 2026-10-13)
+- [x] Commit and push source `98cfef7`; protected production `38419840592`, Demo `38419794782`, site `38419847844` succeeded
+- [x] Verify live v0.31.6 health, Admin canonical assets, site/llms versions, production 401 and Demo write 403
 
 Task record: `.codex/tasks/audit-optimization-2026-10-13.md`
 

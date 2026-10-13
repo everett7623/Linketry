@@ -10,14 +10,14 @@ Last updated: 2026-10-13
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.31.5 live        | Production health reports v0.31.5                                                                                                                                                                   |
-| Admin frontend             | ✅ 0.31.5 live        | `admin.uukk.de` and Pages origin advertise v0.31.5                                                                                                                                                  |
-| Documentation              | ✅ 0.31.5 synchronized | PBKDF2 cap, shared KV mapper, streaming R2 backups, download 401, Settings nav ARIA, `llms.txt` version                                                                                             |
-| Deployment                 | ✅ 0.31.5 live        | Production `35355841144`, Demo `35355826954`, project site `35355847328`                                                                                                                            |
-| End-to-end test            | ✅ 0.31.5 live        | Production, isolated Demo, and `linketry.com` advertise v0.31.5                                                                                                                                     |
+| Worker backend             | ✅ 0.31.6 live | Production health reports v0.31.6 |
+| Admin frontend             | ✅ 0.31.6 live | Custom domain and Pages origin advertise v0.31.6; canonical JS/CSS verified |
+| Documentation              | ✅ 0.31.6 synchronized | Backpressure, unique backups, rename restore and atomic domain writes |
+| Deployment                 | ✅ 0.31.6 live | Production `38419840592`, Demo `38419794782`, site `38419847844` |
+| End-to-end test            | ✅ 0.31.6 live | Health/version, canonical Admin assets, production 401, Demo write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | ✅ 0.31.6 (local)     | Source metadata updated; production, Demo and site remain v0.31.5 until deployment |
-| Repository update target   | ✅ 0.31.5             | Authenticated dispatch approved release `0.31.5` and commit `53c4b8c`                                                                                                                               |
+| Current version            | ✅ 0.31.6 | Source, production, Demo and site version parity verified |
+| Repository update target   | ✅ 0.31.6 | Authenticated dispatch deployed exact source commit `98cfef7` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
@@ -27,12 +27,13 @@ Last updated: 2026-10-13
 
 ---
 
-## Linketry 0.31.6 Audit Fixes (local; not deployed)
+## Linketry 0.31.6 Audit Fixes (deployed)
 
 - Consumer-driven CSV/JSON/backup streams bound link/visit page accumulation and stop subsequent queries after cancellation.
 - Unique R2 object keys prevent same-second backup overwrites; renamed restores rebuild short URLs.
 - Domain mutations and the default-domain setting share a transactional D1 batch, including rollback and missing-target protection.
-- Release metadata and current deployment examples are synchronized to v0.31.6. Live production/Demo/site remain v0.31.5.
+- Release metadata and current deployment examples are synchronized to v0.31.6. Production/Demo/site now report v0.31.6.
+- Deployment: production `38419840592`, isolated Demo `38419794782`, project site `38419847844`, all successful at source commit `98cfef7`.
 - Verification: recorded in `.codex/tasks/audit-optimization-2026-10-13.md`.
 
 ---

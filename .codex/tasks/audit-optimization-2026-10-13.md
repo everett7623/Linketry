@@ -24,4 +24,16 @@ Local and fetched origin/main started at 6baf940, v0.31.5, with a clean worktree
 
 No redirect evaluation, analytics critical path, migrations, production resource bindings, or secrets changes. Backup tag/rule/settings collections retain their existing whole-collection loading; link and visit pages now obey backpressure.
 
-Deployment authorized by the user; protected production, Demo and site workflows are pending. Existing repository backup verification and reviewed migration digest remain configured.
+## Deployment evidence
+
+- Source commit: `98cfef7f2d61c9ba9c907cbeb4549be6ddf80d4e`, committed and pushed to main.
+- [Production workflow](https://github.com/everett7623/Linketry/actions/runs/38419840592): success; exact release and commit authenticated dispatch.
+- [Isolated Demo workflow](https://github.com/everett7623/Linketry/actions/runs/38419794782): success; auto-triggered by source push.
+- [Project-site workflow](https://github.com/everett7623/Linketry/actions/runs/38419847844): success; exact-commit confirmation.
+- `go.uukk.de/health` and `demoapi.linketry.com/health`: HTTP 200, status ok, v0.31.6.
+- `admin.uukk.de`, `linketry-admin.pages.dev`, and `demo.linketry.com`: v0.31.6 and canonical initial JS/CSS MIME verified.
+- `linketry.com` JSON-LD and `/llms.txt`: v0.31.6.
+- Production unauthenticated links/system APIs: HTTP 401; unknown slug: HTTP 404. Demo link creation: HTTP 403.
+- Existing repository backup verification remains enabled; reviewed migration digest matches unchanged migrations. No fresh backup was created from this local session because no local production admin credential was available.
+- Local Node fetch to the production API encountered ECONNRESET; curl independently verified the health and auth results. All protected workflows finished successfully.
+- Status-only follow-up commit uses skip-ci/skip-production markers to avoid another deployment.
