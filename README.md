@@ -9,8 +9,6 @@
 
 Linketry is a self-hosted link management, analytics and monitoring platform.
 
-自托管短链接管理、访问分析与健康监控平台。
-
 | Identity              | Value                                                           |
 | --------------------- | --------------------------------------------------------------- |
 | Author                | `everettlabs`                                                   |
