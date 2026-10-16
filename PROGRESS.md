@@ -6,25 +6,26 @@ Last updated: 2026-10-16
 
 ---
 
-## Local audit patch — v0.31.7 (not deployed)
+## Admin UI and performance audit — v0.31.7 (deployed)
 
-- Reviewed local source and fetched `origin/main` at `e1beb72`; fast-forwarded the README-only upstream change.
-- Fixed pending-confirmation dismissal, mobile/light-theme toast presentation, QR eager bundling, and notification context churn.
-- Source/workspace versions and deployment examples now target v0.31.7. Production/Demo/site remain v0.31.6; the historical deployment table below records that live state.
+- Reviewed local source and fetched origin/main at e1beb72; fast-forwarded the README-only upstream change.
+- Fixed pending-confirmation dismissal, mobile/light-theme notification presentation, QR eager bundling, and notification context churn.
+- Source commit: 784691f9251a1cc2ae9173b713deb148b79edea5. Production, Demo and site deployed successfully; health, Admin versions/canonical assets, site/llms versions and auth/isolation responses verified.
+- Production run 38927722943; Demo run 38927721791; site run 38927729041.
 - Evidence: `.codex/tasks/audit-ui-performance-2026-10-16.md`.
 
 ## Overall Status
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.31.6 live | Production health reports v0.31.6 |
-| Admin frontend             | ✅ 0.31.6 live | Custom domain and Pages origin advertise v0.31.6; canonical JS/CSS verified |
-| Documentation              | ✅ 0.31.6 synchronized | Backpressure, unique backups, rename restore and atomic domain writes |
-| Deployment                 | ✅ 0.31.6 live | Production `38419840592`, Demo `38419794782`, site `38419847844` |
-| End-to-end test            | ✅ 0.31.6 live | Health/version, canonical Admin assets, production 401, Demo write 403 verified |
+| Worker backend             | ✅ 0.31.7 live | Production health reports v0.31.7 |
+| Admin frontend             | ✅ 0.31.7 live | Custom domain and Pages origin advertise v0.31.7; canonical JS/CSS verified |
+| Documentation              | ✅ 0.31.7 synchronized | Pending confirmations, theme-aware notifications and lazy QR loading |
+| Deployment                 | ✅ 0.31.7 live | Production `38927722943`, Demo `38927721791`, site `38927729041` |
+| End-to-end test            | ✅ 0.31.7 live | Health/version, canonical Admin assets, production 401, Demo write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | ✅ 0.31.7 local | Source patch validated; production, Demo and site remain v0.31.6 |
-| Repository update target   | ✅ 0.31.6 | Authenticated dispatch deployed exact source commit `98cfef7` |
+| Current version            | ✅ 0.31.7 | Source, production, Demo and site parity verified |
+| Repository update target   | ✅ 0.31.7 | Authenticated dispatch deployed exact source commit `784691f` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |

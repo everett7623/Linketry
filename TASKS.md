@@ -5,13 +5,14 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## Local audit patch — v0.31.7 (2026-10-16)
+## ✅ Completed — Admin UI/performance audit (v0.31.7, deployed)
 
 - [x] Fetch and inspect remote main; fast-forward README-only upstream change
 - [x] Fix pending confirmation dismissal and notification layout/contrast
 - [x] Split QR generation out of the shared utility bundle and stabilize toast context
 - [x] Synchronize release metadata and add focused browser regressions
-- [ ] Publish/deploy v0.31.7 (authorized; protected workflows in progress)
+- [x] Commit/push source 784691f; production 38927722943, Demo 38927721791 and site 38927729041 succeeded
+- [x] Verify live health, Admin assets, site/llms version, production 401/404 and Demo write 403
 
 Task record: `.codex/tasks/audit-ui-performance-2026-10-16.md`
 

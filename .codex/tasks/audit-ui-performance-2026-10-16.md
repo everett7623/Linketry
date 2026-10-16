@@ -5,7 +5,7 @@
 - Fetch `origin` and compare local `main` (`c242b91`) to remote `main` (`e1beb72`). The sole upstream change removes two README lines; fast-forwarded cleanly with no pre-existing local changes.
 - Read AGENTS, PROGRESS, TASKS, ROADMAP and KNOWN_ISSUES. Review Admin API client, shared UI, link listing/QR generation, focus management and bundling configuration; run Worker regression coverage.
 - Runtime read-only checks: production `https://go.uukk.de/health` and isolated Demo `https://demoapi.linketry.com/health` both return HTTP 200, `status: ok`, version `0.31.6`.
-- Patch version: `0.31.7`. User authorized commit, push and deployment on 2026-10-16; protected workflow release is in progress. No new migrations or production data edits.
+- Patch version: `0.31.7`. User authorized commit, push and deployment on 2026-10-16; protected workflow release completed successfully. No new migrations or production data edits.
 
 ## Findings and fixes
 
@@ -37,3 +37,16 @@
 - Migration digest `54bf95ca42735b85e17f109766db9c1005a1d851f8d4ec25d880cff8ca92da2f` matches the existing reviewed repository approval.
 - Existing backup verification/reference remains configured; no new backup was created or claimed in this session.
 - Production uses authenticated exact-version/exact-commit workflow dispatch; Demo follows the isolated main push; site uses exact-commit dispatch.
+
+## Deployment evidence
+
+- Source: `784691f9251a1cc2ae9173b713deb148b79edea5`, committed and pushed to main.
+- [Production workflow](https://github.com/everett7623/Linketry/actions/runs/38927722943): success, authenticated exact-release/exact-commit dispatch.
+- [Isolated Demo workflow](https://github.com/everett7623/Linketry/actions/runs/38927721791): success, main-push synchronization.
+- [Project-site workflow](https://github.com/everett7623/Linketry/actions/runs/38927729041): success, exact-commit dispatch.
+- Production and Demo health: HTTP 200, status ok, v0.31.7.
+- admin.uukk.de, linketry-admin.pages.dev and demo.linketry.com: v0.31.7; canonical JS/CSS plus modulepreload assets return HTTP 200 with correct MIME types.
+- linketry.com JSON-LD and llms.txt: v0.31.7.
+- Production unauthenticated links and system upgrade APIs: 401; unknown slug: 404. Demo create-link request: 403.
+- Local production-build browser smoke: 1/1 passed. Node fetch intermittently failed against the production Admin; PowerShell independently verified its canonical assets, and the protected workflow readiness passed.
+- Follow-up status documentation commit uses skip-ci and skip-production markers.
