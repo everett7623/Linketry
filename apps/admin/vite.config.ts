@@ -55,7 +55,6 @@ export default defineConfig({
           // UI 和工具库
           'vendor-utils': [
             'lucide-react',
-            'qrcode',
             'clsx',
             'dayjs'
           ]

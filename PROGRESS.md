@@ -2,9 +2,16 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-10-13
+Last updated: 2026-10-16
 
 ---
+
+## Local audit patch — v0.31.7 (not deployed)
+
+- Reviewed local source and fetched `origin/main` at `e1beb72`; fast-forwarded the README-only upstream change.
+- Fixed pending-confirmation dismissal, mobile/light-theme toast presentation, QR eager bundling, and notification context churn.
+- Source/workspace versions and deployment examples now target v0.31.7. Production/Demo/site remain v0.31.6; the historical deployment table below records that live state.
+- Evidence: `.codex/tasks/audit-ui-performance-2026-10-16.md`.
 
 ## Overall Status
 
@@ -16,7 +23,7 @@ Last updated: 2026-10-13
 | Deployment                 | ✅ 0.31.6 live | Production `38419840592`, Demo `38419794782`, site `38419847844` |
 | End-to-end test            | ✅ 0.31.6 live | Health/version, canonical Admin assets, production 401, Demo write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | ✅ 0.31.6 | Source, production, Demo and site version parity verified |
+| Current version            | ✅ 0.31.7 local | Source patch validated; production, Demo and site remain v0.31.6 |
 | Repository update target   | ✅ 0.31.6 | Authenticated dispatch deployed exact source commit `98cfef7` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |

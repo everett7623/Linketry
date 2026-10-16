@@ -11,6 +11,7 @@ interface ModalProps {
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   returnFocusRef?: React.RefObject<HTMLElement>;
+  dismissible?: boolean;
 }
 
 const sizeClasses = {
@@ -27,16 +28,19 @@ export function Modal({
   children,
   size = 'md',
   returnFocusRef,
+  dismissible = true,
 }: ModalProps) {
   const { t } = useLocale();
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
+  const dismissibleRef = useRef(dismissible);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const titleId = `modal-title-${useId().replace(/:/g, '')}`;
 
   useEffect(() => {
     closeRef.current = onClose;
-  }, [onClose]);
+    dismissibleRef.current = dismissible;
+  }, [onClose, dismissible]);
 
   useEffect(() => {
     if (!open) return;
@@ -48,7 +52,7 @@ export function Modal({
     const handler = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        closeRef.current();
+        if (dismissibleRef.current) closeRef.current();
         return;
       }
       trapTabKey(event, dialogRef.current);
@@ -77,7 +81,7 @@ export function Modal({
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         aria-hidden="true"
-        onClick={onClose}
+        onClick={dismissible ? onClose : undefined}
       />
       <div
         ref={dialogRef}
@@ -85,7 +89,7 @@ export function Modal({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`relative w-full ${sizeClasses[size]} max-h-[calc(100vh-2rem)] overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-2xl`}
+        className={`relative w-full ${sizeClasses[size]} max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain rounded-xl border border-slate-700 bg-slate-900 shadow-2xl`}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
           <h2 id={titleId} className="text-base font-semibold text-slate-100">
@@ -94,9 +98,10 @@ export function Modal({
           <button
             type="button"
             onClick={onClose}
+            disabled={!dismissible}
             aria-label={t('closeDialog')}
             title={t('closeDialog')}
-            className="text-slate-400 hover:text-white transition-colors p-1 rounded-md hover:bg-slate-800"
+            className="text-slate-400 hover:text-slate-100 transition-colors p-2 rounded-md hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X size={16} aria-hidden="true" />
           </button>
@@ -130,7 +135,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const { t } = useLocale();
   return (
-    <Modal open={open} onClose={onClose} title={title} size="sm">
+    <Modal open={open} onClose={onClose} title={title} size="sm" dismissible={!loading}>
       <p className="text-sm text-slate-300 mb-6">{message}</p>
       <div className="flex justify-end gap-3">
         <Button variant="secondary" size="sm" onClick={onClose} disabled={loading}>

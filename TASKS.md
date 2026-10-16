@@ -5,6 +5,18 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## Local audit patch — v0.31.7 (2026-10-16)
+
+- [x] Fetch and inspect remote main; fast-forward README-only upstream change
+- [x] Fix pending confirmation dismissal and notification layout/contrast
+- [x] Split QR generation out of the shared utility bundle and stabilize toast context
+- [x] Synchronize release metadata and add focused browser regressions
+- [ ] Publish/deploy v0.31.7 (authorized; protected workflows in progress)
+
+Task record: `.codex/tasks/audit-ui-performance-2026-10-16.md`
+
+---
+
 ## ✅ Completed — Audit Optimization (v0.31.6, deployed)
 
 - [x] Fix same-second R2 backup object collisions

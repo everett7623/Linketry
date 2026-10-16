@@ -23,7 +23,6 @@ import {
   Replace,
   Globe2,
 } from 'lucide-react';
-import QRCode from 'qrcode';
 import {
   listLinks,
   deleteLink,
@@ -254,6 +253,7 @@ export function Links() {
   const showQr = async (link: LinkType) => {
     const url = buildShortUrl(link, defaultDomain);
     try {
+      const { default: QRCode } = await import('qrcode');
       const dataUrl = await QRCode.toDataURL(url, {
         width: 320,
         margin: 2,

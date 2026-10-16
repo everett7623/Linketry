@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.7] - 2026-10-16
+
+### Fixed
+
+- Confirmation dialogs block Escape, backdrop and close-button dismissal while an operation is pending.
+- Notifications wrap long URLs within mobile viewports and use theme-aware surfaces for readable light-theme contrast.
+
+### Changed
+
+- Load the QR generator on demand and remove it from the eagerly shared utility chunk.
+- Stabilize notification context values to avoid re-rendering consumers on toast updates; improve close-control focus rings and dynamic-viewport modal sizing.
+
 ## [0.31.6] - 2026-10-13
 
 ### Fixed

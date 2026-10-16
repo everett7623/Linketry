@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle, XCircle, AlertCircle, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useLocale } from '../../contexts/LocaleContext';
@@ -56,11 +56,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const success = useCallback((msg: string) => toast('success', msg), [toast]);
   const error = useCallback((msg: string) => toast('error', msg), [toast]);
   const warning = useCallback((msg: string) => toast('warning', msg), [toast]);
+  const contextValue = useMemo(() => ({ toast, success, error, warning }), [toast, success, error, warning]);
 
   return (
-    <ToastContext.Provider value={{ toast, success, error, warning }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+      <div className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 flex flex-col items-end gap-2 pointer-events-none">
         {toasts.map((t) => (
           <ToastItem key={t.id} toast={t} onRemove={remove} />
         ))}
@@ -77,9 +78,9 @@ function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: (id: string
     warning: <AlertCircle size={16} className="text-yellow-400 shrink-0" aria-hidden="true" />,
   };
   const bg: Record<ToastType, string> = {
-    success: 'border-emerald-500/30 bg-emerald-950/90',
-    error: 'border-red-500/30 bg-red-950/90',
-    warning: 'border-yellow-500/30 bg-yellow-950/90',
+    success: 'border-emerald-500/50',
+    error: 'border-red-500/50',
+    warning: 'border-yellow-500/50',
   };
 
   return (
@@ -87,18 +88,18 @@ function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: (id: string
       role={t.type === 'error' ? 'alert' : 'status'}
       aria-live={t.type === 'error' ? 'assertive' : 'polite'}
       className={clsx(
-        'pointer-events-auto flex items-center gap-3 rounded-lg border px-4 py-3 shadow-xl backdrop-blur-sm min-w-64 max-w-sm',
+        'pointer-events-auto flex w-full items-center gap-3 rounded-lg border bg-slate-900 px-4 py-3 shadow-xl sm:w-auto sm:min-w-64 max-w-sm',
         bg[t.type]
       )}
     >
       {icons[t.type]}
-      <span className="text-sm text-slate-200 flex-1">{t.message}</span>
+      <span className="min-w-0 break-words [overflow-wrap:anywhere] text-sm text-slate-200 flex-1">{t.message}</span>
       <button
         type="button"
         onClick={() => onRemove(t.id)}
         aria-label={translate('dismissNotification')}
         title={translate('dismissNotification')}
-        className="text-slate-500 hover:text-slate-300 transition-colors"
+        className="shrink-0 rounded-md p-2 text-slate-400 hover:text-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
       >
         <X size={14} aria-hidden="true" />
       </button>
