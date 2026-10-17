@@ -356,10 +356,14 @@ export function ImportExport() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label
+              htmlFor="import-conflict-strategy"
+              className="block text-sm font-medium text-slate-300 mb-1.5"
+            >
               {t('conflictHandling')}
             </label>
             <select
+              id="import-conflict-strategy"
               value={conflictStrategy}
               onChange={(e) => setConflictStrategy(e.target.value as ImportConflictStrategy)}
               className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"

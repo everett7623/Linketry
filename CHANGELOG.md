@@ -7,6 +7,15 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.12] - 2026-10-17
+
+### Fixed
+
+- The per-link Daily Clicks chart now draws its bars; they had always rendered at zero height.
+- Date range, shared-statistics range, audit action and import conflict-handling dropdowns now have accessible names, and the audit log table can be scrolled with the keyboard on narrow screens.
+- Light-theme success text (such as the Active badge) now meets the 4.5:1 contrast minimum.
+- The Admin dev server no longer forwards `/api-tokens` to the Worker; only `/api/` requests are proxied.
+
 ## [0.31.11] - 2026-10-17
 
 ### Changed

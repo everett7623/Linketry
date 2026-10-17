@@ -19,7 +19,9 @@ One item in "In Progress" at a time whenever possible.
 - [x] Deploy v0.31.10: production `39018888232`, Demo `39018879375`, site `39018890140`; verify version/asset/auth parity
 - [x] Batch 2: split `Links.tsx` without behaviour changes (v0.31.11; 1282 → 507 lines, nine components, new dialog browser test)
 - [x] Deploy v0.31.11: production `39021671862`, Demo `39021667389`, site `39021674098`; verify version/asset/auth parity
-- [x] Batch 3: local page-by-page visual audit report (dark/light/mobile) — `.codex/tasks/admin-visual-audit-2026-10-17.md`; 100 captures, findings P1 (per-link Daily Clicks bars never render) to P3, fixes not started
+- [x] Batch 3: local page-by-page visual audit report (dark/light/mobile) — `.codex/tasks/admin-visual-audit-2026-10-17.md`; 100 captures, findings P1 (per-link Daily Clicks bars never render) to P3
+- [x] v0.31.12: fix audit P1 chart, unlabelled selects, audit log scroll region, light-theme contrast, dev proxy (source)
+- [ ] Links table Actions clipping at 1440 px and mobile Links layout (collapsed filters, card default)
 - [ ] Batch 4: branded QR design document
 
 Task record: `.codex/tasks/admin-locale-split-2026-10-17.md`

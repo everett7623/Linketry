@@ -99,14 +99,16 @@ export function DailyBars({ items }: { items: Array<{ date: string; clicks: numb
           </div>
         ) : (
           items.map((item) => (
-            <div key={item.date} className="flex min-w-4 flex-1 flex-col items-center gap-2">
-              <div
-                title={`${dateFormatter.format(new Date(item.date))}: ${item.clicks.toLocaleString(
-                  locale
-                )} ${t('clicksValue')}`}
-                className="w-full rounded-t bg-brand-500"
-                style={{ height: `${Math.max(4, (item.clicks / max) * 100)}%` }}
-              />
+            <div key={item.date} className="flex h-full min-w-4 flex-1 flex-col items-center gap-2">
+              <div className="flex w-full flex-1 items-end">
+                <div
+                  title={`${dateFormatter.format(new Date(item.date))}: ${item.clicks.toLocaleString(
+                    locale
+                  )} ${t('clicksValue')}`}
+                  className="w-full rounded-t bg-brand-500"
+                  style={{ height: `${Math.max(4, (item.clicks / max) * 100)}%` }}
+                />
+              </div>
               <span className="hidden text-[10px] text-slate-600 md:inline">
                 {dateFormatter.format(new Date(item.date))}
               </span>

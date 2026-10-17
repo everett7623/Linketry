@@ -153,6 +153,7 @@ export function LinkAnalytics() {
             onRefresh={refresh.refreshNow}
           />
           <Select
+            aria-label={t('range')}
             value={String(days)}
             onChange={(e) => setDays(Number(e.target.value))}
             className="w-40"
@@ -213,7 +214,11 @@ export function LinkAnalytics() {
           {share.enabled && <span className="text-xs text-emerald-400">{t('enabled')}</span>}
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <Select value={String(shareDays)} onChange={(e) => setShareDays(Number(e.target.value))}>
+          <Select
+            aria-label={t('publicStatsRange')}
+            value={String(shareDays)}
+            onChange={(e) => setShareDays(Number(e.target.value))}
+          >
             <option value="7">{t('last7')}</option>
             <option value="30">{t('last30')}</option>
             <option value="90">{t('last90')}</option>

@@ -6,6 +6,13 @@ Last updated: 2026-10-17
 
 ---
 
+## Visual audit fixes — v0.31.12 (source only)
+
+- Baseline: local HEAD and `origin/main` both `b10c9c2` (audit report); clean tree.
+- From the batch 3 audit (`.codex/tasks/admin-visual-audit-2026-10-17.md`): per-link Daily Clicks bars now render (previously 0 px since July); four unlabelled dropdowns named; audit log scroll region keyboard-focusable; light-theme success text darkened to pass contrast; dev proxy limited to `/api/`.
+- New `tests/page-accessibility.spec.ts` (link analytics bars + axe in light theme, audit logs on mobile, light-theme overview contrast) fails against the v0.31.11 source and passes after the fixes; the import test now asserts the labelled conflict-handling select defaults to `skip`.
+- Links table width and mobile Links layout remain open (separate UI change).
+
 ## Links page component split — v0.31.11 (deployed)
 
 - Baseline: local HEAD and `origin/main` both `5541a4d` (v0.31.10 status record); clean tree.
@@ -48,11 +55,11 @@ Last updated: 2026-10-17
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker backend             | ✅ 0.31.11 live | Production health reports v0.31.11 |
 | Admin frontend             | ✅ 0.31.11 live | Custom domain and Pages origin advertise v0.31.11 |
-| Documentation              | ✅ 0.31.11 synchronized | Links page split into focused components |
+| Documentation              | ✅ 0.31.12 synchronized | Visual audit accessibility and chart fixes |
 | Deployment                 | ✅ 0.31.11 live | Production `39021671862`, Demo `39021667389`, site `39021674098` succeeded |
 | End-to-end test            | ✅ 0.31.11 live | Health/version, Links chunk, production 401/404, Demo write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | ✅ 0.31.11 | Source, production, Demo and site version parity verified |
+| Current version            | 🟡 0.31.12 source | Production, Demo and site still run v0.31.11 until deployed |
 | Repository update target   | ✅ 0.31.11 | Authenticated dispatch deployed exact source commit `a226c50` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |

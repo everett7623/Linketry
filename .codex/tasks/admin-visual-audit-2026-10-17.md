@@ -72,6 +72,12 @@ Baseline: local HEAD and `origin/main` both `e607ca1` (v0.31.11 deployed); clean
 - Local `wrangler.toml` still declares `LINKETRY_VERSION = "0.31.0"`.
 - Unique visitors and countries are 0/US locally because local requests carry no Cloudflare IP/geo metadata.
 
-## Suggested follow-up (not started)
+## v0.31.12 fixes
+
+- Fixed: P1 Daily Clicks bars (inner `flex-1 items-end` track so bar percentages resolve); P2 unlabelled selects (`aria-label` on Link Analytics range/share range and Audit action, `htmlFor`/`id` on import conflict handling, plus `aria-label` on the audit search); P3 audit-log scroll region (`tabIndex=0`, `role="region"`, labelled, visible focus ring); P3 light-theme success text `#047857` → `#065f46`; dev proxy `'/api'` → `'/api/'`.
+- Regression: `apps/admin/tests/page-accessibility.spec.ts` — all three tests fail against the v0.31.11 source (bar height 0, unnamed action combobox, color-contrast) and pass after the fixes.
+- Still open: P2 Links table width at 1440 px and mobile Links layout; P3 touch targets and layout polish.
+
+## Suggested follow-up
 
 One fix release covering the P1 chart, the four unlabelled selects, light badge contrast, the audit-log scroll region and the dev proxy, each with a regression check; the Links table/mobile layout changes as a separate, reviewable UI change.

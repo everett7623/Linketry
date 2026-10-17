@@ -814,6 +814,7 @@ test('completed import exits the importing state and clears the finished input',
     messages.en.shortIoCsvFormat
   );
   await expect(page.getByLabel(messages.en.shlinkUrl)).toHaveCount(0);
+  await expect(page.getByLabel(messages.en.conflictHandling)).toHaveValue('skip');
   await sourceSelect.selectOption('shlink');
   await expect(page.getByLabel(messages.en.shlinkUrl)).toBeVisible();
   await sourceSelect.selectOption('bitly-csv');

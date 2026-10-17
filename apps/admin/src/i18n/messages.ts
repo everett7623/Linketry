@@ -133,6 +133,7 @@ export const englishMessages = {
   expiredPageMessage: 'Expired link message',
   warningPageMessage: 'Safety warning message',
   publicStatsShare: 'Public Statistics Share',
+  publicStatsRange: 'Shared statistics range',
   publicStatsPrivacyHint:
     'Disabled by default. Shares aggregate clicks only; visitor records and destinations stay private.',
   shareCountries: 'Include countries',

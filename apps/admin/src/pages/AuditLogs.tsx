@@ -100,13 +100,19 @@ export function AuditLogs() {
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
+            aria-label={t('searchAudit')}
             placeholder={t('searchAudit')}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
         </div>
-        <Select value={action} onChange={(e) => updateAction(e.target.value)} className="min-w-48">
+        <Select
+          aria-label={t('action')}
+          value={action}
+          onChange={(e) => updateAction(e.target.value)}
+          className="min-w-48"
+        >
           <option value="">{t('allActions')}</option>
           {ACTION_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -126,7 +132,12 @@ export function AuditLogs() {
             {t('noAuditEvents')}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div
+            className="overflow-x-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            tabIndex={0}
+            role="region"
+            aria-label={t('auditLogs')}
+          >
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-800 text-xs text-slate-500 uppercase tracking-wider">

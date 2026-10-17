@@ -129,6 +129,7 @@ export const zhCNMessages = {
   expiredPageMessage: '链接过期页面文案',
   warningPageMessage: '安全警告页面文案',
   publicStatsShare: '公开统计分享',
+  publicStatsRange: '公开统计时间范围',
   publicStatsPrivacyHint: '默认关闭。仅分享聚合点击数据，访问记录和目标网址保持私密。',
   shareCountries: '包含国家/地区',
   shareReferrers: '包含来源网站',
