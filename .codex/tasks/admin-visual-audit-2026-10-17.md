@@ -76,8 +76,10 @@ Baseline: local HEAD and `origin/main` both `e607ca1` (v0.31.11 deployed); clean
 
 - Fixed: P1 Daily Clicks bars (inner `flex-1 items-end` track so bar percentages resolve); P2 unlabelled selects (`aria-label` on Link Analytics range/share range and Audit action, `htmlFor`/`id` on import conflict handling, plus `aria-label` on the audit search); P3 audit-log scroll region (`tabIndex=0`, `role="region"`, labelled, visible focus ring); P3 light-theme success text `#047857` → `#065f46`; dev proxy `'/api'` → `'/api/'`.
 - Regression: `apps/admin/tests/page-accessibility.spec.ts` — all three tests fail against the v0.31.11 source (bar height 0, unnamed action combobox, color-contrast) and pass after the fixes.
+- Validation: TypeScript, Admin unit 68/68, browser 36/36, build + asset integrity, production-build smoke 3/3, deployment 92/92, site 10/10.
+- Deployment: source `a5e0d2db62ff581f3c92cbab8e2be54301877399` on remote baseline `b10c9c2`; [production 39044243842](https://github.com/everett7623/Linketry/actions/runs/39044243842), [Demo 39044226848](https://github.com/everett7623/Linketry/actions/runs/39044226848), [site 39044246580](https://github.com/everett7623/Linketry/actions/runs/39044246580) succeeded. Live: health and Admin/site versions 0.31.12; production 401/401/404, Demo write 403; live Admin CSS contains `#065f46`.
 - Still open: P2 Links table width at 1440 px and mobile Links layout; P3 touch targets and layout polish.
 
 ## Suggested follow-up
 
-One fix release covering the P1 chart, the four unlabelled selects, light badge contrast, the audit-log scroll region and the dev proxy, each with a regression check; the Links table/mobile layout changes as a separate, reviewable UI change.
+The accessibility/chart fix release shipped as v0.31.12. Remaining: the Links table/mobile layout changes as a separate, reviewable UI change, then touch-target and layout polish.
