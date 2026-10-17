@@ -6,11 +6,12 @@ Last updated: 2026-10-17
 
 ---
 
-## Links page component split — v0.31.11 (source only)
+## Links page component split — v0.31.11 (deployed)
 
 - Baseline: local HEAD and `origin/main` both `5541a4d` (v0.31.10 status record); clean tree.
 - `apps/admin/src/pages/Links.tsx` drops from 1282 to 507 lines. The table, basic and advanced filter bars, bulk action bar, confirmation dialogs, and the bulk tag, URL replace, domain migration and QR dialogs move to `apps/admin/src/components/links/`. Data loading, URL filters, selection, row/bulk actions and QR generation stay on the page.
 - New browser test covers the dialogs the split moved: tag dialog resets on every open, URL replace text survives reopening, bulk disable asks for confirmation, QR dialog renders. Mutation-checked against a URL replace dialog that unmounts on close.
+- Source `a226c50`. Production `39021671862`, Demo `39021667389` and site `39021674098` succeeded; health, Admin versions, site/llms, auth/isolation responses and the live Links chunk verified at v0.31.11.
 - Evidence: `.codex/tasks/admin-locale-split-2026-10-17.md`.
 
 ## Stalled locale catalog first paint — v0.31.10 (deployed)
@@ -45,14 +46,14 @@ Last updated: 2026-10-17
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.31.10 live | Production health reports v0.31.10 |
-| Admin frontend             | ✅ 0.31.10 live | Custom domain and Pages origin advertise v0.31.10 |
+| Worker backend             | ✅ 0.31.11 live | Production health reports v0.31.11 |
+| Admin frontend             | ✅ 0.31.11 live | Custom domain and Pages origin advertise v0.31.11 |
 | Documentation              | ✅ 0.31.11 synchronized | Links page split into focused components |
-| Deployment                 | ✅ 0.31.10 live | Production `39018888232`, Demo `39018879375`, site `39018890140` succeeded |
-| End-to-end test            | ✅ 0.31.10 live | Health/version, Chinese catalog chunk, production 401/404, Demo write 403 verified |
+| Deployment                 | ✅ 0.31.11 live | Production `39021671862`, Demo `39021667389`, site `39021674098` succeeded |
+| End-to-end test            | ✅ 0.31.11 live | Health/version, Links chunk, production 401/404, Demo write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | 🟡 0.31.11 source | Production, Demo and site still run v0.31.10 until deployed |
-| Repository update target   | ✅ 0.31.10 | Authenticated dispatch deployed exact source commit `cf5ef55` |
+| Current version            | ✅ 0.31.11 | Source, production, Demo and site version parity verified |
+| Repository update target   | ✅ 0.31.11 | Authenticated dispatch deployed exact source commit `a226c50` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
