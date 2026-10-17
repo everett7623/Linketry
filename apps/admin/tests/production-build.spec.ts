@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
+import { messages } from '../src/i18n/allMessages';
 
 function apiResponse(data: unknown) {
   return {
@@ -72,16 +73,22 @@ test('built Admin renders the authenticated overview without module identity err
 test('built Admin loads the stored Chinese catalog before the first render', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
-  await page.addInitScript(() => {
+  // Production builds submit with signIn; public Demo builds submit with enterDemo.
+  const englishLabels = [messages.en.signIn, messages.en.enterDemo];
+  const chineseLabels = [messages['zh-CN'].signIn, messages['zh-CN'].enterDemo];
+  await page.addInitScript((labels) => {
     window.localStorage.setItem('linketry.locale', 'zh-CN');
     const state = { sawEnglish: false };
     (window as unknown as { __localeFlash: typeof state }).__localeFlash = state;
     new MutationObserver(() => {
-      if (document.body?.textContent?.includes('Sign In')) state.sawEnglish = true;
+      const text = document.body?.textContent ?? '';
+      if (labels.some((label) => text.includes(label))) state.sawEnglish = true;
     }).observe(document, { childList: true, subtree: true, characterData: true });
-  });
+  }, englishLabels);
   await page.goto('/login');
-  await expect(page.getByRole('button', { name: '登录' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: new RegExp(`^(${chineseLabels.join('|')})$`) })
+  ).toBeVisible();
   const sawEnglish = await page.evaluate(
     () => (window as unknown as { __localeFlash: { sawEnglish: boolean } }).__localeFlash.sawEnglish
   );

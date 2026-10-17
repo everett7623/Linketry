@@ -2,8 +2,8 @@
 
 ## Scope and source
 
-- Local `main` equals `origin/main` (`f265abe`, v0.31.7 deployed). Owner approved a four-batch upgrade plan; this record covers batch 1 only.
-- Patch version: `0.31.8`. Admin-only change; redirect logic, Worker, D1/KV, migrations and Demo isolation untouched. Not committed, pushed or deployed.
+- At batch-1 preparation, local `main` equaled `origin/main` (`f265abe`, v0.31.7 deployed). This record covers batch 1 and its subsequent Demo test fix.
+- Initial patch version: `0.31.8`, subsequently deployed as recorded below. Follow-up version: `0.31.9`. Redirect logic, Worker behaviour, D1/KV, migrations and Demo isolation untouched.
 
 ## Changes
 
@@ -29,7 +29,30 @@ Verified the entry contains no Chinese catalog strings, the Chinese chunk contai
 - Production-build smoke 2/2, including a new check that a stored `zh-CN` login page never renders English `Sign In`. Mutation-checked: rendering before the catalog loads makes this test fail.
 - Admin production build and canonical asset integrity pass.
 
+## v0.31.8 deployment
+
+- Owner authorized commit, push and deployment on 2026-10-17. Source `53c806722bf409b9de5a7872586ff0519f3c03e6`.
+- [Production run 39011511790](https://github.com/everett7623/Linketry/actions/runs/39011511790): success (authenticated exact-release/exact-commit dispatch).
+- [Site run 39011514606](https://github.com/everett7623/Linketry/actions/runs/39011514606): success.
+- Live: `go.uukk.de/health` ok v0.31.8; `admin.uukk.de` and `linketry-admin.pages.dev` advertise v0.31.8; `linketry.com/llms.txt` reports 0.31.8.
+- [Demo run 39011483517](https://github.com/everett7623/Linketry/actions/runs/39011483517): **failure** in "Test isolated Demo Admin build", before any Cloudflare write. Demo stayed on v0.31.7.
+
+## v0.31.9 fix
+
+- Root cause: the new first-paint test waited for the production `Sign In` button. Public Demo builds (`VITE_LINKETRY_DEMO_MODE=read-only`) render `Enter Demo` instead. The application behaviour was correct; the test assumed the production build mode.
+- Fix: the test reads both submit labels from the catalogs and accepts either; the English-flash check watches both English labels.
+- Verified locally: production-build smoke 2/2 against a Demo-mode build and 2/2 against a production build.
+- Owner rule recorded: every fix ships with its own version bump.
+
 ## Remaining
 
-- Owner review, then commit, push and protected deployment.
+- Deploy v0.31.9 to production, Demo and site; verify parity.
 - Batches 2–4: `Links.tsx` split, visual audit report, branded QR design.
+
+## v0.31.9 baseline and release validation
+
+- Fetched origin again before release. Local HEAD and origin/main both equal `53c806722bf409b9de5a7872586ff0519f3c03e6`; `git show origin/main:package.json` reports v0.31.8. Existing uncommitted v0.31.9 changes were preserved and reviewed against that exact baseline; no reset or downgrade occurred.
+- Rechecked failed Demo logs: its Chinese first-render test searched for the production `登录` button and timed out.
+- Re-ran actual Demo-mode (`VITE_LINKETRY_DEMO_MODE=true`, matching workflow) build: production browser smoke 2/2 pass. Rebuilt normal production: production browser smoke 2/2 pass. Both builds pass TypeScript and canonical asset integrity.
+- Admin unit 68/68; deployment-policy 92/92; Worker type-check passes. Migration digest unchanged (`54bf95ca42735b85e17f109766db9c1005a1d851f8d4ec25d880cff8ca92da2f`).
+- Release continues through exact-commit production/site dispatch and isolated Demo main-push synchronization. Existing backup verification remains configured; no fresh backup claimed.

@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.9] - 2026-10-17
+
+### Fixed
+
+- The production-build first-paint locale check accepts the public Demo login action, so the isolated Demo deployment no longer fails its Admin build test.
+
 ## [0.31.8] - 2026-10-17
 
 ### Changed
