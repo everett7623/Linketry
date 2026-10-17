@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.13] - 2026-10-17
+
+### Fixed
+
+- Admin QR codes now include the four-module quiet zone required by the QR specification (previously two), so printed codes scan more reliably next to other artwork.
+
 ## [0.31.12] - 2026-10-17
 
 ### Fixed

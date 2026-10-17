@@ -16,6 +16,7 @@ import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
 import { buildShortUrl } from '../utils/shortUrl';
 import { downloadDataUrl } from '../utils/download';
+import { qrRenderOptions } from '../utils/qrCode';
 import type { Link as LinkType, PaginatedResult } from '@linketry/shared';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import { stripAdvancedLinkFilters } from '../utils/linkFilters';
@@ -206,15 +207,7 @@ export function Links() {
       return;
     }
     try {
-      const dataUrl = await qrModule.default.toDataURL(url, {
-        width: 320,
-        margin: 2,
-        errorCorrectionLevel: 'M',
-        color: {
-          dark: '#020617',
-          light: '#ffffff',
-        },
-      });
+      const dataUrl = await qrModule.default.toDataURL(url, qrRenderOptions());
       setQr({ link, url, dataUrl });
     } catch {
       error(t('qrFailed'));

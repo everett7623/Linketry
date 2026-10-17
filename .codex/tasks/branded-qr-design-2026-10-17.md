@@ -92,7 +92,16 @@ The decode check uses a lazily loaded decoder (candidate: `jsqr`, ~45 kB min) th
 - If approved: recognise the marker only in the asynchronous `ctx.waitUntil()` visit record; never add a lookup or branch that can delay or fail the redirect. Report "QR scans" as a labelled subset of clicks rather than a separate total. Accept that a copied QR URL counts as a scan.
 - Privacy: no new identifiers; reuse existing visit fields.
 
-## Decisions needed before implementation
+## Decisions (recorded 2026-10-17)
+
+1. Logo storage: D1 settings key, 48 kB cap; works on every install.
+2. Quiet zone: shipped now as standalone patch v0.31.13.
+3. Decode check: lazily loaded decoder; downloads that do not decode are blocked.
+4. PDF: deferred to Phase 2.
+5. Scan attribution: deferred; revisit after Phase 1.
+6. Next: implement Phase 1 as v0.32.0.
+
+## Decisions originally requested
 
 1. Logo storage: D1 settings key capped at 48 kB (proposed; works for every install), or require R2 (larger logos, but excludes installs without R2)?
 2. Ship the quiet-zone fix now as a standalone patch, or with Phase 1?
