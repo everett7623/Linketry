@@ -293,6 +293,40 @@ async function mockAdminApi(page: Page) {
       );
       return;
     }
+    if (path === '/api/v1/links/bulk-tag' && request.method() === 'POST') {
+      const body = request.postDataJSON() as { ids: string[]; tags: string[]; mode: string };
+      await route.fulfill(
+        apiResponse({
+          mode: body.mode,
+          tags: body.tags,
+          total: body.ids.length,
+          success: body.ids.length,
+          notFound: 0,
+        })
+      );
+      return;
+    }
+    if (path === '/api/v1/links/bulk-replace-url/preview' && request.method() === 'POST') {
+      await route.fulfill(
+        apiResponse({
+          items: [
+            {
+              id: link.id,
+              slug: link.slug,
+              current_url: link.long_url,
+              next_url: 'https://example.org/docs',
+              status: 'ready',
+              error: null,
+            },
+          ],
+          ready: 1,
+          unchanged: 0,
+          invalid: 0,
+          notFound: 0,
+        })
+      );
+      return;
+    }
     if (path === '/api/v1/notifications/config' && request.method() === 'GET') {
       await route.fulfill(
         apiResponse({
@@ -510,6 +544,73 @@ test('English core workflow renders overview, links, create link, and settings',
   await expect(
     page.getByText(messages.en.allCheckedTargetsHealthy.replace('{count}', '0'))
   ).toBeVisible();
+  await page.evaluate(() => window.__assertNoBrowserErrors());
+});
+
+test('links page dialogs keep their open, reset, and selection behavior', async ({ page }) => {
+  await authenticate(page, 'en', 'advanced');
+  await page.goto('/links');
+  const table = page.getByRole('table');
+  await expect(table.getByText('/docs', { exact: true })).toBeVisible();
+
+  await table.getByRole('button', { name: messages.en.qrCode }).click();
+  const qrDialog = page.getByRole('dialog', {
+    name: messages.en.qrCodeTitle.replace('{slug}', link.slug),
+  });
+  await expect(
+    qrDialog.getByAltText(messages.en.qrCodeFor.replace('{url}', `https://${link.domain}/${link.slug}`))
+  ).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(qrDialog).toBeHidden();
+
+  await page.getByLabel(messages.en.selectLinkAria.replace('{slug}', link.slug)).check();
+  await expect(
+    page.getByText(messages.en.selectedCount.replace('{count}', '1'))
+  ).toBeVisible();
+
+  await page.getByRole('button', { name: messages.en.disable, exact: true }).first().click();
+  const bulkConfirm = page.getByRole('dialog', { name: messages.en.disableLinks });
+  await expect(bulkConfirm).toBeVisible();
+  await bulkConfirm.getByRole('button', { name: messages.en.cancel }).click();
+  await expect(bulkConfirm).toBeHidden();
+
+  const tagsButton = page.getByRole('button', { name: messages.en.tags, exact: true });
+  await tagsButton.click();
+  const tagDialog = page.getByRole('dialog', { name: messages.en.bulkEditTags });
+  const tagInput = tagDialog.getByLabel(messages.en.tags, { exact: true });
+  await tagInput.fill('draft');
+  await page.keyboard.press('Escape');
+  await tagsButton.click();
+  await expect(tagInput).toHaveValue('');
+  await expect(tagDialog.getByLabel(messages.en.mode)).toHaveValue('add');
+  await tagInput.fill('campaign, docs');
+  const tagRequest = page.waitForRequest(
+    (request) => new URL(request.url()).pathname === '/api/v1/links/bulk-tag'
+  );
+  await tagDialog.getByRole('button', { name: messages.en.applyTags }).click();
+  expect((await tagRequest).postDataJSON()).toEqual({
+    ids: [link.id],
+    tags: ['campaign', 'docs'],
+    mode: 'add',
+  });
+  await expect(page.getByText(messages.en.tagsUpdated.replace('{count}', '1'))).toBeVisible();
+  await expect(tagDialog).toBeHidden();
+  await expect(page.getByText(messages.en.selectedCount.replace('{count}', '1'))).toBeHidden();
+
+  await page.getByLabel(messages.en.selectLinkAria.replace('{slug}', link.slug)).check();
+  const replaceButton = page.getByRole('button', { name: messages.en.replaceUrls });
+  await replaceButton.click();
+  const replaceDialog = page.getByRole('dialog', { name: messages.en.replaceUrls });
+  await replaceDialog.getByLabel(messages.en.findText).fill('example.com');
+  await page.keyboard.press('Escape');
+  await replaceButton.click();
+  await expect(replaceDialog.getByLabel(messages.en.findText)).toHaveValue('example.com');
+  await replaceDialog.getByRole('button', { name: messages.en.previewChanges }).click();
+  await expect(replaceDialog.getByText('https://example.org/docs')).toBeVisible();
+  await expect(
+    replaceDialog.getByRole('button', { name: messages.en.confirmReplace })
+  ).toBeEnabled();
+
   await page.evaluate(() => window.__assertNoBrowserErrors());
 });
 

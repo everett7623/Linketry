@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.11] - 2026-10-17
+
+### Changed
+
+- Split the Admin Links page into focused components (table, filter bars, bulk action bar, confirmations, and the tag, URL replace, domain migration and QR dialogs) without changing what the page does. Browser coverage now exercises the bulk tag, URL replace, bulk confirmation and QR dialogs.
+
 ## [0.31.10] - 2026-10-17
 
 ### Fixed

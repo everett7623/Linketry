@@ -5,7 +5,7 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## Admin upgrades — batch 1 deployed (v0.31.8 + v0.31.9), batches 2–4 pending
+## Admin upgrades — batch 1 deployed (v0.31.8–v0.31.10), batch 2 in source (v0.31.11), batches 3–4 pending
 
 - [x] Split Simplified Chinese catalogs into an on-demand chunk and load stored locales before first render
 - [x] Report a reload hint when the on-demand QR module cannot be fetched
@@ -17,7 +17,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Deploy v0.31.9: production `39012101980`, Demo `39012101897`, site `39012103848`; verify version/asset/auth parity
 - [x] Re-review against remote `969c548`: fix blank Admin when the locale catalog request stalls (v0.31.10)
 - [x] Deploy v0.31.10: production `39018888232`, Demo `39018879375`, site `39018890140`; verify version/asset/auth parity
-- [ ] Batch 2: split `Links.tsx` without behaviour changes
+- [x] Batch 2: split `Links.tsx` without behaviour changes (v0.31.11, source only; 1282 → 507 lines, nine components, new dialog browser test)
 - [ ] Batch 3: local page-by-page visual audit report (dark/light/mobile)
 - [ ] Batch 4: branded QR design document
 
