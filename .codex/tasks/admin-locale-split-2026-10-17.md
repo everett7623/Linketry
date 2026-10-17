@@ -46,7 +46,7 @@ Verified the entry contains no Chinese catalog strings, the Chinese chunk contai
 
 ## Remaining
 
-- Deploy v0.31.9 to production, Demo and site; verify parity.
+- v0.31.9 deployment and parity complete; evidence below.
 - Batches 2–4: `Links.tsx` split, visual audit report, branded QR design.
 
 ## v0.31.9 baseline and release validation
@@ -56,3 +56,12 @@ Verified the entry contains no Chinese catalog strings, the Chinese chunk contai
 - Re-ran actual Demo-mode (`VITE_LINKETRY_DEMO_MODE=true`, matching workflow) build: production browser smoke 2/2 pass. Rebuilt normal production: production browser smoke 2/2 pass. Both builds pass TypeScript and canonical asset integrity.
 - Admin unit 68/68; deployment-policy 92/92; Worker type-check passes. Migration digest unchanged (`54bf95ca42735b85e17f109766db9c1005a1d851f8d4ec25d880cff8ca92da2f`).
 - Release continues through exact-commit production/site dispatch and isolated Demo main-push synchronization. Existing backup verification remains configured; no fresh backup claimed.
+
+## v0.31.9 deployment evidence
+
+- Source `2e9f59fe39fed4a4ce2b231a764c00581d98db6e` directly descends from remote v0.31.8 `53c806722bf409b9de5a7872586ff0519f3c03e6`. Committed and pushed without discarding existing local work.
+- [Production](https://github.com/everett7623/Linketry/actions/runs/39012101980), [Demo](https://github.com/everett7623/Linketry/actions/runs/39012101897), and [site](https://github.com/everett7623/Linketry/actions/runs/39012103848): all success.
+- Production/Demo health HTTP 200, status ok, v0.31.9. Production Admin, Pages origin and Demo Admin v0.31.9; canonical JS/CSS and preload assets return HTTP 200 with correct MIME.
+- Site JSON-LD and llms.txt report v0.31.9. Production unauthenticated links/system APIs 401; missing slug 404; Demo create-link request 403.
+- AGENTS now explicitly requires fetch, local/remote version/SHA/dirty-state comparison, preservation of local changes, and integration of new remote commits before publishing.
+- Status-only follow-up uses skip-ci/skip-production markers.

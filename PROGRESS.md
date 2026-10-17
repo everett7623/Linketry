@@ -6,9 +6,11 @@ Last updated: 2026-10-17
 
 ---
 
-## Demo build-test fix — v0.31.9
+## Demo build-test fix — v0.31.9 (deployed)
 
 - v0.31.8's new first-paint locale smoke test expected the production `Sign In` action; public Demo builds submit with `Enter Demo`, so Demo run `39011483517` failed before any Cloudflare write. The test now accepts either action and passes against both build modes locally.
+- Fetched and verified remote v0.31.8 baseline `53c8067`; v0.31.9 source `2e9f59f` is its direct child, preserving the locale split and QR reload hint.
+- Production `39012101980`, Demo `39012101897` and site `39012103848` succeeded; health, Admin versions and canonical assets, site/llms and auth/isolation responses verified at v0.31.9.
 
 ## Admin locale-split entry bundle — v0.31.8 (production and site deployed)
 
@@ -29,14 +31,14 @@ Last updated: 2026-10-17
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.31.8 live | Production health reports v0.31.8 |
-| Admin frontend             | ✅ 0.31.8 live | Custom domain and Pages origin advertise v0.31.8 |
+| Worker backend             | ✅ 0.31.9 live | Production health reports v0.31.9 |
+| Admin frontend             | ✅ 0.31.9 live | Custom domain and Pages origin advertise v0.31.9 |
 | Documentation              | ✅ 0.31.9 synchronized | On-demand Chinese catalog, QR module reload hint and Demo-compatible build test |
-| Deployment                 | 🟡 0.31.8 partial | Production `39011511790` and site `39011514606` succeeded; Demo `39011483517` failed its build test (fixed in 0.31.9) |
-| End-to-end test            | ✅ 0.31.7 live | Health/version, canonical Admin assets, production 401, Demo write 403 verified |
+| Deployment                 | ✅ 0.31.9 live | Production `39012101980`, Demo `39012101897`, site `39012103848` succeeded |
+| End-to-end test            | ✅ 0.31.9 live | Health/version, canonical Admin assets, production 401, Demo write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | 🟡 0.31.9 source | Production and site on v0.31.8; Demo on v0.31.7 pending the v0.31.9 build-test fix |
-| Repository update target   | ✅ 0.31.7 | Authenticated dispatch deployed exact source commit `784691f` |
+| Current version            | ✅ 0.31.9 | Source, production, Demo and site version parity verified |
+| Repository update target   | ✅ 0.31.9 | Authenticated dispatch deployed exact source commit `2e9f59f` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |

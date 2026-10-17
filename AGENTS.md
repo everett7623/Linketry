@@ -4,7 +4,7 @@ This file tells AI coding agents (Cascade, Codex, Copilot, etc.) how to work on 
 
 **Last updated**: 2026-10-13
 **Current version**: v0.31.9
-**Production version**: v0.31.8
+**Production version**: v0.31.9
 
 Version authority: root `package.json` and `PROGRESS.md`. Prefer those over older stamps in historical docs.
 
@@ -91,6 +91,10 @@ Treat these as **already implemented**. Do not refuse to maintain them because o
 - Do **not** add new D1 migrations without explicit instruction.
 
 ---
+
+## Remote / Local Baseline
+
+Before each change or release, fetch the configured remote and compare local HEAD, the remote target branch, package versions, and uncommitted changes. Record the baseline commit/version. Build fixes on the latest remote target; preserve and reconcile existing local work. Do not reset or overwrite local changes to synchronize. If the remote advances before push/release, inspect and integrate it before publishing. Never infer current versions from earlier chat messages or screenshots.
 
 ## Release Hygiene
 
