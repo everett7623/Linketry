@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
 
 function apiResponse(data: unknown) {
@@ -9,22 +9,24 @@ function apiResponse(data: unknown) {
   };
 }
 
-test('built Admin renders the authenticated overview without module identity errors', async ({
-  page,
-}) => {
+async function prepareAuthenticatedOverview(page: Page, locale?: string) {
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
     if (message.type() === 'error') browserErrors.push(message.text());
   });
-  await page.addInitScript((version) => {
-    window.localStorage.setItem('linketry_token', 'production-smoke-token');
-    window.localStorage.setItem('linketry_demo_access', 'granted');
-    window.localStorage.setItem(
-      'linketry_update_check',
-      JSON.stringify({ latestVersion: version, checkedAt: Date.now() })
-    );
-  }, LINKETRY_VERSION);
+  await page.addInitScript(
+    ({ version, storedLocale }) => {
+      window.localStorage.setItem('linketry_token', 'production-smoke-token');
+      window.localStorage.setItem('linketry_demo_access', 'granted');
+      window.localStorage.setItem(
+        'linketry_update_check',
+        JSON.stringify({ latestVersion: version, checkedAt: Date.now() })
+      );
+      if (storedLocale) window.localStorage.setItem('linketry.locale', storedLocale);
+    },
+    { version: LINKETRY_VERSION, storedLocale: locale }
+  );
   await page.route('**/api/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path === '/api/v1/auth/me') {
@@ -55,8 +57,34 @@ test('built Admin renders the authenticated overview without module identity err
     }
     await route.fulfill(apiResponse({}));
   });
+  return browserErrors;
+}
 
+test('built Admin renders the authenticated overview without module identity errors', async ({
+  page,
+}) => {
+  const browserErrors = await prepareAuthenticatedOverview(page);
   await page.goto('/overview');
   await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
+  expect(browserErrors).toEqual([]);
+});
+
+test('built Admin loads the stored Chinese catalog before the first render', async ({ page }) => {
+  const browserErrors: string[] = [];
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  await page.addInitScript(() => {
+    window.localStorage.setItem('linketry.locale', 'zh-CN');
+    const state = { sawEnglish: false };
+    (window as unknown as { __localeFlash: typeof state }).__localeFlash = state;
+    new MutationObserver(() => {
+      if (document.body?.textContent?.includes('Sign In')) state.sawEnglish = true;
+    }).observe(document, { childList: true, subtree: true, characterData: true });
+  });
+  await page.goto('/login');
+  await expect(page.getByRole('button', { name: '登录' })).toBeVisible();
+  const sawEnglish = await page.evaluate(
+    () => (window as unknown as { __localeFlash: { sawEnglish: boolean } }).__localeFlash.sawEnglish
+  );
+  expect(sawEnglish).toBe(false);
   expect(browserErrors).toEqual([]);
 });

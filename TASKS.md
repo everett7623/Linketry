@@ -5,6 +5,21 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## 🟡 In Progress — Admin upgrades, batch 1 of 4 (v0.31.8, local)
+
+- [x] Split Simplified Chinese catalogs into an on-demand chunk and load stored locales before first render
+- [x] Report a reload hint when the on-demand QR module cannot be fetched
+- [x] Add production-build regression for Chinese first paint; full Admin unit and browser suites pass
+- [x] Synchronize v0.31.8 release metadata
+- [ ] Owner review, then commit/push/deploy
+- [ ] Batch 2: split `Links.tsx` without behaviour changes (v0.31.9)
+- [ ] Batch 3: local page-by-page visual audit report (dark/light/mobile)
+- [ ] Batch 4: branded QR design document
+
+Task record: `.codex/tasks/admin-locale-split-2026-10-17.md`
+
+---
+
 ## ✅ Completed — Admin UI/performance audit (v0.31.7, deployed)
 
 - [x] Fetch and inspect remote main; fast-forward README-only upstream change

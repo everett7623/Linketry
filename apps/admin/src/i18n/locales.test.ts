@@ -7,7 +7,9 @@ import {
   resolveLocale,
   supportedLocales,
 } from './locales.ts';
-import { messages } from './messages.ts';
+import { messages } from './allMessages.ts';
+import { englishMessages, getLoadedCatalog, loadCatalog } from './messages.ts';
+import { zhCNMessages } from './zh-CN/index.ts';
 
 const PLACEHOLDER_PATTERN = /\{([A-Za-z][A-Za-z0-9_]*)\}/g;
 
@@ -39,6 +41,14 @@ test('locale metadata has native labels and valid document attributes', () => {
     assert.ok(locale.direction === 'ltr' || locale.direction === 'rtl');
     assert.deepEqual(getLocaleDefinition(locale.code), locale);
   }
+});
+
+test('non-default catalogs load on demand and are cached', async () => {
+  assert.equal(getLoadedCatalog('en'), englishMessages);
+  assert.equal(getLoadedCatalog('zh-CN'), undefined);
+  const loaded = await loadCatalog('zh-CN');
+  assert.deepEqual(loaded, zhCNMessages);
+  assert.equal(getLoadedCatalog('zh-CN'), loaded);
 });
 
 test('every locale preserves English keys, non-empty values, and placeholders', () => {

@@ -4,7 +4,7 @@ import {
   IMPORT_CONTENT_MAX_BYTES,
   formatImportContentLimit,
 } from '../../../packages/shared/src/importLimits';
-import { messages, type Locale } from '../src/i18n/messages';
+import { messages, type Locale } from '../src/i18n/allMessages';
 import { expectNoSeriousAccessibilityViolations } from './accessibility';
 
 const link = {

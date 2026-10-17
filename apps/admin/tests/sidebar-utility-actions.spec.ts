@@ -1,6 +1,6 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
-import { messages } from '../src/i18n/messages';
+import { messages } from '../src/i18n/allMessages';
 import { EVERETTLABS_SUPPORT_URL } from '../src/utils/externalLinks';
 
 function apiResponse(data: unknown) {

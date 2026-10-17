@@ -2,9 +2,16 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-10-16
+Last updated: 2026-10-17
 
 ---
+
+## Admin locale-split entry bundle — v0.31.8 (local, not deployed)
+
+- Simplified Chinese catalogs move to an on-demand chunk; the Admin entry bundle drops from 50.9 kB to 36.5 kB gzip (155.6 kB to 114.6 kB raw). Stored non-default locales load before the first render.
+- QR generation reports a reload hint when its on-demand module cannot be fetched (for example a stale tab after a deployment).
+- Not committed, pushed or deployed; production, Demo and site remain on v0.31.7.
+- Evidence: `.codex/tasks/admin-locale-split-2026-10-17.md`.
 
 ## Admin UI and performance audit — v0.31.7 (deployed)
 
@@ -20,11 +27,11 @@ Last updated: 2026-10-16
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker backend             | ✅ 0.31.7 live | Production health reports v0.31.7 |
 | Admin frontend             | ✅ 0.31.7 live | Custom domain and Pages origin advertise v0.31.7; canonical JS/CSS verified |
-| Documentation              | ✅ 0.31.7 synchronized | Pending confirmations, theme-aware notifications and lazy QR loading |
+| Documentation              | ✅ 0.31.8 synchronized | On-demand Chinese catalog and QR module reload hint (source only) |
 | Deployment                 | ✅ 0.31.7 live | Production `38927722943`, Demo `38927721791`, site `38927729041` |
 | End-to-end test            | ✅ 0.31.7 live | Health/version, canonical Admin assets, production 401, Demo write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | ✅ 0.31.7 | Source, production, Demo and site parity verified |
+| Current version            | 🟡 0.31.8 source | Local source is v0.31.8; production, Demo and site remain on v0.31.7 |
 | Repository update target   | ✅ 0.31.7 | Authenticated dispatch deployed exact source commit `784691f` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |

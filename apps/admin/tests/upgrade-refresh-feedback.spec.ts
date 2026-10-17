@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
-import { messages } from '../src/i18n/messages';
+import { messages } from '../src/i18n/allMessages';
 import { UPGRADE_FEEDBACK_STORAGE_KEY } from '../src/utils/upgradeFeedback';
 
 function apiResponse(data: unknown) {

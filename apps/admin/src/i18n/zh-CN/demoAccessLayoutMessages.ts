@@ -1,0 +1,20 @@
+export const demoAccessLayoutMessages = {
+  collapseNavigation: '收起导航',
+  expandNavigation: '展开导航',
+  skipToContent: '跳到主要内容',
+  apiUnauthorized: '登录已失效或未授权。请使用实例管理员令牌重新登录。',
+  apiForbidden: '此操作需要 admin 作用域。请使用实例管理员令牌或 admin API 令牌。',
+  apiRateLimited: '尝试过于频繁，请稍后再试。',
+  apiTimeout: '请求超时。请重试或检查 API 来源地址。',
+  apiRequestFailed: '请求失败，请重试。',
+  demoLoginSubtitle: '输入公开预览码以打开演示管理界面',
+  demoAccessCode: '预览访问码',
+  demoAccessCodePlaceholder: '输入预览访问码',
+  demoAccessHint:
+    '预览码 {code} 仅用于解锁本管理界面。演示 API 仍可公开读取，访问码不是安全密钥。',
+  invalidDemoAccessCode: '预览访问码无效。',
+  showDemoAccessCode: '显示预览访问码',
+  hideDemoAccessCode: '隐藏预览访问码',
+  enterDemo: '进入演示',
+  viewVersionChangelog: '查看 Linketry v{version} 变更记录',
+} as const;

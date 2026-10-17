@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.8] - 2026-10-17
+
+### Changed
+
+- Load the Simplified Chinese Admin catalog on demand, reducing the entry bundle from 50.9 kB to 36.5 kB gzip; a stored non-default language still renders on first paint.
+
+### Fixed
+
+- QR generation shows a reload hint instead of a generic failure when its on-demand module cannot be fetched, such as in a tab opened before a deployment.
+
 ## [0.31.7] - 2026-10-16
 
 ### Fixed

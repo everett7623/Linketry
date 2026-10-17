@@ -5,7 +5,7 @@ import { normalizeApiBase } from './apiBase.ts';
 import { stripAdvancedLinkFilters } from './linkFilters.ts';
 import { enabledAdvancedCapabilityCount } from './capabilities.ts';
 import { getSetupWizardState } from './setupWizard.ts';
-import { messages } from '../i18n/messages.ts';
+import { messages } from '../i18n/allMessages.ts';
 import { formatMessage } from '../i18n/formatMessage.ts';
 
 test('Simple mode is the safe default', () => {

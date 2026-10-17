@@ -252,9 +252,15 @@ export function Links() {
 
   const showQr = async (link: LinkType) => {
     const url = buildShortUrl(link, defaultDomain);
+    let qrModule;
     try {
-      const { default: QRCode } = await import('qrcode');
-      const dataUrl = await QRCode.toDataURL(url, {
+      qrModule = await import('qrcode');
+    } catch {
+      error(t('qrModuleUnavailable'));
+      return;
+    }
+    try {
+      const dataUrl = await qrModule.default.toDataURL(url, {
         width: 320,
         margin: 2,
         errorCorrectionLevel: 'M',

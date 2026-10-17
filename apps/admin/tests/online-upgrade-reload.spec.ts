@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
-import { messages } from '../src/i18n/messages';
+import { messages } from '../src/i18n/allMessages';
 import { routeAdminRelease } from './helpers/adminReleaseRoute.ts';
 
 const targetVersion = '99.0.0';

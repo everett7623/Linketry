@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
-import { messages } from '../src/i18n/messages';
+import { messages } from '../src/i18n/allMessages';
 
 const link = {
   id: 'link_1',
