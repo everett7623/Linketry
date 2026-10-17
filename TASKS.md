@@ -5,7 +5,7 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## Admin upgrades — batches 1–2 deployed (v0.31.8–v0.31.11), batches 3–4 pending
+## Admin upgrades — batches 1–2 deployed (v0.31.8–v0.31.11), batch 3 audit reported, batch 4 pending
 
 - [x] Split Simplified Chinese catalogs into an on-demand chunk and load stored locales before first render
 - [x] Report a reload hint when the on-demand QR module cannot be fetched
@@ -19,7 +19,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Deploy v0.31.10: production `39018888232`, Demo `39018879375`, site `39018890140`; verify version/asset/auth parity
 - [x] Batch 2: split `Links.tsx` without behaviour changes (v0.31.11; 1282 → 507 lines, nine components, new dialog browser test)
 - [x] Deploy v0.31.11: production `39021671862`, Demo `39021667389`, site `39021674098`; verify version/asset/auth parity
-- [ ] Batch 3: local page-by-page visual audit report (dark/light/mobile)
+- [x] Batch 3: local page-by-page visual audit report (dark/light/mobile) — `.codex/tasks/admin-visual-audit-2026-10-17.md`; 100 captures, findings P1 (per-link Daily Clicks bars never render) to P3, fixes not started
 - [ ] Batch 4: branded QR design document
 
 Task record: `.codex/tasks/admin-locale-split-2026-10-17.md`
