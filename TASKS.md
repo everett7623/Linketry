@@ -15,6 +15,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Fix the Demo build-test failure from run `39011483517` (v0.31.9)
 - [x] Base v0.31.9 on fetched remote v0.31.8 (`53c8067` → `2e9f59f`)
 - [x] Deploy v0.31.9: production `39012101980`, Demo `39012101897`, site `39012103848`; verify version/asset/auth parity
+- [x] Re-review against remote `969c548`: fix blank Admin when the locale catalog request stalls (v0.31.10)
+- [ ] Deploy v0.31.10 to production, Demo and site; verify parity
 - [ ] Batch 2: split `Links.tsx` without behaviour changes
 - [ ] Batch 3: local page-by-page visual audit report (dark/light/mobile)
 - [ ] Batch 4: branded QR design document

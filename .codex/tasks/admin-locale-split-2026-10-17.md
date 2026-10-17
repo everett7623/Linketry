@@ -65,3 +65,12 @@ Verified the entry contains no Chinese catalog strings, the Chinese chunk contai
 - Site JSON-LD and llms.txt report v0.31.9. Production unauthenticated links/system APIs 401; missing slug 404; Demo create-link request 403.
 - AGENTS now explicitly requires fetch, local/remote version/SHA/dirty-state comparison, preservation of local changes, and integration of new remote commits before publishing.
 - Status-only follow-up uses skip-ci/skip-production markers.
+
+## v0.31.10 re-review fix
+
+- Baseline: fetched origin; local HEAD and `origin/main` both `969c548`, package version 0.31.9, no uncommitted changes before this work. No remote branches or open PRs beyond the stale July branches.
+- Finding (P2, introduced in v0.31.8): `main.tsx` awaited the stored locale's dynamic import with no bound. Reproduced against the production build with a stored `zh-CN` locale: normal → Chinese login; aborted chunk → English login (intended fallback); **never-answered chunk → `#root` still empty after 6 s**.
+- Fix: first paint races the catalog against a 3 s timeout, then renders; `loadCatalog` shares one in-flight promise so `LocaleProvider` switches to Chinese when the same request resolves.
+- Regression: unit test asserts concurrent loads share one promise; production-build smoke adds a stalled-catalog case. Mutation-checked: the new case fails against the v0.31.9 build and passes after the fix.
+- Validation: production-build smoke 3/3 (production and Demo-mode builds), Admin unit 68/68, TypeScript, full Admin browser suite 32/32.
+- Other review notes, not changed: commit `2e9f59f` uses an English subject (history on `main` is not rewritten); a tab opened before a deployment that changes Chinese strings falls back to English if the user switches language (same class as the QR reload hint); the Chinese chunk is emitted as `index-*.js`, which is easy to confuse with the entry when reading build output.

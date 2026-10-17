@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.31.10] - 2026-10-17
+
+### Fixed
+
+- The Admin no longer stays blank when a stored non-default language catalog request stalls; it renders in English after 3 seconds and switches once the catalog arrives. Concurrent catalog loads share one request.
+
 ## [0.31.9] - 2026-10-17
 
 ### Fixed

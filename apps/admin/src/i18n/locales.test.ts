@@ -46,7 +46,9 @@ test('locale metadata has native labels and valid document attributes', () => {
 test('non-default catalogs load on demand and are cached', async () => {
   assert.equal(getLoadedCatalog('en'), englishMessages);
   assert.equal(getLoadedCatalog('zh-CN'), undefined);
-  const loaded = await loadCatalog('zh-CN');
+  const pending = loadCatalog('zh-CN');
+  assert.equal(loadCatalog('zh-CN'), pending, 'concurrent loads share one request');
+  const loaded = await pending;
   assert.deepEqual(loaded, zhCNMessages);
   assert.equal(getLoadedCatalog('zh-CN'), loaded);
 });

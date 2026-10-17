@@ -164,15 +164,26 @@ const catalogLoaders: Record<Exclude<Locale, 'en'>, () => Promise<MessageCatalog
 };
 
 const loadedCatalogs: Partial<Record<Locale, MessageCatalog>> = { en: englishMessages };
+const pendingCatalogs: Partial<Record<Locale, Promise<MessageCatalog>>> = {};
 
 export function getLoadedCatalog(locale: Locale): MessageCatalog | undefined {
   return loadedCatalogs[locale];
 }
 
-export async function loadCatalog(locale: Locale): Promise<MessageCatalog> {
+export function loadCatalog(locale: Locale): Promise<MessageCatalog> {
   const loaded = loadedCatalogs[locale];
-  if (loaded) return loaded;
-  const catalog = await catalogLoaders[locale as Exclude<Locale, 'en'>]();
-  loadedCatalogs[locale] = catalog;
-  return catalog;
+  if (loaded) return Promise.resolve(loaded);
+  let pending = pendingCatalogs[locale];
+  if (!pending) {
+    pending = catalogLoaders[locale as Exclude<Locale, 'en'>]()
+      .then((catalog) => {
+        loadedCatalogs[locale] = catalog;
+        return catalog;
+      })
+      .finally(() => {
+        delete pendingCatalogs[locale];
+      });
+    pendingCatalogs[locale] = pending;
+  }
+  return pending;
 }

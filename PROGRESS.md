@@ -6,6 +6,12 @@ Last updated: 2026-10-17
 
 ---
 
+## Stalled locale catalog first paint — v0.31.10 (local, not deployed)
+
+- Baseline: local HEAD and `origin/main` both `969c548` (v0.31.9); no other uncommitted work.
+- Review of v0.31.8 found that a stalled (never-answered) Chinese catalog request left `#root` empty indefinitely. First paint now waits at most 3 seconds, then renders in English; `LocaleProvider` switches when the shared in-flight request resolves.
+- Evidence: `.codex/tasks/admin-locale-split-2026-10-17.md`.
+
 ## Demo build-test fix — v0.31.9 (deployed)
 
 - v0.31.8's new first-paint locale smoke test expected the production `Sign In` action; public Demo builds submit with `Enter Demo`, so Demo run `39011483517` failed before any Cloudflare write. The test now accepts either action and passes against both build modes locally.
@@ -33,11 +39,11 @@ Last updated: 2026-10-17
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker backend             | ✅ 0.31.9 live | Production health reports v0.31.9 |
 | Admin frontend             | ✅ 0.31.9 live | Custom domain and Pages origin advertise v0.31.9 |
-| Documentation              | ✅ 0.31.9 synchronized | On-demand Chinese catalog, QR module reload hint and Demo-compatible build test |
+| Documentation              | ✅ 0.31.10 synchronized | Bounded first-paint wait for stalled locale catalogs (source only) |
 | Deployment                 | ✅ 0.31.9 live | Production `39012101980`, Demo `39012101897`, site `39012103848` succeeded |
 | End-to-end test            | ✅ 0.31.9 live | Health/version, canonical Admin assets, production 401, Demo write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | ✅ 0.31.9 | Source, production, Demo and site version parity verified |
+| Current version            | 🟡 0.31.10 source | Source v0.31.10; production, Demo and site remain on v0.31.9 |
 | Repository update target   | ✅ 0.31.9 | Authenticated dispatch deployed exact source commit `2e9f59f` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |

@@ -95,3 +95,19 @@ test('built Admin loads the stored Chinese catalog before the first render', asy
   expect(sawEnglish).toBe(false);
   expect(browserErrors).toEqual([]);
 });
+
+test('built Admin still renders when the stored locale catalog request stalls', async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem('linketry.locale', 'zh-CN'));
+  let entryUrl: string | undefined;
+  await page.route('**/assets/index-*.js', async (route) => {
+    const url = route.request().url();
+    entryUrl ??= url;
+    if (url === entryUrl) await route.continue();
+    // Any other index-* chunk is the on-demand catalog: leave it unanswered.
+  });
+  await page.goto('/login');
+  const englishLabels = [messages.en.signIn, messages.en.enterDemo];
+  await expect(
+    page.getByRole('button', { name: new RegExp(`^(${englishLabels.join('|')})$`) })
+  ).toBeVisible({ timeout: 10_000 });
+});

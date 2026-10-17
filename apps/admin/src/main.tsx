@@ -13,6 +13,8 @@ import { loadCatalog } from './i18n/messages';
 import './index.css';
 
 const routerBaseName = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+// A stalled catalog request must not block the first paint; LocaleProvider switches once it arrives.
+const FIRST_PAINT_CATALOG_TIMEOUT_MS = 3000;
 
 function renderApp() {
   ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -38,4 +40,9 @@ function renderApp() {
   );
 }
 
-loadCatalog(initialLocale()).catch(() => undefined).then(renderApp);
+Promise.race([
+  loadCatalog(initialLocale()),
+  new Promise((resolve) => window.setTimeout(resolve, FIRST_PAINT_CATALOG_TIMEOUT_MS)),
+])
+  .catch(() => undefined)
+  .then(renderApp);
