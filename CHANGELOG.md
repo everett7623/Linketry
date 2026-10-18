@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.32.2] - 2026-10-18
+
+### Security
+
+- Updated the development and deployment toolchain, closing six of the thirteen npm advisories that remained after 0.32.1. Wrangler moves from 4.115.0 to 4.151.1 (declared floor `^4.151.1`). It now ships Miniflare 5.20261012.1-beta with sharp 0.35.5, which fixes the libheif and librsvg advisories, and undici 7.29.1, which fixes the HTTP client's cache, cookie, retry, decompression, WebSocket and TLS advisories. The Admin's PostCSS moves from 8.5.24 to 8.5.30 (declared floor `^8.5.30`), which pulls in nanoid 3.3.20 and source-map-js 1.2.2. These packages run only on developer machines and in the CI and deployment workflows. Rebuilding the 0.32.1 sources with the new toolchain produced a byte-identical Worker bundle and Admin build (checked with the Quick Deploy profile).
+- Still open: seven build-time advisories in Tailwind CSS 3.4.19 and its dependencies (braces, chokidar, fast-glob, micromatch, postcss-nested, postcss-selector-parser). Tailwind 3.4.19 is the last 3.x release and braces has no fixed version, so these clear only with the Tailwind CSS 4 migration, which is tracked as a separate task. Tailwind runs at build time on the repository's own sources and is not part of the Admin static output or the Worker. Production dependencies still audit clean.
+
+### Documentation
+
+- The supported toolchain in `SUPPORT.md` now requires Wrangler 4.151.1 or newer within major version 4, matching the Worker's declared dependency; deployments keep using the lockfile through `npm ci`.
+
 ## [0.32.1] - 2026-10-18
 
 ### Security

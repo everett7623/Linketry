@@ -5,6 +5,23 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## 🟡 In Progress — Dev/build toolchain advisories (v0.32.2)
+
+- [x] Fetch remote and record the baseline (`origin/main` `58ea539` at v0.32.0; built with approval on the local, unpushed v0.32.1 commit `00caf43`; production, Demo, Admin and site live at v0.32.0)
+- [x] Upgrade Worker `wrangler` 4.115.0 → 4.151.1 (Miniflare 5 beta with sharp 0.35.5 and undici 7.29.1) and Admin `postcss` 8.5.24 → 8.5.30 (nanoid 3.3.20, source-map-js 1.2.2) from the official registry; raise both declared floors and the `SUPPORT.md` Wrangler minimum
+- [x] Show the toolchain change ships nothing new: byte-identical Worker dry-run bundle and Quick Deploy Admin build on the 0.32.1 sources, every workflow Wrangler command still supported, registry signatures verified
+- [x] `npm audit` 13 → 7 (production 0); the remaining seven are the Tailwind CSS 3 build-time chain
+- [x] Synchronize v0.32.2 release metadata
+- [x] Local verification of all three CI jobs: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 73, Admin browser 41, production/Demo/Quick Deploy builds and Worker dry run
+- [x] Commit on `claude/funny-cray-3062ea` (approved 2026-10-19; not pushed)
+- [ ] Push together with v0.32.1 (awaiting approval; a push to `main` also deploys the Demo)
+- [ ] Deploy v0.32.2 to production, Demo and site (awaiting approval)
+- [ ] Separate task: Tailwind CSS 4 migration, which clears the remaining seven advisories (impact assessment and plan in the task record)
+
+Task record: `.codex/tasks/toolchain-advisories-2026-10-18.md`
+
+---
+
 ## 🟡 In Progress — Dependency and docs hygiene (v0.32.1)
 
 - [x] Fetch remote and record the baseline (`58ea539`; production, Demo, Admin and site at v0.32.0)
@@ -14,9 +31,10 @@ One item in "In Progress" at a time whenever possible.
 - [x] Correct production version stamps, ARCHITECTURE golden rules, KNOWN_ISSUES H2 and the PROGRESS status table
 - [x] Synchronize v0.32.1 release metadata
 - [x] Local verification of all three CI jobs: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 73, Admin browser 41 (rerun after two load timeouts), production/Demo/Quick Deploy builds and Worker dry run
-- [ ] Commit and push (awaiting approval; a push to `main` also deploys the Demo)
+- [x] Commit (`00caf43` on local `main`)
+- [ ] Push (awaiting approval; a push to `main` also deploys the Demo)
 - [ ] Deploy v0.32.1 to production, Demo and site (awaiting approval)
-- [ ] Separate task: dev/build-time advisories (tailwindcss 3 dependency chain needs a v4 migration; wrangler/miniflare, nanoid and source-map-js have non-major fixes)
+- [x] Separate task: dev/build-time advisories — the non-major fixes (wrangler/miniflare, nanoid, source-map-js) are done in v0.32.2; the Tailwind CSS 4 migration stays open there
 
 Task record: `.codex/tasks/dependency-docs-hygiene-2026-10-18.md`
 

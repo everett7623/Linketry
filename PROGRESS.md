@@ -6,6 +6,16 @@ Last updated: 2026-10-18
 
 ---
 
+## Dev/build toolchain advisories — v0.32.2 (source only, not deployed)
+
+- Baseline: fetched `origin/main` is `58ea539` (v0.32.0); this patch is built with the user's approval on the local, unpushed v0.32.1 commit `00caf43`. Production, Demo, Admin and site re-checked at v0.32.0 on 2026-10-18.
+- `npm audit` (all dependencies, official registry): 13 → 7. Wrangler 4.115.0 → 4.151.1 (declared floor and `SUPPORT.md` minimum 4.151.1) brings Miniflare 5.20261012.1-beta with sharp 0.35.5 and undici 7.29.1; PostCSS 8.5.24 → 8.5.30 (floor `^8.5.30`) brings nanoid 3.3.20 and source-map-js 1.2.2. `--omit=dev` stays at 0.
+- The remaining seven (braces, chokidar, fast-glob, micromatch, postcss-nested, postcss-selector-parser, tailwindcss) are Tailwind CSS 3.4.19's build-time chain. braces has no fixed release and Tailwind 3 has no newer release, so they clear only with the Tailwind CSS 4 migration (separate task; impact assessment and plan in the task record).
+- Output parity on the 0.32.1 sources: the Worker dry-run bundle is byte-identical under both Wrangler versions and all 86 Quick Deploy Admin files keep their hashes. Every Wrangler command and flag the workflows use is still supported, and all 216 installed packages pass registry signature verification.
+- No redirect, cache, migration, API or Admin behaviour change.
+- Local verification mirrored all three CI jobs after a clean `npm ci`: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 73 and browser 41 (first full run, no timeouts), production/Demo/Quick Deploy Admin builds with their smokes, and a Worker `wrangler deploy --dry-run` on 4.151.1. Evidence: `.codex/tasks/toolchain-advisories-2026-10-18.md`.
+- Not deployed: production, Demo and site stay on v0.32.0 until an approved release.
+
 ## Dependency and docs hygiene — v0.32.1 (source only, not deployed)
 
 - Baseline: local HEAD and `origin/main` both `58ea539` (v0.32.0 deployed); production, Demo, Admin and site re-checked at v0.32.0 on 2026-10-18.
@@ -79,13 +89,13 @@ Last updated: 2026-10-18
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.32.0 live | Production health reports v0.32.0; source is v0.32.1 (dependency and docs patch, not deployed) |
+| Worker backend             | ✅ 0.32.0 live | Production health reports v0.32.0; source is v0.32.2 (v0.32.1 dependency/docs and v0.32.2 toolchain patches, not deployed) |
 | Admin frontend             | ✅ 0.32.0 live | `admin.uukk.de` advertises v0.32.0 (re-checked 2026-10-18) |
-| Documentation              | ✅ 0.32.1 synchronized | Production version stamps, golden rules and this status table corrected |
+| Documentation              | ✅ 0.32.2 synchronized | Toolchain advisories, the `SUPPORT.md` Wrangler minimum and this status table updated |
 | Deployment                 | ✅ 0.32.0 live | Production `39082023476` (`41cd58f`) and `39083594207` (`58ea539`), Demo `39082018393`, site `39082023767` succeeded |
 | End-to-end test            | ✅ 0.32.0 live | Health/version on all tracks, production 401/404, Demo `qr-style` read and write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | 🟡 0.32.1 source | Production, Demo and site remain on v0.32.0 until the next approved deployment |
+| Current version            | 🟡 0.32.2 source | Production, Demo and site remain on v0.32.0 until the next approved deployment |
 | Repository update target   | ✅ 0.32.0 | Authenticated dispatch `39083594207` deployed `main` HEAD `58ea539` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
