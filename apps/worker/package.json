@@ -1,6 +1,6 @@
 {
   "name": "@linketry/worker",
-  "version": "0.32.0",
+  "version": "0.32.1",
   "author": "everettlabs",
   "license": "GPL-3.0-only",
   "private": true,
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@linketry/shared": "*",
-    "hono": "^4.5.0"
+    "hono": "^4.13.13"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240725.0",

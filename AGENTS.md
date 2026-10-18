@@ -2,9 +2,9 @@
 
 This file tells AI coding agents (Cascade, Codex, Copilot, etc.) how to work on this codebase safely and correctly.
 
-**Last updated**: 2026-10-13
-**Current version**: v0.32.0
-**Production version**: v0.31.9
+**Last updated**: 2026-10-18
+**Current version**: v0.32.1
+**Production version**: v0.32.0
 
 Version authority: root `package.json` and `PROGRESS.md`. Prefer those over older stamps in historical docs.
 

@@ -2,9 +2,20 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-10-17
+Last updated: 2026-10-18
 
 ---
+
+## Dependency and docs hygiene — v0.32.1 (source only, not deployed)
+
+- Baseline: local HEAD and `origin/main` both `58ea539` (v0.32.0 deployed); production, Demo, Admin and site re-checked at v0.32.0 on 2026-10-18.
+- Worker `hono` 4.12.32 → 4.13.13 (declared floor `^4.13.13`). This closes the advisories reported for hono ≤4.13.6, including the CORS middleware ReDoS (GHSA-8j4g-w8fx-2239), which reached the unauthenticated `/health` preflight because `healthCors` sets no `allowHeaders` (`/api/*` lists them and was not on the affected path). `npm audit --omit=dev` against the official registry reports 0 vulnerabilities.
+- `package-lock.json`: the `jsqr` entry added in v0.32.0 resolved from `registry.npmmirror.com`; it now points to `registry.npmjs.org` (same tarball, integrity unchanged). No mirror URLs remain.
+- Root `wrangler.jsonc` (Quick Deploy) carried `LINKETRY_VERSION = 0.31.0` since v0.31.0, which `/health` reports ahead of the bundled version. It now follows the release, and `scripts/cloudflare-one-click.test.mjs` fails when it drifts (checked against the stale value first).
+- Docs: production version stamps in CLAUDE, AGENTS, DEVELOPMENT, ARCHITECTURE and CONTRIBUTING corrected from v0.31.9 to v0.32.0; ARCHITECTURE golden rules aligned with the seven in AGENTS; KNOWN_ISSUES H2 parity refreshed; the Overall Status table below brought up to v0.32.0.
+- No redirect, cache, migration, API or Admin behaviour change.
+- Local verification mirrored all three CI jobs: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 73 and browser 41 (second full run; the first hit two 30 s load timeouts that passed on rerun), production/Demo/Quick Deploy Admin builds with their smokes, and a Worker `wrangler deploy --dry-run`. Evidence: `.codex/tasks/dependency-docs-hygiene-2026-10-18.md`.
+- Not deployed: production, Demo and site stay on v0.32.0 until an approved release.
 
 ## Branded QR Phase 1 — v0.32.0 (deployed)
 
@@ -68,14 +79,14 @@ Last updated: 2026-10-17
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.31.12 live | Production health reports v0.31.12 |
-| Admin frontend             | ✅ 0.31.12 live | Custom domain and Pages origin advertise v0.31.12 |
-| Documentation              | ✅ 0.32.0 synchronized | Branded QR Phase 1 and `/api/v1/qr-style` documented |
-| Deployment                 | ✅ 0.31.12 live | Production `39044243842`, Demo `39044226848`, site `39044246580` succeeded |
-| End-to-end test            | ✅ 0.31.12 live | Health/version, light-theme CSS, production 401/404, Demo write 403 verified |
+| Worker backend             | ✅ 0.32.0 live | Production health reports v0.32.0; source is v0.32.1 (dependency and docs patch, not deployed) |
+| Admin frontend             | ✅ 0.32.0 live | `admin.uukk.de` advertises v0.32.0 (re-checked 2026-10-18) |
+| Documentation              | ✅ 0.32.1 synchronized | Production version stamps, golden rules and this status table corrected |
+| Deployment                 | ✅ 0.32.0 live | Production `39082023476` (`41cd58f`) and `39083594207` (`58ea539`), Demo `39082018393`, site `39082023767` succeeded |
+| End-to-end test            | ✅ 0.32.0 live | Health/version on all tracks, production 401/404, Demo `qr-style` read and write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | ✅ 0.32.0 | Source, production, Demo and site version parity verified |
-| Repository update target   | ✅ 0.31.12 | Authenticated dispatch deployed exact source commit `a5e0d2d` |
+| Current version            | 🟡 0.32.1 source | Production, Demo and site remain on v0.32.0 until the next approved deployment |
+| Repository update target   | ✅ 0.32.0 | Authenticated dispatch `39083594207` deployed `main` HEAD `58ea539` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |

@@ -5,6 +5,23 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## 🟡 In Progress — Dependency and docs hygiene (v0.32.1)
+
+- [x] Fetch remote and record the baseline (`58ea539`; production, Demo, Admin and site at v0.32.0)
+- [x] Upgrade Worker `hono` 4.12.32 → 4.13.13 from the official registry (CORS middleware ReDoS and related advisories)
+- [x] Point the `jsqr` lockfile entry back to `registry.npmjs.org` (integrity matches the official tarball)
+- [x] Sync the Quick Deploy `wrangler.jsonc` `LINKETRY_VERSION` (stuck at 0.31.0) and guard it in the one-click contract test
+- [x] Correct production version stamps, ARCHITECTURE golden rules, KNOWN_ISSUES H2 and the PROGRESS status table
+- [x] Synchronize v0.32.1 release metadata
+- [x] Local verification of all three CI jobs: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 73, Admin browser 41 (rerun after two load timeouts), production/Demo/Quick Deploy builds and Worker dry run
+- [ ] Commit and push (awaiting approval; a push to `main` also deploys the Demo)
+- [ ] Deploy v0.32.1 to production, Demo and site (awaiting approval)
+- [ ] Separate task: dev/build-time advisories (tailwindcss 3 dependency chain needs a v4 migration; wrangler/miniflare, nanoid and source-map-js have non-major fixes)
+
+Task record: `.codex/tasks/dependency-docs-hygiene-2026-10-18.md`
+
+---
+
 ## Admin upgrades — batches 1–3 deployed (v0.31.8–v0.31.12), batch 4 design proposed
 
 - [x] Split Simplified Chinese catalogs into an on-demand chunk and load stored locales before first render

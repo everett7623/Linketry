@@ -39,6 +39,8 @@ test('Cloudflare one-click profile provisions only a normal production instance'
   assert.notEqual(config.kv_namespaces[0].id.trim(), '');
   assert.equal(config.assets.directory, 'apps/admin/dist');
   assert.equal(config.assets.binding, 'ASSETS');
+  // /health reports this var ahead of the bundled version, so it must follow the release.
+  assert.equal(config.vars.LINKETRY_VERSION, packageJson.version);
   assert.doesNotMatch(configSource, /DEMO|demo|pages/i);
   assert.doesNotMatch(configSource, /LINKETRY_DEMO_MODE|LINKETRY_DEMO_ALLOW/);
 

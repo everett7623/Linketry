@@ -7,6 +7,24 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.32.1] - 2026-10-18
+
+### Security
+
+- Upgraded the Worker's Hono dependency from 4.12.32 to 4.13.13 (declared floor `^4.13.13`). This closes the advisories published for Hono up to 4.13.6, including a regular-expression denial of service in the CORS middleware (GHSA-8j4g-w8fx-2239). The public `/health` endpoint was exposed because its CORS policy does not list allowed headers, so an unauthenticated preflight with a long header value could tie up the Worker isolate that also serves redirects; `/api/*` lists its allowed headers and was not affected. Production dependencies now audit clean against the official npm registry.
+
+### Fixed
+
+- Quick Deploy instances built from the root `wrangler.jsonc` report their real version on `/health` again. The file's `LINKETRY_VERSION` had stayed at 0.31.0 since v0.31.0, and the Worker reports that variable ahead of its bundled version. A deployment contract test now requires it to match `package.json`.
+
+### Maintenance
+
+- `package-lock.json` resolves `jsqr` from the official npm registry again (it was recorded from a mirror in 0.32.0), so installs and deployments fetch every package from `registry.npmjs.org`. The tarball and its integrity hash are unchanged.
+
+### Documentation
+
+- The agent, contributor, development and architecture guides now record v0.32.0 as the production version instead of v0.31.9, and the architecture guide lists the same seven golden rules as `AGENTS.md`. The project status table and the Pre-1.0 evidence entry in `docs/KNOWN_ISSUES.md` reflect the live v0.32.0 deployment.
+
 ## [0.32.0] - 2026-10-17
 
 ### Added
