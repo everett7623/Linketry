@@ -2,8 +2,8 @@
 
 This document describes the current runtime architecture. It is derived from the deployed Worker, Admin route tree, D1 migrations, and maintained operational documents. Historical plans are useful for product intent, but they do not override this document or the code.
 
-**Last updated**: 2026-10-18  
-**Current version**: v0.32.2
+**Last updated**: 2026-10-19  
+**Current version**: v0.32.3
 **Production version**: v0.32.0
 
 ---

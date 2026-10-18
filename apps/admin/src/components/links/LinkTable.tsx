@@ -92,7 +92,10 @@ export function LinkTable({
             {isAdvanced && <th className="text-left px-4 py-3">{t('limitsLabel')}</th>}
             <th className="text-left px-4 py-3">{t('status')}</th>
             <th className="text-left px-4 py-3">{t('created')}</th>
-            <th className="text-right px-4 py-3">{t('actions')}</th>
+            {/* Actions stay pinned so long rows scroll underneath instead of clipping them. */}
+            <th className="sticky right-0 bg-slate-900 shadow-[inset_1px_0_0_rgb(var(--color-slate-800))] text-right px-4 py-3 whitespace-nowrap">
+              {t('actions')}
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-800">
@@ -102,7 +105,7 @@ export function LinkTable({
             const expiredByTime = isLinkExpiredByTime(link);
             const expiredByClicks = isLinkExpiredByClicks(link);
             return (
-              <tr key={link.id} className="hover:bg-slate-800/50 transition-colors">
+              <tr key={link.id} className="group hover:bg-slate-800/50 transition-colors">
                 {isAdvanced && (
                   <td className="px-4 py-3">
                     <input
@@ -115,7 +118,7 @@ export function LinkTable({
                   </td>
                 )}
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="font-mono text-brand-400">/{link.slug}</span>
                     {link.source && (
                       <span className="text-xs text-slate-600 bg-slate-800 px-1.5 py-0.5 rounded">
@@ -134,7 +137,7 @@ export function LinkTable({
                     )}
                   </div>
                 </td>
-                <td className="px-4 py-3 max-w-xs">
+                <td className="px-4 py-3 max-w-[16rem]">
                   <p className="truncate text-slate-300" title={link.long_url}>
                     {link.long_url}
                   </p>
@@ -181,11 +184,12 @@ export function LinkTable({
                 <td className="px-4 py-3">
                   <StatusBadge status={effectiveStatus} />
                 </td>
-                <td className="px-4 py-3 text-slate-500 text-xs">
+                <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">
                   {createdDateFormatter.format(new Date(link.created_at))}
                 </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center justify-end gap-1">
+                {/* The opaque pinned cell re-applies the row hover tint through an overlay. */}
+                <td className="sticky right-0 bg-slate-900 shadow-[inset_1px_0_0_rgb(var(--color-slate-800))] px-4 py-3 before:pointer-events-none before:absolute before:inset-0 before:bg-slate-800/50 before:opacity-0 before:transition-opacity group-hover:before:opacity-100">
+                  <div className="relative flex items-center justify-end gap-1">
                     <button
                       onClick={() => onCopy(link)}
                       title={t('copy')}

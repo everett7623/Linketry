@@ -1,5 +1,5 @@
-import React from 'react';
-import { Globe2, SlidersHorizontal } from 'lucide-react';
+import React, { useId, useState } from 'react';
+import { ChevronDown, Globe2, SlidersHorizontal } from 'lucide-react';
 import { useLocale } from '../../contexts/LocaleContext';
 import { BulkUtmTool } from './BulkUtmTool';
 
@@ -41,11 +41,38 @@ export function LinkAdvancedFilters({
   onBulkUtmCompleted,
 }: LinkAdvancedFiltersProps) {
   const { t } = useLocale();
+  // Below `md` the eight fields push results past the fold, so they start collapsed there;
+  // from `md` up they are always shown and the toggle is hidden.
+  const [expanded, setExpanded] = useState(false);
+  const fieldsId = useId();
+  const activeCount = Object.values(values).filter(Boolean).length;
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-slate-300">
+      <div
+        className={`flex flex-wrap items-center justify-between gap-3 md:mb-3 ${expanded ? 'mb-3' : ''}`}
+      >
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={fieldsId}
+          onClick={() => setExpanded((open) => !open)}
+          className="flex items-center gap-2 rounded-md text-sm font-semibold text-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden"
+        >
+          <SlidersHorizontal size={15} className="text-brand-400" aria-hidden="true" />
+          {t('advancedFilters')}
+          {activeCount > 0 && (
+            <span className="rounded-full bg-brand-500/15 px-2 py-0.5 text-xs font-medium text-brand-400">
+              {t('advancedFiltersActive', { count: activeCount })}
+            </span>
+          )}
+          <ChevronDown
+            size={15}
+            aria-hidden="true"
+            className={`text-slate-500 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          />
+        </button>
+        <div className="hidden items-center gap-2 text-sm font-semibold text-slate-300 md:flex">
           <SlidersHorizontal size={15} className="text-brand-400" />
           {t('advancedFilters')}
         </div>
@@ -73,7 +100,10 @@ export function LinkAdvancedFilters({
           </button>
         </div>
       </div>
-      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div
+        id={fieldsId}
+        className={`${expanded ? 'grid' : 'hidden'} gap-3 md:grid md:grid-cols-3 xl:grid-cols-6`}
+      >
         <input
           type="text"
           aria-label={t('tag')}

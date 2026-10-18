@@ -33,7 +33,13 @@ import { LinkFilterBar } from '../components/links/LinkFilterBar';
 import { LinkTable } from '../components/links/LinkTable';
 import { LinkViewToolbar } from '../components/links/LinkViewToolbar';
 import { QrCodeModal, type LinkQrCode } from '../components/links/QrCodeModal';
-import { readLinkViewPreference, writeLinkViewPreference, type LinkView } from '../utils/linkView';
+import {
+  defaultLinkView,
+  isNarrowLinkViewport,
+  readLinkViewPreference,
+  writeLinkViewPreference,
+  type LinkView,
+} from '../utils/linkView';
 import { formatApiErrorMessage } from '../utils/apiErrorMessage';
 
 const PAGE_SIZE = 20;
@@ -57,7 +63,9 @@ export function Links() {
   const [actionLoading, setActionLoading] = useState(false);
   const [replaceOpen, setReplaceOpen] = useState(false);
   const [domainMigrationOpen, setDomainMigrationOpen] = useState(false);
-  const [linkView, setLinkView] = useState<LinkView>(readLinkViewPreference);
+  const [linkView, setLinkView] = useState<LinkView>(() =>
+    readLinkViewPreference(undefined, defaultLinkView(isNarrowLinkViewport()))
+  );
   const [searchInput, setSearchInput] = useState(() => searchParams.get('keyword') ?? '');
   const { success, error } = useToast();
   const { isAdvanced } = useAdminMode();

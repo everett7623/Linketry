@@ -2,15 +2,32 @@ import { readBrowserSetting, writeBrowserSetting, type StorageLike } from './bro
 
 export type LinkView = 'table' | 'cards';
 
+// Matches Tailwind's `md` breakpoint: below it the table needs sideways scrolling.
+export const NARROW_LINK_VIEW_QUERY = '(max-width: 767px)';
+
 export function normalizeLinkView(value: string | null | undefined): LinkView {
   return value === 'cards' ? 'cards' : 'table';
 }
 
-export function readLinkViewPreference(storage?: StorageLike): LinkView {
+// Phones get cards until the operator picks a view; a stored choice always wins.
+export function defaultLinkView(isNarrow: boolean): LinkView {
+  return isNarrow ? 'cards' : 'table';
+}
+
+export function isNarrowLinkViewport(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia(NARROW_LINK_VIEW_QUERY).matches
+  );
+}
+
+export function readLinkViewPreference(storage?: StorageLike, fallback: LinkView = 'table'): LinkView {
   try {
-    return normalizeLinkView(readBrowserSetting('linkView', storage));
+    const stored = readBrowserSetting('linkView', storage);
+    return stored === 'cards' || stored === 'table' ? stored : fallback;
   } catch {
-    return 'table';
+    return fallback;
   }
 }
 

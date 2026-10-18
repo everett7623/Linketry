@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { StorageLike } from './browserStorage.ts';
-import { normalizeLinkView, readLinkViewPreference, writeLinkViewPreference } from './linkView.ts';
+import {
+  defaultLinkView,
+  normalizeLinkView,
+  readLinkViewPreference,
+  writeLinkViewPreference,
+} from './linkView.ts';
 
 function memoryStorage(): StorageLike {
   const values = new Map<string, string>();
@@ -36,5 +41,18 @@ test('Links view falls back safely when browser storage is unavailable', () => {
   };
 
   assert.equal(readLinkViewPreference(storage), 'table');
+  assert.equal(readLinkViewPreference(storage, 'cards'), 'cards');
   assert.doesNotThrow(() => writeLinkViewPreference('cards', storage));
+});
+
+test('Narrow screens default to cards until a valid view is stored', () => {
+  assert.equal(defaultLinkView(true), 'cards');
+  assert.equal(defaultLinkView(false), 'table');
+
+  const storage = memoryStorage();
+  assert.equal(readLinkViewPreference(storage, defaultLinkView(true)), 'cards');
+  storage.setItem('linketry_link_view', 'grid');
+  assert.equal(readLinkViewPreference(storage, defaultLinkView(true)), 'cards');
+  writeLinkViewPreference('table', storage);
+  assert.equal(readLinkViewPreference(storage, defaultLinkView(true)), 'table');
 });

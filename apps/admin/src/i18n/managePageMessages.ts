@@ -163,6 +163,7 @@ export const managePageMessages = {
   affiliate: 'Affiliate',
   validDestinationFirst: 'Enter a valid destination URL first',
   advancedFilters: 'Advanced Filters',
+  advancedFiltersActive: '{count} active',
   clear: 'Clear',
   anyPassword: 'Any Password',
   noPassword: 'No Password',

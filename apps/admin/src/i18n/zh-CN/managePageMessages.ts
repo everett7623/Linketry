@@ -156,6 +156,7 @@ export const managePageMessages = {
   affiliate: '联盟推广',
   validDestinationFirst: '请先输入有效的目标网址',
   advancedFilters: '高级筛选',
+  advancedFiltersActive: '已启用 {count} 项',
   clear: '清除',
   anyPassword: '全部密码状态',
   noPassword: '无密码',

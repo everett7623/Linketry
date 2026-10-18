@@ -5,6 +5,24 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## 🟡 In Progress — Links layout and repository cleanup (v0.32.3)
+
+- [x] Fast-forward local `main` to the v0.32.2 commit `d5f2f1a` (approved 2026-10-19) and reinstall from the merged lockfile
+- [x] Pin the Links table Actions column, wrap short-link badges, cap destinations at 16rem and keep created dates on one line (1440 px overflow 144 → 0 px on the audit-like dataset)
+- [x] Default to card view on phones without a stored view and collapse Advanced Filters below `md` with an active-filter count (first result 876 → 479 px)
+- [x] Add `tests/links-layout.spec.ts` (fails against the previous layout) and a linkView unit test
+- [x] Remove 15 PR #18 leftovers from the repository root (root PR template, `deploy.sh`, rollback guide with remote `DROP INDEX`, reports, `worktree.diff`); refresh `docs/PRODUCT_GAP_AUDIT.md`
+- [x] Local cleanup (stale branches, July stash, Syncthing conflict copies, over-long Codex refs) and five merged remote branches deleted
+- [x] Synchronize v0.32.3 release metadata
+- [x] Local verification of all three CI jobs on the merged state: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 74, Admin browser 45 (first run), production/Demo/Quick Deploy builds and Worker dry run
+- [x] Commit locally (approved 2026-10-19; not pushed)
+- [ ] Push v0.32.1–v0.32.3 and deploy production, Demo and site (awaiting approval; a push to `main` also deploys the Demo)
+- [ ] Remaining audit P3 items: mobile touch targets and layout polish
+
+Task record: `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`
+
+---
+
 ## 🟡 In Progress — Dev/build toolchain advisories (v0.32.2)
 
 - [x] Fetch remote and record the baseline (`origin/main` `58ea539` at v0.32.0; built with approval on the local, unpushed v0.32.1 commit `00caf43`; production, Demo, Admin and site live at v0.32.0)
@@ -56,7 +74,7 @@ Task record: `.codex/tasks/dependency-docs-hygiene-2026-10-18.md`
 - [x] Deploy v0.31.11: production `39021671862`, Demo `39021667389`, site `39021674098`; verify version/asset/auth parity
 - [x] Batch 3: local page-by-page visual audit report (dark/light/mobile) — `.codex/tasks/admin-visual-audit-2026-10-17.md`; 100 captures, findings P1 (per-link Daily Clicks bars never render) to P3
 - [x] v0.31.12: fix audit P1 chart, unlabelled selects, audit log scroll region, light-theme contrast, dev proxy; deployed (production `39044243842`, Demo `39044226848`, site `39044246580`)
-- [ ] Links table Actions clipping at 1440 px and mobile Links layout (collapsed filters, card default)
+- [x] Links table Actions clipping at 1440 px and mobile Links layout (collapsed filters, card default) — v0.32.3
 - [x] Batch 4: branded QR design document — `.codex/tasks/branded-qr-design-2026-10-17.md` (decisions recorded 2026-10-17)
 - [x] v0.31.13: QR quiet zone 2 → 4 modules (standalone patch)
 - [x] v0.32.0: branded QR Phase 1 (style panel, D1 default style with 48 kB logo cap, PNG/SVG export, decode check)

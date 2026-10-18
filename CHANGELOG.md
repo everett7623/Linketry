@@ -7,6 +7,21 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.32.3] - 2026-10-19
+
+### Fixed
+
+- The Links table keeps its Actions column in view. The column stays pinned to the right edge behind a thin divider, with the same row hover tint as the other cells, so long rows scroll underneath it instead of pushing the delete button off-screen. Source badges now wrap under long slugs, destinations are capped slightly narrower (the full URL stays in the tooltip), and created dates stay on one line. At 1440 px the widest rows from the visual audit now fit without sideways scrolling.
+- On phones the Links page opens in card view until you choose a view; a stored table or card choice still wins. Advanced Filters start collapsed behind a toggle that shows how many filters are active, so the first link is visible without scrolling. From tablet width up, the filters stay open as before.
+
+### Removed
+
+- Fifteen leftover process files from the v0.29.20 optimization pull request at the repository root. Among them were a root `PULL_REQUEST_TEMPLATE.md` that GitHub used to pre-fill every new pull request with that PR's description, a `deploy.sh` that applied remote migrations and deployed outside the protected workflows and their gates, and a rollback guide that suggested dropping production indexes. Deployment, backup and rollback guidance remains in `DEPLOYMENT.md`, `SUPPORT.md` and `docs/`.
+
+### Documentation
+
+- `docs/PRODUCT_GAP_AUDIT.md` reports v0.32.0 as the live version.
+
 ## [0.32.2] - 2026-10-18
 
 ### Security

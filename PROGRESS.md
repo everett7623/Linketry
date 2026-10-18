@@ -2,9 +2,19 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-10-18
+Last updated: 2026-10-19
 
 ---
+
+## Links layout and repository cleanup — v0.32.3 (source only, not deployed)
+
+- Baseline: local `main` fast-forwarded to the v0.32.2 commit `d5f2f1a` (on v0.32.1 `00caf43`); `origin/main` is still `58ea539` (v0.32.0). Production, Demo, Admin and site remain on v0.32.0.
+- Links table at 1440 px (visual audit P2): the Actions column is pinned to the right edge with a divider and the row hover tint, short-link badges wrap, the destination cap drops from 20rem to 16rem and created dates no longer wrap. On a 20-link audit-like dataset the overflow drops from 144 px to 0; narrower screens scroll the other columns underneath the pinned actions.
+- Links on phones (audit P2): card view by default below `md` when no view is stored (a stored choice wins); Advanced Filters collapse behind a disclosure toggle with an active-filter count. The first result moves from 876 px to 479 px on a 390×844 screen.
+- Removed 15 tracked PR #18 leftovers from the repository root, including the root `PULL_REQUEST_TEMPLATE.md` (pre-filled every new PR), `deploy.sh` (remote migrations and deploys outside the protected workflows) and `ROLLBACK_GUIDE.md` (remote `DROP INDEX`). `docs/PRODUCT_GAP_AUDIT.md` now reports v0.32.0 live.
+- Outside the tree: four stale local branches, the 2026-07-23 stash, five Syncthing conflict copies under `.git` and three over-long Codex refs removed locally; five merged remote branches deleted, so `origin` has only `main`.
+- New `apps/admin/tests/links-layout.spec.ts` (3 of its 4 tests failed against the previous code) and a linkView unit test. Local verification mirrored all three CI jobs: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 74 and browser 45, production/Demo/Quick Deploy builds and the Worker dry run. Evidence: `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`.
+- No Worker, redirect, API, migration or stored-data change.
 
 ## Dev/build toolchain advisories — v0.32.2 (source only, not deployed)
 
@@ -89,13 +99,13 @@ Last updated: 2026-10-18
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.32.0 live | Production health reports v0.32.0; source is v0.32.2 (v0.32.1 dependency/docs and v0.32.2 toolchain patches, not deployed) |
+| Worker backend             | ✅ 0.32.0 live | Production health reports v0.32.0; source is v0.32.3 (v0.32.1 dependency/docs, v0.32.2 toolchain and v0.32.3 Links layout/cleanup patches, not deployed) |
 | Admin frontend             | ✅ 0.32.0 live | `admin.uukk.de` advertises v0.32.0 (re-checked 2026-10-18) |
-| Documentation              | ✅ 0.32.2 synchronized | Toolchain advisories, the `SUPPORT.md` Wrangler minimum and this status table updated |
+| Documentation              | ✅ 0.32.3 synchronized | Links layout fix, repository cleanup and this status table recorded |
 | Deployment                 | ✅ 0.32.0 live | Production `39082023476` (`41cd58f`) and `39083594207` (`58ea539`), Demo `39082018393`, site `39082023767` succeeded |
 | End-to-end test            | ✅ 0.32.0 live | Health/version on all tracks, production 401/404, Demo `qr-style` read and write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | 🟡 0.32.2 source | Production, Demo and site remain on v0.32.0 until the next approved deployment |
+| Current version            | 🟡 0.32.3 source | Production, Demo and site remain on v0.32.0 until the next approved deployment |
 | Repository update target   | ✅ 0.32.0 | Authenticated dispatch `39083594207` deployed `main` HEAD `58ea539` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
