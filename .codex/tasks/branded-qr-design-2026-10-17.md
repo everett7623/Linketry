@@ -1,6 +1,6 @@
 # Branded QR — design proposal (batch 4, 2026-10-17)
 
-Status: quiet zone shipped in v0.31.13 (`8cde886`); Phase 1 implemented in v0.32.0. Original baseline `a5e0d2d` (v0.31.12 deployed).
+Status: quiet zone shipped in v0.31.13 (`8cde886`); Phase 1 shipped in v0.32.0 (`41cd58f`, deployed to production, Demo and site). Original baseline `a5e0d2d` (v0.31.12 deployed).
 Roadmap entry: "branded QR Code assets with visual safety guardrails, PNG/SVG/PDF exports, and scan attribution that is labeled separately from link-click analytics" (`docs/ROADMAP.md`, `TASKS.md` V9+).
 
 ## Current state

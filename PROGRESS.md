@@ -6,7 +6,9 @@ Last updated: 2026-10-17
 
 ---
 
-## Branded QR Phase 1 — v0.32.0 (source only)
+## Branded QR Phase 1 — v0.32.0 (deployed)
+
+- Deployed `41cd58f` to production, Demo and site. Live: health and favicon `?v=` at 0.32.0 on all tracks, `llms.txt` 0.32.0, production `/api/v1/links`, `/system/upgrade` and `/qr-style` return 401 without a token, unknown slug 404, Demo `GET /qr-style` returns the standard style, Demo `PUT /qr-style` and `POST /links` return 403.
 
 - Baseline: local HEAD and `origin/main` both `8cde886` (v0.31.13 deployed); production, Demo and site verified at v0.31.13.
 - Admin QR dialog gains a style panel (colours, centre logo, caption, size, PNG/SVG) with blocking guardrails for inverted or low-contrast colours and a decode check (`jsqr`, separate lazy chunk loaded only for styled codes).
@@ -72,7 +74,7 @@ Last updated: 2026-10-17
 | Deployment                 | ✅ 0.31.12 live | Production `39044243842`, Demo `39044226848`, site `39044246580` succeeded |
 | End-to-end test            | ✅ 0.31.12 live | Health/version, light-theme CSS, production 401/404, Demo write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | 🟡 0.32.0 source | Production, Demo and site run v0.31.13 until deployed |
+| Current version            | ✅ 0.32.0 | Source, production, Demo and site version parity verified |
 | Repository update target   | ✅ 0.31.12 | Authenticated dispatch deployed exact source commit `a5e0d2d` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
