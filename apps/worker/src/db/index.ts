@@ -851,6 +851,11 @@ export async function getSettings(env: Env): Promise<Record<string, string>> {
   return map;
 }
 
+export async function getSetting(env: Env, key: string): Promise<string | null> {
+  const row = await env.DB.prepare('SELECT value FROM settings WHERE key = ?').bind(key).first<{ value: string | null }>();
+  return row?.value ?? null;
+}
+
 export async function setSetting(env: Env, key: string, value: string, updatedAt: string): Promise<void> {
   await env.DB.prepare(
     'INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at'

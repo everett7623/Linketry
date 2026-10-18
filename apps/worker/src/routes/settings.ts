@@ -39,6 +39,7 @@ settings.get('/', async (c) => {
   delete allSettings.utm_templates;
   delete allSettings.link_notes;
   delete allSettings.notification_channels;
+  delete allSettings.qr_style_default;
   if ('webhook_secret' in allSettings) {
     allSettings.webhook_secret = '';
   }
@@ -82,6 +83,7 @@ const INTERNALLY_MANAGED_KEYS = new Set([
   'link_notes',
   'notification_channels',
   'public_stats_shares',
+  'qr_style_default',
   'traffic_anomaly_config',
   'traffic_anomaly_state',
   'utm_templates',

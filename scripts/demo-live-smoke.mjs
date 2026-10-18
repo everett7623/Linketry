@@ -19,6 +19,7 @@ const CORE_READ_PATHS = [
   '/api/v1/system/capabilities',
   '/api/v1/analytics-alerts',
   '/api/v1/utm-templates',
+  '/api/v1/qr-style',
   '/api/v1/notifications/config',
   '/api/v1/webhooks/config',
 ];

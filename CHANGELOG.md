@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.32.0] - 2026-10-17
+
+### Added
+
+- Branded QR codes in the Admin QR dialog: code and background colours, an optional centre logo (PNG, JPEG, WebP or SVG uploads, stored as a PNG of at most 256 px and 48 kB), an optional short-URL caption, 512 / 1024 / 2048 px sizes, and PNG or self-contained SVG downloads.
+- Safety guardrails block downloads that would not scan: the code colour must be darker than the background with at least 4.5:1 contrast, logos force error correction H and cover a fixed centred box, and every styled code is decoded back to the exact short URL by a decoder that loads only when a code is styled. If the decoder cannot load, the dialog warns instead of blocking.
+- `GET /api/v1/qr-style` (read) and `PUT /api/v1/qr-style` (admin) store one instance-wide default style in the existing settings table (no migration). The value is kept out of `GET /api/v1/settings`, audited as `qr_style.update`, included in backups, and read-only in the Demo.
+
 ## [0.31.13] - 2026-10-17
 
 ### Fixed

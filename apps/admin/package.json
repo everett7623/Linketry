@@ -1,6 +1,6 @@
 {
   "name": "@linketry/admin",
-  "version": "0.31.13",
+  "version": "0.32.0",
   "author": "everettlabs",
   "license": "GPL-3.0-only",
   "private": true,
@@ -19,6 +19,7 @@
     "@linketry/shared": "*",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.12",
+    "jsqr": "^1.4.0",
     "lucide-react": "^0.418.0",
     "qrcode": "^1.5.4",
     "react": "^18.3.1",

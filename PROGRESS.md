@@ -6,9 +6,16 @@ Last updated: 2026-10-17
 
 ---
 
-## QR quiet zone — v0.31.13 (source only)
+## Branded QR Phase 1 — v0.32.0 (source only)
+
+- Baseline: local HEAD and `origin/main` both `8cde886` (v0.31.13 deployed); production, Demo and site verified at v0.31.13.
+- Admin QR dialog gains a style panel (colours, centre logo, caption, size, PNG/SVG) with blocking guardrails for inverted or low-contrast colours and a decode check (`jsqr`, separate lazy chunk loaded only for styled codes).
+- New `GET/PUT /api/v1/qr-style` stores the instance default in the `qr_style_default` setting; shared validator in `packages/shared/src/qrStyle.ts`. No migration, no redirect-path change. PDF and scan attribution stay deferred (Phase 2 / 3).
+
+## QR quiet zone — v0.31.13 (deployed)
 
 - Baseline: local HEAD and `origin/main` both `9a12731` (branded QR design); clean tree.
+- Deployed `8cde886` to production, Demo and site; health, favicon `?v=`, `llms.txt`, 401/404/403 checks all at 0.31.13.
 - First decision from the branded QR design: Admin QR codes use the spec's four-module quiet zone instead of two. Render options moved to `apps/admin/src/utils/qrCode.ts` with unit coverage, as the base for branded QR Phase 1 (v0.32.0).
 
 ## Visual audit fixes — v0.31.12 (deployed)
@@ -61,11 +68,11 @@ Last updated: 2026-10-17
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker backend             | ✅ 0.31.12 live | Production health reports v0.31.12 |
 | Admin frontend             | ✅ 0.31.12 live | Custom domain and Pages origin advertise v0.31.12 |
-| Documentation              | ✅ 0.31.13 synchronized | QR quiet zone meets the specification |
+| Documentation              | ✅ 0.32.0 synchronized | Branded QR Phase 1 and `/api/v1/qr-style` documented |
 | Deployment                 | ✅ 0.31.12 live | Production `39044243842`, Demo `39044226848`, site `39044246580` succeeded |
 | End-to-end test            | ✅ 0.31.12 live | Health/version, light-theme CSS, production 401/404, Demo write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | 🟡 0.31.13 source | Production, Demo and site still run v0.31.12 until deployed |
+| Current version            | 🟡 0.32.0 source | Production, Demo and site run v0.31.13 until deployed |
 | Repository update target   | ✅ 0.31.12 | Authenticated dispatch deployed exact source commit `a5e0d2d` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |

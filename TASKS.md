@@ -24,7 +24,9 @@ One item in "In Progress" at a time whenever possible.
 - [ ] Links table Actions clipping at 1440 px and mobile Links layout (collapsed filters, card default)
 - [x] Batch 4: branded QR design document — `.codex/tasks/branded-qr-design-2026-10-17.md` (decisions recorded 2026-10-17)
 - [x] v0.31.13: QR quiet zone 2 → 4 modules (standalone patch)
-- [ ] v0.32.0: branded QR Phase 1 (style panel, D1 default style with 48 kB logo cap, PNG/SVG export, decode check)
+- [x] v0.32.0: branded QR Phase 1 (style panel, D1 default style with 48 kB logo cap, PNG/SVG export, decode check)
+- [ ] Branded QR Phase 2: Worker SVG endpoint for API tokens, PDF export
+- [ ] Branded QR Phase 3: scan attribution (needs explicit redirect-path approval)
 
 Task record: `.codex/tasks/admin-locale-split-2026-10-17.md`
 

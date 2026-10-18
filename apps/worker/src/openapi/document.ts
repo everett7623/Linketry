@@ -125,6 +125,8 @@ export const API_OPERATIONS: ApiOperation[] = [
   ['get', '/utm-templates', 'List UTM templates', 'UTM templates', 'read'],
   ['post', '/utm-templates', 'Create a UTM template', 'UTM templates', 'write'],
   ['delete', '/utm-templates/{id}', 'Delete a UTM template', 'UTM templates', 'write'],
+  ['get', '/qr-style', 'Read the default QR Code style', 'QR Codes', 'read'],
+  ['put', '/qr-style', 'Replace the default QR Code style', 'QR Codes', 'admin'],
   ['get', '/link-notes/{id}', 'Read a private link note', 'Links', 'read'],
   ['put', '/link-notes/{id}', 'Update a private link note', 'Links', 'write'],
   [

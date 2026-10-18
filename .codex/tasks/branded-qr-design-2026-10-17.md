@@ -1,6 +1,6 @@
 # Branded QR — design proposal (batch 4, 2026-10-17)
 
-Status: proposal only; nothing implemented. Baseline `a5e0d2d` (v0.31.12 deployed).
+Status: quiet zone shipped in v0.31.13 (`8cde886`); Phase 1 implemented in v0.32.0. Original baseline `a5e0d2d` (v0.31.12 deployed).
 Roadmap entry: "branded QR Code assets with visual safety guardrails, PNG/SVG/PDF exports, and scan attribution that is labeled separately from link-click analytics" (`docs/ROADMAP.md`, `TASKS.md` V9+).
 
 ## Current state
@@ -100,6 +100,16 @@ The decode check uses a lazily loaded decoder (candidate: `jsqr`, ~45 kB min) th
 4. PDF: deferred to Phase 2.
 5. Scan attribution: deferred; revisit after Phase 1.
 6. Next: implement Phase 1 as v0.32.0.
+
+## Phase 1 implementation notes (v0.32.0)
+
+- Shared rules: `packages/shared/src/qrStyle.ts` (`validateQrStyle`, `checkQrColors`, `readPngDataUrlSize`, `parseStoredQrStyle`). Worker tests in `apps/worker/src/qr/stylePolicy.test.mjs`.
+- Worker: `routes/qrStyle.ts` (GET default scope, PUT `admin`), `db.getSetting`, `qr_style_default` stripped from and refused by `/settings`, OpenAPI entries, Demo live smoke reads `/api/v1/qr-style`.
+- Admin: `utils/qrCode.ts` builds one SVG from the QR matrix (quiet zone 4, centred logo box at 24 % of the side with modules removed, caption below the quiet zone); `utils/qrRender.ts` rasterises it for PNG, downscales logos and lazy-loads `jsqr`. `QrCodeModal` owns the style panel; `Links.tsx` only opens it.
+- Decode check runs on the 512 px preview whenever the style differs from the standard look; the standard look skips the decoder entirely. Decoder load failure warns and allows the download, as designed.
+- Deviation: the Settings → Appearance summary was folded into the dialog ("Reset to standard" + "Save as default"); a separate summary can follow if wanted.
+- Restore: backups contain the style, but restore does not write settings back for any key, so this matches existing behaviour.
+- Tests: `apps/admin/src/utils/qrCode.test.ts`, `apps/admin/tests/qr-style.spec.ts` (independent jsQR decode of the downloaded PNG, SVG content, colour blocks, save/reload, decoder-only-when-styled, failed-decode block with mutation check, decoder unavailable).
 
 ## Decisions originally requested
 

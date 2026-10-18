@@ -24,6 +24,7 @@ import maintenanceRoutes from './maintenance';
 import metadataRoutes from './metadata';
 import notificationRoutes from './notifications';
 import openApiRoutes from './openapi';
+import qrStyleRoutes from './qrStyle';
 import redirectRuleRoutes from './redirectRules';
 import settingsRoutes from './settings';
 import systemRoutes from './system';
@@ -52,6 +53,7 @@ export function registerAdminApiRoutes(app: Hono<{ Bindings: Env }>): void {
     app.route(`${prefix}/analytics-reports`, analyticsReportRoutes);
     app.route(`${prefix}/analytics-alerts`, trafficAnomalyRoutes);
     app.route(`${prefix}/utm-templates`, utmTemplateRoutes);
+    app.route(`${prefix}/qr-style`, qrStyleRoutes);
     app.route(`${prefix}/link-notes`, linkNoteRoutes);
     app.route(`${prefix}/conversions`, conversionRoutes);
     app.route(`${prefix}/backups`, backupRoutes);

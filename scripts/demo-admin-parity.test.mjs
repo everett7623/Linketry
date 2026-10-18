@@ -123,7 +123,7 @@ test('live parity verification accepts the current version, brand, reads, and wr
     readFileImpl: readFile,
   });
   assert.equal(report.version, version);
-  assert.equal(report.readChecks, 18);
+  assert.equal(report.readChecks, 19);
 });
 
 test('live parity verification accepts equivalent SVG line endings', async () => {

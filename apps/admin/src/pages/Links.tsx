@@ -15,8 +15,6 @@ import { getSettings } from '../api/settings';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
 import { buildShortUrl } from '../utils/shortUrl';
-import { downloadDataUrl } from '../utils/download';
-import { qrRenderOptions } from '../utils/qrCode';
 import type { Link as LinkType, PaginatedResult } from '@linketry/shared';
 import { useAdminMode } from '../contexts/AdminModeContext';
 import { stripAdvancedLinkFilters } from '../utils/linkFilters';
@@ -197,27 +195,8 @@ export function Links() {
     }
   };
 
-  const showQr = async (link: LinkType) => {
-    const url = buildShortUrl(link, defaultDomain);
-    let qrModule;
-    try {
-      qrModule = await import('qrcode');
-    } catch {
-      error(t('qrModuleUnavailable'));
-      return;
-    }
-    try {
-      const dataUrl = await qrModule.default.toDataURL(url, qrRenderOptions());
-      setQr({ link, url, dataUrl });
-    } catch {
-      error(t('qrFailed'));
-    }
-  };
-
-  const downloadQr = () => {
-    if (!qr) return;
-    downloadDataUrl(qr.dataUrl, `linketry-qr-${qr.link.slug}.png`);
-    success(t('qrDownloaded'));
+  const showQr = (link: LinkType) => {
+    setQr({ link, url: buildShortUrl(link, defaultDomain) });
   };
 
   const runAction = async (type: string, link: LinkType) => {
@@ -494,7 +473,7 @@ export function Links() {
         />
       )}
 
-      <QrCodeModal qr={qr} onClose={() => setQr(null)} onCopy={copyLink} onDownload={downloadQr} />
+      <QrCodeModal qr={qr} onClose={() => setQr(null)} onCopy={copyLink} />
     </div>
   );
 }

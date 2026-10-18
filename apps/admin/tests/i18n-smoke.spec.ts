@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { LINKETRY_VERSION } from '../../../packages/shared/src/version';
+import { DEFAULT_QR_STYLE } from '../../../packages/shared/src/qrStyle';
 import {
   IMPORT_CONTENT_MAX_BYTES,
   formatImportContentLimit,
@@ -389,6 +390,10 @@ async function mockAdminApi(page: Page) {
     }
     if (path === '/api/v1/import/jobs' && request.method() === 'GET') {
       await route.fulfill(apiResponse([]));
+      return;
+    }
+    if (path === '/api/v1/qr-style' && request.method() === 'GET') {
+      await route.fulfill(apiResponse(DEFAULT_QR_STYLE));
       return;
     }
     if (path === '/api/v1/export/backup.json' && request.method() === 'GET') {

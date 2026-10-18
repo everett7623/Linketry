@@ -23,6 +23,7 @@ const routeModules = [
   ['maintenance.ts', '/maintenance', 'maintenanceRoutes'],
   ['metadata.ts', '/metadata', 'metadata'],
   ['notifications.ts', '/notifications', 'notificationRoutes'],
+  ['qrStyle.ts', '/qr-style', 'qrStyle'],
   ['redirectRules.ts', '/redirect-rules', 'redirectRules'],
   ['settings.ts', '/settings', 'settings'],
   ['system.ts', '/system', 'systemRoutes'],

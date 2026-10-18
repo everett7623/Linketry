@@ -3,3 +3,4 @@ export * from './types/capabilities';
 export * from './validators/index';
 export * from './version';
 export * from './importLimits';
+export * from './qrStyle';

@@ -385,6 +385,33 @@ Payload:
 | `GET` | `/api/v1/settings` |
 | `PUT` | `/api/v1/settings` |
 
+## QR Code Style
+
+The instance-wide default style used by the Admin QR dialog. Stored in the `qr_style_default` setting, which `GET /api/v1/settings` omits and `PUT /api/v1/settings` refuses.
+
+| Method | Path | Scope |
+|--------|------|-------|
+| `GET` | `/api/v1/qr-style` | `read` |
+| `PUT` | `/api/v1/qr-style` | `admin` |
+
+`PUT` replaces the whole style; unknown fields are rejected:
+
+```json
+{
+  "foreground": "#1e3a8a",
+  "background": "#ffffff",
+  "logo": "data:image/png;base64,iVBORw0KGgo...",
+  "caption": true,
+  "size": 1024,
+  "format": "png"
+}
+```
+
+- `foreground` / `background`: `#rrggbb`; the foreground must be darker than the background with contrast of at least 4.5:1.
+- `logo`: `null` or a PNG data URL of at most 256×256 px and 48 kB. The Admin rasterises SVG, JPEG and WebP uploads to PNG before saving; SVG is never stored.
+- `caption`: show the short URL under the code. `size`: `512`, `1024` or `2048` px. `format`: `png` or `svg`.
+- A stored value that no longer validates reads back as the standard style. Updates are audited as `qr_style.update`; the style is included in backup downloads but, like other settings, is not written back by a restore. Read-only Demo returns 403 for `PUT`.
+
 ## Metadata
 
 | Method | Path | Description |
