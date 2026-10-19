@@ -37,4 +37,11 @@ Local mirror of all three `ci.yml` jobs (Node 24.20.0, npm 11.19.0, Windows), ru
 
 ## Deployment evidence
 
-Not deployed. Production, Demo and site remain on v0.32.0. A push to `main` triggers the isolated Demo workflow even with `[skip production]`, so commit/push waits for approval together with the release.
+Deployed 2026-10-19 as part of `9de314c` (v0.32.3), which also carries v0.32.1 `00caf43` and v0.32.2 `d5f2f1a`.
+
+- Pushed `58ea539..9de314c` to `main` with the user's approval.
+- [production 39181219300](https://github.com/everett7623/Linketry/actions/runs/39181219300): success; authenticated dispatch with `expected_release=0.32.3` and `expected_commit=9de314c6374f77590c7a9a36b292ea8a9d36513c`. The push-triggered production run `39181207873` skipped on `[skip production]`.
+- [isolated Demo 39181207795](https://github.com/everett7623/Linketry/actions/runs/39181207795): success; triggered by the push.
+- [project site 39181221970](https://github.com/everett7623/Linketry/actions/runs/39181221970): success; exact-commit confirmation.
+- Live (2026-10-19): `go.uukk.de/health` and `demoapi.linketry.com/health` report 0.32.3; `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` serve favicon `?v=0.32.3`, and the live Admin CSS (`index-C8Wli2wE.css`) contains the pinned Actions divider and the 16rem destination cap; `linketry.com` `llms.txt` and JSON-LD report 0.32.3.
+- Production `/api/v1/links`, `/api/v1/system/upgrade` and `/api/v1/qr-style` return 401 without a token, an unknown slug returns 404, and the `/health` CORS preflight returns 204. Demo `GET /api/v1/qr-style` returns 200 and `POST /api/v1/links` returns 403.

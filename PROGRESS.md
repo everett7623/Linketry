@@ -6,7 +6,7 @@ Last updated: 2026-10-19
 
 ---
 
-## Links layout and repository cleanup — v0.32.3 (source only, not deployed)
+## Links layout and repository cleanup — v0.32.3 (deployed)
 
 - Baseline: local `main` fast-forwarded to the v0.32.2 commit `d5f2f1a` (on v0.32.1 `00caf43`); `origin/main` is still `58ea539` (v0.32.0). Production, Demo, Admin and site remain on v0.32.0.
 - Links table at 1440 px (visual audit P2): the Actions column is pinned to the right edge with a divider and the row hover tint, short-link badges wrap, the destination cap drops from 20rem to 16rem and created dates no longer wrap. On a 20-link audit-like dataset the overflow drops from 144 px to 0; narrower screens scroll the other columns underneath the pinned actions.
@@ -15,8 +15,9 @@ Last updated: 2026-10-19
 - Outside the tree: four stale local branches, the 2026-07-23 stash, five Syncthing conflict copies under `.git` and three over-long Codex refs removed locally; five merged remote branches deleted, so `origin` has only `main`.
 - New `apps/admin/tests/links-layout.spec.ts` (3 of its 4 tests failed against the previous code) and a linkView unit test. Local verification mirrored all three CI jobs: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 74 and browser 45, production/Demo/Quick Deploy builds and the Worker dry run. Evidence: `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`.
 - No Worker, redirect, API, migration or stored-data change.
+- Deployed `9de314c` with v0.32.1 and v0.32.2: production `39181219300` and site `39181221970` by authenticated dispatch (`expected_release=0.32.3`, exact commit), Demo `39181207795` from the push. Health, Admin favicon and live Links CSS, site `llms.txt`/JSON-LD, production 401/404 and preflight 204, Demo read 200 and write 403 verified at 0.32.3.
 
-## Dev/build toolchain advisories — v0.32.2 (source only, not deployed)
+## Dev/build toolchain advisories — v0.32.2 (deployed with v0.32.3)
 
 - Baseline: fetched `origin/main` is `58ea539` (v0.32.0); this patch is built with the user's approval on the local, unpushed v0.32.1 commit `00caf43`. Production, Demo, Admin and site re-checked at v0.32.0 on 2026-10-18.
 - `npm audit` (all dependencies, official registry): 13 → 7. Wrangler 4.115.0 → 4.151.1 (declared floor and `SUPPORT.md` minimum 4.151.1) brings Miniflare 5.20261012.1-beta with sharp 0.35.5 and undici 7.29.1; PostCSS 8.5.24 → 8.5.30 (floor `^8.5.30`) brings nanoid 3.3.20 and source-map-js 1.2.2. `--omit=dev` stays at 0.
@@ -26,7 +27,7 @@ Last updated: 2026-10-19
 - Local verification mirrored all three CI jobs after a clean `npm ci`: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 73 and browser 41 (first full run, no timeouts), production/Demo/Quick Deploy Admin builds with their smokes, and a Worker `wrangler deploy --dry-run` on 4.151.1. Evidence: `.codex/tasks/toolchain-advisories-2026-10-18.md`.
 - Not deployed: production, Demo and site stay on v0.32.0 until an approved release.
 
-## Dependency and docs hygiene — v0.32.1 (source only, not deployed)
+## Dependency and docs hygiene — v0.32.1 (deployed with v0.32.3)
 
 - Baseline: local HEAD and `origin/main` both `58ea539` (v0.32.0 deployed); production, Demo, Admin and site re-checked at v0.32.0 on 2026-10-18.
 - Worker `hono` 4.12.32 → 4.13.13 (declared floor `^4.13.13`). This closes the advisories reported for hono ≤4.13.6, including the CORS middleware ReDoS (GHSA-8j4g-w8fx-2239), which reached the unauthenticated `/health` preflight because `healthCors` sets no `allowHeaders` (`/api/*` lists them and was not on the affected path). `npm audit --omit=dev` against the official registry reports 0 vulnerabilities.
@@ -99,14 +100,14 @@ Last updated: 2026-10-19
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.32.0 live | Production health reports v0.32.0; source is v0.32.3 (v0.32.1 dependency/docs, v0.32.2 toolchain and v0.32.3 Links layout/cleanup patches, not deployed) |
-| Admin frontend             | ✅ 0.32.0 live | `admin.uukk.de` advertises v0.32.0 (re-checked 2026-10-18) |
-| Documentation              | ✅ 0.32.3 synchronized | Links layout fix, repository cleanup and this status table recorded |
-| Deployment                 | ✅ 0.32.0 live | Production `39082023476` (`41cd58f`) and `39083594207` (`58ea539`), Demo `39082018393`, site `39082023767` succeeded |
-| End-to-end test            | ✅ 0.32.0 live | Health/version on all tracks, production 401/404, Demo `qr-style` read and write 403 verified |
+| Worker backend             | ✅ 0.32.3 live | Production health reports v0.32.3 |
+| Admin frontend             | ✅ 0.32.3 live | `admin.uukk.de` and `linketry-admin.pages.dev` advertise v0.32.3 with the new Links CSS |
+| Documentation              | ✅ 0.32.3 synchronized | v0.32.1–v0.32.3 deployment recorded |
+| Deployment                 | ✅ 0.32.3 live | Production `39181219300`, Demo `39181207795`, site `39181221970` succeeded at `9de314c` |
+| End-to-end test            | ✅ 0.32.3 live | Health/version on all tracks, production 401/404, `/health` preflight 204, Demo `qr-style` read 200 and write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | 🟡 0.32.3 source | Production, Demo and site remain on v0.32.0 until the next approved deployment |
-| Repository update target   | ✅ 0.32.0 | Authenticated dispatch `39083594207` deployed `main` HEAD `58ea539` |
+| Current version            | ✅ 0.32.3 | Source, production, Demo and site version parity verified |
+| Repository update target   | ✅ 0.32.3 | Authenticated dispatch `39181219300` deployed `main` HEAD `9de314c` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2                                                                                                 |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |

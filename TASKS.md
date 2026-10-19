@@ -5,7 +5,7 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Links layout and repository cleanup (v0.32.3)
+## ✅ Completed — Links layout and repository cleanup (v0.32.3, deployed)
 
 - [x] Fast-forward local `main` to the v0.32.2 commit `d5f2f1a` (approved 2026-10-19) and reinstall from the merged lockfile
 - [x] Pin the Links table Actions column, wrap short-link badges, cap destinations at 16rem and keep created dates on one line (1440 px overflow 144 → 0 px on the audit-like dataset)
@@ -16,14 +16,14 @@ One item in "In Progress" at a time whenever possible.
 - [x] Synchronize v0.32.3 release metadata
 - [x] Local verification of all three CI jobs on the merged state: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 74, Admin browser 45 (first run), production/Demo/Quick Deploy builds and Worker dry run
 - [x] Commit locally (approved 2026-10-19; not pushed)
-- [ ] Push v0.32.1–v0.32.3 and deploy production, Demo and site (awaiting approval; a push to `main` also deploys the Demo)
+- [x] Push v0.32.1–v0.32.3 (`9de314c`) and deploy: production `39181219300`, Demo `39181207795`, site `39181221970`; live parity verified 2026-10-19
 - [ ] Remaining audit P3 items: mobile touch targets and layout polish
 
 Task record: `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`
 
 ---
 
-## 🟡 In Progress — Dev/build toolchain advisories (v0.32.2)
+## ✅ Completed — Dev/build toolchain advisories (v0.32.2, deployed with v0.32.3)
 
 - [x] Fetch remote and record the baseline (`origin/main` `58ea539` at v0.32.0; built with approval on the local, unpushed v0.32.1 commit `00caf43`; production, Demo, Admin and site live at v0.32.0)
 - [x] Upgrade Worker `wrangler` 4.115.0 → 4.151.1 (Miniflare 5 beta with sharp 0.35.5 and undici 7.29.1) and Admin `postcss` 8.5.24 → 8.5.30 (nanoid 3.3.20, source-map-js 1.2.2) from the official registry; raise both declared floors and the `SUPPORT.md` Wrangler minimum
@@ -32,15 +32,15 @@ Task record: `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`
 - [x] Synchronize v0.32.2 release metadata
 - [x] Local verification of all three CI jobs: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 73, Admin browser 41, production/Demo/Quick Deploy builds and Worker dry run
 - [x] Commit on `claude/funny-cray-3062ea` (approved 2026-10-19; not pushed)
-- [ ] Push together with v0.32.1 (awaiting approval; a push to `main` also deploys the Demo)
-- [ ] Deploy v0.32.2 to production, Demo and site (awaiting approval)
+- [x] Pushed with v0.32.1 and v0.32.3 (`9de314c`)
+- [x] Deployed with v0.32.3: production `39181219300`, Demo `39181207795`, site `39181221970`
 - [ ] Separate task: Tailwind CSS 4 migration, which clears the remaining seven advisories (impact assessment and plan in the task record)
 
 Task record: `.codex/tasks/toolchain-advisories-2026-10-18.md`
 
 ---
 
-## 🟡 In Progress — Dependency and docs hygiene (v0.32.1)
+## ✅ Completed — Dependency and docs hygiene (v0.32.1, deployed with v0.32.3)
 
 - [x] Fetch remote and record the baseline (`58ea539`; production, Demo, Admin and site at v0.32.0)
 - [x] Upgrade Worker `hono` 4.12.32 → 4.13.13 from the official registry (CORS middleware ReDoS and related advisories)
@@ -50,8 +50,8 @@ Task record: `.codex/tasks/toolchain-advisories-2026-10-18.md`
 - [x] Synchronize v0.32.1 release metadata
 - [x] Local verification of all three CI jobs: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 73, Admin browser 41 (rerun after two load timeouts), production/Demo/Quick Deploy builds and Worker dry run
 - [x] Commit (`00caf43` on local `main`)
-- [ ] Push (awaiting approval; a push to `main` also deploys the Demo)
-- [ ] Deploy v0.32.1 to production, Demo and site (awaiting approval)
+- [x] Pushed with v0.32.2 and v0.32.3 (`9de314c`)
+- [x] Deployed with v0.32.3: production `39181219300`, Demo `39181207795`, site `39181221970`
 - [x] Separate task: dev/build-time advisories — the non-major fixes (wrangler/miniflare, nanoid, source-map-js) are done in v0.32.2; the Tailwind CSS 4 migration stays open there
 
 Task record: `.codex/tasks/dependency-docs-hygiene-2026-10-18.md`
