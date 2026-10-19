@@ -18,6 +18,20 @@
 - **项**：v0.32.3 生产/Demo/官网 parity（✅ 2026-10-19 `go.uukk.de` / `demoapi.linketry.com` / `linketry.com` report 0.32.3）；GitHub Release `v0.32.0`；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；keyboard/axe AT（✅ v0.31.3 `at-audit.spec.ts`）；screen-reader AT（pending）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；Demo 可选 R2（Cloudflare `10042`）
 - **代码侧**：清单与文档已就绪；剩余关闭项需独立 Cloudflare 账号 / 手工 AT / 规模证据
 
+### H3. 开发/构建工具链剩余 7 条 npm 公告（Tailwind CSS 3 依赖链）
+
+- **状态**：🟡 等待 Tailwind CSS 4 迁移（`TASKS.md` Next）
+- **说明**：v0.32.2 之后，`npm audit`（官方源）只剩 Tailwind CSS 3.4.19 构建期依赖链里的 7 条：braces（high，目前没有修复版本），以及经它传导的 chokidar、fast-glob、micromatch、tailwindcss；另有 postcss-selector-parser 和 postcss-nested（moderate，修复版本超出 Tailwind 3 的依赖范围）。
+- **影响**：这些包只在 `vite build` / `vite dev` 扫描本仓库自己的内容和 CSS 时运行，不会进入 Admin 构建产物或 Worker 包；`npm audit --omit=dev` 为 0。
+- **处理计划**：迁移到 Tailwind CSS 4，影响评估和步骤见 `.codex/tasks/toolchain-advisories-2026-10-18.md`。
+
+### H4. D1 不可用时的 KV 兜底重定向与正常路径不一致
+
+- **状态**：🟡 已知限制；改动需要明确授权（黄金规则 1：重定向稳定性优先）
+- **说明**：KV 命中后回查 D1 时如果 D1 抛错，`apps/worker/src/routes/redirect.ts` 只对 active、未过期、没有点击上限的缓存条目放行，直接跳转到缓存里的 `long_url`。这条兜底路径不转发请求中的查询参数（正常路径经 `buildRedirectUrl` 转发），不评估智能重定向规则，也不记录访问。
+- **影响**：D1 短暂不可用期间，带 UTM 等参数的访问会丢失参数，智能规则回落到 `long_url`，这段时间的点击不计入统计。重定向本身保持可用。
+- **可选方向**：兜底路径也经 `buildRedirectUrl` 转发查询参数；配置了 Queue 时可以把访问先入队。智能规则存放在 D1，兜底时无法读取，维持回落到 `long_url` 即可。
+
 ---
 
 ## 历史问题（已修复）

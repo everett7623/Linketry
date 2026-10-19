@@ -5,6 +5,21 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## 📋 Next — Remaining work after v0.32.3 (recorded 2026-10-19)
+
+Nothing here is scheduled yet; each item needs its own go-ahead.
+
+- [ ] **Tailwind CSS 4 migration (Admin).** Clears the last seven npm advisories, all in Tailwind 3.4.19's build-time chain (braces has no fixed release; the postcss-selector-parser fix is outside Tailwind 3's range). Needs the codemod plus manual work: rename the `--color-slate-*` / `--color-brand-*` RGB triplets and re-express the light-theme inversion, add explicit border/ring/divide colours, decide on v4 `hover:` semantics, pixel-compare every route, and accept the Safari 16.4+ / Chrome 111+ / Firefox 128+ baseline (likely a minor release). Impact assessment and plan: `.codex/tasks/toolchain-advisories-2026-10-18.md`; open limitation: `docs/KNOWN_ISSUES.md` H3.
+- [ ] **Visual audit P3 (Admin).** Mobile touch targets (26 px icon actions, 13–16 px checkboxes, 28 px view toggle and page actions), the sidebar footer covering the last nav entries at 900 px height, Overview stat cards taking about 1.5 screens on phones, and six empty UTM cards on Link Analytics. Also the Links "Short Link" header, which wraps to two lines at 1440 px with long slugs (accepted in v0.32.3 to keep the table inside its container). Sources: `.codex/tasks/admin-visual-audit-2026-10-17.md`, `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`.
+- [ ] **GitHub Releases for v0.32.1, v0.32.2 and v0.32.3.** All three are deployed; the latest Release is still v0.32.0.
+- [ ] **Release checklist in `docs/DEVELOPMENT.md` (with the next versioned release).** `Validate Linketry` runs only on pull requests and manual dispatch (`scripts/ci-workflow.test.mjs` forbids a push trigger), so direct pushes to `main` skip the full Admin browser suite and the Quick Deploy dry run; before each release from `main`, dispatch it (`gh workflow run ci.yml --ref main`) or run the local three-job mirror. Also document that dependency installs use `--registry=https://registry.npmjs.org` and that `grep -c npmmirror package-lock.json` must stay 0 (v0.32.0 recorded a mirror URL; fixed in v0.32.1).
+- [ ] **Redirect fallback parity (needs explicit redirect-path approval).** On a KV hit with D1 unavailable, `apps/worker/src/routes/redirect.ts` redirects to the cached `long_url` without forwarding request query parameters, evaluating smart rules or recording the visit; the normal path does all three. Details: `docs/KNOWN_ISSUES.md` H4.
+- [ ] **Worker module size (no behaviour change).** Split `apps/worker/src/db/index.ts` (1142 lines), `routes/links.ts` (980) and `routes/importRoutes.ts` (883) the way the v0.31.11 Links page split worked, keeping SQL under `apps/worker/src/db` (and updating the CLAUDE.md rule that names `db/index.ts`).
+
+Also open further down: Branded QR Phase 2 and 3 (Admin upgrades section) and the Pre-1.0 evidence gates — screen-reader AT pass, fresh-account Quick Deploy rehearsal, remote-D1 scale evidence, optional Demo R2 (Residual Hardening section).
+
+---
+
 ## ✅ Completed — Links layout and repository cleanup (v0.32.3, deployed)
 
 - [x] Fast-forward local `main` to the v0.32.2 commit `d5f2f1a` (approved 2026-10-19) and reinstall from the merged lockfile
@@ -17,7 +32,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Local verification of all three CI jobs on the merged state: deployment 92, Demo API 6, site 10, Worker 151, Admin unit 74, Admin browser 45 (first run), production/Demo/Quick Deploy builds and Worker dry run
 - [x] Commit locally (approved 2026-10-19; not pushed)
 - [x] Push v0.32.1–v0.32.3 (`9de314c`) and deploy: production `39181219300`, Demo `39181207795`, site `39181221970`; live parity verified 2026-10-19
-- [ ] Remaining audit P3 items: mobile touch targets and layout polish
+- [ ] Remaining audit P3 items: mobile touch targets and layout polish *(tracked in Next)*
 
 Task record: `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`
 
@@ -34,7 +49,7 @@ Task record: `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`
 - [x] Commit on `claude/funny-cray-3062ea` (approved 2026-10-19; not pushed)
 - [x] Pushed with v0.32.1 and v0.32.3 (`9de314c`)
 - [x] Deployed with v0.32.3: production `39181219300`, Demo `39181207795`, site `39181221970`
-- [ ] Separate task: Tailwind CSS 4 migration, which clears the remaining seven advisories (impact assessment and plan in the task record)
+- [ ] Separate task: Tailwind CSS 4 migration, which clears the remaining seven advisories (impact assessment and plan in the task record) *(tracked in Next)*
 
 Task record: `.codex/tasks/toolchain-advisories-2026-10-18.md`
 
