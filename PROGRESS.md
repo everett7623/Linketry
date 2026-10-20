@@ -6,6 +6,13 @@ Last updated: 2026-10-20
 
 ---
 
+## OpenAPI auth middleware scope — v0.33.1
+
+- Baseline: `origin/main` and local `main` at `91a172f` (v0.33.0 deployment record); production, Demo, Admin and site at v0.33.0. The H5 session (interstitial query parameters) works in its own worktree and takes v0.33.2.
+- Fixes KNOWN_ISSUES H6, found by the v0.33.0 post-deploy login probe: `routes/openapi.ts` registered `use('*', requireAuth)` and is mounted first at `/api/v1`, so it ran for every `/api/v1/*` request. `POST /api/v1/auth/login` without a bearer header answered 401 `Unauthorized` before reaching the sign-in handler and its rate limit, and API-token requests were verified twice. The middleware now guards only `/openapi.json` and `/docs`; every other router already authenticates itself.
+- New `src/routes/api.test.mjs` (Worker 175 → 179) drives the real Worker entry: anonymous requests to every registered `/api` route must get 401/403 except sign-in and sign-out, sign-in is reachable on both prefixes with every attempt counted by the limiter, an API token is looked up once, and the OpenAPI document stays protected. Two tests failed on the v0.33.0 code (401 instead of 400; two token lookups); removing the tags router's auth or the new OpenAPI guard makes the all-routes test list exactly those routes.
+- Evidence: `.codex/tasks/openapi-auth-scope-2026-10-20.md`.
+
 ## Security hardening and dependency updates — v0.33.0 (deployed)
 
 - Baseline: this clone's `main` was at `58ea539` (v0.32.0) and fast-forwarded to `origin/main` `dba6eef` (v0.32.3) with no local commits or changes; production, Demo, Admin and site at v0.32.3. This clone still holds the July stash and four v0.29-era local branches that were removed in the other clone; left untouched.
@@ -113,13 +120,13 @@ Last updated: 2026-10-20
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.33.0 live | Production health reports v0.33.0 |
+| Worker backend             | ✅ 0.33.0 live | Production health reports v0.33.0; source is v0.33.1 (OpenAPI auth middleware scoped to its routes; not deployed) |
 | Admin frontend             | ✅ 0.33.0 live | `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` advertise v0.33.0 |
-| Documentation              | ✅ 0.33.0 synchronized | v0.33.0 deployment recorded |
+| Documentation              | ✅ 0.33.1 synchronized | KNOWN_ISSUES H6 fix and this status table recorded |
 | Deployment                 | ✅ 0.33.0 live | Production `39376326219`, Demo `39376287317`, site `39376331365` succeeded at `3195a47` after `Validate Linketry` `39375966815` passed |
 | End-to-end test            | ✅ 0.33.0 live | Health/version on all tracks, production 401/404, `/health` preflight 204, Demo `qr-style` read 200 and write 403 verified |
-| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0 |
-| Current version            | ✅ 0.33.0 | Source, production, Demo and site version parity verified |
+| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1 |
+| Current version            | 🟡 0.33.1 source | Production, Demo and site remain on v0.33.0 until the next approved deployment |
 | Repository update target   | ✅ 0.33.0 | Authenticated dispatch `39376326219` deployed `main` HEAD `3195a47` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Tailwind 4, audit P3, Releases, release checklist, interstitial query parameters H5, fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |

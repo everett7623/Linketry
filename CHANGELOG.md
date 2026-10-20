@@ -7,6 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.33.1] - 2026-10-20
+
+### Security
+
+- `POST /api/v1/auth/login` is reachable again without a bearer header, so its rate limit now counts failed sign-in attempts. Since v0.10.3 the authentication middleware of the OpenAPI router, mounted first at `/api/v1`, ran for every `/api/v1/*` request: a request without a valid bearer token was rejected with `401 Unauthorized` before it reached the sign-in handler, so wrong tokens were never rate-limited and malformed bodies were not reported as such. The Admin was unaffected because it sends the token it signs in with as its bearer header. The middleware now guards only `/api/v1/openapi.json` and `/api/v1/docs`.
+
+### Fixed
+
+- Requests authenticated with an API token are verified once instead of twice, halving the D1 token lookups and `last_used_at` writes on every `/api/v1/*` call.
+
+### Maintenance
+
+- A new Worker test sends an anonymous request to every registered `/api` route through the real Worker entry point and fails if any route other than sign-in and sign-out answers with anything but 401 or 403. It also pins sign-in reachability on both API prefixes, single API-token verification and the protected OpenAPI document.
+
 ## [0.33.0] - 2026-10-20
 
 ### Added

@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **最后更新**：2026-10-20 
-**当前版本**：v0.33.0
+**当前版本**：v0.33.1
 **生产版本**：v0.33.0
 
 版本权威以根目录 `package.json` 与 `PROGRESS.md` 为准。详细 Agent 规则见 `AGENTS.md`。
@@ -318,7 +318,7 @@ npm run deploy:preflight -- --track fresh --check-cloudflare
 日常发版走 dispatch 最省事，不必改任何仓库变量：
 
 ```bash
-gh workflow run deploy.yml --ref main -f confirm_release=true -f expected_release=0.33.0 -f expected_commit=<40位SHA>
+gh workflow run deploy.yml --ref main -f confirm_release=true -f expected_release=0.33.1 -f expected_commit=<40位SHA>
 ```
 
 #### `[skip production]` 只跳过生产

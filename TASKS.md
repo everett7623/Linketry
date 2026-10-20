@@ -5,11 +5,11 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 📋 Next — Remaining work after v0.33.0 (recorded 2026-10-20)
+## 📋 Next — Remaining work after v0.33.1 (recorded 2026-10-20)
 
 Nothing here is scheduled yet; each item needs its own go-ahead.
 
-- [ ] **OpenAPI wildcard auth middleware (patch release).** `routes/openapi.ts` registers `use('*', requireAuth)` and is mounted first at `/api/v1`, so it runs for every `/api/v1/*` request: `POST /api/v1/auth/login` without a bearer header never reaches the login handler or its rate limit, and API-token requests are authenticated twice. Scope it to `/openapi.json` and `/docs` and add an all-routes anonymous-access test. Details: `docs/KNOWN_ISSUES.md` H6.
+- [ ] **Admin browser suite cold-start flakes on many-core machines.** With Playwright's default worker count (8 on a 16-thread machine) the first tests to run, mostly locale switches and first-paint checks, can time out while a cold Vite dev server transforms modules for every worker (v0.33.1: 42/45 and 43/45 locally, 45/45 with `--workers=2`, as on CI). Options: `server.warmup` in the Admin Vite config, a worker cap in `playwright.config.ts`, or longer first-render timeouts for the on-demand zh-CN catalog. Record: `.codex/tasks/openapi-auth-scope-2026-10-20.md`.
 - [ ] **Production `LINKETRY_IP_HASH_SECRET` (owner action).** v0.33.0 keys stored IP hashes with HMAC-SHA256 only when this Worker secret exists. Generate a value (`openssl rand -hex 32`), keep it in a password manager and run `npx wrangler secret put LINKETRY_IP_HASH_SECRET` in `apps/worker` against the production Worker; GitHub Actions deployments preserve it. Unique-visitor counts restart for date ranges that span the change (`docs/ANALYTICS.md`).
 - [ ] **Interstitial query parameters (needs explicit redirect-path approval).** The warning page's Continue link and the password form drop the visitor's original query string, so UTM parameters on warning-enabled or password-protected links never reach the destination. Details and direction: `docs/KNOWN_ISSUES.md` H5.
 
@@ -21,6 +21,19 @@ Nothing here is scheduled yet; each item needs its own go-ahead.
 - [ ] **Worker module size (no behaviour change).** Split `apps/worker/src/db/index.ts` (1142 lines), `routes/links.ts` (980) and `routes/importRoutes.ts` (883) the way the v0.31.11 Links page split worked, keeping SQL under `apps/worker/src/db` (and updating the CLAUDE.md rule that names `db/index.ts`).
 
 Also open further down: Branded QR Phase 2 and 3 (Admin upgrades section) and the Pre-1.0 evidence gates — screen-reader AT pass, fresh-account Quick Deploy rehearsal, remote-D1 scale evidence, optional Demo R2 (Residual Hardening section).
+
+---
+
+## ✅ Completed — OpenAPI auth middleware scope (v0.33.1)
+
+- [x] Reproduce KNOWN_ISSUES H6 locally through the real Worker entry: `/api/v1/auth/login` answered 401 `Unauthorized` without a bearer header and an API token was looked up twice
+- [x] Scope the OpenAPI router's `requireAuth` to `/openapi.json` and `/docs`
+- [x] Add `src/routes/api.test.mjs` (all-routes anonymous access, sign-in reachability and rate limiting on both prefixes, single API-token verification, protected OpenAPI document); mutation-checked
+- [x] Synchronize v0.33.1 release metadata
+- [x] Local verification of all three CI jobs (Admin browser 45/45 at CI parallelism; the 8-worker cold-start flakes are tracked in Next)
+- [ ] `ci.yml` dispatch, push and deploy production, Demo and site
+
+Task record: `.codex/tasks/openapi-auth-scope-2026-10-20.md`
 
 ---
 
@@ -39,7 +52,7 @@ Also open further down: Branded QR Phase 2 and 3 (Admin upgrades section) and th
 - [x] Local verification of all three CI jobs
 - [x] Commit `3195a47`, validate with `ci.yml` dispatch `39375966815` on a temporary `release/v0.33.0` branch (deleted afterwards), fast-forward `main` and deploy: production `39376326219`, Demo `39376287317`, site `39376331365`; live parity verified 2026-10-20
 - [ ] Set `LINKETRY_IP_HASH_SECRET` on production *(owner action, tracked in Next)*
-- [ ] Scope the OpenAPI router's auth middleware to its own routes *(found by the post-deploy login probe, tracked in Next)*
+- [x] Scope the OpenAPI router's auth middleware to its own routes *(found by the post-deploy login probe; fixed in v0.33.1)*
 
 Task record: `.codex/tasks/security-hardening-deps-2026-10-20.md`
 

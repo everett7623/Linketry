@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Hono, type MiddlewareHandler } from 'hono';
 import { requireAuth } from '../auth/index';
 import { createOpenApiDocument } from '../openapi/document';
 import { getRuntimeVersion } from '../config/runtime';
@@ -6,15 +6,19 @@ import type { Env } from '../types';
 
 const routes = new Hono<{ Bindings: Env }>();
 
-routes.use('*', async (c, next) => {
+// 只挂在本文件的两个路由上：本路由器挂载在共享前缀 /api/v1 上，use('*') 会作用于整个
+// /api/v1/*，拦住匿名登录请求，并让每个 API token 请求被校验两次（KNOWN_ISSUES H6）
+const requireReadToken: MiddlewareHandler<{ Bindings: Env }> = async (c, next) => {
   const authError = await requireAuth(c, 'read');
   if (authError) return authError;
   await next();
-});
+};
 
-routes.get('/openapi.json', (c) => c.json(createOpenApiDocument(c.env, getRuntimeVersion(c.env))));
+routes.get('/openapi.json', requireReadToken, (c) =>
+  c.json(createOpenApiDocument(c.env, getRuntimeVersion(c.env)))
+);
 
-routes.get('/docs', (c) => {
+routes.get('/docs', requireReadToken, (c) => {
   const document = JSON.stringify(createOpenApiDocument(c.env, getRuntimeVersion(c.env))).replace(/</g, '\\u003c');
   return c.html(`<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
