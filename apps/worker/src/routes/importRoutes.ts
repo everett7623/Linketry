@@ -50,6 +50,7 @@ import {
 } from '@linketry/shared';
 import {
   SHLINK_API_FETCH_MAX_PAGES,
+  SHLINK_API_PAGE_TIMEOUT_MS,
   isShlinkApiPageComplete,
   shlinkApiFetchLimitError,
 } from '../importers/shlinkApiPolicy';
@@ -334,6 +335,30 @@ function extractShlinkShortUrls(payload: unknown): {
   return { items: [] };
 }
 
+async function fetchShlinkApiPage(url: URL, apiKey: string): Promise<unknown> {
+  try {
+    const response = await safeEgressFetch(url.toString(), {
+      headers: {
+        Accept: 'application/json',
+        'X-Api-Key': apiKey,
+      },
+      // 同一个 signal 覆盖重定向跳转和响应体读取，挂起的 Shlink 不会无限占住请求
+      signal: AbortSignal.timeout(SHLINK_API_PAGE_TIMEOUT_MS),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Shlink API returned ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      throw new Error(`Shlink API did not respond within ${SHLINK_API_PAGE_TIMEOUT_MS / 1000} seconds.`);
+    }
+    throw error;
+  }
+}
+
 async function fetchShlinkApiItems(baseUrl: string, apiKey: string): Promise<unknown[]> {
   const endpoint = shlinkShortUrlsEndpoint(baseUrl);
   const items: unknown[] = [];
@@ -345,18 +370,7 @@ async function fetchShlinkApiItems(baseUrl: string, apiKey: string): Promise<unk
     url.searchParams.set('page', String(page));
     url.searchParams.set('itemsPerPage', String(pageSize));
 
-    const response = await safeEgressFetch(url.toString(), {
-      headers: {
-        Accept: 'application/json',
-        'X-Api-Key': apiKey,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Shlink API returned ${response.status}`);
-    }
-
-    const payload = await response.json();
+    const payload = await fetchShlinkApiPage(url, apiKey);
     const { items: pageItems, pagination } = extractShlinkShortUrls(payload);
     const totalItems = Number(pagination?.totalItems);
     const reportedTotalItems = Number.isFinite(totalItems) ? totalItems : undefined;

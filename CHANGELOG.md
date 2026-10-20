@@ -7,6 +7,32 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.33.0] - 2026-10-20
+
+### Added
+
+- Optional keyed visitor IP hashing. With the Worker secret `LINKETRY_IP_HASH_SECRET` set, the IP hashes stored in visits, conversion events and audit logs (and included in the visits CSV export) use HMAC-SHA256 instead of plain SHA-256. IPv4 has only 2^32 addresses, so an unkeyed SHA-256 hash can be reversed by brute force by anyone holding the D1 data or an export; the keyed hash cannot be reversed without the secret. Without the secret nothing changes. Adding, rotating or removing it starts a new hash space: existing rows are not rewritten, so unique visitors in a date range that spans the change are counted again. Setup is in `docs/SELF_HOSTING.md` and `docs/ANALYTICS.md`; GitHub Actions deployments keep the secret once it is set.
+
+### Fixed
+
+- A failing sign-in rate limiter no longer locks admins out with a misleading error. When the KV counter could not be written, for example after the Workers Free daily KV write quota was used up, `POST /api/v1/auth/login` answered "Invalid request body" until the quota reset. Limiter failures are now logged and sign-in continues: the admin token is also accepted by every unthrottled API route, so its real protection is its entropy, not this limit.
+- Password-protected short links answer `503` with a retry hint when their rate limiter fails, instead of an unhandled server error. They fail closed because the per-client limit is the main protection for link passwords, and an attacker can use up the KV quota on purpose.
+- On a KV cache hit, only a failed D1 lookup falls back to the cached destination. Previously an error after the lookup, such as a failing password rate limiter, also fell back, so a cache entry written before a password was added could redirect without the password while KV was still propagating its deletion and the limiter was failing.
+- When D1 is briefly unavailable, cached redirects now forward the visitor's query parameters (such as UTM tags) like normal redirects do.
+- Pulling links from the Shlink API stops waiting after 10 seconds per page instead of hanging on an unresponsive server, and the Admin allows the multi-page pull up to 60 seconds instead of 15.
+- The sidebar version button and the interface-mode switch are named after their visible text, as WCAG 2.5.3 (Label in Name) requires, so speech-input users can activate them by saying what they see. The version button is announced as its version and status (for example "v0.33.0 Up to date") with "Check for updates" as its description; collapsed to an icon it keeps the descriptive label. axe-core 4.14 began reporting the mismatch on every Admin page.
+
+### Maintenance
+
+- A project `.npmrc` pins installs to the official npm registry, so a machine-wide mirror setting can no longer write mirror URLs into `package-lock.json`.
+- Updated Admin and site dependencies within their current major versions: Vite 6.4.4, React Router 7.18.4, Day.js 1.11.23, PostCSS 8.5.31, Autoprefixer 10.6.1, Playwright 1.64.1 and axe-core for Playwright 4.14.0. Production dependencies still audit clean; the seven Tailwind CSS 3 build-time advisories stay open until the Tailwind CSS 4 migration.
+- SQL comparisons with the empty string use standard single-quoted literals instead of relying on SQLite's double-quoted string compatibility.
+- New Worker tests cover the redirect path's cache fallback and password gate, admin sign-in, rate-limiter failure handling and the IP hash.
+
+### Documentation
+
+- `docs/SECURITY.md` describes how each endpoint handles a failing rate limiter; `docs/ARCHITECTURE.md` and `docs/KNOWN_ISSUES.md` (H4) describe the narrowed cache fallback. A new known issue (H5) records that the warning and password pages do not carry the visitor's original query parameters through to the destination.
+
 ## [0.32.3] - 2026-10-19
 
 ### Fixed

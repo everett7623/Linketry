@@ -153,7 +153,9 @@ Active signals, the most recent aggregate snapshot, and alert/recovery timestamp
 
 ## Privacy Notes
 
-Linketry stores a hash of the visitor IP rather than the raw IP address. The unique visitor count is approximate because it is based on distinct hashed IPs in the selected date range.
+Linketry stores a hash of the visitor IP rather than the raw IP address, in visits, conversion events and audit logs, and in the visits CSV export. Without a key that hash is plain SHA-256, and because IPv4 has only 2^32 addresses, anyone holding the D1 data or an export can recover them by brute force. Set the optional Worker secret `LINKETRY_IP_HASH_SECRET` (for example a value from `openssl rand -hex 32`, stored with `npx wrangler secret put LINKETRY_IP_HASH_SECRET`) to key the hash with HMAC-SHA256 instead; it cannot be reversed without the secret, and Worker secrets cannot be read back through the Cloudflare API. Deployments through the GitHub Actions workflow keep the secret, because Worker secrets that are not in its secrets file are preserved.
+
+Adding, rotating or removing the secret starts a new hash space. Existing rows are not rewritten, so in a date range that spans the change a returning visitor is counted twice, and the repeat-visitor flag restarts on the day of the change. The unique visitor count is approximate because it is based on distinct hashed IPs in the selected date range.
 
 Public read-only statistics are implemented with per-link opt-in, hashed share tokens, bounded date ranges, optional country/referrer disclosure, noindex/nofollow responses, and private no-store caching. Public sharing is disabled by default.
 

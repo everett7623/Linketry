@@ -28,7 +28,7 @@ export async function getLinkByDomainAndSlug(env: Env, domain: string, slug: str
 }
 
 export async function getDomainlessLinkBySlug(env: Env, slug: string): Promise<Link | null> {
-  const result = await env.DB.prepare('SELECT * FROM links WHERE (domain IS NULL OR domain = "") AND slug = ? LIMIT 1')
+  const result = await env.DB.prepare("SELECT * FROM links WHERE (domain IS NULL OR domain = '') AND slug = ? LIMIT 1")
     .bind(slug)
     .first<Link>();
   return result ?? null;
@@ -238,9 +238,9 @@ export async function listLinks(
   }
 
   if (hasPassword === 'yes') {
-    conditions.push('password_hash IS NOT NULL AND password_hash != ""');
+    conditions.push("password_hash IS NOT NULL AND password_hash != ''");
   } else if (hasPassword === 'no') {
-    conditions.push('(password_hash IS NULL OR password_hash = "")');
+    conditions.push("(password_hash IS NULL OR password_hash = '')");
   }
 
   if (warning === 'yes') {
@@ -566,7 +566,7 @@ export async function getAllRedirectRules(env: Env): Promise<RedirectRule[]> {
 }
 
 export async function getAllLinkTagNames(env: Env): Promise<string[]> {
-  const result = await env.DB.prepare('SELECT tags FROM links WHERE tags IS NOT NULL AND tags != ""').all<{ tags: string }>();
+  const result = await env.DB.prepare("SELECT tags FROM links WHERE tags IS NOT NULL AND tags != ''").all<{ tags: string }>();
   const tags = new Set<string>();
 
   for (const row of result.results ?? []) {

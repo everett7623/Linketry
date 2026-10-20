@@ -83,7 +83,8 @@ test('Mobile Admin uses a drawer without shrinking the page content', async ({ p
   await expect(
     mobileSidebar.getByTestId('sidebar-footer').getByTestId('sidebar-version')
   ).toHaveCount(0);
-  await expect(versionStatus).toHaveAccessibleName(messages.en.checkForUpdates);
+  await expect(versionStatus).toHaveAccessibleName(`v${LINKETRY_VERSION} ${messages.en.upToDate}`);
+  await expect(versionStatus).toHaveAccessibleDescription(messages.en.checkForUpdates);
   await expect(versionStatus.getByText(`v${LINKETRY_VERSION}`, { exact: true })).toBeVisible();
   await expect(
     mobileSidebar.getByRole('group', { name: messages.en.quickActions }).locator('button, a')

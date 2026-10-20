@@ -27,6 +27,9 @@ export function SidebarVersionStatus({
         : latestVersion
           ? t('updateAvailableTitle', { version: latestVersion })
           : t('checkForUpdates');
+  // 折叠时只有图标，用 aria-label 命名；展开时名称取自可见的版本号与状态（WCAG 2.5.3），
+  // 动作提示留在 title 里作为可访问描述
+  const iconOnlyLabel = collapsed ? accessibleLabel : undefined;
 
   const toggleCenter = () => {
     if (upgrade.centerOpen) {
@@ -53,7 +56,7 @@ export function SidebarVersionStatus({
               ? 'border-amber-500/40 bg-amber-500/10 text-amber-200 hover:border-amber-400/60 hover:bg-amber-500/15'
               : 'border-transparent text-slate-400 hover:border-slate-700 hover:bg-slate-800 hover:text-slate-100'
         )}
-        aria-label={accessibleLabel}
+        aria-label={iconOnlyLabel}
         aria-expanded={upgrade.centerOpen}
         aria-haspopup="dialog"
         title={accessibleLabel}
@@ -81,7 +84,7 @@ export function SidebarVersionStatus({
           <span className="flex min-w-0 flex-1 flex-col">
             <span className="font-mono text-xs font-semibold leading-4 text-slate-200">
               v{LINKETRY_VERSION}
-            </span>
+            </span>{' '}
             <span
               className={clsx(
                 'truncate text-[10px] leading-4',

@@ -59,7 +59,8 @@ export function fetchShlinkApi(baseUrl: string, apiKey: string): Promise<{
   content: string;
   filename: string;
 }> {
-  return apiPost('/api/v1/import/shlink-api/fetch', { baseUrl, apiKey });
+  // 多页拉取（最多 50 页），Worker 端另有单页 10 秒超时
+  return apiPost('/api/v1/import/shlink-api/fetch', { baseUrl, apiKey }, API_LONG_TIMEOUT_MS);
 }
 
 export function listImportJobs(): Promise<ImportJob[]> {

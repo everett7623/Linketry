@@ -6,6 +6,7 @@
 - Do not commit real `LINKETRY_ADMIN_TOKEN` values.
 - Use `wrangler secret put LINKETRY_ADMIN_TOKEN` for production.
 - Store the optional `LINKETRY_GITHUB_UPDATE_TOKEN` only as a GitHub repository secret and Worker secret. Restrict it to one repository with `Actions: write`; never expose it through `VITE_*` variables.
+- Set the optional `LINKETRY_IP_HASH_SECRET` Worker secret (for example `openssl rand -hex 32`) so stored visitor IP hashes are keyed with HMAC-SHA256. Without it they are plain SHA-256, which can be reversed for IPv4 by brute force. Adding or rotating it restarts unique-visitor counting; see `docs/ANALYTICS.md`.
 - Fresh self-hosting Cloudflare API tokens also need Workers Routes Edit scoped to the selected custom-domain zone; keep R2 and Queues permissions disabled unless those bindings are enabled.
 - The manual-only **Sync Online Upgrade Secret** workflow validates the protected account and Worker inventory before writing that one Worker secret; it cannot deploy code or apply migrations.
 - Keep migration tokens and Shlink API keys out of source control.
@@ -33,6 +34,8 @@ All `/api/v1/*` routes must pass through `src/auth/index.ts`. Bearer comparisons
 ### Authentication rate limits
 
 `POST /api/v1/auth/login` and password-protected short-link POSTs are rate-limited via `AUTH_RATE_LIMITER` when bound, otherwise `DEMO_RATE_LIMITER` if present, otherwise a KV counter fallback. When no limiter or KV is available, production logs a warning and allows the request; the official Demo continues to fail closed for its dedicated read limiter.
+
+When the configured limiter itself fails (for example after the Workers Free KV write quota is exhausted, which an attacker can trigger by making attempts), the failure is logged and handled per endpoint instead of surfacing as an error. Admin login fails open, because the admin bearer token is also accepted by every unthrottled `/api/v1/*` route and its real protection is its entropy. Password-protected short links fail closed with `503`, because the per-client limit is the main brute-force protection for user-chosen link passwords. Ordinary limit hits still return `429`.
 
 ### Link passwords
 

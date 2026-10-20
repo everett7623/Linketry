@@ -2,3 +2,6 @@
 # NEVER commit .dev.vars to git
 
 LINKETRY_ADMIN_TOKEN=your-secret-admin-token-here
+
+# Optional: key stored visitor IP hashes with HMAC-SHA256 (see docs/ANALYTICS.md)
+# LINKETRY_IP_HASH_SECRET=

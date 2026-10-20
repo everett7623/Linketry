@@ -77,15 +77,12 @@ test('authenticated Admin opening shows and dismisses a cached GitHub update not
     )
   ).toBeVisible();
   const versionStatus = page.getByTestId('sidebar-version');
-  await expect(versionStatus).toHaveAccessibleName(
-    messages.en.updateAvailableTitle.replace('{version}', latestVersion)
-  );
-  await expect(
-    versionStatus.getByText(
-      messages.en.sidebarUpdateAvailable.replace('{version}', latestVersion),
-      { exact: true }
-    )
-  ).toBeVisible();
+  const updateStatusText = messages.en.sidebarUpdateAvailable.replace('{version}', latestVersion);
+  const updateStatusName = `v${LINKETRY_VERSION} ${updateStatusText}`;
+  const updateStatusHint = messages.en.updateAvailableTitle.replace('{version}', latestVersion);
+  await expect(versionStatus).toHaveAccessibleName(updateStatusName);
+  await expect(versionStatus).toHaveAccessibleDescription(updateStatusHint);
+  await expect(versionStatus.getByText(updateStatusText, { exact: true })).toBeVisible();
   expect(githubRequests).toBe(1);
   expect(githubAuthorization).toBeUndefined();
 
@@ -93,9 +90,8 @@ test('authenticated Admin opening shows and dismisses a cached GitHub update not
   await expect(
     page.getByText(messages.en.updateAvailableTitle.replace('{version}', latestVersion))
   ).toHaveCount(0);
-  await expect(versionStatus).toHaveAccessibleName(
-    messages.en.updateAvailableTitle.replace('{version}', latestVersion)
-  );
+  await expect(versionStatus).toHaveAccessibleName(updateStatusName);
+  await expect(versionStatus).toHaveAccessibleDescription(updateStatusHint);
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem('linketry_dismissed_update_version')))
     .toBe(latestVersion);
@@ -104,9 +100,8 @@ test('authenticated Admin opening shows and dismisses a cached GitHub update not
   await expect(
     page.getByText(messages.en.updateAvailableTitle.replace('{version}', latestVersion))
   ).toHaveCount(0);
-  await expect(page.getByTestId('sidebar-version')).toHaveAccessibleName(
-    messages.en.updateAvailableTitle.replace('{version}', latestVersion)
-  );
+  await expect(page.getByTestId('sidebar-version')).toHaveAccessibleName(updateStatusName);
+  await expect(page.getByTestId('sidebar-version')).toHaveAccessibleDescription(updateStatusHint);
   expect(githubRequests).toBe(1);
 
   await page.getByTestId('sidebar-version').click();

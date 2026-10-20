@@ -74,7 +74,8 @@ test('desktop Links table keeps row actions and created dates readable at 1440 p
   await page.goto('/links');
 
   const table = page.locator('main table');
-  await expect(table.locator('tbody tr')).toHaveCount(links.length);
+  // 冷启动 dev server 下的首次数据渲染，与其他首屏断言一样放宽到 15 秒
+  await expect(table.locator('tbody tr')).toHaveCount(links.length, { timeout: 15_000 });
   await expect(table.getByRole('columnheader', { name: messages.en.actions })).toBeInViewport({ ratio: 1 });
   await expect(table.getByRole('button', { name: messages.en.delete }).first()).toBeInViewport({ ratio: 1 });
 

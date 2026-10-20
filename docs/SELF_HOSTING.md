@@ -224,6 +224,16 @@ Do not deploy with someone else's Cloudflare resource IDs.
 
 Do not repeat this `wrangler secret put` step when using the GitHub Actions path: set repository secret `LINKETRY_ADMIN_TOKEN` with `gh secret set` instead. The workflow copies that value into the Worker and never prints it.
 
+Optional, on any deployment path: key the stored visitor IP hash with HMAC-SHA256. Without this secret it is plain SHA-256, which can be reversed for IPv4 by brute force. Generate a value with `openssl rand -hex 32`, save it in a password manager, then set it once; GitHub Actions deployments preserve Worker secrets that are not in their secrets file, and `wrangler secret put` deploys a new Worker version immediately.
+
+```bash
+cd apps/worker
+npx wrangler secret put LINKETRY_IP_HASH_SECRET
+cd ../..
+```
+
+Adding or rotating it restarts unique-visitor counting for date ranges that span the change; see `docs/ANALYTICS.md`.
+
 ### Apply D1 Migrations
 
 ```bash
@@ -254,7 +264,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.32.3" } }
+{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.33.0" } }
 ```
 
 ### Build and Deploy Admin
@@ -322,7 +332,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.32.3
+LINKETRY_APPROVED_RELEASE=0.33.0
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true

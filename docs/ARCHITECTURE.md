@@ -2,8 +2,8 @@
 
 This document describes the current runtime architecture. It is derived from the deployed Worker, Admin route tree, D1 migrations, and maintained operational documents. Historical plans are useful for product intent, but they do not override this document or the code.
 
-**Last updated**: 2026-10-19  
-**Current version**: v0.32.3
+**Last updated**: 2026-10-20  
+**Current version**: v0.33.0
 **Production version**: v0.32.3
 
 ---
@@ -72,7 +72,7 @@ The implemented redirect flow is:
 2. Read KV key linketry:slug:<domain>:<slug>.
 3. On a KV miss, query D1 by domain and slug, with a compatibility fallback for older domainless records.
 4. On a KV hit, re-check D1 so disable, delete, edit, expiry, and click-limit changes remain authoritative during KV propagation delay.
-5. If D1 is temporarily unavailable after a cache hit, use KV only when the cached record is active, unexpired, and does not require max-click enforcement.
+5. If the D1 lookup itself fails after a cache hit, use KV only when the cached record is active, unexpired, and does not require max-click enforcement; query parameters are forwarded as in step 10, while redirect rules and visit recording are skipped. Once D1 has answered, a later failure never falls back to the cached record, so its password, warning, and limit state always applies.
 6. Reject archived, disabled, expired, expires_at, and max_clicks states before redirecting.
 7. Evaluate the password and warning-page gates. Password-protected links are not written to KV.
 8. Load redirect rules by priority and evaluate country, device, browser, referer, language, or weighted targets.

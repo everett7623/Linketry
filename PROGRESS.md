@@ -2,9 +2,20 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-10-19
+Last updated: 2026-10-20
 
 ---
+
+## Security hardening and dependency updates — v0.33.0
+
+- Baseline: this clone's `main` was at `58ea539` (v0.32.0) and fast-forwarded to `origin/main` `dba6eef` (v0.32.3) with no local commits or changes; production, Demo, Admin and site at v0.32.3. This clone still holds the July stash and four v0.29-era local branches that were removed in the other clone; left untouched.
+- Rate-limiter failures (for example an exhausted Workers Free KV write quota) no longer surface as errors: `checkAuthRateLimit` logs them and returns `rateLimiterFailureResult`. Admin login fails open (it answered 400 "Invalid request body" until the quota reset); password-protected links fail closed with 503 (they threw a 500 on a KV miss and, on a KV hit, fell back to the cached redirect).
+- Redirect path, with explicit approval: on a KV hit only a failed D1 lookup falls back to the cache, and the fallback forwards query parameters through `buildRedirectUrl` (KNOWN_ISSUES H4 partly resolved). New H5: the warning and password interstitials drop the visitor's original query string.
+- Optional `LINKETRY_IP_HASH_SECRET` Worker secret keys the visit, conversion and audit IP hashes with HMAC-SHA256 (`utils/ipHash.ts`); unset keeps SHA-256. Not set on production yet.
+- Shlink API pull: 10 s per-page Worker timeout, 60 s Admin allowance. Four SQL `""` literals (one on the redirect lookup) became `''`; workerd accepts both, checked in an isolated local D1.
+- Admin accessibility (surfaced by axe-core 4.14, WCAG 2.5.3): the expanded sidebar version button is named by its visible version and status with the action as its description, and the interface-mode switch's visible text now matches its label.
+- Root `.npmrc` pins the official registry. In-range updates with raised floors: vite 6.4.4 (Admin and site), react-router-dom 7.18.4, dayjs 1.11.23, postcss 8.5.31, autoprefixer 10.6.1, @playwright/test 1.64.1 (Chromium 156), @axe-core/playwright 4.14.0. All 323 resolved URLs are `registry.npmjs.org`; `npm audit` stays at the seven Tailwind 3 advisories, `--omit=dev` at 0.
+- Worker tests 151 → 175 (`utils/ipHash`, `auth/rateLimit`, `routes/auth`, `routes/redirect`), mutation-checked against the previous code; the links-layout first-render assertion uses the 15 s allowance of the other first-paint checks. Evidence: `.codex/tasks/security-hardening-deps-2026-10-20.md`.
 
 ## Links layout and repository cleanup — v0.32.3 (deployed)
 
@@ -100,15 +111,15 @@ Last updated: 2026-10-19
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.32.3 live | Production health reports v0.32.3 |
+| Worker backend             | ✅ 0.32.3 live | Production health reports v0.32.3; source is v0.33.0 (rate-limiter failure handling, narrowed redirect cache fallback, optional keyed IP hash; not deployed) |
 | Admin frontend             | ✅ 0.32.3 live | `admin.uukk.de` and `linketry-admin.pages.dev` advertise v0.32.3 with the new Links CSS |
-| Documentation              | ✅ 0.32.3 synchronized | v0.32.1–v0.32.3 deployment recorded |
+| Documentation              | ✅ 0.33.0 synchronized | Security, analytics privacy, self-hosting, architecture and known-issue notes for v0.33.0 recorded |
 | Deployment                 | ✅ 0.32.3 live | Production `39181219300`, Demo `39181207795`, site `39181221970` succeeded at `9de314c` |
 | End-to-end test            | ✅ 0.32.3 live | Health/version on all tracks, production 401/404, `/health` preflight 204, Demo `qr-style` read 200 and write 403 verified |
-| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`                                              |
-| Current version            | ✅ 0.32.3 | Source, production, Demo and site version parity verified |
+| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0 |
+| Current version            | 🟡 0.33.0 source | Production, Demo and site remain on v0.32.3 until the next approved deployment |
 | Repository update target   | ✅ 0.32.3 | Authenticated dispatch `39181219300` deployed `main` HEAD `9de314c` |
-| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.32.3 items (Tailwind 4, audit P3, Releases, release checklist, redirect fallback parity, Worker module size) in `TASKS.md` Next |
+| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Tailwind 4, audit P3, Releases, release checklist, interstitial query parameters H5, fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system; bulk/import paths use bounded `env.DB.batch()`. Unused generic `db/batch.ts` helper removed in 0.31.4                  |

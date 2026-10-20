@@ -16,6 +16,8 @@ export interface Env {
   /** Explicit allow for official Demo only; required with LINKETRY_DEMO_MODE=read-only outside linketry-demo-* naming. */
   LINKETRY_DEMO_ALLOW?: string;
   LINKETRY_CORS_ORIGINS?: string;
+  /** 可选：存储访客 IP 哈希时使用的 HMAC-SHA256 密钥；未设置时沿用 SHA-256。 */
+  LINKETRY_IP_HASH_SECRET?: string;
   LINKETRY_GITHUB_UPDATE_TOKEN?: string;
   LINKETRY_UPDATE_REPOSITORY?: string;
   LINKETRY_UPDATE_BRANCH?: string;

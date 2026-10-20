@@ -23,7 +23,8 @@ export function AdminModeControl({ compact = false }: { compact?: boolean }) {
         <SlidersHorizontal size={17} aria-hidden="true" />
       ) : (
         <>
-          <span>{t('interfaceMode')}</span>
+          {/* 显式空格让可见文字与 aria-label 对应（WCAG 2.5.3）；flex 布局下不占位 */}
+          <span>{t('interfaceMode')}</span>{' '}
           <span className="rounded bg-slate-800 px-2 py-1 text-[10px] uppercase text-brand-400">
             {t(mode)}
           </span>

@@ -93,7 +93,9 @@ test('Desktop Sidebar keeps version below the Logo and preferences in the footer
   await expect(versionStatus).toBeVisible();
   await expect(sidebar.getByTestId('sidebar-header').getByTestId('sidebar-version')).toHaveCount(1);
   await expect(sidebar.getByTestId('sidebar-footer').getByTestId('sidebar-version')).toHaveCount(0);
-  await expect(versionStatus).toHaveAccessibleName(messages.en.checkForUpdates);
+  // 名称包含可见文字（WCAG 2.5.3），动作提示是描述
+  await expect(versionStatus).toHaveAccessibleName(`v${LINKETRY_VERSION} ${messages.en.upToDate}`);
+  await expect(versionStatus).toHaveAccessibleDescription(messages.en.checkForUpdates);
   await expect(versionStatus.getByText(`v${LINKETRY_VERSION}`, { exact: true })).toBeVisible();
   await expect(versionStatus.getByText(messages.en.upToDate, { exact: true })).toBeVisible();
   await versionStatus.click();

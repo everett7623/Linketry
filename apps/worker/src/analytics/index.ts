@@ -5,7 +5,8 @@ import type {
   VisitRequestSnapshot,
 } from '@linketry/shared';
 import type { Env } from '../types';
-import { generateId, now, sha256 } from '../utils/id';
+import { generateId, now } from '../utils/id';
+import { hashClientIp } from '../utils/ipHash';
 import {
   hasVisitedLinkOnDate,
   incrementClicks,
@@ -79,7 +80,7 @@ export async function recordVisitMessage(
     const ip = request.ip ?? '';
 
     const isBot = isLikelyBot(ua) ? 1 : 0;
-    const ipHash = ip ? await sha256(ip) : undefined;
+    const ipHash = ip ? await hashClientIp(env, ip) : undefined;
 
     const visitId = generateId();
     const createdAt = now();

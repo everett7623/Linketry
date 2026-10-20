@@ -1,6 +1,7 @@
 import type { Env } from '../types';
 import { insertAuditLog } from '../db/index';
-import { generateId, now, sha256 } from '../utils/id';
+import { generateId, now } from '../utils/id';
+import { hashClientIp } from '../utils/ipHash';
 
 export async function recordAudit(
   env: Env,
@@ -12,7 +13,7 @@ export async function recordAudit(
 ): Promise<void> {
   try {
     const ip = request.headers.get('CF-Connecting-IP') ?? '';
-    const ipHash = ip ? await sha256(ip) : null;
+    const ipHash = ip ? await hashClientIp(env, ip) : null;
     const userAgent = request.headers.get('User-Agent');
 
     await insertAuditLog(env, {

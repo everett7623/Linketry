@@ -1,5 +1,7 @@
 export const SHLINK_API_FETCH_MAX_ITEMS = 5_000;
 export const SHLINK_API_FETCH_MAX_PAGES = 100;
+/** 单页请求（含重定向与响应体读取）的超时；Admin 端整次拉取的上限是 60 秒。 */
+export const SHLINK_API_PAGE_TIMEOUT_MS = 10_000;
 
 export function shlinkApiFetchLimitError(
   fetchedCount: number,

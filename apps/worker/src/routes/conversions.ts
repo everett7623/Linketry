@@ -4,7 +4,8 @@ import type { Env } from '../types';
 import { requireAuth } from '../auth/index';
 import { createConversionEvent } from '../db/analytics';
 import { getLinkByDomainAndSlug, getLinkById, getLinkBySlug } from '../db/index';
-import { generateId, now, sha256 } from '../utils/id';
+import { generateId, now } from '../utils/id';
+import { hashClientIp } from '../utils/ipHash';
 import { jsonError, jsonOk } from '../utils/response';
 import { parseConversionInput } from '../analytics/conversionPolicy';
 
@@ -39,7 +40,7 @@ conversions.post('/', async (c) => {
     value: parsed.value!.value,
     currency: parsed.value!.currency,
     metadata: parsed.value!.metadata,
-    ip_hash: await hashRequestIp(c.req.raw),
+    ip_hash: await hashRequestIp(c.env, c.req.raw),
     user_agent: c.req.header('User-Agent') ?? null,
     created_at: now(),
   };
@@ -71,9 +72,9 @@ async function resolveConversionLink(env: Env, body: ConversionBody): Promise<Li
   return domain ? getLinkByDomainAndSlug(env, domain, slug) : getLinkBySlug(env, slug);
 }
 
-async function hashRequestIp(request: Request): Promise<string | null> {
+async function hashRequestIp(env: Env, request: Request): Promise<string | null> {
   const ip = request.headers.get('CF-Connecting-IP');
-  return ip ? sha256(ip) : null;
+  return ip ? hashClientIp(env, ip) : null;
 }
 
 export default conversions;

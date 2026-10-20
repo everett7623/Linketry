@@ -125,7 +125,9 @@ async function accessGate(
     if (c.req.method === 'POST') {
       const rate = await checkAuthRateLimit(c.env, c.req.raw, 'link-password');
       if (!rate.allowed) {
-        return jsonError('Too many password attempts. Please try again shortly.', 429);
+        return rate.source === 'unavailable'
+          ? jsonError('Password verification is temporarily unavailable. Please try again shortly.', 503)
+          : jsonError('Too many password attempts. Please try again shortly.', 429);
       }
     }
     const submittedPassword = await readSubmittedPassword(c);
@@ -188,45 +190,56 @@ export async function handleRedirect(c: Context<{ Bindings: Env }>): Promise<Res
 
   // Re-check D1 on cache hits. This keeps admin changes authoritative even if
   // Cloudflare KV has a briefly stale active entry after disable/delete.
+  // 只有 D1 查询本身失败才回落到缓存；D1 一旦给出结果，密码、警告和限制都必须按它执行。
+  let link: Link | null;
   try {
-    const link = await getRedirectLink(c.env, domain, slug);
-    if (!link) {
-      return notFoundFor(c.env, slug, locale);
-    }
-
-    const gatedResponse = await accessGate(c, link, locale);
-    if (gatedResponse) return gatedResponse;
-
-    const freshCache = toCacheEntry(link);
-    if (shouldCacheRedirect(link) && cacheNeedsRefresh(cached, freshCache)) {
-      c.executionCtx.waitUntil(setCachedLink(c.env, domain, freshCache));
-    }
-
-    const decision = await getSmartRedirectDecision(c.env, link, c.req.raw);
-
-    c.executionCtx.waitUntil(
-      queueOrRecordVisit(c.env, link, c.req.raw, domain, {
-        url: decision.targetUrl,
-        redirect_rule_id: decision.redirectRuleId,
-        redirect_rule_type: decision.redirectRuleType,
-      })
-    );
-
-    return redirectResponse(buildRedirectUrl(decision.targetUrl, new URL(c.req.url)), link.redirect_type);
+    link = await getRedirectLink(c.env, domain, slug);
   } catch {
-    // If D1 is temporarily unavailable but KV has an active entry, preserve the redirect.
-    if (
-      cached.status === 'active' &&
-      !cachedLinkExpired(cached) &&
-      (cached.maxClicks === undefined || cached.maxClicks === null)
-    ) {
-      if (cached.warningEnabled && !warningConfirmed(c)) {
-        return warningPage(cached.slug, cached.longUrl, false, locale);
-      }
-
-      return redirectResponse(cached.longUrl, cached.redirectType);
-    }
+    return cachedFallbackResponse(c, cached, locale) ?? notFoundFor(c.env, slug, locale);
+  }
+  if (!link) {
+    return notFoundFor(c.env, slug, locale);
   }
 
-  return notFoundFor(c.env, slug, locale);
+  const gatedResponse = await accessGate(c, link, locale);
+  if (gatedResponse) return gatedResponse;
+
+  const freshCache = toCacheEntry(link);
+  if (shouldCacheRedirect(link) && cacheNeedsRefresh(cached, freshCache)) {
+    c.executionCtx.waitUntil(setCachedLink(c.env, domain, freshCache));
+  }
+
+  const decision = await getSmartRedirectDecision(c.env, link, c.req.raw);
+
+  c.executionCtx.waitUntil(
+    queueOrRecordVisit(c.env, link, c.req.raw, domain, {
+      url: decision.targetUrl,
+      redirect_rule_id: decision.redirectRuleId,
+      redirect_rule_type: decision.redirectRuleType,
+    })
+  );
+
+  return redirectResponse(buildRedirectUrl(decision.targetUrl, new URL(c.req.url)), link.redirect_type);
+}
+
+/**
+ * KV 命中但 D1 不可用：只放行 active、未过期、无点击上限的缓存条目。
+ * 查询参数与正常路径一样转发；智能规则和访问统计存放在 D1，这里无法执行（KNOWN_ISSUES H4）。
+ */
+function cachedFallbackResponse(
+  c: Context<{ Bindings: Env }>,
+  cached: KVCacheEntry,
+  locale: PublicLocale
+): Response | null {
+  if (
+    cached.status !== 'active' ||
+    cachedLinkExpired(cached) ||
+    (cached.maxClicks !== undefined && cached.maxClicks !== null)
+  ) {
+    return null;
+  }
+  if (cached.warningEnabled && !warningConfirmed(c)) {
+    return warningPage(cached.slug, cached.longUrl, false, locale);
+  }
+  return redirectResponse(buildRedirectUrl(cached.longUrl, new URL(c.req.url)), cached.redirectType);
 }
