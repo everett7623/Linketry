@@ -15,7 +15,7 @@
 ### H2. Pre-1.0 外部证据门（运维）
 
 - **状态**：🟡 Pending operator evidence
-- **项**：v0.32.3 生产/Demo/官网 parity（✅ 2026-10-19 `go.uukk.de` / `demoapi.linketry.com` / `linketry.com` report 0.32.3）；GitHub Release `v0.32.0`；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；keyboard/axe AT（✅ v0.31.3 `at-audit.spec.ts`）；screen-reader AT（pending）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；Demo 可选 R2（Cloudflare `10042`）
+- **项**：v0.33.0 生产/Demo/官网 parity（✅ 2026-10-20 `go.uukk.de` / `demoapi.linketry.com` / `linketry.com` report 0.33.0）；GitHub Release `v0.32.0`；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；keyboard/axe AT（✅ v0.31.3 `at-audit.spec.ts`）；screen-reader AT（pending）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；Demo 可选 R2（Cloudflare `10042`）
 - **代码侧**：清单与文档已就绪；剩余关闭项需独立 Cloudflare 账号 / 手工 AT / 规模证据
 
 ### H3. 开发/构建工具链剩余 7 条 npm 公告（Tailwind CSS 3 依赖链）
@@ -38,6 +38,13 @@
 - **说明**：`apps/worker/src/utils/publicPages.ts` 中警告页的"继续"链接是 `/<slug>?linketry_confirm=1`，密码表单提交到 `/<slug>`，都不带访问短链时的原始查询参数。确认或解锁之后的跳转只能转发 `linketry_*` 以外的参数，而此时已经没有可转发的参数。
 - **影响**：启用安全警告或密码保护的短链，访问时附带的 UTM 等参数不会传到目标网址；未启用这两项的短链不受影响。
 - **可选方向**：渲染这两个页面时把原始查询串（去掉 `linketry_*`）带进链接和表单 `action`，并补充对应的重定向测试。
+
+### H6. OpenAPI 路由的通配鉴权中间件覆盖整个 `/api/v1/*`
+
+- **状态**：🟡 已知问题（v0.33.0 部署后验证时发现，自 v0.10.3 起存在）
+- **说明**：`apps/worker/src/routes/openapi.ts` 用 `routes.use('*', requireAuth)` 保护自己的两个端点，但它通过 `app.route('/api/v1', openApiRoutes)` 最先挂载，Hono 会把这条中间件应用到 `/api/v1/*` 的所有请求上。于是 `POST /api/v1/auth/login` 没有 Bearer 头时直接返回 401 `Unauthorized`，进不了登录处理器。Admin 登录时会先把 token 存起来，请求带着同一个 token 作为 Bearer 头，所以日常登录一直正常。
+- **影响**：登录限流对失败的尝试从未生效（错误 token 在外层就被拒绝）；携带 API token 的每个 `/api/v1/*` 请求都会校验两次（两次 D1 查询和两次 `last_used` 写入）；不带 Bearer 头的客户端拿不到登录接口文档所述的 400 / 401 `Invalid token` 响应。旧前缀 `/api/auth/login` 不经过这条中间件，行为正常。
+- **修复方向**：把鉴权中间件只挂在 `/openapi.json` 和 `/docs` 两个路由上（其余路由器都有各自的鉴权），并补一个全量路由测试，确认除登录与登出外所有 `/api/v1` 路由都拒绝匿名请求。
 
 ---
 

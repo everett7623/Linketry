@@ -49,4 +49,13 @@ Local mirror of all three `ci.yml` jobs (Node 25.2.1, npm 11.15.0, Windows) afte
 
 ## Deployment evidence
 
-Pending.
+Deployed 2026-10-20 as `3195a47`.
+
+- Pushed `3195a47` to a temporary `release/v0.33.0` branch and dispatched [Validate Linketry 39375966815](https://github.com/everett7623/Linketry/actions/runs/39375966815) on it: the contracts, Worker and Admin jobs passed on Node 24.15.0. No deploy workflow runs for non-`main` pushes. Then fast-forwarded `main` (`dba6eef..3195a47`) and deleted the temporary branch after checking it pointed at the same commit.
+- [production 39376326219](https://github.com/everett7623/Linketry/actions/runs/39376326219): success; authenticated dispatch with `expected_release=0.33.0` and `expected_commit=3195a47fe823a1babd06ae0aa4a29216059ecc97`. No migration files changed since v0.32.3. The push-triggered production run `39376287269` skipped on `[skip production]`.
+- [isolated Demo 39376287317](https://github.com/everett7623/Linketry/actions/runs/39376287317): success; triggered by the push.
+- [project site 39376331365](https://github.com/everett7623/Linketry/actions/runs/39376331365): success; exact-commit confirmation.
+- Live (2026-10-20): `go.uukk.de/health` and `demoapi.linketry.com/health` report 0.33.0; `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` serve favicon `?v=0.33.0`; `linketry.com` `llms.txt` and JSON-LD report 0.33.0.
+- Production `/api/v1/links`, `/api/v1/system/upgrade` and `/api/v1/qr-style` return 401 without a token, an unknown slug returns 404, and the `/health` CORS preflight returns 204. Demo `GET /api/v1/qr-style` returns 200 and `POST /api/v1/links` returns 403.
+- Login probe with a malformed body and no bearer header: `/api/auth/login` returns 400 "Invalid request body" (with `Deprecation: true`), while `/api/v1/auth/login` returns 401 "Unauthorized" because the OpenAPI router's wildcard auth middleware runs first for all of `/api/v1/*`. Pre-existing since `d154350` (v0.10.3); the Admin is unaffected because it sends the token being tested as its bearer header. Recorded as `docs/KNOWN_ISSUES.md` H6.
+- `LINKETRY_IP_HASH_SECRET` is not set on production yet (owner action in `TASKS.md` Next).

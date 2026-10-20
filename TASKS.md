@@ -9,6 +9,7 @@ One item in "In Progress" at a time whenever possible.
 
 Nothing here is scheduled yet; each item needs its own go-ahead.
 
+- [ ] **OpenAPI wildcard auth middleware (patch release).** `routes/openapi.ts` registers `use('*', requireAuth)` and is mounted first at `/api/v1`, so it runs for every `/api/v1/*` request: `POST /api/v1/auth/login` without a bearer header never reaches the login handler or its rate limit, and API-token requests are authenticated twice. Scope it to `/openapi.json` and `/docs` and add an all-routes anonymous-access test. Details: `docs/KNOWN_ISSUES.md` H6.
 - [ ] **Production `LINKETRY_IP_HASH_SECRET` (owner action).** v0.33.0 keys stored IP hashes with HMAC-SHA256 only when this Worker secret exists. Generate a value (`openssl rand -hex 32`), keep it in a password manager and run `npx wrangler secret put LINKETRY_IP_HASH_SECRET` in `apps/worker` against the production Worker; GitHub Actions deployments preserve it. Unique-visitor counts restart for date ranges that span the change (`docs/ANALYTICS.md`).
 - [ ] **Interstitial query parameters (needs explicit redirect-path approval).** The warning page's Continue link and the password form drop the visitor's original query string, so UTM parameters on warning-enabled or password-protected links never reach the destination. Details and direction: `docs/KNOWN_ISSUES.md` H5.
 
@@ -36,8 +37,9 @@ Also open further down: Branded QR Phase 2 and 3 (Admin upgrades section) and th
 - [x] 24 new Worker tests, mutation-checked against the previous code; 15 s first-render allowance in `links-layout.spec.ts`
 - [x] Synchronize v0.33.0 release metadata
 - [x] Local verification of all three CI jobs
-- [ ] Commit, validate with a `ci.yml` dispatch, push and deploy production, Demo and site
+- [x] Commit `3195a47`, validate with `ci.yml` dispatch `39375966815` on a temporary `release/v0.33.0` branch (deleted afterwards), fast-forward `main` and deploy: production `39376326219`, Demo `39376287317`, site `39376331365`; live parity verified 2026-10-20
 - [ ] Set `LINKETRY_IP_HASH_SECRET` on production *(owner action, tracked in Next)*
+- [ ] Scope the OpenAPI router's auth middleware to its own routes *(found by the post-deploy login probe, tracked in Next)*
 
 Task record: `.codex/tasks/security-hardening-deps-2026-10-20.md`
 

@@ -6,7 +6,7 @@ Last updated: 2026-10-20
 
 ---
 
-## Security hardening and dependency updates — v0.33.0
+## Security hardening and dependency updates — v0.33.0 (deployed)
 
 - Baseline: this clone's `main` was at `58ea539` (v0.32.0) and fast-forwarded to `origin/main` `dba6eef` (v0.32.3) with no local commits or changes; production, Demo, Admin and site at v0.32.3. This clone still holds the July stash and four v0.29-era local branches that were removed in the other clone; left untouched.
 - Rate-limiter failures (for example an exhausted Workers Free KV write quota) no longer surface as errors: `checkAuthRateLimit` logs them and returns `rateLimiterFailureResult`. Admin login fails open (it answered 400 "Invalid request body" until the quota reset); password-protected links fail closed with 503 (they threw a 500 on a KV miss and, on a KV hit, fell back to the cached redirect).
@@ -16,6 +16,8 @@ Last updated: 2026-10-20
 - Admin accessibility (surfaced by axe-core 4.14, WCAG 2.5.3): the expanded sidebar version button is named by its visible version and status with the action as its description, and the interface-mode switch's visible text now matches its label.
 - Root `.npmrc` pins the official registry. In-range updates with raised floors: vite 6.4.4 (Admin and site), react-router-dom 7.18.4, dayjs 1.11.23, postcss 8.5.31, autoprefixer 10.6.1, @playwright/test 1.64.1 (Chromium 156), @axe-core/playwright 4.14.0. All 323 resolved URLs are `registry.npmjs.org`; `npm audit` stays at the seven Tailwind 3 advisories, `--omit=dev` at 0.
 - Worker tests 151 → 175 (`utils/ipHash`, `auth/rateLimit`, `routes/auth`, `routes/redirect`), mutation-checked against the previous code; the links-layout first-render assertion uses the 15 s allowance of the other first-paint checks. Evidence: `.codex/tasks/security-hardening-deps-2026-10-20.md`.
+- Deployed `3195a47` after `Validate Linketry` `39375966815` passed on a temporary `release/v0.33.0` branch (deleted afterwards): production `39376326219` and site `39376331365` by authenticated dispatch (`expected_release=0.33.0`, exact commit), Demo `39376287317` from the push; the push-triggered production run skipped on `[skip production]`. Health, Admin favicons, site `llms.txt`/JSON-LD, production 401/404 and preflight 204, Demo read 200 and write 403 verified at 0.33.0.
+- The post-deploy login probe found a pre-existing routing issue (KNOWN_ISSUES H6): the OpenAPI router's wildcard auth middleware covers all of `/api/v1/*`, so `POST /api/v1/auth/login` without a bearer header never reaches the login handler or its rate limit.
 
 ## Links layout and repository cleanup — v0.32.3 (deployed)
 
@@ -111,14 +113,14 @@ Last updated: 2026-10-20
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.32.3 live | Production health reports v0.32.3; source is v0.33.0 (rate-limiter failure handling, narrowed redirect cache fallback, optional keyed IP hash; not deployed) |
-| Admin frontend             | ✅ 0.32.3 live | `admin.uukk.de` and `linketry-admin.pages.dev` advertise v0.32.3 with the new Links CSS |
-| Documentation              | ✅ 0.33.0 synchronized | Security, analytics privacy, self-hosting, architecture and known-issue notes for v0.33.0 recorded |
-| Deployment                 | ✅ 0.32.3 live | Production `39181219300`, Demo `39181207795`, site `39181221970` succeeded at `9de314c` |
-| End-to-end test            | ✅ 0.32.3 live | Health/version on all tracks, production 401/404, `/health` preflight 204, Demo `qr-style` read 200 and write 403 verified |
+| Worker backend             | ✅ 0.33.0 live | Production health reports v0.33.0 |
+| Admin frontend             | ✅ 0.33.0 live | `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` advertise v0.33.0 |
+| Documentation              | ✅ 0.33.0 synchronized | v0.33.0 deployment recorded |
+| Deployment                 | ✅ 0.33.0 live | Production `39376326219`, Demo `39376287317`, site `39376331365` succeeded at `3195a47` after `Validate Linketry` `39375966815` passed |
+| End-to-end test            | ✅ 0.33.0 live | Health/version on all tracks, production 401/404, `/health` preflight 204, Demo `qr-style` read 200 and write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0 |
-| Current version            | 🟡 0.33.0 source | Production, Demo and site remain on v0.32.3 until the next approved deployment |
-| Repository update target   | ✅ 0.32.3 | Authenticated dispatch `39181219300` deployed `main` HEAD `9de314c` |
+| Current version            | ✅ 0.33.0 | Source, production, Demo and site version parity verified |
+| Repository update target   | ✅ 0.33.0 | Authenticated dispatch `39376326219` deployed `main` HEAD `3195a47` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Tailwind 4, audit P3, Releases, release checklist, interstitial query parameters H5, fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |

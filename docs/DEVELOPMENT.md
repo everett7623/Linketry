@@ -4,7 +4,7 @@ This guide explains how to make safe, maintainable changes to Linketry. Read doc
 
 **Last updated**: 2026-10-20  
 **Current version**: v0.33.0
-**Production version**: v0.32.3
+**Production version**: v0.33.0
 
 Version authority: root `package.json` and `PROGRESS.md`. Capability matrix: `AGENTS.md`.
 
