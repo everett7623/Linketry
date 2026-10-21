@@ -13,4 +13,5 @@ apps/demo-api/wrangler.jsonc
 !apps/worker/wrangler.toml.example
 *.db
 *.db-journal
+*.sync-conflict-*
 Linketry 完整项目开发文档.md

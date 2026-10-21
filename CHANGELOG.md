@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [Unreleased]
+
+### Maintenance
+
+- Git now ignores Syncthing conflict copies (`*.sync-conflict-*`), so copies left by a folder sync between machines can no longer be staged by `git add -A` or committed by accident.
+
 ## [0.33.1] - 2026-10-20
 
 ### Security
