@@ -15,7 +15,7 @@
 ### H2. Pre-1.0 外部证据门（运维）
 
 - **状态**：🟡 Pending operator evidence
-- **项**：v0.33.0 生产/Demo/官网 parity（✅ 2026-10-20 `go.uukk.de` / `demoapi.linketry.com` / `linketry.com` report 0.33.0）；GitHub Release `v0.32.0`；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；keyboard/axe AT（✅ v0.31.3 `at-audit.spec.ts`）；screen-reader AT（pending）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；Demo 可选 R2（Cloudflare `10042`）
+- **项**：v0.33.1 生产/Demo/官网 parity（✅ 2026-10-21 `go.uukk.de` / `demoapi.linketry.com` / `linketry.com` report 0.33.1）；GitHub Release `v0.32.0`；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；keyboard/axe AT（✅ v0.31.3 `at-audit.spec.ts`）；screen-reader AT（pending）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；Demo 可选 R2（Cloudflare `10042`）
 - **代码侧**：清单与文档已就绪；剩余关闭项需独立 Cloudflare 账号 / 手工 AT / 规模证据
 
 ### H3. 开发/构建工具链剩余 7 条 npm 公告（Tailwind CSS 3 依赖链）
@@ -31,6 +31,7 @@
 - **说明**：KV 命中后回查 D1 时如果 D1 查询本身抛错，`apps/worker/src/routes/redirect.ts` 只对 active、未过期、没有点击上限的缓存条目放行。v0.33.0 起兜底路径与正常路径一样经 `buildRedirectUrl` 转发查询参数，并且只有 D1 查询失败才会回落到缓存：D1 已返回结果后的密码、警告、限制检查出错不再落入兜底。兜底路径仍不评估智能重定向规则，也不记录访问。
 - **影响**：D1 短暂不可用期间，智能规则回落到 `long_url`，这段时间的点击不计入统计。重定向本身保持可用。
 - **可选方向**：配置了 Queue 时可以把兜底路径的访问先入队，待 D1 恢复后由消费者写入。智能规则存放在 D1，兜底时无法读取，维持回落到 `long_url` 即可。
+- **补充（v0.33.1 部署后观察）**：重定向路径对 D1 查询没有超时，兜底只在 D1 抛错时生效；D1 挂起而不报错时，KV 命中的请求也会一直等待，兜底不会触发。2026-10-21 线上复核时，约 2 分钟内有 3 次未知 slug 探测超时（25 秒），同一时段不查询 D1 的请求均正常，随后 8 次都在 1 秒内返回 404；原因未确认（本地代理或 D1 短暂停顿）。可选方向：给 KV 命中路径上的 D1 回查设一个上限（超时即视为失败，走兜底），需要明确授权。
 
 ### H5. 警告页与密码页不保留原始查询参数
 

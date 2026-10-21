@@ -45,4 +45,14 @@ Local mirror of all three `ci.yml` jobs (Node 25.2.1, npm 11.15.0, Windows) afte
 
 ## Deployment evidence
 
-Pending.
+Deployed 2026-10-20 as `54eb8cc`; live state re-checked 2026-10-21.
+
+- Pushed `54eb8cc` to a temporary `release/v0.33.1` branch and dispatched [Validate Linketry 39379316617](https://github.com/everett7623/Linketry/actions/runs/39379316617): contracts, Worker and Admin jobs passed on Node 24.15.0, the Admin browser suite included. Fast-forwarded `main` (`91a172f..54eb8cc`); the temporary branch was deleted after checking it pointed at the same commit.
+- [production 39379574281](https://github.com/everett7623/Linketry/actions/runs/39379574281): success; authenticated dispatch with `expected_release=0.33.1` and `expected_commit=54eb8cc0dd5c52f24b324f1f6a4b0bea9a6bc812`. No migration changes. The push-triggered production run `39379571252` skipped on `[skip production]`.
+- [isolated Demo 39379571712](https://github.com/everett7623/Linketry/actions/runs/39379571712): success; triggered by the push.
+- [project site 39379578165](https://github.com/everett7623/Linketry/actions/runs/39379578165): success; exact-commit confirmation.
+- Live (2026-10-21): `go.uukk.de/health` and `demoapi.linketry.com/health` report 0.33.1; `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` serve favicon `?v=0.33.1`; `linketry.com` `llms.txt` and JSON-LD report 0.33.1.
+- Production without a token: `/api/v1/links`, `/api/v1/system/upgrade`, `/api/v1/qr-style`, `/api/v1/openapi.json`, `/api/v1/docs` and `/api/v1/auth/me` return 401; the `/health` CORS preflight returns 204; Demo `GET /api/v1/qr-style` returns 200 and `POST /api/v1/links` returns 403.
+- H6 probe without a bearer header: `/api/v1/auth/login` now answers 400 "Invalid request body" for a malformed body and 401 "Invalid token" for a wrong token (it answered 401 "Unauthorized" on v0.33.0), the same as the legacy `/api/auth/login`.
+- Unknown slugs: the first three probes timed out after 25 s within about two minutes, while D1-free requests on the same host (health, token rejections) answered normally; eight further probes with random slugs answered 404 in 0.91–0.99 s (TLS about 0.5 s). The timed-out probes were not split by stage, so the cause (local proxy `127.0.0.1:7897` or a D1 stall) is unconfirmed. Code fact recorded under KNOWN_ISSUES H4: the redirect path has no D1 deadline, so the KV fallback covers D1 errors but not hangs.
+- Local checkout note: on 2026-10-20 between 20:54 and 20:59 (+08:00) Syncthing synced this folder with device `6VBDPWA` and left 37 untracked `*.sync-conflict-*` copies in the working tree plus copies of `.git` internals (`index`, `config`, `packed-refs`, ref logs) and a branch `main.sync-conflict-20261020-205906-6VBDPWA` at `dba6eef`. Every working-tree copy hashes to a blob already in history (the v0.32.3 state), `git fsck` reports no errors, and tracked files match `HEAD`; the copies were left in place for the owner and were not committed.

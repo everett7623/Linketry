@@ -2,9 +2,9 @@
 
 This guide explains how to make safe, maintainable changes to Linketry. Read docs/ARCHITECTURE.md first for runtime behavior and failure boundaries.
 
-**Last updated**: 2026-10-20  
+**Last updated**: 2026-10-21  
 **Current version**: v0.33.1
-**Production version**: v0.33.0
+**Production version**: v0.33.1
 
 Version authority: root `package.json` and `PROGRESS.md`. Capability matrix: `AGENTS.md`.
 

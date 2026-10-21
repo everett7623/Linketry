@@ -2,16 +2,18 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-10-20
+Last updated: 2026-10-21
 
 ---
 
-## OpenAPI auth middleware scope — v0.33.1
+## OpenAPI auth middleware scope — v0.33.1 (deployed)
 
 - Baseline: `origin/main` and local `main` at `91a172f` (v0.33.0 deployment record); production, Demo, Admin and site at v0.33.0. The H5 session (interstitial query parameters) works in its own worktree and takes v0.33.2.
 - Fixes KNOWN_ISSUES H6, found by the v0.33.0 post-deploy login probe: `routes/openapi.ts` registered `use('*', requireAuth)` and is mounted first at `/api/v1`, so it ran for every `/api/v1/*` request. `POST /api/v1/auth/login` without a bearer header answered 401 `Unauthorized` before reaching the sign-in handler and its rate limit, and API-token requests were verified twice. The middleware now guards only `/openapi.json` and `/docs`; every other router already authenticates itself.
 - New `src/routes/api.test.mjs` (Worker 175 → 179) drives the real Worker entry: anonymous requests to every registered `/api` route must get 401/403 except sign-in and sign-out, sign-in is reachable on both prefixes with every attempt counted by the limiter, an API token is looked up once, and the OpenAPI document stays protected. Two tests failed on the v0.33.0 code (401 instead of 400; two token lookups); removing the tags router's auth or the new OpenAPI guard makes the all-routes test list exactly those routes.
 - Evidence: `.codex/tasks/openapi-auth-scope-2026-10-20.md`.
+- Deployed `54eb8cc` on 2026-10-20 after `Validate Linketry` `39379316617` passed on a temporary `release/v0.33.1` branch (deleted afterwards): production `39379574281` and site `39379578165` by authenticated dispatch (`expected_release=0.33.1`, exact commit), Demo `39379571712` from the push; the push-triggered production run skipped on `[skip production]`. Re-checked 2026-10-21: every track reports 0.33.1, `/api/v1/auth/login` without a bearer header answers 400 "Invalid request body" and 401 "Invalid token" itself, and `/api/v1/openapi.json` and `/api/v1/docs` still answer 401 anonymously.
+- During that check three unknown-slug probes timed out (25 s) within about two minutes while D1-free requests on the same host answered normally; the next eight answered 404 in under a second. Cause unconfirmed (local proxy or a D1 stall); the redirect path's missing D1 timeout is recorded under KNOWN_ISSUES H4.
 
 ## Security hardening and dependency updates — v0.33.0 (deployed)
 
@@ -120,14 +122,14 @@ Last updated: 2026-10-20
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.33.0 live | Production health reports v0.33.0; source is v0.33.1 (OpenAPI auth middleware scoped to its routes; not deployed) |
-| Admin frontend             | ✅ 0.33.0 live | `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` advertise v0.33.0 |
-| Documentation              | ✅ 0.33.1 synchronized | KNOWN_ISSUES H6 fix and this status table recorded |
-| Deployment                 | ✅ 0.33.0 live | Production `39376326219`, Demo `39376287317`, site `39376331365` succeeded at `3195a47` after `Validate Linketry` `39375966815` passed |
-| End-to-end test            | ✅ 0.33.0 live | Health/version on all tracks, production 401/404, `/health` preflight 204, Demo `qr-style` read 200 and write 403 verified |
+| Worker backend             | ✅ 0.33.1 live | Production health reports v0.33.1; `/api/v1/auth/login` answers 400/401 itself again |
+| Admin frontend             | ✅ 0.33.1 live | `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` advertise v0.33.1 |
+| Documentation              | ✅ 0.33.1 synchronized | v0.33.1 deployment recorded |
+| Deployment                 | ✅ 0.33.1 live | Production `39379574281`, Demo `39379571712`, site `39379578165` succeeded at `54eb8cc` after `Validate Linketry` `39379316617` passed |
+| End-to-end test            | ✅ 0.33.1 live | Health/version on all tracks, production 401/404 (OpenAPI and docs included), `/health` preflight 204, sign-in 400/401 without a bearer header, Demo `qr-style` read 200 and write 403 verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1 |
-| Current version            | 🟡 0.33.1 source | Production, Demo and site remain on v0.33.0 until the next approved deployment |
-| Repository update target   | ✅ 0.33.0 | Authenticated dispatch `39376326219` deployed `main` HEAD `3195a47` |
+| Current version            | ✅ 0.33.1 | Source, production, Demo and site version parity verified |
+| Repository update target   | ✅ 0.33.1 | Authenticated dispatch `39379574281` deployed `main` HEAD `54eb8cc` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Tailwind 4, audit P3, Releases, release checklist, interstitial query parameters H5, fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
