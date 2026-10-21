@@ -78,6 +78,16 @@ function document(locale: PublicLocale, title: string, body: string): string {
   return `<!DOCTYPE html><html lang="${locale}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)} | Linketry</title><style>${baseStyle}</style></head><body>${body}</body></html>`;
 }
 
+/**
+ * 把访问短链时带的查询参数接在页面链接或表单地址后面，确认或解锁后的跳转才能继续转发它们（KNOWN_ISSUES H5）。
+ * `query` 由调用方去掉 linketry_* 控制参数；返回值放进属性前仍要 escapeHtml。
+ */
+function appendQuery(href: string, query?: URLSearchParams): string {
+  const carried = query?.toString();
+  if (!carried) return href;
+  return `${href}${href.includes('?') ? '&' : '?'}${carried}`;
+}
+
 export function renderNotFoundPage(locale: PublicLocale, message?: string): string {
   const text = copy[locale];
   return document(
@@ -105,15 +115,21 @@ export function renderExpiredPage(locale: PublicLocale, template?: PublicPageTem
   );
 }
 
-export function renderPasswordPage(locale: PublicLocale, slug: string, invalid: boolean): string {
+export function renderPasswordPage(
+  locale: PublicLocale,
+  slug: string,
+  invalid: boolean,
+  query?: URLSearchParams
+): string {
   const text = copy[locale];
   const safeSlug = escapeHtml(slug);
+  const action = escapeHtml(appendQuery(`/${slug}`, query));
   const error = invalid ? `<p class="error">${text.invalidPassword}</p>` : '';
   const period = locale === 'zh-CN' ? '。' : '.';
   return document(
     locale,
     text.passwordTitle,
-    `<main class="container"><section class="panel"><h1>${text.passwordTitle}</h1><p>${text.passwordMessage} <span class="slug">/${safeSlug}</span>${period}</p>${error}<form method="post" action="/${safeSlug}"><label for="password">${text.password}</label><input id="password" name="password" type="password" autocomplete="current-password" autofocus required><button type="submit">${text.continue}</button></form></section></main>`
+    `<main class="container"><section class="panel"><h1>${text.passwordTitle}</h1><p>${text.passwordMessage} <span class="slug">/${safeSlug}</span>${period}</p>${error}<form method="post" action="${action}"><label for="password">${text.password}</label><input id="password" name="password" type="password" autocomplete="current-password" autofocus required><button type="submit">${text.continue}</button></form></section></main>`
   );
 }
 
@@ -122,11 +138,12 @@ export function renderWarningPage(
   slug: string,
   longUrl: string,
   requiresPassword: boolean,
-  template?: PublicPageTemplate
+  template?: PublicPageTemplate,
+  query?: URLSearchParams
 ): string {
   const text = copy[locale];
   const safeSlug = escapeHtml(slug);
-  const action = escapeHtml(`/${encodeURIComponent(slug)}?linketry_confirm=1`);
+  const action = escapeHtml(appendQuery(`/${encodeURIComponent(slug)}?linketry_confirm=1`, query));
   const control = requiresPassword
     ? `<form method="post" action="${action}"><label for="password">${text.password}</label><input id="password" name="password" type="password" autocomplete="current-password" required><button type="submit">${text.continue}</button></form>`
     : `<a class="button" href="${action}">${text.continue}</a>`;

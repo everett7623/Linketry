@@ -7,11 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [Unreleased]
+## [0.33.2] - 2026-10-21
+
+### Fixed
+
+- Short links with a safety warning or a password now pass the visitor's query parameters, such as UTM tags, on to the destination. The warning page's Continue link and the password forms used to drop them, so the redirect after confirming or unlocking had nothing left to forward. Linketry's own `linketry_*` parameters are still left out, so a `linketry_confirm=1` on a shared link cannot skip the warning that follows the password. The same applies to the warning page shown while D1 is briefly unavailable. Links without a warning or password redirect exactly as before. The URL fragment (`#…`) never reaches the server, so it is still lost once the visitor clicks Continue.
 
 ### Maintenance
 
+- New Worker tests follow the warning and password pages through to the redirect, including a link with both, the D1-unavailable fallback, `linketry_*` filtering and the escaping of carried parameters.
 - Git now ignores Syncthing conflict copies (`*.sync-conflict-*`), so copies left by a folder sync between machines can no longer be staged by `git add -A` or committed by accident.
+
+### Documentation
+
+- `docs/ARCHITECTURE.md` describes the carried parameters and `docs/KNOWN_ISSUES.md` marks H5 as fixed.
 
 ## [0.33.1] - 2026-10-20
 

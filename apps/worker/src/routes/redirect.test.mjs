@@ -126,6 +126,16 @@ function submitPassword(password) {
 
 const d1Unavailable = new Error('D1_ERROR: storage temporarily unavailable');
 
+const linkPassword = 'correct horse battery staple';
+const passwordHash = await hashLinkPassword(linkPassword);
+
+/** 浏览器在警告页点"继续"或提交密码表单时请求的地址：取出链接或表单目标并还原 HTML 转义。 */
+async function continueTarget(response) {
+  const target = (await response.text()).match(/<(?:a class="button" href|form method="post" action)="([^"]*)"/)?.[1];
+  assert.ok(target, 'the page links or posts back to the short link');
+  return target.replaceAll('&amp;', '&');
+}
+
 test('a KV hit re-checks D1 and redirects to its destination with query parameters', async () => {
   const response = await visit(
     '/promo?utm_source=newsletter',
@@ -205,4 +215,69 @@ test('the correct password still redirects when the limiter works', async () => 
 
   assert.equal(response.status, 302);
   assert.equal(response.headers.get('Location'), 'https://example.com/landing?ref=d1&utm_source=newsletter');
+});
+
+test('the warning page carries the visitor query through Continue to the destination (H5)', async () => {
+  const env = createEnv({ link: linkRow({ warning_enabled: 1 }) });
+  const page = await visit('/promo?utm_source=newsletter&utm_medium=email', env);
+  assert.equal(page.status, 200);
+
+  const next = await continueTarget(page);
+  assert.equal(next, '/promo?linketry_confirm=1&utm_source=newsletter&utm_medium=email');
+  const response = await visit(next, env);
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get('Location'), 'https://example.com/landing?ref=d1&utm_source=newsletter&utm_medium=email');
+});
+
+test('the password form carries the visitor query, also after a wrong password (H5)', async () => {
+  const env = createEnv({ link: linkRow({ password_hash: passwordHash }) });
+  const action = await continueTarget(await visit('/promo?utm_source=newsletter', env));
+  assert.equal(action, '/promo?utm_source=newsletter');
+
+  const retry = await visit(action, env, submitPassword('wrong password'));
+  assert.equal(retry.status, 401);
+  assert.equal(await continueTarget(retry), action);
+
+  const response = await visit(action, env, submitPassword(linkPassword));
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get('Location'), 'https://example.com/landing?ref=d1&utm_source=newsletter');
+});
+
+test('a link with both a password and a warning keeps the query through both pages (H5)', async () => {
+  const env = createEnv({ link: linkRow({ password_hash: passwordHash, warning_enabled: 1 }) });
+  const unlock = await continueTarget(await visit('/promo?utm_source=newsletter', env));
+  assert.equal(unlock, '/promo?utm_source=newsletter');
+
+  const warning = await visit(unlock, env, submitPassword(linkPassword));
+  assert.equal(warning.status, 200);
+  const confirm = await continueTarget(warning);
+  assert.equal(confirm, '/promo?linketry_confirm=1&utm_source=newsletter');
+
+  const response = await visit(confirm, env, submitPassword(linkPassword));
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get('Location'), 'https://example.com/landing?ref=d1&utm_source=newsletter');
+});
+
+test('with D1 unavailable the cached warning page also carries the visitor query (H5)', async () => {
+  const env = createEnv({ cached: { ...cachedEntry, warningEnabled: true }, linkLookupError: d1Unavailable });
+  const next = await continueTarget(await visit('/promo?utm_source=newsletter&linketry_confirm=0', env));
+  assert.equal(next, '/promo?linketry_confirm=1&utm_source=newsletter');
+
+  const response = await visit(next, env);
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get('Location'), 'https://example.com/landing?ref=cache&utm_source=newsletter');
+});
+
+test('linketry_* parameters on the visitor URL are not carried into the pages (H5)', async () => {
+  const warningOnly = createEnv({ link: linkRow({ warning_enabled: 1 }) });
+  const page = await visit('/promo?utm_source=newsletter&linketry_confirm=0&LINKETRY_preview=1', warningOnly);
+  assert.equal(await continueTarget(page), '/promo?linketry_confirm=1&utm_source=newsletter');
+
+  // 分享出去的 URL 自带 linketry_confirm=1 时，不能借密码表单跳过解锁后的警告页。
+  const env = createEnv({ link: linkRow({ password_hash: passwordHash, warning_enabled: 1 }) });
+  const unlock = await continueTarget(await visit('/promo?linketry_confirm=1&utm_source=newsletter', env));
+  assert.equal(unlock, '/promo?utm_source=newsletter');
+  const response = await visit(unlock, env, submitPassword(linkPassword));
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('Location'), null);
 });

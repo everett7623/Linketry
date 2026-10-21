@@ -6,6 +6,14 @@ Last updated: 2026-10-21
 
 ---
 
+## Interstitial query parameters — v0.33.2
+
+- Baseline: `origin/main` `d8f7007` (v0.33.1, deployed on all tracks). The work started on `91a172f` (v0.33.0) in its own worktree and was rebased onto v0.33.1, which changed no redirect or public-page file. The owner approved this redirect-path change (golden rule 1), limited to KNOWN_ISSUES H5.
+- The warning page's Continue link, its password form and the password page's form now carry the visitor's query string without `linketry_*` control parameters, so `buildRedirectUrl` forwards UTM and other parameters once the visitor confirms or unlocks. The KV-hit fallback's warning page (D1 unavailable) does the same. A `linketry_confirm=1` already on a shared URL is not carried through the password form, so the warning still shows after unlocking. H5 fixed.
+- Links without a warning or password are unchanged: a differential run against v0.33.1 compared 212 requests (11 link states × 8 query shapes × GET/POST, plus the four interstitial cases with nothing to carry) and found identical status, headers, body and storage writes; with a visitor query only the link or form target differs.
+- Worker tests 179 → 187 (5 route-level in `routes/redirect`, 3 in `utils/publicPages`), mutation-checked against v0.33.1 and seven broken variants. Evidence: `.codex/tasks/interstitial-query-2026-10-20.md`.
+- Not deployed; production, Demo, Admin and site remain on v0.33.1.
+
 ## OpenAPI auth middleware scope — v0.33.1 (deployed)
 
 - Baseline: `origin/main` and local `main` at `91a172f` (v0.33.0 deployment record); production, Demo, Admin and site at v0.33.0. The H5 session (interstitial query parameters) works in its own worktree and takes v0.33.2.
@@ -122,15 +130,15 @@ Last updated: 2026-10-21
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.33.1 live | Production health reports v0.33.1; `/api/v1/auth/login` answers 400/401 itself again |
+| Worker backend             | ✅ 0.33.1 live | Production health reports v0.33.1; `/api/v1/auth/login` answers 400/401 itself again; source is v0.33.2 (warning and password pages keep the visitor's query parameters; not deployed) |
 | Admin frontend             | ✅ 0.33.1 live | `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` advertise v0.33.1 |
-| Documentation              | ✅ 0.33.1 synchronized | v0.33.1 deployment recorded |
+| Documentation              | ✅ 0.33.2 synchronized | Architecture and known-issue notes for v0.33.2 recorded |
 | Deployment                 | ✅ 0.33.1 live | Production `39379574281`, Demo `39379571712`, site `39379578165` succeeded at `54eb8cc` after `Validate Linketry` `39379316617` passed |
 | End-to-end test            | ✅ 0.33.1 live | Health/version on all tracks, production 401/404 (OpenAPI and docs included), `/health` preflight 204, sign-in 400/401 without a bearer header, Demo `qr-style` read 200 and write 403 verified |
-| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1 |
-| Current version            | ✅ 0.33.1 | Source, production, Demo and site version parity verified |
+| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1; H5 fixed in 0.33.2 |
+| Current version            | 🟡 0.33.2 source | Production, Demo and site remain on v0.33.1 until the next approved deployment |
 | Repository update target   | ✅ 0.33.1 | Authenticated dispatch `39379574281` deployed `main` HEAD `54eb8cc` |
-| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Tailwind 4, audit P3, Releases, release checklist, interstitial query parameters H5, fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
+| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Tailwind 4, audit P3, Releases, release checklist, fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system; bulk/import paths use bounded `env.DB.batch()`. Unused generic `db/batch.ts` helper removed in 0.31.4                  |

@@ -5,13 +5,12 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 📋 Next — Remaining work after v0.33.1 (recorded 2026-10-20)
+## 📋 Next — Remaining work after v0.33.2 (recorded 2026-10-21)
 
 Nothing here is scheduled yet; each item needs its own go-ahead.
 
 - [ ] **Admin browser suite cold-start flakes on many-core machines.** With Playwright's default worker count (8 on a 16-thread machine) the first tests to run, mostly locale switches and first-paint checks, can time out while a cold Vite dev server transforms modules for every worker (v0.33.1: 42/45 and 43/45 locally, 45/45 with `--workers=2`, as on CI). Options: `server.warmup` in the Admin Vite config, a worker cap in `playwright.config.ts`, or longer first-render timeouts for the on-demand zh-CN catalog. Record: `.codex/tasks/openapi-auth-scope-2026-10-20.md`.
 - [ ] **Production `LINKETRY_IP_HASH_SECRET` (owner action).** v0.33.0 keys stored IP hashes with HMAC-SHA256 only when this Worker secret exists. Generate a value (`openssl rand -hex 32`), keep it in a password manager and run `npx wrangler secret put LINKETRY_IP_HASH_SECRET` in `apps/worker` against the production Worker; GitHub Actions deployments preserve it. Unique-visitor counts restart for date ranges that span the change (`docs/ANALYTICS.md`).
-- [ ] **Interstitial query parameters (needs explicit redirect-path approval).** The warning page's Continue link and the password form drop the visitor's original query string, so UTM parameters on warning-enabled or password-protected links never reach the destination. Details and direction: `docs/KNOWN_ISSUES.md` H5.
 
 - [ ] **Tailwind CSS 4 migration (Admin).** Clears the last seven npm advisories, all in Tailwind 3.4.19's build-time chain (braces has no fixed release; the postcss-selector-parser fix is outside Tailwind 3's range). Needs the codemod plus manual work: rename the `--color-slate-*` / `--color-brand-*` RGB triplets and re-express the light-theme inversion, add explicit border/ring/divide colours, decide on v4 `hover:` semantics, pixel-compare every route, and accept the Safari 16.4+ / Chrome 111+ / Firefox 128+ baseline (likely a minor release). Impact assessment and plan: `.codex/tasks/toolchain-advisories-2026-10-18.md`; open limitation: `docs/KNOWN_ISSUES.md` H3.
 - [ ] **Visual audit P3 (Admin).** Mobile touch targets (26 px icon actions, 13–16 px checkboxes, 28 px view toggle and page actions), the sidebar footer covering the last nav entries at 900 px height, Overview stat cards taking about 1.5 screens on phones, and six empty UTM cards on Link Analytics. Also the Links "Short Link" header, which wraps to two lines at 1440 px with long slugs (accepted in v0.32.3 to keep the table inside its container). Sources: `.codex/tasks/admin-visual-audit-2026-10-17.md`, `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`.
@@ -22,6 +21,20 @@ Nothing here is scheduled yet; each item needs its own go-ahead.
 - [ ] **Worker module size (no behaviour change).** Split `apps/worker/src/db/index.ts` (1142 lines), `routes/links.ts` (980) and `routes/importRoutes.ts` (883) the way the v0.31.11 Links page split worked, keeping SQL under `apps/worker/src/db` (and updating the CLAUDE.md rule that names `db/index.ts`).
 
 Also open further down: Branded QR Phase 2 and 3 (Admin upgrades section) and the Pre-1.0 evidence gates — screen-reader AT pass, fresh-account Quick Deploy rehearsal, remote-D1 scale evidence, optional Demo R2 (Residual Hardening section).
+
+---
+
+## ✅ Completed — Interstitial query parameters (v0.33.2, not deployed)
+
+- [x] Fetch `origin/main` (`91a172f`, v0.33.0) and reinstall with `npm ci`; baseline Worker tests 175/175
+- [x] Warning and password pages carry the visitor's query string, without `linketry_*` control parameters, into the Continue link and both forms, including the KV-hit fallback's warning page (owner-approved redirect-path scope, KNOWN_ISSUES H5)
+- [x] 8 new Worker tests (5 route-level, 3 page rendering), mutation-checked against the previous code and seven broken variants; differential run for links without a warning or password (212 identical requests)
+- [x] Rebase onto v0.33.1 (`d8f7007`, H6 took that version) and synchronize v0.33.2 release metadata
+- [x] Local verification of all three CI jobs
+- [x] Commit on the review branch `claude/intelligent-hypatia-45c163`
+- [ ] Push, validate and deploy *(waiting for the owner's go-ahead)*
+
+Task record: `.codex/tasks/interstitial-query-2026-10-20.md`
 
 ---
 

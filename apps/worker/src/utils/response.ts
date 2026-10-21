@@ -31,8 +31,13 @@ export function expiredPage(locale: PublicLocale = 'en', template?: PublicPageTe
   return new Response(renderExpiredPage(locale, template), { status: 200, headers: htmlHeaders });
 }
 
-export function passwordPage(slug: string, invalid = false, locale: PublicLocale = 'en'): Response {
-  return new Response(renderPasswordPage(locale, slug, invalid), {
+export function passwordPage(
+  slug: string,
+  invalid = false,
+  locale: PublicLocale = 'en',
+  query?: URLSearchParams
+): Response {
+  return new Response(renderPasswordPage(locale, slug, invalid, query), {
     status: invalid ? 401 : 200,
     headers: htmlHeaders,
   });
@@ -43,9 +48,10 @@ export function warningPage(
   longUrl: string,
   requiresPassword = false,
   locale: PublicLocale = 'en',
-  template?: PublicPageTemplate
+  template?: PublicPageTemplate,
+  query?: URLSearchParams
 ): Response {
-  return new Response(renderWarningPage(locale, slug, longUrl, requiresPassword, template), {
+  return new Response(renderWarningPage(locale, slug, longUrl, requiresPassword, template, query), {
     status: 200,
     headers: htmlHeaders,
   });

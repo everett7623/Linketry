@@ -97,6 +97,18 @@ function warningConfirmed(c: Context<{ Bindings: Env }>): boolean {
   return c.req.query('linketry_confirm') === '1';
 }
 
+/**
+ * 警告页和密码页带到下一次请求的查询参数，确认或解锁后由 buildRedirectUrl 转发（KNOWN_ISSUES H5）。
+ * 与 buildRedirectUrl 一样跳过 linketry_* 控制参数：访客 URL 上的 linketry_confirm 不会被带过密码表单，解锁后仍会显示警告页。
+ */
+function interstitialQuery(c: Context<{ Bindings: Env }>): URLSearchParams {
+  const query = new URLSearchParams();
+  for (const [key, value] of new URL(c.req.url).searchParams) {
+    if (!key.toLowerCase().startsWith('linketry_')) query.append(key, value);
+  }
+  return query;
+}
+
 async function readSubmittedPassword(c: Context<{ Bindings: Env }>): Promise<string | undefined> {
   if (c.req.method !== 'POST') return undefined;
 
@@ -132,14 +144,19 @@ async function accessGate(
     }
     const submittedPassword = await readSubmittedPassword(c);
     if (!submittedPassword || !(await passwordMatches(link.password_hash, submittedPassword))) {
-      return passwordPage(link.slug, c.req.method === 'POST', locale);
+      return passwordPage(link.slug, c.req.method === 'POST', locale, interstitialQuery(c));
     }
   }
 
   if (link.warning_enabled === 1 && !warningConfirmed(c)) {
-    return warningPage(link.slug, link.long_url, !!link.password_hash, locale, {
-      message: await getPublicPageMessage(c.env, 'warning', { slug: link.slug, url: link.long_url }),
-    });
+    return warningPage(
+      link.slug,
+      link.long_url,
+      !!link.password_hash,
+      locale,
+      { message: await getPublicPageMessage(c.env, 'warning', { slug: link.slug, url: link.long_url }) },
+      interstitialQuery(c)
+    );
   }
 
   return null;
@@ -239,7 +256,7 @@ function cachedFallbackResponse(
     return null;
   }
   if (cached.warningEnabled && !warningConfirmed(c)) {
-    return warningPage(cached.slug, cached.longUrl, false, locale);
+    return warningPage(cached.slug, cached.longUrl, false, locale, undefined, interstitialQuery(c));
   }
   return redirectResponse(buildRedirectUrl(cached.longUrl, new URL(c.req.url)), cached.redirectType);
 }
