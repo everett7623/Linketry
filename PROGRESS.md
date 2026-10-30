@@ -2,7 +2,7 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-10-21
+Last updated: 2026-10-31
 
 ---
 
@@ -12,6 +12,7 @@ Last updated: 2026-10-21
 - The warning page's Continue link, its password form and the password page's form now carry the visitor's query string without `linketry_*` control parameters, so `buildRedirectUrl` forwards UTM and other parameters once the visitor confirms or unlocks. The KV-hit fallback's warning page (D1 unavailable) does the same. A `linketry_confirm=1` already on a shared URL is not carried through the password form, so the warning still shows after unlocking. H5 fixed.
 - Links without a warning or password are unchanged: a differential run against v0.33.1 compared 212 requests (11 link states × 8 query shapes × GET/POST, plus the four interstitial cases with nothing to carry) and found identical status, headers, body and storage writes; with a visitor query only the link or form target differs.
 - Worker tests 179 → 187 (5 route-level in `routes/redirect`, 3 in `utils/publicPages`), mutation-checked against v0.33.1 and seven broken variants. Evidence: `.codex/tasks/interstitial-query-2026-10-20.md`.
+- Independently re-verified on 2026-10-31: all three CI jobs mirrored locally on `d963caa` (deployment 92, Demo API 6, site 10, Worker 187, Admin unit 74 and browser 45, production/Demo/Quick Deploy builds and the Worker dry run at 484.53 KiB / gzip 111.30 KiB). Fast-forwarded into local `main` with the owner's approval; the task record, untracked until then, is now committed.
 - Not deployed; production, Demo, Admin and site remain on v0.33.1.
 
 ## OpenAPI auth middleware scope — v0.33.1 (deployed)

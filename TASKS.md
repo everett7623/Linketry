@@ -32,7 +32,8 @@ Also open further down: Branded QR Phase 2 and 3 (Admin upgrades section) and th
 - [x] Rebase onto v0.33.1 (`d8f7007`, H6 took that version) and synchronize v0.33.2 release metadata
 - [x] Local verification of all three CI jobs
 - [x] Commit on the review branch `claude/intelligent-hypatia-45c163`
-- [ ] Push, validate and deploy *(waiting for the owner's go-ahead)*
+- [x] Independent full CI mirror on `d963caa` (2026-10-31): deployment 92, Demo API 6, site 10, Worker 187, Admin unit 74, Admin browser 45, production/Demo/Quick Deploy builds and Worker dry run; fast-forwarded into local `main` with the owner's approval and the task record committed
+- [ ] Push, validate and deploy *(waiting for the owner's go-ahead; v0.34.0 builds on top)*
 
 Task record: `.codex/tasks/interstitial-query-2026-10-20.md`
 
