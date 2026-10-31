@@ -6,7 +6,7 @@ Last updated: 2026-10-31
 
 ---
 
-## Patch updates and release checklist — v0.34.1
+## Patch updates and release checklist — v0.34.1 (deployed)
 
 - Baseline: `origin/main` and local `main` at `cc3e75d` (v0.34.0 deployment record); production, Demo and site at v0.34.0. Two production dispatches by the owner's account at 06:17 and 06:18 UTC redeployed `cc3e75d` (`41175993899`, `41176027902`, both successful); its Worker and Admin code is the same as `a3cc818`'s, and `/health` and the Admin stylesheet were unchanged afterwards.
 - GitHub Release [v0.34.0](https://github.com/everett7623/Linketry/releases/tag/v0.34.0) published on `a3cc818` and marked Latest; it covers v0.32.1–v0.34.0, which had no Releases (the previous Latest was v0.32.0). By the owner's decision every deployed version now gets its Release: `docs/DEVELOPMENT.md` has the release checklist, and `AGENTS.md` and `CLAUDE.md` point to it.
@@ -14,6 +14,7 @@ Last updated: 2026-10-31
 - Wrangler re-checked (KNOWN_ISSUES H7): 4.156.0, the latest release, still fails the proxied check; a proxy without keep-alive reduced the failures to 0–1 in 240 but workerd kept logging `os error 10022`, so Wrangler stays on 4.151.1 with the undici override.
 - All three CI jobs mirrored locally, every step green on the first run (Worker 187, Admin unit 74 and browser 45). The Worker dry-run bundle (484.80 KiB / gzip 111.36 KiB) differs from v0.34.0's only in the two Hono fixes and the version string.
 - Not upgraded: the remaining `npm outdated` entries are new major versions (React 19, Vite 8, TypeScript 7, `@vitejs/plugin-react` 6, lucide-react 1, `@cloudflare/workers-types` 5), each a migration of its own. Evidence: `.codex/tasks/patch-updates-release-checklist-2026-10-31.md`.
+- Deployed `e3b2201` on 2026-10-31, the first release through the new checklist. `Validate Linketry` `41177855838` passed on a temporary `release/v0.34.1` branch (deleted afterwards). Production `41180555668` and site `41180558132` deployed by authenticated dispatch (`expected_release=0.34.1`, exact commit), and Demo `41180549568` from the push; the push-triggered production run `41180549543` skipped on `[skip production]`. Every track reports 0.34.1. The production login page renders v0.34.1 with no console errors, and [GitHub Release v0.34.1](https://github.com/everett7623/Linketry/releases/tag/v0.34.1) is Latest on `e3b2201`.
 
 ## Tailwind CSS 4 migration — v0.34.0 (deployed)
 
@@ -151,14 +152,14 @@ Last updated: 2026-10-31
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.34.0 live | Production health reports v0.34.0; `/api/v1/auth/login` answers 400/401 itself; warning and password pages keep the visitor's query parameters (v0.33.2); source is v0.34.1 (Hono 4.13.14; not deployed) |
-| Admin frontend             | ✅ 0.34.0 live | `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` advertise v0.34.0 and serve the Tailwind CSS 4.3.3 stylesheet; source is v0.34.1 (React Router 7.18.5; not deployed) |
+| Worker backend             | ✅ 0.34.1 live | Production health reports v0.34.1 (Hono 4.13.14); `/api/v1/auth/login` answers 400/401 itself; warning and password pages keep the visitor's query parameters (v0.33.2) |
+| Admin frontend             | ✅ 0.34.1 live | `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` advertise v0.34.1 (React Router 7.18.5) and serve the Tailwind CSS 4.3.3 stylesheet |
 | Documentation              | ✅ 0.34.0 synchronized | Tailwind CSS 4 migration, Admin browser baseline, the Wrangler dev-proxy regression (KNOWN_ISSUES H7) and the v0.34.0 deployment recorded |
-| Deployment                 | ✅ 0.34.0 live | Production `41167592333`, Demo `41167582220`, site `41167595220` succeeded at `a3cc818` after `Validate Linketry` `41167348996` passed |
+| Deployment                 | ✅ 0.34.1 live | Production `41180555668`, Demo `41180549568`, site `41180558132` succeeded at `e3b2201` after `Validate Linketry` `41177855838` passed |
 | End-to-end test            | ✅ 0.34.0 live | Health/version on all tracks, production 401/404 (OpenAPI and docs included), `/health` preflight 204, sign-in 400/401 without a bearer header, Demo `qr-style` read 200 and write 403, Tailwind CSS 4.3.3 stylesheet on all three Admin hosts verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1; H5 fixed in 0.33.2; H3 resolved and H7 recorded in 0.34.0 |
-| Current version            | 🟡 0.34.1 source | Production, Demo and site remain on v0.34.0 until the next approved deployment; GitHub Release v0.34.0 is Latest |
-| Repository update target   | ✅ 0.34.0 | Authenticated dispatch `41167592333` deployed `main` HEAD `a3cc818` |
+| Current version            | ✅ 0.34.1 | Source, production, Demo and site version parity verified; GitHub Release v0.34.1 is Latest |
+| Repository update target   | ✅ 0.34.1 | Authenticated dispatch `41180555668` deployed `main` HEAD `e3b2201` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Wrangler upgrade blocked by H7, audit P3, Releases, release checklist, D1 timeout and fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |

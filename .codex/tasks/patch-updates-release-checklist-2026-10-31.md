@@ -98,4 +98,31 @@ I compared the dry-run `index.js` of v0.34.0 and v0.34.1 (Quick Deploy profile).
 
 ## Commit
 
-Committed on local `main` with the owner's approval (2026-10-31). It is not pushed yet; pushing, validation on a release branch, deployment and the GitHub Release `v0.34.1` wait for the owner.
+Committed on local `main` as `e3b2201` with the owner's approval (2026-10-31).
+
+## Release
+
+Deployed 2026-10-31 with the owner's approval, the first release through the new checklist:
+
+- Pushed `e3b2201` to a temporary `release/v0.34.1` branch and dispatched [Validate Linketry 41177855838](https://github.com/everett7623/Linketry/actions/runs/41177855838). The contracts, Worker and Admin jobs passed, including the Admin browser suite.
+- Pushed `main` (`cc3e75d..e3b2201`) and deleted the temporary branch. Both pushes went through the proxy.
+- [production 41180555668](https://github.com/everett7623/Linketry/actions/runs/41180555668): success. It was an authenticated dispatch with `expected_release=0.34.1` and `expected_commit=e3b2201c43cde4d85bbcfe62cd3ecedae7ef2825`. No migration changed. The push-triggered production run `41180549543` skipped on `[skip production]`.
+- [isolated Demo 41180549568](https://github.com/everett7623/Linketry/actions/runs/41180549568): success; triggered by the push.
+- [project site 41180558132](https://github.com/everett7623/Linketry/actions/runs/41180558132): success; exact-commit confirmation.
+
+Live checks (2026-10-31):
+
+- `go.uukk.de/health` and `demoapi.linketry.com/health` report 0.34.1.
+- `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` serve favicon `?v=0.34.1`, a new `vendor-react` chunk (React Router 7.18.5) and the unchanged `index-qBmuQgde.css`.
+- `linketry.com` `llms.txt` and JSON-LD report 0.34.1.
+- The production login page renders v0.34.1 in a browser with no console errors.
+
+Production without a token:
+
+- `/api/v1/links`, `/api/v1/system/upgrade`, `/api/v1/qr-style`, `/api/v1/openapi.json`, `/api/v1/docs` and `/api/v1/auth/me` return 401.
+- An unknown slug returns 404, and the `/health` CORS preflight returns 204.
+- `/api/v1/auth/login` answers 400 "Token is required" to an empty body and 401 "Invalid token" to a wrong token.
+
+Demo: `GET /api/v1/qr-style` returns 200 and `POST /api/v1/links` returns 403.
+
+[GitHub Release v0.34.1](https://github.com/everett7623/Linketry/releases/tag/v0.34.1) is published on `e3b2201` and marked Latest. No workflow ran for the tag.

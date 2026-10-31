@@ -5,7 +5,7 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 🟡 In Progress — Patch updates and release checklist (v0.34.1)
+## ✅ Completed — Patch updates and release checklist (v0.34.1)
 
 - [x] Fetch remote and record the baseline (`origin/main` and local `main` at `cc3e75d`, v0.34.0 on all tracks; two owner-dispatched production redeploys of `cc3e75d` at 06:17/06:18 UTC, `41175993899` and `41176027902`, left `/health` and the Admin build unchanged)
 - [x] Publish GitHub Release `v0.34.0` on `a3cc818`, marked Latest, covering v0.32.1–v0.34.0
@@ -15,13 +15,14 @@ One item in "In Progress" at a time whenever possible.
 - [x] Synchronize v0.34.1 release metadata
 - [x] Local verification of all three CI jobs: deployment 92, Demo API 6, site 10, Worker 187, Admin unit 74, Admin browser 45 (first run), production/Demo/Quick Deploy builds and Worker dry run (484.80 KiB; bundle differs from v0.34.0 only in the two Hono fixes and the version)
 - [x] Commit on local `main` with the owner's approval (2026-10-31)
-- [ ] Push, validate on a release branch, deploy and publish GitHub Release `v0.34.1` *(waiting for the owner)*
+- [x] `ci.yml` dispatch `41177855838` on a temporary `release/v0.34.1` branch (deleted afterwards), push `main` and deploy with the owner's approval: production `41180555668`, Demo `41180549568`, site `41180558132` (2026-10-31); every track reports 0.34.1
+- [x] Publish GitHub Release `v0.34.1` on `e3b2201`, marked Latest
 
 Task record: `.codex/tasks/patch-updates-release-checklist-2026-10-31.md`
 
 ---
 
-## 📋 Next — Remaining work after v0.34.0 (updated 2026-10-31)
+## 📋 Next — Remaining work after v0.34.1 (updated 2026-10-31)
 
 Nothing here is scheduled yet; each item needs its own go-ahead.
 

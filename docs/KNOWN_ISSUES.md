@@ -15,7 +15,7 @@
 ### H2. Pre-1.0 外部证据门（运维）
 
 - **状态**：🟡 Pending operator evidence
-- **项**：v0.34.0 生产/Demo/官网 parity（✅ 2026-10-31 `go.uukk.de` / `demoapi.linketry.com` / `linketry.com` report 0.34.0）；GitHub Release `v0.34.0`（✅ 2026-10-31，覆盖 v0.32.1–v0.34.0；此后每次发布同步）；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；keyboard/axe AT（✅ v0.31.3 `at-audit.spec.ts`）；screen-reader AT（pending）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；Demo 可选 R2（Cloudflare `10042`）
+- **项**：v0.34.1 生产/Demo/官网 parity（✅ 2026-10-31 `go.uukk.de` / `demoapi.linketry.com` / `linketry.com` report 0.34.1）；GitHub Release `v0.34.1`（✅ 2026-10-31，Latest；`v0.34.0` 覆盖 v0.32.1–v0.34.0；此后每次发布同步）；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；keyboard/axe AT（✅ v0.31.3 `at-audit.spec.ts`）；screen-reader AT（pending）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；Demo 可选 R2（Cloudflare `10042`）
 - **代码侧**：清单与文档已就绪；剩余关闭项需独立 Cloudflare 账号 / 手工 AT / 规模证据
 
 ### H3. 开发/构建工具链剩余 7 条 npm 公告（Tailwind CSS 3 依赖链）
