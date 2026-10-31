@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **最后更新**：2026-10-31 
-**当前版本**：v0.34.0
+**当前版本**：v0.34.1
 **生产版本**：v0.34.0
 
 版本权威以根目录 `package.json` 与 `PROGRESS.md` 为准。详细 Agent 规则见 `AGENTS.md`。
@@ -143,6 +143,8 @@ linketry:slug:<domain>:<slug>
 - 当项目状态或活跃工作变化时，更新 `PROGRESS.md`、`TASKS.md` 和相关 `.codex/tasks/*.md` 记录
 
 不要留下没有匹配版本和变更日志更新的代码、工作流、配置或文档变更。
+
+每次发布都要同步 GitHub Release：生产、Demo、官网都报告新版本后，在发布提交上创建 `v<版本>` 并标记为 Latest，让最新 Release 始终等于线上版本（步骤见 `docs/DEVELOPMENT.md` 的 Release Checklist）。
 
 ---
 
@@ -318,7 +320,7 @@ npm run deploy:preflight -- --track fresh --check-cloudflare
 日常发版走 dispatch 最省事，不必改任何仓库变量：
 
 ```bash
-gh workflow run deploy.yml --ref main -f confirm_release=true -f expected_release=0.34.0 -f expected_commit=<40位SHA>
+gh workflow run deploy.yml --ref main -f confirm_release=true -f expected_release=0.34.1 -f expected_commit=<40位SHA>
 ```
 
 #### `[skip production]` 只跳过生产

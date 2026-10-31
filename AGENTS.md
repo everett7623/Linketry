@@ -3,7 +3,7 @@
 This file tells AI coding agents (Cascade, Codex, Copilot, etc.) how to work on this codebase safely and correctly.
 
 **Last updated**: 2026-10-31
-**Current version**: v0.34.0
+**Current version**: v0.34.1
 **Production version**: v0.34.0
 
 Version authority: root `package.json` and `PROGRESS.md`. Prefer those over older stamps in historical docs.
@@ -107,6 +107,8 @@ Every intentional project change must keep release metadata synchronized in the 
 - Update `PROGRESS.md`, `TASKS.md`, and relevant `.codex/tasks/*.md` records when project status or active work changes.
 
 Do not leave code, workflow, config, or documentation changes without matching version and changelog updates.
+
+Every deployed release also gets its GitHub Release: once production, the Demo and the site report the new version, publish `v<version>` on the release commit and mark it Latest (`docs/DEVELOPMENT.md`, Release Checklist).
 
 ---
 

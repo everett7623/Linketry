@@ -15,7 +15,7 @@
 ### H2. Pre-1.0 外部证据门（运维）
 
 - **状态**：🟡 Pending operator evidence
-- **项**：v0.34.0 生产/Demo/官网 parity（✅ 2026-10-31 `go.uukk.de` / `demoapi.linketry.com` / `linketry.com` report 0.34.0）；GitHub Release `v0.32.0`；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；keyboard/axe AT（✅ v0.31.3 `at-audit.spec.ts`）；screen-reader AT（pending）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；Demo 可选 R2（Cloudflare `10042`）
+- **项**：v0.34.0 生产/Demo/官网 parity（✅ 2026-10-31 `go.uukk.de` / `demoapi.linketry.com` / `linketry.com` report 0.34.0）；GitHub Release `v0.34.0`（✅ 2026-10-31，覆盖 v0.32.1–v0.34.0；此后每次发布同步）；GitHub private vulnerability reporting（✅ enabled 2026-08-10）；keyboard/axe AT（✅ v0.31.3 `at-audit.spec.ts`）；screen-reader AT（pending）；fresh-account Quick Deploy rehearsal（证据写入 PROGRESS）；远程 D1 规模证据；Demo 可选 R2（Cloudflare `10042`）
 - **代码侧**：清单与文档已就绪；剩余关闭项需独立 Cloudflare 账号 / 手工 AT / 规模证据
 
 ### H3. 开发/构建工具链剩余 7 条 npm 公告（Tailwind CSS 3 依赖链）
@@ -53,6 +53,7 @@
 - **说明**：从 wrangler 4.152.0（Miniflare 5.20261019）起，Admin 的 Vite 开发服务器把 `/api/` 代理到 `wrangler dev` 时，请求会被重置（Vite 报 `ECONNRESET`，workerd 报 “HTTP connection failed … os error 10022”）。经 Vite 代理发 240 个带鉴权的请求：4.151.1 全部成功；4.152.0 只有 144 个成功（90 个 500、6 个超时）；4.156.0 的 400 个里 272 个成功、128 次代理错误。直接请求 `wrangler dev` 在所有版本上都正常，两个版本都监听 `127.0.0.1:8787`。
 - **影响**：只影响本地开发（`npm run dev:admin` 加 `npm run dev:worker`），不影响部署：升级前后打出的 Worker 包（`index.js`）逐字节一致。
 - **规避**：`apps/worker` 保持 `wrangler ^4.151.1`（lockfile 为 4.151.1）；根 `package.json` 的 `overrides` 把 `miniflare > undici` 固定为 7.30.1，修复 GHSA-4qv8-2p9j-2685（wrangler 4.153.0 上游也做了同样的升级）。与 undici 无关：4.152.0 仍是 undici 7.29.1，而 4.151.1 加上覆盖后经代理 240/240 成功。
+- **复测（v0.34.1，2026-10-31）**：当时最新的 4.156.0（2026-10-29 发布）仍然复现，经 Vite 代理的 240 个请求只有约 154 个成功，把代理目标改成 `127.0.0.1` 结果相同。代理改用不保持连接的 `http.Agent({ keepAlive: false })` 后，两次分别是 240/240 和 239/240，但 workerd 仍输出约 30 行 “HTTP connection failed … os error 10022”，所以不作为规避方案。workers-sdk 和 workerd 仓库里还没有相关 issue。
 - **后续**：升级 wrangler 前先用经 Vite 代理的请求复测；问题修复后升级 wrangler、更新 `SUPPORT.md` 的最低版本，并删除这条 override。
 - **另一个本地限制**：Windows 上 `--persist-to` 路径达到约 259 个字符时，本地 D1 在所有版本上都会报 “internal error”；Miniflare 5.2026101x 起新增的 observability 存储路径更长。正常检出目录约 186 个字符，不受影响。
 

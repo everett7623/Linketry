@@ -3,7 +3,7 @@
 This guide explains how to make safe, maintainable changes to Linketry. Read docs/ARCHITECTURE.md first for runtime behavior and failure boundaries.
 
 **Last updated**: 2026-10-31  
-**Current version**: v0.34.0
+**Current version**: v0.34.1
 **Production version**: v0.34.0
 
 Version authority: root `package.json` and `PROGRESS.md`. Capability matrix: `AGENTS.md`.
@@ -267,6 +267,18 @@ Every intentional repository change uses a semantic version update and keeps the
 - the active .codex/tasks record.
 
 Use a patch release for documentation and maintenance changes unless the user-visible or compatibility impact requires a larger increment.
+
+## Release Checklist
+
+For a release from `main`:
+
+1. Fetch the remote and record the baseline (`AGENTS.md`, Remote / Local Baseline).
+2. Validate the exact commit. `Validate Linketry` runs only on pull requests and manual dispatch, so a direct push to `main` skips the Admin browser suite and the Quick Deploy dry run: push the commit to a temporary branch and run `gh workflow run ci.yml --ref <branch>`, or run the three CI jobs locally. `grep -c npmmirror package-lock.json` must stay at 0.
+3. Push `main`. The isolated Demo deploys from the push; `[skip production]` in the commit message keeps the push from deploying production.
+4. Deploy production by dispatch with the exact version and commit (`gh workflow run deploy.yml --ref main -f confirm_release=true -f expected_release=<version> -f expected_commit=<40-character SHA>`) and the project site with `deploy-site.yml` (confirmation phrase and the same commit), because the site reports the version too.
+5. Check that `/health` on production and the Demo reports the new version and that each Admin host serves the new build.
+6. Publish the GitHub Release for the new version and mark it Latest, so the Latest Release always matches the deployed version: `gh release create v<version> --target <release commit SHA> --title "v<version> — <summary>" --notes-file <notes> --latest`. The notes are condensed from `CHANGELOG.md`; when earlier versions have no Release, they start with "Covers v<first> – v<version>". No workflow runs on tags or releases.
+7. Delete the temporary branch and record the run IDs, the live checks and the Release in `PROGRESS.md`, `TASKS.md` and the task record, in a `docs:` commit with `[skip ci] [skip production]`.
 
 ## Documentation Ownership
 

@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.34.1] - 2026-10-31
+
+### Maintenance
+
+- Hono moves from 4.13.13 to 4.13.14 in the Worker and React Router from 7.18.4 to 7.18.5 in the Admin, with raised declared floors. Neither release fixes an advisory that applies to Linketry; `npm audit` was already clean. One Hono fix reaches the redirect path: when a query string carries `linketry_confirm` both percent-encoded (`linketry%5Fconfirm`) and plain, the warning page now goes by the first of them, as standard URL parsing does, instead of the first plain one. Route matching and slug parameters are unchanged: 792 requests compared between the two Hono versions differed only in that case.
+- Wrangler stays on 4.151.1. The latest release, 4.156.0, still resets requests that the Admin's Vite dev server forwards to `wrangler dev` on Windows, and turning off keep-alive in the proxy only makes the resets rare (`docs/KNOWN_ISSUES.md` H7).
+
+### Documentation
+
+- `docs/DEVELOPMENT.md` has a release checklist: validate the exact commit, push, deploy production and the site by dispatch, check every track, then publish the GitHub Release for the new version and mark it Latest. `AGENTS.md` and `CLAUDE.md` make that Release part of every deployment. The v0.34.0 Release covers v0.32.1 to v0.34.0, which had no Releases of their own.
+
 ## [0.34.0] - 2026-10-31
 
 ### Changed

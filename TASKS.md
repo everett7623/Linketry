@@ -5,16 +5,30 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## 🟡 In Progress — Patch updates and release checklist (v0.34.1)
+
+- [x] Fetch remote and record the baseline (`origin/main` and local `main` at `cc3e75d`, v0.34.0 on all tracks; two owner-dispatched production redeploys of `cc3e75d` at 06:17/06:18 UTC, `41175993899` and `41176027902`, left `/health` and the Admin build unchanged)
+- [x] Publish GitHub Release `v0.34.0` on `a3cc818`, marked Latest, covering v0.32.1–v0.34.0
+- [x] Release checklist in `docs/DEVELOPMENT.md` with the GitHub Release step; `AGENTS.md` and `CLAUDE.md` require a Release for every deployed version (owner decision, 2026-10-31)
+- [x] In-range updates: `hono` 4.13.14 (Worker), `react-router-dom` 7.18.5 (Admin); redirect-path Hono comparison over 792 requests (one change, encoded duplicate `linketry_confirm`)
+- [x] Re-check H7 on Wrangler 4.156.0 (still failing; no-keep-alive proxy not reliable); Wrangler stays on 4.151.1
+- [x] Synchronize v0.34.1 release metadata
+- [x] Local verification of all three CI jobs: deployment 92, Demo API 6, site 10, Worker 187, Admin unit 74, Admin browser 45 (first run), production/Demo/Quick Deploy builds and Worker dry run (484.80 KiB; bundle differs from v0.34.0 only in the two Hono fixes and the version)
+- [x] Commit on local `main` with the owner's approval (2026-10-31)
+- [ ] Push, validate on a release branch, deploy and publish GitHub Release `v0.34.1` *(waiting for the owner)*
+
+Task record: `.codex/tasks/patch-updates-release-checklist-2026-10-31.md`
+
+---
+
 ## 📋 Next — Remaining work after v0.34.0 (updated 2026-10-31)
 
 Nothing here is scheduled yet; each item needs its own go-ahead.
 
 - [ ] **Admin browser suite cold-start flakes on many-core machines.** With Playwright's default worker count (8 on a 16-thread machine) the first tests to run, mostly locale switches and first-paint checks, can time out while a cold Vite dev server transforms modules for every worker (v0.33.1: 42/45 and 43/45 locally, 45/45 with `--workers=2`, as on CI). Options: `server.warmup` in the Admin Vite config, a worker cap in `playwright.config.ts`, or longer first-render timeouts for the on-demand zh-CN catalog. Record: `.codex/tasks/openapi-auth-scope-2026-10-20.md`.
 - [ ] **Production `LINKETRY_IP_HASH_SECRET` (owner action).** v0.33.0 keys stored IP hashes with HMAC-SHA256 only when this Worker secret exists. Generate a value (`openssl rand -hex 32`), keep it in a password manager and run `npx wrangler secret put LINKETRY_IP_HASH_SECRET` in `apps/worker` against the production Worker; GitHub Actions deployments preserve it. Unique-visitor counts restart for date ranges that span the change (`docs/ANALYTICS.md`).
-- [ ] **Wrangler upgrade blocked by a Windows dev-proxy regression (KNOWN_ISSUES H7).** Every Wrangler from 4.152.0 on resets requests that the Admin Vite dev server proxies to `wrangler dev` on Windows, so v0.34.0 keeps Wrangler 4.151.1 with an npm override for `miniflare > undici 7.30.1`. Before each Wrangler upgrade, re-run the proxied check (240 authenticated requests through Vite); once it passes, upgrade, raise the `SUPPORT.md` minimum and remove the override. Record: `.codex/tasks/tailwind-4-migration-2026-10-31.md`.
+- [ ] **Wrangler upgrade blocked by a Windows dev-proxy regression (KNOWN_ISSUES H7).** Every Wrangler from 4.152.0 on resets requests that the Admin Vite dev server proxies to `wrangler dev` on Windows, so v0.34.0 keeps Wrangler 4.151.1 with an npm override for `miniflare > undici 7.30.1`. Re-checked for v0.34.1 on 4.156.0, the latest release on 2026-10-31: still failing, and a proxy without keep-alive only makes the resets rare. Before each Wrangler upgrade, re-run the proxied check (240 authenticated requests through Vite); once it passes, upgrade, raise the `SUPPORT.md` minimum and remove the override. No upstream issue exists yet. Records: `.codex/tasks/tailwind-4-migration-2026-10-31.md`, `.codex/tasks/patch-updates-release-checklist-2026-10-31.md`.
 - [ ] **Visual audit P3 (Admin).** Mobile touch targets (26 px icon actions, 13–16 px checkboxes, 28 px view toggle and page actions), the sidebar footer covering the last nav entries at 900 px height, Overview stat cards taking about 1.5 screens on phones, and six empty UTM cards on Link Analytics. Also the Links "Short Link" header, which wraps to two lines at 1440 px with long slugs (accepted in v0.32.3 to keep the table inside its container). Sources: `.codex/tasks/admin-visual-audit-2026-10-17.md`, `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`.
-- [ ] **GitHub Releases for v0.32.1 through v0.34.0.** All are deployed; the latest Release and tag are still v0.32.0.
-- [ ] **Release checklist in `docs/DEVELOPMENT.md` (with the next versioned release).** `Validate Linketry` runs only on pull requests and manual dispatch (`scripts/ci-workflow.test.mjs` forbids a push trigger), so direct pushes to `main` skip the full Admin browser suite and the Quick Deploy dry run; before each release from `main`, dispatch it (`gh workflow run ci.yml --ref <branch>`) or run the local three-job mirror. The root `.npmrc` (v0.33.0) now pins the official registry, so the checklist only needs to keep `grep -c npmmirror package-lock.json` at 0.
 - [ ] **D1 timeout on the redirect path (investigate first; needs explicit redirect-path approval).** The KV fallback covers D1 errors but not D1 hangs, because the redirect path's D1 lookups have no deadline. On 2026-10-21 three unknown-slug probes timed out within about two minutes while D1-free requests on the same host were normal (cause unconfirmed: local proxy or D1). Check Workers observability for slow D1 queries around 2026-10-21 before deciding on a bounded D1 re-check for KV hits. Details: `docs/KNOWN_ISSUES.md` H4.
 - [ ] **Redirect fallback visit queueing (needs explicit redirect-path approval).** Since v0.33.0 the KV-hit fallback forwards query parameters and runs only when the D1 lookup fails, but it still skips smart rules and visit recording. With a Queue binding the visit could be enqueued for the consumer to write once D1 is back. Details: `docs/KNOWN_ISSUES.md` H4.
 - [ ] **Worker module size (no behaviour change).** Split `apps/worker/src/db/index.ts` (1142 lines), `routes/links.ts` (980) and `routes/importRoutes.ts` (883) the way the v0.31.11 Links page split worked, keeping SQL under `apps/worker/src/db` (and updating the CLAUDE.md rule that names `db/index.ts`).
