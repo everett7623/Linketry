@@ -73,4 +73,4 @@ Independent re-run on 2026-10-31 by the main session, on `d963caa` checked out d
 ## Merge and release
 
 - With the owner's approval (2026-10-31), local `main` was fast-forwarded from `b75183f` to `d963caa`. This record had stayed untracked in the review worktree; it is committed with the validation result. The commit is local only.
-- Not pushed or deployed: production, Demo, Admin and site remain on v0.33.1. The next release (v0.34.0, Tailwind CSS 4) is built on top of this commit.
+- Released with v0.34.0 (Tailwind CSS 4), which was built on top of this commit: `main` was pushed as `a3cc818` on 2026-10-31 after `Validate Linketry` `41167348996` passed on a temporary `release/v0.34.0` branch, and production `41167592333`, Demo `41167582220` and site `41167595220` succeeded. Every track reports 0.34.0. Details: `.codex/tasks/tailwind-4-migration-2026-10-31.md`.

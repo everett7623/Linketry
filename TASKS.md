@@ -13,7 +13,7 @@ Nothing here is scheduled yet; each item needs its own go-ahead.
 - [ ] **Production `LINKETRY_IP_HASH_SECRET` (owner action).** v0.33.0 keys stored IP hashes with HMAC-SHA256 only when this Worker secret exists. Generate a value (`openssl rand -hex 32`), keep it in a password manager and run `npx wrangler secret put LINKETRY_IP_HASH_SECRET` in `apps/worker` against the production Worker; GitHub Actions deployments preserve it. Unique-visitor counts restart for date ranges that span the change (`docs/ANALYTICS.md`).
 - [ ] **Wrangler upgrade blocked by a Windows dev-proxy regression (KNOWN_ISSUES H7).** Every Wrangler from 4.152.0 on resets requests that the Admin Vite dev server proxies to `wrangler dev` on Windows, so v0.34.0 keeps Wrangler 4.151.1 with an npm override for `miniflare > undici 7.30.1`. Before each Wrangler upgrade, re-run the proxied check (240 authenticated requests through Vite); once it passes, upgrade, raise the `SUPPORT.md` minimum and remove the override. Record: `.codex/tasks/tailwind-4-migration-2026-10-31.md`.
 - [ ] **Visual audit P3 (Admin).** Mobile touch targets (26 px icon actions, 13–16 px checkboxes, 28 px view toggle and page actions), the sidebar footer covering the last nav entries at 900 px height, Overview stat cards taking about 1.5 screens on phones, and six empty UTM cards on Link Analytics. Also the Links "Short Link" header, which wraps to two lines at 1440 px with long slugs (accepted in v0.32.3 to keep the table inside its container). Sources: `.codex/tasks/admin-visual-audit-2026-10-17.md`, `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`.
-- [ ] **GitHub Releases for v0.32.1 through v0.33.1.** All are deployed; the latest Release and tag are still v0.32.0.
+- [ ] **GitHub Releases for v0.32.1 through v0.34.0.** All are deployed; the latest Release and tag are still v0.32.0.
 - [ ] **Release checklist in `docs/DEVELOPMENT.md` (with the next versioned release).** `Validate Linketry` runs only on pull requests and manual dispatch (`scripts/ci-workflow.test.mjs` forbids a push trigger), so direct pushes to `main` skip the full Admin browser suite and the Quick Deploy dry run; before each release from `main`, dispatch it (`gh workflow run ci.yml --ref <branch>`) or run the local three-job mirror. The root `.npmrc` (v0.33.0) now pins the official registry, so the checklist only needs to keep `grep -c npmmirror package-lock.json` at 0.
 - [ ] **D1 timeout on the redirect path (investigate first; needs explicit redirect-path approval).** The KV fallback covers D1 errors but not D1 hangs, because the redirect path's D1 lookups have no deadline. On 2026-10-21 three unknown-slug probes timed out within about two minutes while D1-free requests on the same host were normal (cause unconfirmed: local proxy or D1). Check Workers observability for slow D1 queries around 2026-10-21 before deciding on a bounded D1 re-check for KV hits. Details: `docs/KNOWN_ISSUES.md` H4.
 - [ ] **Redirect fallback visit queueing (needs explicit redirect-path approval).** Since v0.33.0 the KV-hit fallback forwards query parameters and runs only when the D1 lookup fails, but it still skips smart rules and visit recording. With a Queue binding the visit could be enqueued for the consumer to write once D1 is back. Details: `docs/KNOWN_ISSUES.md` H4.
@@ -23,7 +23,7 @@ Also open further down: Branded QR Phase 2 and 3 (Admin upgrades section) and th
 
 ---
 
-## 🟡 In Progress — Tailwind CSS 4 migration (v0.34.0)
+## ✅ Completed — Tailwind CSS 4 migration (v0.34.0)
 
 - [x] Fetch remote and record the baseline (`origin/main` `b75183f`, v0.33.1 on all tracks; local `main` at the H5 commit `d963caa` plus its record `5901116`, not pushed)
 - [x] Independent full CI mirror on H5 and fast-forward into local `main` with the owner's approval (2026-10-31)
@@ -36,13 +36,13 @@ Also open further down: Branded QR Phase 2 and 3 (Admin upgrades section) and th
 - [x] Local verification of all three CI jobs: deployment 92, Demo API 6, site 10, Worker 187, Admin unit 74, Admin browser 45 (first run), production/Demo/Quick Deploy builds and Worker dry run
 - [x] Synchronize v0.34.0 release metadata
 - [x] Commit on local `main` with the owner's approval (2026-10-31)
-- [ ] Push, validate on a release branch and deploy *(waiting for the owner)*
+- [x] `ci.yml` dispatch `41167348996` on a temporary `release/v0.34.0` branch (deleted afterwards), push `main` and deploy with the owner's approval: production `41167592333`, Demo `41167582220`, site `41167595220` (2026-10-31); every track reports 0.34.0
 
 Task record: `.codex/tasks/tailwind-4-migration-2026-10-31.md`
 
 ---
 
-## ✅ Completed — Interstitial query parameters (v0.33.2, not deployed)
+## ✅ Completed — Interstitial query parameters (v0.33.2, deployed with v0.34.0)
 
 - [x] Fetch `origin/main` (`91a172f`, v0.33.0) and reinstall with `npm ci`; baseline Worker tests 175/175
 - [x] Warning and password pages carry the visitor's query string, without `linketry_*` control parameters, into the Continue link and both forms, including the KV-hit fallback's warning page (owner-approved redirect-path scope, KNOWN_ISSUES H5)
@@ -51,7 +51,7 @@ Task record: `.codex/tasks/tailwind-4-migration-2026-10-31.md`
 - [x] Local verification of all three CI jobs
 - [x] Commit on the review branch `claude/intelligent-hypatia-45c163`
 - [x] Independent full CI mirror on `d963caa` (2026-10-31): deployment 92, Demo API 6, site 10, Worker 187, Admin unit 74, Admin browser 45, production/Demo/Quick Deploy builds and Worker dry run; fast-forwarded into local `main` with the owner's approval and the task record committed
-- [ ] Push, validate and deploy *(waiting for the owner's go-ahead; v0.34.0 builds on top)*
+- [x] Pushed, validated and deployed with v0.34.0 (`a3cc818`, 2026-10-31)
 
 Task record: `.codex/tasks/interstitial-query-2026-10-20.md`
 

@@ -37,4 +37,14 @@ Baseline: `origin/main` `b75183f` (v0.33.1, deployed on all tracks). With the ow
 - Worker dry-run `index.js` at v0.34.0: identical to v0.33.2's apart from the version string.
 - `npm audit` against the official registry: 0, and 0 with `--omit=dev`; `package-lock.json` has no mirror URLs. `git diff --check` reports only the trailing spaces that the edited doc header lines already had.
 - Vite proxy check on Wrangler 4.151.1 with the undici override: 240/240 authenticated requests.
-- Push, `Validate Linketry` on a release branch and deployment wait for the owner; production, Demo, Admin and site stay on v0.33.1 until then.
+
+## Release
+
+Deployed 2026-10-31 as `a3cc818`, together with the v0.33.2 H5 fix (`d963caa`) and its record (`5901116`), with the owner's approval.
+
+- Pushed `a3cc818` to a temporary `release/v0.34.0` branch and dispatched [Validate Linketry 41167348996](https://github.com/everett7623/Linketry/actions/runs/41167348996): the contracts, Worker and Admin jobs passed, the Admin browser suite included. Then pushed `main` (`b75183f..a3cc818`) and deleted the temporary branch. The direct route to GitHub was blocked at the time; the pushes went through the proxy.
+- [production 41167592333](https://github.com/everett7623/Linketry/actions/runs/41167592333): success; authenticated dispatch with `expected_release=0.34.0` and `expected_commit=a3cc818d0b3abfc900b83439afe097aeb7c7dc6d`. No migration changes since v0.33.1. The push-triggered production run `41167582211` skipped on `[skip production]`.
+- [isolated Demo 41167582220](https://github.com/everett7623/Linketry/actions/runs/41167582220): success; triggered by the push.
+- [project site 41167595220](https://github.com/everett7623/Linketry/actions/runs/41167595220): success; exact-commit confirmation.
+- Live (2026-10-31): `go.uukk.de/health` and `demoapi.linketry.com/health` report 0.34.0; `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` serve favicon `?v=0.34.0` and `assets/index-qBmuQgde.css` with the `tailwindcss v4.3.3` banner, the same content hash as the locally built and tested Admin; `linketry.com` `llms.txt` and JSON-LD report 0.34.0. The production login page renders correctly in a browser, with no console errors.
+- Production without a token: `/api/v1/links`, `/api/v1/system/upgrade`, `/api/v1/qr-style`, `/api/v1/openapi.json`, `/api/v1/docs` and `/api/v1/auth/me` return 401, an unknown slug returns 404, and the `/health` CORS preflight returns 204; `/api/v1/auth/login` without a bearer header answers 400 "Invalid request body" and 401 "Invalid token". Demo `GET /api/v1/qr-style` returns 200 and `POST /api/v1/links` returns 403.
