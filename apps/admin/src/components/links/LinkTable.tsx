@@ -81,7 +81,7 @@ export function LinkTable({
                   checked={allVisibleSelected}
                   onChange={onToggleAllVisible}
                   aria-label={t('selectAllVisibleLinks')}
-                  className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+                  className="h-4 w-4 rounded-sm border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
                 />
               </th>
             )}
@@ -93,7 +93,7 @@ export function LinkTable({
             <th className="text-left px-4 py-3">{t('status')}</th>
             <th className="text-left px-4 py-3">{t('created')}</th>
             {/* Actions stay pinned so long rows scroll underneath instead of clipping them. */}
-            <th className="sticky right-0 bg-slate-900 shadow-[inset_1px_0_0_rgb(var(--color-slate-800))] text-right px-4 py-3 whitespace-nowrap">
+            <th className="sticky right-0 bg-slate-900 shadow-[inset_1px_0_0_var(--color-slate-800)] text-right px-4 py-3 whitespace-nowrap">
               {t('actions')}
             </th>
           </tr>
@@ -113,7 +113,7 @@ export function LinkTable({
                       checked={selectedIds.has(link.id)}
                       onChange={() => onToggleSelected(link.id)}
                       aria-label={t('selectLinkAria', { slug: link.slug })}
-                      className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+                      className="h-4 w-4 rounded-sm border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
                     />
                   </td>
                 )}
@@ -121,7 +121,7 @@ export function LinkTable({
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="font-mono text-brand-400">/{link.slug}</span>
                     {link.source && (
-                      <span className="text-xs text-slate-600 bg-slate-800 px-1.5 py-0.5 rounded">
+                      <span className="text-xs text-slate-600 bg-slate-800 px-1.5 py-0.5 rounded-sm">
                         {link.source}
                       </span>
                     )}
@@ -188,12 +188,12 @@ export function LinkTable({
                   {createdDateFormatter.format(new Date(link.created_at))}
                 </td>
                 {/* The opaque pinned cell re-applies the row hover tint through an overlay. */}
-                <td className="sticky right-0 bg-slate-900 shadow-[inset_1px_0_0_rgb(var(--color-slate-800))] px-4 py-3 before:pointer-events-none before:absolute before:inset-0 before:bg-slate-800/50 before:opacity-0 before:transition-opacity group-hover:before:opacity-100">
+                <td className="sticky right-0 bg-slate-900 shadow-[inset_1px_0_0_var(--color-slate-800)] px-4 py-3 before:pointer-events-none before:absolute before:inset-0 before:bg-slate-800/50 before:opacity-0 before:transition-opacity group-hover:before:opacity-100">
                   <div className="relative flex items-center justify-end gap-1">
                     <button
                       onClick={() => onCopy(link)}
                       title={t('copy')}
-                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"
+                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
                     >
                       <Copy size={14} />
                     </button>
@@ -202,14 +202,14 @@ export function LinkTable({
                       target="_blank"
                       rel="noopener noreferrer"
                       title={t('open')}
-                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"
+                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
                     >
                       <ExternalLink size={14} />
                     </a>
                     <button
                       onClick={() => onShowQr(link)}
                       title={t('qrCode')}
-                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"
+                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
                     >
                       <QrCode size={14} />
                     </button>
@@ -217,7 +217,7 @@ export function LinkTable({
                       <Link
                         to={`/analytics/links/${link.id}`}
                         title={t('analytics')}
-                        className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
                       >
                         <BarChart3 size={14} />
                       </Link>
@@ -225,7 +225,7 @@ export function LinkTable({
                     <Link
                       to={`/links/${link.id}/edit`}
                       title={t('edit')}
-                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"
+                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
                     >
                       <Pencil size={14} />
                     </Link>
@@ -233,7 +233,7 @@ export function LinkTable({
                       <button
                         onClick={() => onConfirmAction('disable', link)}
                         title={t('disable')}
-                        className="p-1.5 text-slate-500 hover:text-yellow-400 hover:bg-slate-700 rounded transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-yellow-400 hover:bg-slate-700 rounded-sm transition-colors"
                       >
                         <PowerOff size={14} />
                       </button>
@@ -241,7 +241,7 @@ export function LinkTable({
                       <button
                         onClick={() => onConfirmAction('enable', link)}
                         title={t('enable')}
-                        className="p-1.5 text-slate-500 hover:text-emerald-400 hover:bg-slate-700 rounded transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-emerald-400 hover:bg-slate-700 rounded-sm transition-colors"
                       >
                         <Power size={14} />
                       </button>
@@ -251,7 +251,7 @@ export function LinkTable({
                         <button
                           onClick={() => onConfirmAction('archive', link)}
                           title={t('archive')}
-                          className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"
+                          className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
                         >
                           <Archive size={14} />
                         </button>
@@ -259,7 +259,7 @@ export function LinkTable({
                         <button
                           onClick={() => onConfirmAction('restore', link)}
                           title={t('restore')}
-                          className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"
+                          className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
                         >
                           <RotateCcw size={14} />
                         </button>
@@ -267,7 +267,7 @@ export function LinkTable({
                     <button
                       onClick={() => onConfirmAction('delete', link)}
                       title={t('delete')}
-                      className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-700 rounded transition-colors"
+                      className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-700 rounded-sm transition-colors"
                     >
                       <Trash2 size={14} />
                     </button>

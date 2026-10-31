@@ -104,7 +104,7 @@ export function AuditLogs() {
             placeholder={t('searchAudit')}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500"
           />
         </div>
         <Select
@@ -133,7 +133,7 @@ export function AuditLogs() {
           </div>
         ) : (
           <div
-            className="overflow-x-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="overflow-x-auto focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
             tabIndex={0}
             role="region"
             aria-label={t('auditLogs')}

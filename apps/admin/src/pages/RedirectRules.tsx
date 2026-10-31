@@ -481,7 +481,7 @@ export function RedirectRules() {
                             type="button"
                             title={t('edit')}
                             onClick={() => openEdit(rule)}
-                            className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-300"
+                            className="rounded-sm p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-300"
                           >
                             <Edit2 size={14} />
                           </button>
@@ -489,7 +489,7 @@ export function RedirectRules() {
                             type="button"
                             title={t('delete')}
                             onClick={() => setDeleteTarget(rule)}
-                            className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-red-400"
+                            className="rounded-sm p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-red-400"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -557,7 +557,7 @@ export function RedirectRules() {
               type="checkbox"
               checked={form.enabled}
               onChange={(e) => setForm((current) => ({ ...current, enabled: e.target.checked }))}
-              className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+              className="h-4 w-4 rounded-sm border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
             />
             {t('enabled')}
           </label>

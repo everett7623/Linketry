@@ -13,7 +13,7 @@ export function AdminModeControl({ compact = false }: { compact?: boolean }) {
       type="button"
       onClick={() => setMode(isAdvanced ? 'simple' : 'advanced')}
       className={clsx(
-        'mb-1 flex w-full items-center rounded-lg py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
+        'mb-1 flex w-full items-center rounded-lg py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500',
         compact ? 'justify-center px-2' : 'justify-between px-3'
       )}
       aria-label={`${t('interfaceMode')}: ${t(mode)}`}
@@ -25,7 +25,7 @@ export function AdminModeControl({ compact = false }: { compact?: boolean }) {
         <>
           {/* 显式空格让可见文字与 aria-label 对应（WCAG 2.5.3）；flex 布局下不占位 */}
           <span>{t('interfaceMode')}</span>{' '}
-          <span className="rounded bg-slate-800 px-2 py-1 text-[10px] uppercase text-brand-400">
+          <span className="rounded-sm bg-slate-800 px-2 py-1 text-[10px] uppercase text-brand-400">
             {t(mode)}
           </span>
         </>

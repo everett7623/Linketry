@@ -135,7 +135,7 @@ export function ResetSettingsPanel() {
               checked={createBackup}
               onChange={(e) => setCreateBackup(e.target.checked)}
               disabled={resetting}
-              className="h-4 w-4 rounded border-slate-700 bg-slate-900"
+              className="h-4 w-4 rounded-sm border-slate-700 bg-slate-900"
             />
             {t('preResetBackup')}
           </label>

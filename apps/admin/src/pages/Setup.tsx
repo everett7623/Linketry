@@ -174,7 +174,7 @@ export function Setup() {
             href="https://github.com/everett7623/Linketry/blob/main/docs/SELF_HOSTING.md"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-slate-100 shadow-sm transition-colors hover:bg-slate-600"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-slate-100 shadow-xs transition-colors hover:bg-slate-600"
           >
             <ExternalLink size={15} /> {t('selfHosting')}
           </a>

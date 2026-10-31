@@ -48,7 +48,7 @@ export function SidebarVersionStatus({
         onClick={toggleCenter}
         disabled={updateCheck.checking && !upgrade.centerOpen}
         className={clsx(
-          'relative flex w-full items-center rounded-lg border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-wait',
+          'relative flex w-full items-center rounded-lg border text-left transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-wait',
           collapsed ? 'h-9 justify-center px-1' : 'min-h-10 gap-2.5 px-2.5 py-1.5',
           upgrade.phase === 'failed'
             ? 'border-red-500/40 bg-red-500/10 text-red-200 hover:border-red-400/60 hover:bg-red-500/15'

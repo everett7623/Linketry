@@ -211,7 +211,7 @@ function VersionCenterState() {
             href={upgrade.availableUpdate.upgradeWorkflowUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
           >
             {t('openDeployment')}
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
@@ -259,7 +259,7 @@ function UpgradeProgress({
           <li key={label} className="relative min-h-12 pl-8">
             {index < steps.length - 1 && (
               <span
-                className={`absolute left-[0.6875rem] top-5 h-[calc(100%-0.25rem)] border-l ${
+                className={`absolute left-2.75 top-5 h-[calc(100%-0.25rem)] border-l ${
                   completed ? 'border-emerald-500/60' : 'border-slate-700'
                 }`}
                 aria-hidden="true"
@@ -330,7 +330,7 @@ function VersionRow({
   return (
     <div className="grid gap-1 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] sm:items-center">
       <dt className="text-slate-500">{label}</dt>
-      <dd className={`break-words text-slate-200 sm:text-right ${mono ? 'font-mono' : ''}`}>
+      <dd className={`wrap-break-word text-slate-200 sm:text-right ${mono ? 'font-mono' : ''}`}>
         {value}
       </dd>
     </div>
@@ -343,7 +343,7 @@ function ExternalAction({ href, children }: { href: string; children: ReactNode 
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+      className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
     >
       {children}
       <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />

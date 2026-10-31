@@ -26,9 +26,9 @@ interface LinkAdvancedFiltersProps {
 }
 
 const textFieldClass =
-  'rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500';
+  'rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500';
 const choiceFieldClass =
-  'rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500';
+  'rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-brand-500';
 
 export function LinkAdvancedFilters({
   values,
@@ -57,7 +57,7 @@ export function LinkAdvancedFilters({
           aria-expanded={expanded}
           aria-controls={fieldsId}
           onClick={() => setExpanded((open) => !open)}
-          className="flex items-center gap-2 rounded-md text-sm font-semibold text-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden"
+          className="flex items-center gap-2 rounded-md text-sm font-semibold text-slate-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden"
         >
           <SlidersHorizontal size={15} className="text-brand-400" aria-hidden="true" />
           {t('advancedFilters')}

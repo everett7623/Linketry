@@ -95,7 +95,7 @@ export function HealthMonitoringSettingsPanel() {
           type="checkbox"
           checked={enabled}
           onChange={(e) => set('health_monitoring_enabled', String(e.target.checked))}
-          className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-brand-600 focus:ring-brand-500"
+          className="h-4 w-4 rounded-sm border-slate-600 bg-slate-900 text-brand-600 focus:ring-brand-500"
         />
         {t('enableHealthMonitoring')}
       </label>

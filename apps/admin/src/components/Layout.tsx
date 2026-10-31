@@ -64,7 +64,7 @@ function LayoutContent() {
     >
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:outline-none focus:ring-2 focus:ring-brand-400"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:outline-hidden focus:ring-2 focus:ring-brand-400"
       >
         {t('skipToContent')}
       </a>
@@ -83,7 +83,7 @@ function LayoutContent() {
           className="fixed inset-0 z-40 lg:hidden"
         >
           <div
-            className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-950/75 backdrop-blur-xs"
             aria-hidden="true"
             onClick={() => setMobileSidebarOpen(false)}
           />
@@ -95,10 +95,10 @@ function LayoutContent() {
         </div>
       )}
 
-      <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 overflow-y-auto bg-slate-950 outline-none">
+      <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 overflow-y-auto bg-slate-950 outline-hidden">
         <div
           data-testid="desktop-toolbar"
-          className="sticky top-0 z-30 hidden h-16 items-center gap-3 border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur lg:flex"
+          className="sticky top-0 z-30 hidden h-16 items-center gap-3 border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur-sm lg:flex"
         >
           <div className="flex min-w-0 items-center gap-3">
             <button
@@ -119,7 +119,7 @@ function LayoutContent() {
             </span>
           </div>
         </div>
-        <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur lg:hidden">
+        <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-800 bg-slate-900/95 px-4 backdrop-blur-sm lg:hidden">
           <button
             ref={mobileMenuButtonRef}
             type="button"

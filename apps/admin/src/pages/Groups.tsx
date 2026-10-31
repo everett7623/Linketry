@@ -360,7 +360,7 @@ export function Groups() {
                         <Link
                           to={linksPath(group)}
                           title={t('viewLinks')}
-                          className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
+                          className="rounded-sm p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
                         >
                           <Tags size={14} />
                         </Link>
@@ -368,7 +368,7 @@ export function Groups() {
                           type="button"
                           onClick={() => openEdit(group)}
                           title={t('edit')}
-                          className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
+                          className="rounded-sm p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
                         >
                           <Edit2 size={14} />
                         </button>
@@ -376,7 +376,7 @@ export function Groups() {
                           type="button"
                           onClick={() => setDeleteTarget(group)}
                           title={t('delete')}
-                          className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-red-400"
+                          className="rounded-sm p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-red-400"
                         >
                           <Trash2 size={14} />
                         </button>

@@ -118,7 +118,7 @@ export function WebhookSettingsPanel() {
           type="checkbox"
           checked={webhook.enabled}
           onChange={(e) => setField('enabled', e.target.checked)}
-          className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+          className="h-4 w-4 rounded-sm border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
         />
         {t('enableWebhook')}
       </label>
@@ -141,7 +141,8 @@ export function WebhookSettingsPanel() {
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-slate-300">{t('webhookEvents')}</label>
-        <div className="grid gap-2 sm:grid-cols-2">
+        {/* mt-2: the inline label above cannot carry space-y's margin in Tailwind CSS v4. */}
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {webhook.available_events.map((event) => (
             <label
               key={event}
@@ -151,7 +152,7 @@ export function WebhookSettingsPanel() {
                 type="checkbox"
                 checked={webhook.events.includes(event)}
                 onChange={() => toggleEvent(event)}
-                className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-brand-600 focus:ring-brand-500"
+                className="h-4 w-4 rounded-sm border-slate-600 bg-slate-900 text-brand-600 focus:ring-brand-500"
               />
               {event === 'health_check.failed'
                 ? t('healthCheckFailedEvent')

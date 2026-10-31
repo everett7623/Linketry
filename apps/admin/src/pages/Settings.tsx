@@ -136,7 +136,7 @@ export function Settings() {
 
       <nav
         aria-label={t('settingsSections')}
-        className="sticky top-14 z-20 -mx-1 border-b border-slate-800 bg-slate-950/95 px-1 py-2 backdrop-blur lg:top-16"
+        className="sticky top-14 z-20 -mx-1 border-b border-slate-800 bg-slate-950/95 px-1 py-2 backdrop-blur-sm lg:top-16"
       >
         <div className="flex gap-1 overflow-x-auto scrollbar-thin">
           {visibleSections.map((section) => (

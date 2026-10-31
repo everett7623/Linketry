@@ -34,7 +34,7 @@ export function LinkViewToolbar({
             type="checkbox"
             checked={allVisibleSelected}
             onChange={onToggleAllVisible}
-            className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+            className="h-4 w-4 rounded-sm border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
           />
           {t('selectAllVisibleLinks')}
         </label>

@@ -104,7 +104,7 @@ function HeatmapGrid({
               role="img"
               aria-label={label}
               title={label}
-              className="h-6 rounded-sm border border-slate-800"
+              className="h-6 rounded-xs border border-slate-800"
               style={{ backgroundColor: heatColor(point.clicks, max) }}
             />
           );
@@ -122,7 +122,7 @@ function HeatmapLegend() {
       {[0.08, 0.24, 0.45, 0.7, 1].map((intensity) => (
         <span
           key={intensity}
-          className="h-3 w-5 rounded-sm border border-slate-800"
+          className="h-3 w-5 rounded-xs border border-slate-800"
           style={{ backgroundColor: `rgba(45, 212, 191, ${intensity})` }}
         />
       ))}

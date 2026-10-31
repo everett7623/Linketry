@@ -5,22 +5,40 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
-## 📋 Next — Remaining work after v0.33.2 (recorded 2026-10-21)
+## 📋 Next — Remaining work after v0.34.0 (updated 2026-10-31)
 
 Nothing here is scheduled yet; each item needs its own go-ahead.
 
 - [ ] **Admin browser suite cold-start flakes on many-core machines.** With Playwright's default worker count (8 on a 16-thread machine) the first tests to run, mostly locale switches and first-paint checks, can time out while a cold Vite dev server transforms modules for every worker (v0.33.1: 42/45 and 43/45 locally, 45/45 with `--workers=2`, as on CI). Options: `server.warmup` in the Admin Vite config, a worker cap in `playwright.config.ts`, or longer first-render timeouts for the on-demand zh-CN catalog. Record: `.codex/tasks/openapi-auth-scope-2026-10-20.md`.
 - [ ] **Production `LINKETRY_IP_HASH_SECRET` (owner action).** v0.33.0 keys stored IP hashes with HMAC-SHA256 only when this Worker secret exists. Generate a value (`openssl rand -hex 32`), keep it in a password manager and run `npx wrangler secret put LINKETRY_IP_HASH_SECRET` in `apps/worker` against the production Worker; GitHub Actions deployments preserve it. Unique-visitor counts restart for date ranges that span the change (`docs/ANALYTICS.md`).
-
-- [ ] **Tailwind CSS 4 migration (Admin).** Clears the last seven npm advisories, all in Tailwind 3.4.19's build-time chain (braces has no fixed release; the postcss-selector-parser fix is outside Tailwind 3's range). Needs the codemod plus manual work: rename the `--color-slate-*` / `--color-brand-*` RGB triplets and re-express the light-theme inversion, add explicit border/ring/divide colours, decide on v4 `hover:` semantics, pixel-compare every route, and accept the Safari 16.4+ / Chrome 111+ / Firefox 128+ baseline (likely a minor release). Impact assessment and plan: `.codex/tasks/toolchain-advisories-2026-10-18.md`; open limitation: `docs/KNOWN_ISSUES.md` H3.
+- [ ] **Wrangler upgrade blocked by a Windows dev-proxy regression (KNOWN_ISSUES H7).** Every Wrangler from 4.152.0 on resets requests that the Admin Vite dev server proxies to `wrangler dev` on Windows, so v0.34.0 keeps Wrangler 4.151.1 with an npm override for `miniflare > undici 7.30.1`. Before each Wrangler upgrade, re-run the proxied check (240 authenticated requests through Vite); once it passes, upgrade, raise the `SUPPORT.md` minimum and remove the override. Record: `.codex/tasks/tailwind-4-migration-2026-10-31.md`.
 - [ ] **Visual audit P3 (Admin).** Mobile touch targets (26 px icon actions, 13–16 px checkboxes, 28 px view toggle and page actions), the sidebar footer covering the last nav entries at 900 px height, Overview stat cards taking about 1.5 screens on phones, and six empty UTM cards on Link Analytics. Also the Links "Short Link" header, which wraps to two lines at 1440 px with long slugs (accepted in v0.32.3 to keep the table inside its container). Sources: `.codex/tasks/admin-visual-audit-2026-10-17.md`, `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`.
-- [ ] **GitHub Releases for v0.32.1, v0.32.2, v0.32.3 and v0.33.0.** All are deployed once v0.33.0 ships; the latest Release is still v0.32.0.
+- [ ] **GitHub Releases for v0.32.1 through v0.33.1.** All are deployed; the latest Release and tag are still v0.32.0.
 - [ ] **Release checklist in `docs/DEVELOPMENT.md` (with the next versioned release).** `Validate Linketry` runs only on pull requests and manual dispatch (`scripts/ci-workflow.test.mjs` forbids a push trigger), so direct pushes to `main` skip the full Admin browser suite and the Quick Deploy dry run; before each release from `main`, dispatch it (`gh workflow run ci.yml --ref <branch>`) or run the local three-job mirror. The root `.npmrc` (v0.33.0) now pins the official registry, so the checklist only needs to keep `grep -c npmmirror package-lock.json` at 0.
 - [ ] **D1 timeout on the redirect path (investigate first; needs explicit redirect-path approval).** The KV fallback covers D1 errors but not D1 hangs, because the redirect path's D1 lookups have no deadline. On 2026-10-21 three unknown-slug probes timed out within about two minutes while D1-free requests on the same host were normal (cause unconfirmed: local proxy or D1). Check Workers observability for slow D1 queries around 2026-10-21 before deciding on a bounded D1 re-check for KV hits. Details: `docs/KNOWN_ISSUES.md` H4.
 - [ ] **Redirect fallback visit queueing (needs explicit redirect-path approval).** Since v0.33.0 the KV-hit fallback forwards query parameters and runs only when the D1 lookup fails, but it still skips smart rules and visit recording. With a Queue binding the visit could be enqueued for the consumer to write once D1 is back. Details: `docs/KNOWN_ISSUES.md` H4.
 - [ ] **Worker module size (no behaviour change).** Split `apps/worker/src/db/index.ts` (1142 lines), `routes/links.ts` (980) and `routes/importRoutes.ts` (883) the way the v0.31.11 Links page split worked, keeping SQL under `apps/worker/src/db` (and updating the CLAUDE.md rule that names `db/index.ts`).
 
 Also open further down: Branded QR Phase 2 and 3 (Admin upgrades section) and the Pre-1.0 evidence gates — screen-reader AT pass, fresh-account Quick Deploy rehearsal, remote-D1 scale evidence, optional Demo R2 (Residual Hardening section).
+
+---
+
+## 🟡 In Progress — Tailwind CSS 4 migration (v0.34.0)
+
+- [x] Fetch remote and record the baseline (`origin/main` `b75183f`, v0.33.1 on all tracks; local `main` at the H5 commit `d963caa` plus its record `5901116`, not pushed)
+- [x] Independent full CI mirror on H5 and fast-forward into local `main` with the owner's approval (2026-10-31)
+- [x] Screenshot baseline on v0.33.2: 82 full-page captures (18 routes and login × dark/light × desktop/mobile, plus QR dialog, drawer and expanded filters), stable on re-run
+- [x] Migrate the Admin to Tailwind CSS 4.3.3 with `@tailwindcss/vite`: official codemod, theme rewrite (full-colour slate/brand tokens, light overrides), v3 palette, sans stack, line heights and preflight defaults pinned, v4 `hover:` semantics
+- [x] Fix the two v4 `space-y` effects (webhook events label gap, Modal overlay `m-0`)
+- [x] Screenshot comparison: 60/82 identical; 22 explained (date inputs aligned with text inputs, `divide-x` 1 px, QR dialog centred)
+- [x] `npm audit` 0: Tailwind 3 chain gone, vite 6.4.5, Wrangler kept on 4.151.1 with the undici 7.30.1 override (H7); Worker bundle byte-identical
+- [x] `SUPPORT.md` browser baseline (Chrome/Edge 111, Firefox 128, Safari 16.4)
+- [x] Local verification of all three CI jobs: deployment 92, Demo API 6, site 10, Worker 187, Admin unit 74, Admin browser 45 (first run), production/Demo/Quick Deploy builds and Worker dry run
+- [x] Synchronize v0.34.0 release metadata
+- [x] Commit on local `main` with the owner's approval (2026-10-31)
+- [ ] Push, validate on a release branch and deploy *(waiting for the owner)*
+
+Task record: `.codex/tasks/tailwind-4-migration-2026-10-31.md`
 
 ---
 
@@ -102,7 +120,7 @@ Task record: `.codex/tasks/links-layout-repo-cleanup-2026-10-19.md`
 - [x] Commit on `claude/funny-cray-3062ea` (approved 2026-10-19; not pushed)
 - [x] Pushed with v0.32.1 and v0.32.3 (`9de314c`)
 - [x] Deployed with v0.32.3: production `39181219300`, Demo `39181207795`, site `39181221970`
-- [ ] Separate task: Tailwind CSS 4 migration, which clears the remaining seven advisories (impact assessment and plan in the task record) *(tracked in Next)*
+- [x] Separate task: Tailwind CSS 4 migration, which clears the remaining seven advisories — done in v0.34.0
 
 Task record: `.codex/tasks/toolchain-advisories-2026-10-18.md`
 

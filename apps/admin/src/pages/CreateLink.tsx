@@ -393,7 +393,7 @@ export function CreateLink() {
                 type="checkbox"
                 checked={form.warning_enabled}
                 onChange={(e) => set('warning_enabled', e.target.checked)}
-                className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+                className="h-4 w-4 rounded-sm border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
               />
               {t('showWarning')}
             </label>

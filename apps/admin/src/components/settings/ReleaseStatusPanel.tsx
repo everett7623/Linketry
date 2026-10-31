@@ -142,7 +142,7 @@ function StatusRow({
   return (
     <div className="grid gap-1 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] sm:items-center">
       <dt className="text-slate-500">{label}</dt>
-      <dd className={`break-words text-slate-200 sm:text-right ${mono ? 'font-mono' : ''}`}>
+      <dd className={`wrap-break-word text-slate-200 sm:text-right ${mono ? 'font-mono' : ''}`}>
         {value}
       </dd>
     </div>

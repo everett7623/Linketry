@@ -251,7 +251,7 @@ function QrCodeDesigner({ qr, onCopy }: { qr: LinkQrCode; onCopy: (link: LinkTyp
         <div className="space-y-2">
           <span className="block text-sm font-medium text-slate-300">{t('qrLogo')}</span>
           <div className="flex flex-wrap items-center gap-2">
-            {style.logo && <img src={style.logo} alt={t('qrLogoPreview')} className="h-10 w-10 rounded border border-slate-700 bg-white object-contain p-0.5" />}
+            {style.logo && <img src={style.logo} alt={t('qrLogoPreview')} className="h-10 w-10 rounded-sm border border-slate-700 bg-white object-contain p-0.5" />}
             <Button
               variant="secondary"
               size="sm"
@@ -284,7 +284,7 @@ function QrCodeDesigner({ qr, onCopy }: { qr: LinkQrCode; onCopy: (link: LinkTyp
         <label className="flex items-center gap-2 text-sm text-slate-300">
           <input
             type="checkbox"
-            className="h-4 w-4 rounded border-slate-600"
+            className="h-4 w-4 rounded-sm border-slate-600"
             checked={style.caption}
             onChange={(event) => update({ caption: event.target.checked })}
           />
@@ -369,7 +369,7 @@ function ColorField({
           type="color"
           value={value}
           onChange={(event) => onChange(event.target.value.toLowerCase())}
-          className="h-7 w-9 cursor-pointer rounded border-0 bg-transparent p-0"
+          className="h-7 w-9 cursor-pointer rounded-sm border-0 bg-transparent p-0"
         />
         <span className="font-mono text-xs text-slate-300">{value}</span>
       </div>

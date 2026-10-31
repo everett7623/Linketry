@@ -296,7 +296,7 @@ export function ImportExport() {
               id="import-source"
               value={source}
               onChange={(e) => setSource(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-brand-500"
             >
               <option value="">{t('autoDetect')}</option>
               <option value="shlink">Shlink (JSON / JSONL / CSV)</option>
@@ -325,7 +325,7 @@ export function ImportExport() {
                   value={shlinkBaseUrl}
                   onChange={(e) => setShlinkBaseUrl(e.target.value)}
                   placeholder="https://s.example.com"
-                  className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <div>
@@ -341,7 +341,7 @@ export function ImportExport() {
                   onChange={(e) => setShlinkApiKey(e.target.value)}
                   type="password"
                   placeholder={t('temporaryApiKey')}
-                  className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <Button
@@ -366,7 +366,7 @@ export function ImportExport() {
               id="import-conflict-strategy"
               value={conflictStrategy}
               onChange={(e) => setConflictStrategy(e.target.value as ImportConflictStrategy)}
-              className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-brand-500"
             >
               <option value="skip">{t('skipSlugs')}</option>
               <option value="rename">{t('renameSlugs')}</option>

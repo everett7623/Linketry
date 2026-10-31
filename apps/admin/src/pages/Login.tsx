@@ -92,7 +92,7 @@ export function Login() {
                 onChange={(e) => setToken(e.target.value)}
                 placeholder={t(IS_PUBLIC_DEMO ? 'demoAccessCodePlaceholder' : 'enterToken')}
                 autoFocus
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 pr-10 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
+                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 pr-10 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
               />
               <button
                 type="button"
@@ -132,7 +132,7 @@ export function Login() {
                 value={apiOrigin}
                 onChange={(e) => setApiOrigin(e.target.value)}
                 placeholder="https://go.example.com"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
+                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
               />
               <p className="mt-1.5 text-xs text-slate-500">
                 {getBuildApiBase()

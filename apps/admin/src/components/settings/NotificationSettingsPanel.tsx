@@ -122,7 +122,7 @@ export function NotificationSettingsPanel() {
                   type="checkbox"
                   checked={channel.enabled}
                   onChange={(e) => updateDraft(channel.provider, { enabled: e.target.checked })}
-                  className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-brand-600 focus:ring-brand-500"
+                  className="h-4 w-4 rounded-sm border-slate-600 bg-slate-900 text-brand-600 focus:ring-brand-500"
                 />
               </span>
             </label>

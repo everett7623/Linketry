@@ -39,7 +39,7 @@ export function DuplicateDestinationWarning({ url, excludeId }: { url: string; e
               <RouterLink
                 key={link.id}
                 to={`/links/${link.id}/edit`}
-                className="max-w-full truncate rounded bg-slate-950/60 px-2 py-1 font-mono text-xs text-amber-300 hover:text-amber-200"
+                className="max-w-full truncate rounded-sm bg-slate-950/60 px-2 py-1 font-mono text-xs text-amber-300 hover:text-amber-200"
                 title={link.long_url}
               >
                 /{link.slug}{link.title ? ` · ${link.title}` : ''}

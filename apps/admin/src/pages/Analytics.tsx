@@ -241,7 +241,7 @@ export function Analytics() {
             maxLength={50}
             value={viewName}
             onChange={(e) => setViewName(e.target.value)}
-            className="h-10 min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder-slate-500 transition-colors hover:border-slate-600 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="h-10 min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder-slate-500 transition-colors hover:border-slate-600 focus:border-transparent focus:outline-hidden focus:ring-2 focus:ring-brand-500"
           />
           <Button
             variant="secondary"

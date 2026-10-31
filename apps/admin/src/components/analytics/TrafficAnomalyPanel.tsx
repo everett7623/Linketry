@@ -112,7 +112,7 @@ export function TrafficAnomalyPanel() {
           type="checkbox"
           checked={config.enabled}
           onChange={(event) => setConfig('enabled', event.target.checked)}
-          className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+          className="h-4 w-4 rounded-sm border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
         />
         {t('enableTrafficAnomalyAlerts')}
       </label>

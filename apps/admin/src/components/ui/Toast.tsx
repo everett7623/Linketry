@@ -93,13 +93,13 @@ function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: (id: string
       )}
     >
       {icons[t.type]}
-      <span className="min-w-0 break-words [overflow-wrap:anywhere] text-sm text-slate-200 flex-1">{t.message}</span>
+      <span className="min-w-0 wrap-break-word wrap-anywhere text-sm text-slate-200 flex-1">{t.message}</span>
       <button
         type="button"
         onClick={() => onRemove(t.id)}
         aria-label={translate('dismissNotification')}
         title={translate('dismissNotification')}
-        className="shrink-0 rounded-md p-2 text-slate-400 hover:text-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        className="shrink-0 rounded-md p-2 text-slate-400 hover:text-slate-100 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
       >
         <X size={14} aria-hidden="true" />
       </button>

@@ -95,7 +95,7 @@ export function AudienceComposition({ summary }: { summary: AnalyticsSummary | n
                   >
                     <span className="flex min-w-0 items-center gap-2 text-slate-400">
                       <span
-                        className="h-2.5 w-2.5 shrink-0 rounded-sm"
+                        className="h-2.5 w-2.5 shrink-0 rounded-xs"
                         style={{ backgroundColor: COLORS[index % COLORS.length] }}
                       />
                       <span className="truncate">{deviceLabel(item.device_type)}</span>

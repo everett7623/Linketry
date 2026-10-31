@@ -47,7 +47,7 @@ export function AdvancedCapabilitiesPanel({
             {t('optionalEnabled', { count: enabledCount })}
           </p>
         </div>
-        <span className="rounded bg-slate-800 px-2 py-1 text-[10px] uppercase text-brand-400">
+        <span className="rounded-sm bg-slate-800 px-2 py-1 text-[10px] uppercase text-brand-400">
           {t('profile', { value: t(capabilities.profile) })}
         </span>
       </div>

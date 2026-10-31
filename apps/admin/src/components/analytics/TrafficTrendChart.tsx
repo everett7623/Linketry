@@ -51,7 +51,7 @@ export function TrafficTrendChart({
   };
 
   return (
-    <div className="mt-3 aspect-[16/5] min-h-52 w-full">
+    <div className="mt-3 aspect-16/5 min-h-52 w-full">
       <svg
         className="h-full w-full"
         viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}

@@ -29,14 +29,14 @@ export function LinkFilterBar({
           placeholder={t('searchLinks')}
           value={searchInput}
           onChange={(e) => onSearchInputChange(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          className="w-full pl-9 pr-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500"
         />
       </div>
       <select
         aria-label={t('statusFilter')}
         value={status}
         onChange={(e) => onParamChange('status', e.target.value)}
-        className="px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+        className="px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-brand-500"
       >
         <option value="">{t('allStatus')}</option>
         <option value="active">{t('activeStatus')}</option>
@@ -48,7 +48,7 @@ export function LinkFilterBar({
         aria-label={t('sortLinks')}
         value={sort}
         onChange={(e) => onParamChange('sort', e.target.value)}
-        className="px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+        className="px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-brand-500"
       >
         <option value="created_at_desc">{t('newestFirst')}</option>
         <option value="created_at_asc">{t('oldestFirst')}</option>

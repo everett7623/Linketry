@@ -147,7 +147,7 @@ export function Tags() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('searchTags')}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 py-2 pl-9 pr-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 py-2 pl-9 pr-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500"
           />
         </div>
       </div>
@@ -196,14 +196,14 @@ export function Tags() {
                         <button
                           onClick={() => openEdit(tag)}
                           title={t('edit')}
-                          className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
+                          className="rounded-sm p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
                         >
                           <Pencil size={14} />
                         </button>
                         <button
                           onClick={() => setDeleteTarget(tag)}
                           title={t('delete')}
-                          className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-red-400"
+                          className="rounded-sm p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-red-400"
                         >
                           <Trash2 size={14} />
                         </button>

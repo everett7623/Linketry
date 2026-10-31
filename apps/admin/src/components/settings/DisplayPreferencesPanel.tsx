@@ -99,7 +99,7 @@ export function DisplayPreferencesPanel() {
                   type="checkbox"
                   checked={visible}
                   onChange={() => toggleModule(module)}
-                  className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-500 focus:ring-brand-500"
+                  className="h-4 w-4 rounded-sm border-slate-600 bg-slate-950 text-brand-500 focus:ring-brand-500"
                 />
                 <span>{t(label)}</span>
               </label>

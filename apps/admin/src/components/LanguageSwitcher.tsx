@@ -13,7 +13,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
         value={locale}
         onChange={(event) => setLocale(resolveLocale(event.target.value))}
         aria-label={t('language')}
-        className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-950 px-2 py-1.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none"
+        className="min-w-0 flex-1 rounded-sm border border-slate-700 bg-slate-950 px-2 py-1.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-hidden"
       >
         {supportedLocales.map((option) => (
           <option key={option.code} value={option.code}>

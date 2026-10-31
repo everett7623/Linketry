@@ -76,7 +76,7 @@ export function LinkCardGrid({
                   checked={selectedIds.has(link.id)}
                   onChange={() => onToggleSelected(link.id)}
                   aria-label={t('selectLinkAria', { slug: link.slug })}
-                  className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+                  className="mt-1 h-4 w-4 rounded-sm border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
                 />
               )}
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-slate-500">

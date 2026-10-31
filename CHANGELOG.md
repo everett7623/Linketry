@@ -7,6 +7,31 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.34.0] - 2026-10-31
+
+### Changed
+
+- The Admin is built with Tailwind CSS 4.3 instead of 3.4. Pages keep their look: the Tailwind CSS 3 colours, font stack, line heights and form defaults are carried over. Tailwind CSS 4 relies on newer CSS features, so the Admin now supports Chrome and Edge 111, Firefox 128 and Safari 16.4 or later (`SUPPORT.md`); in older browsers some styles may look wrong. The stylesheet grows by about 2 kB gzipped. Short links, the Worker and the project site are unaffected.
+- Hover styles apply only on devices that can hover, so a tapped button or table row on a phone or tablet no longer stays highlighted.
+- Date fields are as tall as the text fields around them; they were 2 px taller.
+
+### Fixed
+
+- The QR code dialog on the Links page covers the whole window and is centred. Its backdrop started 24 px below the top of the window, leaving a strip of the page uncovered. Every dialog now keeps a full-window backdrop wherever the page places it.
+
+### Security
+
+- `npm audit` reports no advisories. The seven Tailwind CSS 3 build-time advisories are gone with the upgrade, Vite 6.4.5 fixes a dev-server `server.fs.deny` bypass (GHSA-8g5g-mxqh-grgj), and an npm override moves the undici used by Wrangler's local runtime to 7.30.1 (GHSA-4qv8-2p9j-2685). All of them affected only local development and builds.
+
+### Maintenance
+
+- Tailwind CSS runs as a Vite plugin (`@tailwindcss/vite`) and the theme lives in `apps/admin/src/index.css`; `tailwind.config.cjs`, `postcss.config.cjs` and the Admin's direct PostCSS and Autoprefixer dependencies are removed.
+- Wrangler stays on 4.151.1 for now. From 4.152.0 on, requests that the Admin's Vite dev server forwards to `wrangler dev` are reset on Windows, which breaks local Admin development; deployments are unaffected (`docs/KNOWN_ISSUES.md` H7).
+
+### Documentation
+
+- `SUPPORT.md` lists the Admin's minimum browser versions; `docs/KNOWN_ISSUES.md` marks H3 (Tailwind CSS 3 advisories) as resolved and records the Wrangler regression as H7.
+
 ## [0.33.2] - 2026-10-21
 
 ### Fixed

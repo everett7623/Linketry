@@ -272,7 +272,7 @@ export function Domains() {
                           type="button"
                           onClick={() => openEdit(domain)}
                           title={t('edit')}
-                          className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded transition-colors"
+                          className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
                         >
                           <Edit2 size={14} />
                         </button>
@@ -280,7 +280,7 @@ export function Domains() {
                           type="button"
                           onClick={() => setDeleteTarget(domain)}
                           title={t('delete')}
-                          className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-700 rounded transition-colors"
+                          className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-700 rounded-sm transition-colors"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -324,7 +324,7 @@ export function Domains() {
               type="checkbox"
               checked={form.is_default}
               onChange={(e) => setForm((current) => ({ ...current, is_default: e.target.checked }))}
-              className="h-4 w-4 rounded border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
+              className="h-4 w-4 rounded-sm border-slate-600 bg-slate-950 text-brand-600 focus:ring-brand-500"
             />
             {t('useDefaultDomain')}
           </label>

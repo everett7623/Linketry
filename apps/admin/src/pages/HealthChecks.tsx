@@ -295,7 +295,7 @@ export function HealthChecks() {
                           <Link
                             to={`/links/${result.link_id}/edit`}
                             title={t('editLinkAction')}
-                            className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
+                            className="rounded-sm p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
                           >
                             <Activity size={14} />
                           </Link>
@@ -305,7 +305,7 @@ export function HealthChecks() {
                           target="_blank"
                           rel="noopener noreferrer"
                           title={t('openTarget')}
-                          className="rounded p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
+                          className="rounded-sm p-1.5 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
                         >
                           <ExternalLink size={14} />
                         </a>

@@ -6,6 +6,17 @@ Last updated: 2026-10-31
 
 ---
 
+## Tailwind CSS 4 migration — v0.34.0
+
+- Baseline: `origin/main` `b75183f` (v0.33.1, deployed on all tracks); local `main` at `5901116` (the H5 fix `d963caa`, v0.33.2, plus its validation record; neither pushed). The impact assessment from `.codex/tasks/toolchain-advisories-2026-10-18.md` was reused; the owner chose Tailwind CSS 4's `hover:` semantics (hover styles only on hover-capable devices).
+- Admin moves from Tailwind CSS 3.4.19 (PostCSS plus autoprefixer) to 4.3.3 through `@tailwindcss/vite`; `tailwind.config.cjs`, `postcss.config.cjs` and the direct `postcss`/`autoprefixer` dependencies are gone. The official codemod renamed utilities in 44 files. The theme in `src/index.css` was rewritten by hand: slate and brand are full colours in `@theme static` and the light theme overrides them in the base layer. The Tailwind CSS 3 palette, sans stack, rem line heights and preflight defaults are pinned so the UI keeps its look.
+- Two effects of v4's `space-y` (margin on the end of each non-last child) fixed: the webhook events gap moves from the inline label to the grid below it, and the Modal overlay gets `m-0`, which also removes the 24 px offset that the Links QR dialog already had under v3.
+- Screenshot comparison against v0.33.2: 82 full-page captures (18 routes and the login page × dark/light × 1440/390 px, plus the QR dialog, the mobile drawer and the expanded filters), 60 identical; the 22 others are date inputs now as tall as text inputs, a 1 px `divide-x` content shift, and the centred QR dialog.
+- `SUPPORT.md` records the Admin browser baseline Tailwind CSS 4 needs (Chrome and Edge 111, Firefox 128, Safari 16.4), hence a minor version.
+- `npm audit` 0 (was 7, all in Tailwind 3's build-time chain), also with vite 6.4.5 (GHSA-8g5g-mxqh-grgj) and an npm override `miniflare > undici 7.30.1` (GHSA-4qv8-2p9j-2685). Wrangler stays on 4.151.1: from 4.152.0 on, requests the Admin Vite dev server proxies to `wrangler dev` are reset on Windows (KNOWN_ISSUES H7). The Worker dry-run bundle is byte-identical to v0.33.2's apart from the version string.
+- All three CI jobs mirrored locally. Evidence: `.codex/tasks/tailwind-4-migration-2026-10-31.md`.
+- Not deployed; production, Demo, Admin and site remain on v0.33.1.
+
 ## Interstitial query parameters — v0.33.2
 
 - Baseline: `origin/main` `d8f7007` (v0.33.1, deployed on all tracks). The work started on `91a172f` (v0.33.0) in its own worktree and was rebased onto v0.33.1, which changed no redirect or public-page file. The owner approved this redirect-path change (golden rule 1), limited to KNOWN_ISSUES H5.
@@ -131,15 +142,15 @@ Last updated: 2026-10-31
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.33.1 live | Production health reports v0.33.1; `/api/v1/auth/login` answers 400/401 itself again; source is v0.33.2 (warning and password pages keep the visitor's query parameters; not deployed) |
-| Admin frontend             | ✅ 0.33.1 live | `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` advertise v0.33.1 |
-| Documentation              | ✅ 0.33.2 synchronized | Architecture and known-issue notes for v0.33.2 recorded |
+| Worker backend             | ✅ 0.33.1 live | Production health reports v0.33.1; `/api/v1/auth/login` answers 400/401 itself again; source is v0.34.0 (since v0.33.2 the warning and password pages keep the visitor's query parameters; v0.34.0 changes only the version here; not deployed) |
+| Admin frontend             | ✅ 0.33.1 live | `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` advertise v0.33.1; source is v0.34.0 (Tailwind CSS 4.3, same look; not deployed) |
+| Documentation              | ✅ 0.34.0 synchronized | Tailwind CSS 4 migration, Admin browser baseline and the Wrangler dev-proxy regression (KNOWN_ISSUES H7) recorded |
 | Deployment                 | ✅ 0.33.1 live | Production `39379574281`, Demo `39379571712`, site `39379578165` succeeded at `54eb8cc` after `Validate Linketry` `39379316617` passed |
 | End-to-end test            | ✅ 0.33.1 live | Health/version on all tracks, production 401/404 (OpenAPI and docs included), `/health` preflight 204, sign-in 400/401 without a bearer header, Demo `qr-style` read 200 and write 403 verified |
-| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1; H5 fixed in 0.33.2 |
-| Current version            | 🟡 0.33.2 source | Production, Demo and site remain on v0.33.1 until the next approved deployment |
+| Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1; H5 fixed in 0.33.2; H3 resolved and H7 recorded in 0.34.0 |
+| Current version            | 🟡 0.34.0 source | Production, Demo and site remain on v0.33.1 until the next approved deployment |
 | Repository update target   | ✅ 0.33.1 | Authenticated dispatch `39379574281` deployed `main` HEAD `54eb8cc` |
-| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Tailwind 4, audit P3, Releases, release checklist, fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
+| Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Wrangler upgrade blocked by H7, audit P3, Releases, release checklist, D1 timeout and fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
 | Performance optimization   | ✅ 0.30.0 complete    | D1 indexes, expiry-aware KV caching, Admin code splitting, monitoring system; bulk/import paths use bounded `env.DB.batch()`. Unused generic `db/batch.ts` helper removed in 0.31.4                  |

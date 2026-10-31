@@ -20,7 +20,7 @@
 
 ### H3. 开发/构建工具链剩余 7 条 npm 公告（Tailwind CSS 3 依赖链）
 
-- **状态**：🟡 等待 Tailwind CSS 4 迁移（`TASKS.md` Next）
+- **状态**：✅ 已解决（v0.34.0）：Admin 迁移到 Tailwind CSS 4.3.3（`@tailwindcss/vite`），这条依赖链已从依赖树中移除；`npm audit`（官方源）为 0
 - **说明**：v0.32.2 之后，`npm audit`（官方源）只剩 Tailwind CSS 3.4.19 构建期依赖链里的 7 条：braces（high，目前没有修复版本），以及经它传导的 chokidar、fast-glob、micromatch、tailwindcss；另有 postcss-selector-parser 和 postcss-nested（moderate，修复版本超出 Tailwind 3 的依赖范围）。
 - **影响**：这些包只在 `vite build` / `vite dev` 扫描本仓库自己的内容和 CSS 时运行，不会进入 Admin 构建产物或 Worker 包；`npm audit --omit=dev` 为 0。
 - **处理计划**：迁移到 Tailwind CSS 4，影响评估和步骤见 `.codex/tasks/toolchain-advisories-2026-10-18.md`。
@@ -46,6 +46,15 @@
 - **说明**：`apps/worker/src/routes/openapi.ts` 用 `routes.use('*', requireAuth)` 保护自己的两个端点，但它通过 `app.route('/api/v1', openApiRoutes)` 最先挂载，Hono 会把这条中间件应用到 `/api/v1/*` 的所有请求上。于是 `POST /api/v1/auth/login` 没有 Bearer 头时直接返回 401 `Unauthorized`，进不了登录处理器。Admin 登录时会先把 token 存起来，请求带着同一个 token 作为 Bearer 头，所以日常登录一直正常。
 - **影响（修复前）**：登录限流对失败的尝试从未生效（错误 token 在外层就被拒绝）；携带 API token 的每个 `/api/v1/*` 请求都会校验两次（两次 D1 查询和两次 `last_used` 写入）；不带 Bearer 头的客户端拿不到登录接口文档所述的 400 / 401 `Invalid token` 响应。旧前缀 `/api/auth/login` 不经过这条中间件，行为一直正常。
 - **修复**：鉴权中间件只挂在 `/openapi.json` 和 `/docs` 两个路由上（其余路由器都有各自的鉴权）。`apps/worker/src/routes/api.test.mjs` 经真实 Worker 入口向每个已注册的 `/api` 路由发匿名请求，除登录与登出外必须返回 401/403，并锁定两个前缀下的登录可达性、API token 只校验一次和 OpenAPI 文档仍需鉴权。
+
+### H7. Wrangler 4.152 及以后在 Windows 上中断 Admin 本地开发代理
+
+- **状态**：🟡 已规避（v0.34.0）：Wrangler 保持 4.151.1，并用 npm `overrides` 把 Miniflare 的 undici 固定为 7.30.1
+- **说明**：从 wrangler 4.152.0（Miniflare 5.20261019）起，Admin 的 Vite 开发服务器把 `/api/` 代理到 `wrangler dev` 时，请求会被重置（Vite 报 `ECONNRESET`，workerd 报 “HTTP connection failed … os error 10022”）。经 Vite 代理发 240 个带鉴权的请求：4.151.1 全部成功；4.152.0 只有 144 个成功（90 个 500、6 个超时）；4.156.0 的 400 个里 272 个成功、128 次代理错误。直接请求 `wrangler dev` 在所有版本上都正常，两个版本都监听 `127.0.0.1:8787`。
+- **影响**：只影响本地开发（`npm run dev:admin` 加 `npm run dev:worker`），不影响部署：升级前后打出的 Worker 包（`index.js`）逐字节一致。
+- **规避**：`apps/worker` 保持 `wrangler ^4.151.1`（lockfile 为 4.151.1）；根 `package.json` 的 `overrides` 把 `miniflare > undici` 固定为 7.30.1，修复 GHSA-4qv8-2p9j-2685（wrangler 4.153.0 上游也做了同样的升级）。与 undici 无关：4.152.0 仍是 undici 7.29.1，而 4.151.1 加上覆盖后经代理 240/240 成功。
+- **后续**：升级 wrangler 前先用经 Vite 代理的请求复测；问题修复后升级 wrangler、更新 `SUPPORT.md` 的最低版本，并删除这条 override。
+- **另一个本地限制**：Windows 上 `--persist-to` 路径达到约 259 个字符时，本地 D1 在所有版本上都会报 “internal error”；Miniflare 5.2026101x 起新增的 observability 存储路径更长。正常检出目录约 186 个字符，不受影响。
 
 ---
 

@@ -149,7 +149,7 @@ function SeriesValue({
 }) {
   return (
     <span className="inline-flex items-center gap-1.5">
-      <span className={`h-2 w-2 rounded-sm ${color}`} />
+      <span className={`h-2 w-2 rounded-xs ${color}`} />
       {label} <b className="font-semibold text-slate-200">{value.toLocaleString(locale)}</b>
     </span>
   );

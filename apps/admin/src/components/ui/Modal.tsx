@@ -77,9 +77,11 @@ export function Modal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    // m-0: pages render dialogs inside space-y-* stacks, whose sibling margin would otherwise
+    // offset this fixed overlay and leave a strip of the page uncovered.
+    <div className="fixed inset-0 z-50 m-0 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-xs"
         aria-hidden="true"
         onClick={dismissible ? onClose : undefined}
       />
@@ -101,7 +103,7 @@ export function Modal({
             disabled={!dismissible}
             aria-label={t('closeDialog')}
             title={t('closeDialog')}
-            className="text-slate-400 hover:text-slate-100 transition-colors p-2 rounded-md hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-slate-400 hover:text-slate-100 transition-colors p-2 rounded-md hover:bg-slate-800 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X size={16} aria-hidden="true" />
           </button>

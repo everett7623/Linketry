@@ -64,7 +64,7 @@ export const WorldTrafficMap = memo(function WorldTrafficMap({
 
       <div className="grid lg:grid-cols-[minmax(0,1.7fr)_minmax(260px,0.8fr)]">
         <div className="min-w-0 px-3 py-5 sm:px-5">
-          <div className="aspect-[3/1] min-h-56 w-full">
+          <div className="aspect-3/1 min-h-56 w-full">
             <svg
               className="h-full w-full"
               viewBox={WORLD_MAP_VIEW_BOX}
@@ -86,7 +86,7 @@ export const WorldTrafficMap = memo(function WorldTrafficMap({
                     vectorEffect="non-scaling-stroke"
                     className={
                       clicks > 0
-                        ? 'cursor-pointer outline-none transition-opacity hover:opacity-80 focus:opacity-80'
+                        ? 'cursor-pointer outline-hidden transition-opacity hover:opacity-80 focus:opacity-80'
                         : ''
                     }
                     tabIndex={clicks > 0 ? 0 : undefined}
@@ -114,7 +114,7 @@ export const WorldTrafficMap = memo(function WorldTrafficMap({
                 <span
                   key={ratio}
                   data-testid="traffic-intensity-swatch"
-                  className="h-2.5 w-6 rounded-sm"
+                  className="h-2.5 w-6 rounded-xs"
                   style={{ backgroundColor: worldTrafficColor(max * ratio, max) }}
                 />
               ))}
