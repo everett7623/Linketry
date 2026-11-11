@@ -11,7 +11,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Keep light-theme slate inversion and status contrast; map overrides to OKLCH tokens
 - [x] Align `analyticsPalette` world-map colours; unit tests + Admin build
 - [x] Synchronize release metadata to 0.35.0
-- [ ] Owner: validate, deploy tracks, GitHub Release `v0.35.0`
+- [x] Owner: validate (local + contracts; CI Admin apt DNS flake), deploy tracks, GitHub Release `v0.35.0`
 
 Task record: `.codex/tasks/tailwind-v4-oklch-palette-2026-11-12.md`
 
@@ -37,8 +37,6 @@ Task record: `.codex/tasks/patch-updates-release-checklist-2026-10-31.md`
 ## 📋 Next — Remaining work after v0.35.0 (updated 2026-11-12)
 
 Nothing here is scheduled yet; each item needs its own go-ahead.
-
-- [ ] **Deploy v0.35.0** (OKLCH palette) after local/CI validation. Record: `.codex/tasks/tailwind-v4-oklch-palette-2026-11-12.md`.
 
 - [ ] **Admin browser suite cold-start flakes on many-core machines.** With Playwright's default worker count (8 on a 16-thread machine) the first tests to run, mostly locale switches and first-paint checks, can time out while a cold Vite dev server transforms modules for every worker (v0.33.1: 42/45 and 43/45 locally, 45/45 with `--workers=2`, as on CI). Options: `server.warmup` in the Admin Vite config, a worker cap in `playwright.config.ts`, or longer first-render timeouts for the on-demand zh-CN catalog. Record: `.codex/tasks/openapi-auth-scope-2026-10-20.md`.
 - [ ] **Production `LINKETRY_IP_HASH_SECRET` (owner action).** v0.33.0 keys stored IP hashes with HMAC-SHA256 only when this Worker secret exists. Generate a value (`openssl rand -hex 32`), keep it in a password manager and run `npx wrangler secret put LINKETRY_IP_HASH_SECRET` in `apps/worker` against the production Worker; GitHub Actions deployments preserve it. Unique-visitor counts restart for date ranges that span the change (`docs/ANALYTICS.md`).
