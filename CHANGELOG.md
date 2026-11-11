@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.35.0] - 2026-11-12
+
+### Changed
+
+- Admin adopts Tailwind CSS v4's default **OKLCH** colour palette. The v0.34.0 migration had kept v3 hex/rgb pins so the UI looked unchanged; those pins are removed. `slate` and custom `brand` (indigo-aligned) use OKLCH; other families fall through to the framework defaults. Light-theme slate inversion and status-text contrast overrides now reference the OKLCH tokens. World-map intensity colours in `analyticsPalette` match the same ramp. Font stack and rem line-height pins from v0.34.0 stay. Expect a visible but modest shift in saturation and lightness versus v0.34.1.
+
 ## [0.34.1] - 2026-10-31
 
 ### Maintenance

@@ -2,9 +2,17 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-10-31
+Last updated: 2026-11-12
 
 ---
+
+## Tailwind CSS v4 OKLCH palette — v0.35.0
+
+- Baseline: local/`origin/main` at `18dfe6a` (v0.34.1 live on all tracks). Tailwind CSS 4.3.3 was already shipping; colours were still pinned to the v3 palette from the v0.34.0 migration.
+- Owner chose to adopt the v4 OKLCH defaults. `apps/admin/src/index.css` drops the 14-family v3 hex block; slate/brand are OKLCH in `@theme static` (brand = indigo); light theme keeps inverted slate + contrast-tuned brand; status text overrides use `var(--color-*)`. `analyticsPalette` world-map ramp uses matching OKLCH steps.
+- Kept: v3 sans stack and rem line heights; border/placeholder/cursor preflight compatibility.
+- Admin production build OK; CSS `index-*.css` emits OKLCH tokens (≈58.6 kB / gzip 10.6 kB). Unit tests for palette and theme pass.
+- Evidence: `.codex/tasks/tailwind-v4-oklch-palette-2026-11-12.md`. Not deployed yet.
 
 ## Patch updates and release checklist — v0.34.1 (deployed)
 
@@ -153,13 +161,13 @@ Last updated: 2026-10-31
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Worker backend             | ✅ 0.34.1 live | Production health reports v0.34.1 (Hono 4.13.14); `/api/v1/auth/login` answers 400/401 itself; warning and password pages keep the visitor's query parameters (v0.33.2) |
-| Admin frontend             | ✅ 0.34.1 live | `admin.uukk.de`, `linketry-admin.pages.dev` and `demo.linketry.com` advertise v0.34.1 (React Router 7.18.5) and serve the Tailwind CSS 4.3.3 stylesheet |
+| Admin frontend             | 🟡 0.35.0 source / 0.34.1 live | Source uses Tailwind v4 OKLCH palette; live Admin still v0.34.1 until deploy |
 | Documentation              | ✅ 0.34.0 synchronized | Tailwind CSS 4 migration, Admin browser baseline, the Wrangler dev-proxy regression (KNOWN_ISSUES H7) and the v0.34.0 deployment recorded |
 | Deployment                 | ✅ 0.34.1 live | Production `41180555668`, Demo `41180549568`, site `41180558132` succeeded at `e3b2201` after `Validate Linketry` `41177855838` passed |
 | End-to-end test            | ✅ 0.34.0 live | Health/version on all tracks, production 401/404 (OpenAPI and docs included), `/health` preflight 204, sign-in 400/401 without a bearer header, Demo `qr-style` read 200 and write 403, Tailwind CSS 4.3.3 stylesheet on all three Admin hosts verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1; H5 fixed in 0.33.2; H3 resolved and H7 recorded in 0.34.0 |
-| Current version            | ✅ 0.34.1 | Source, production, Demo and site version parity verified; GitHub Release v0.34.1 is Latest |
-| Repository update target   | ✅ 0.34.1 | Authenticated dispatch `41180555668` deployed `main` HEAD `e3b2201` |
+| Current version            | 🟡 0.35.0 source / 0.34.1 live | OKLCH palette in source; deploy + Release still required for track parity |
+| Repository update target   | 🟡 0.35.0 | Awaiting owner validate/deploy of the OKLCH palette release |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Wrangler upgrade blocked by H7, audit P3, Releases, release checklist, D1 timeout and fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |

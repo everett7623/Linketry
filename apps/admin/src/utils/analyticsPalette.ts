@@ -11,18 +11,21 @@ export const GLOBAL_DISTRIBUTION_COLORS = [
   'bg-teal-500',
 ] as const;
 
+/** Tailwind CSS v4 OKLCH steps used by the world-map intensity ramp (teal → amber). */
 export const WORLD_TRAFFIC_COLORS = [
-  'rgb(13 148 136)',
-  'rgb(6 182 212)',
-  'rgb(14 165 233)',
-  'rgb(59 130 246)',
-  'rgb(79 70 229)',
-  'rgb(124 58 237)',
-  'rgb(192 38 211)',
-  'rgb(225 29 72)',
-  'rgb(234 88 12)',
-  'rgb(245 158 11)',
+  'oklch(60% 0.118 184.704)', // teal-600
+  'oklch(71.5% 0.143 215.221)', // cyan-500
+  'oklch(68.5% 0.169 237.323)', // sky-500
+  'oklch(62.3% 0.214 259.815)', // blue-500
+  'oklch(51.1% 0.262 276.966)', // indigo-600
+  'oklch(54.1% 0.281 293.009)', // violet-600
+  'oklch(59.1% 0.293 322.896)', // fuchsia-600
+  'oklch(58.6% 0.253 17.585)', // rose-600
+  'oklch(64.6% 0.222 41.116)', // orange-600
+  'oklch(76.9% 0.188 70.08)', // amber-500
 ] as const;
+
+const WORLD_TRAFFIC_EMPTY = 'oklch(27.9% 0.041 260.031)'; // slate-800
 
 export function globalDistributionColor(index: number): string {
   const normalizedIndex = Number.isFinite(index) ? Math.max(0, Math.floor(index)) : 0;
@@ -30,7 +33,7 @@ export function globalDistributionColor(index: number): string {
 }
 
 export function worldTrafficColor(value: number, max: number): string {
-  if (value <= 0) return 'rgb(30 41 59)';
+  if (value <= 0) return WORLD_TRAFFIC_EMPTY;
   const ratio = Math.min(1, value / Math.max(max, 1));
   const index = Math.min(WORLD_TRAFFIC_COLORS.length - 1, Math.ceil(ratio * 10) - 1);
   return WORLD_TRAFFIC_COLORS[index];

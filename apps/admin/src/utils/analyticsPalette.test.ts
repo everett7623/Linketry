@@ -19,7 +19,7 @@ test('world traffic uses ten distinct intensity colors', () => {
     Array.from({ length: 10 }, (_, index) => worldTrafficColor(index + 1, 10)),
     WORLD_TRAFFIC_COLORS
   );
-  assert.equal(worldTrafficColor(0, 10), 'rgb(30 41 59)');
+  assert.equal(worldTrafficColor(0, 10), 'oklch(27.9% 0.041 260.031)');
 });
 
 test('global distribution colors repeat predictably for long country lists', () => {
