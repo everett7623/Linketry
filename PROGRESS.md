@@ -12,7 +12,8 @@ Last updated: 2026-11-12
 - Root cause: `createR2Backup` piped `streamBackupJson` through a `TransformStream` into `R2Bucket.put()`. Cloudflare requires a known-length body; unknown-length streams throw, so cron wrote failed D1 rows and never stored objects. Not caused by the OKLCH Admin release.
 - Fix: buffer the paged stream to `ArrayBuffer` before `put()`; keep `/export/backup.json` streaming. Tests assert put receives `ArrayBuffer`.
 - Schedule: keep daily Cron for retention/reports/anomaly; gate scheduled snapshots with `backup_interval_days` (default **3**) against the latest *completed* backup. Advanced Settings exposes the interval (1–365). Failed rows do not block retries.
-- Evidence: `.codex/tasks/r2-backup-known-length-2026-11-12.md`. Not deployed yet.
+- Evidence: `.codex/tasks/r2-backup-known-length-2026-11-12.md`.
+- Deployed `88b2439` on 2026-11-12: push skipped production (`[skip production]`); Demo `43120202413`, production dispatch `43120221853`, site `43120253737` all succeeded. Live `go.uukk.de/health`, `demoapi.linketry.com/health`, Admin `admin.uukk.de` meta `0.35.1`, and `linketry.com/llms.txt` report 0.35.1. [GitHub Release v0.35.1](https://github.com/everett7623/Linketry/releases/tag/v0.35.1) is Latest on `88b2439`.
 
 ## Tailwind CSS v4 OKLCH palette — v0.35.0 (deployed)
 

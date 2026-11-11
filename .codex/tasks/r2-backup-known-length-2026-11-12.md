@@ -25,4 +25,11 @@
 
 ## Validation
 
-- `apps/worker` `src/backups/optimization.test.mjs` + `schedulePolicy.test.mjs`.
+- `apps/worker` `src/backups/optimization.test.mjs` + `schedulePolicy.test.mjs` (15 pass with retention).
+
+## Deploy
+
+- Commit `88b2439` on `main` with `[skip production]`.
+- Demo push `43120202413`, production dispatch `43120221853`, site `43120253737` — success.
+- Live health / Admin meta / site `llms.txt` → `0.35.1`.
+- GitHub Release `v0.35.1` Latest on `88b2439`.

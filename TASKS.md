@@ -11,7 +11,8 @@ One item in "In Progress" at a time whenever possible.
 - [x] Buffer paged backup JSON to ArrayBuffer before `put`; keep export streaming
 - [x] Gate scheduled backups on `backup_interval_days` (default 3); keep other daily Cron work daily
 - [x] Tests + 0.35.1 release metadata
-- [ ] Owner: commit, deploy, click Create Backup once to confirm `completed`
+- [x] Commit/push `88b2439`; Demo `43120202413`, production `43120221853`, site `43120253737`; Release `v0.35.1`
+- [ ] Owner: click Create Backup once in Admin to confirm a `completed` row (or wait for next daily Cron eligibility)
 
 Task record: `.codex/tasks/r2-backup-known-length-2026-11-12.md`
 
