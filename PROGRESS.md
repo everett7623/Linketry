@@ -163,7 +163,7 @@ Last updated: 2026-11-12
 | Worker backend             | ✅ 0.35.0 live | Production/Demo `/health` report 0.35.0; redirect path unchanged by the OKLCH Admin palette release |
 | Admin frontend             | ✅ 0.35.0 live | `admin.uukk.de` / Pages / Demo serve favicon `?v=0.35.0` with Tailwind v4 OKLCH palette |
 | Documentation              | ✅ 0.34.0 synchronized | Tailwind CSS 4 migration, Admin browser baseline, the Wrangler dev-proxy regression (KNOWN_ISSUES H7) and the v0.34.0 deployment recorded |
-| Deployment                 | ✅ 0.34.1 live | Production `41180555668`, Demo `41180549568`, site `41180558132` succeeded at `e3b2201` after `Validate Linketry` `41177855838` passed |
+| Deployment                 | ✅ 0.35.0 live | Production `43061166953`, Demo `43060582003`, site `43060672092` succeeded at `ddf9802` |
 | End-to-end test            | ✅ 0.34.0 live | Health/version on all tracks, production 401/404 (OpenAPI and docs included), `/health` preflight 204, sign-in 400/401 without a bearer header, Demo `qr-style` read 200 and write 403, Tailwind CSS 4.3.3 stylesheet on all three Admin hosts verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1; H5 fixed in 0.33.2; H3 resolved and H7 recorded in 0.34.0 |
 | Current version            | ✅ 0.35.0 | Source, production, Demo and site version parity; GitHub Release v0.35.0 is Latest |
