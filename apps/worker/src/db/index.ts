@@ -995,6 +995,13 @@ export async function getBackupById(env: Env, id: string): Promise<Backup | null
   return result ?? null;
 }
 
+export async function getLatestCompletedBackup(env: Env): Promise<Backup | null> {
+  const result = await env.DB.prepare(
+    "SELECT * FROM backups WHERE status = 'completed' ORDER BY created_at DESC LIMIT 1"
+  ).first<Backup>();
+  return result ?? null;
+}
+
 export async function listBackupsBefore(env: Env, cutoff: string): Promise<Backup[]> {
   const result = await env.DB.prepare(
     'SELECT * FROM backups WHERE created_at < ? ORDER BY created_at ASC LIMIT 1000'

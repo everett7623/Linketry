@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.35.1] - 2026-11-12
+
+### Fixed
+
+- Scheduled and manual R2 backups complete again. `createR2Backup` had piped an unknown-length `TransformStream` into `R2Bucket.put()`, which Workers reject with “Provided readable stream must have a known length”, so every cron snapshot since the streaming change was recorded as failed with empty size. The paged JSON stream is still used to build the payload; the body is buffered to an `ArrayBuffer` before `put()`. HTTP `/export/backup.json` streaming is unchanged.
+
+### Changed
+
+- Scheduled R2 backups no longer run every daily Cron tick. The daily Cron still runs retention, reports, and anomaly checks; a new snapshot is created only when `backup_interval_days` have passed since the last *completed* backup (default **3**, Advanced Settings 1–365). Failed rows do not postpone the next try. Manual backups are unchanged.
+
 ## [0.35.0] - 2026-11-12
 
 ### Changed

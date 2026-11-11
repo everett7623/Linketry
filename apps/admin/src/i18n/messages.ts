@@ -112,6 +112,9 @@ export const englishMessages = {
   backupRetentionDays: 'Backup Retention Days',
   backupRetentionHint:
     'R2 backups and their records are removed after this many days. Default: 30.',
+  backupIntervalDays: 'Scheduled Backup Interval (days)',
+  backupIntervalHint:
+    'The daily Cron creates an R2 backup only after this many days since the last completed backup. Default: 3. Manual backups are unchanged.',
   enableHealthMonitoring: 'Enable scheduled target health monitoring',
   healthMonitoringLimit: 'Links Checked Per Run',
   healthMonitoringHint:

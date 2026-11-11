@@ -55,6 +55,7 @@ async function mockAdminApi(page: Page) {
     default_redirect_type: '302',
     analytics_retention_days: '0',
     backup_retention_days: '30',
+    backup_interval_days: '3',
     health_monitoring_enabled: 'false',
     health_monitoring_limit: '20',
     health_failure_threshold: '2',

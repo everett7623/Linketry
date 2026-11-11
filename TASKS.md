@@ -5,6 +5,18 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed — R2 backup known-length put + 3-day schedule (v0.35.1)
+
+- [x] Diagnose all-failed Backups list (scheduled 02:00 CST): R2 `put` rejects TransformStream
+- [x] Buffer paged backup JSON to ArrayBuffer before `put`; keep export streaming
+- [x] Gate scheduled backups on `backup_interval_days` (default 3); keep other daily Cron work daily
+- [x] Tests + 0.35.1 release metadata
+- [ ] Owner: commit, deploy, click Create Backup once to confirm `completed`
+
+Task record: `.codex/tasks/r2-backup-known-length-2026-11-12.md`
+
+---
+
 ## ✅ Completed — Tailwind CSS v4 OKLCH palette (v0.35.0)
 
 - [x] Replace v3 hex/rgb colour pins in `apps/admin/src/index.css` with Tailwind v4 OKLCH (slate/brand + framework defaults)

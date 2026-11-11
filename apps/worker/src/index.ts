@@ -7,7 +7,7 @@ import publicStatsRoutes from './routes/publicStats';
 import { createScheduledAnalyticsReport } from './analytics/scheduledReports';
 import { runScheduledTrafficAnomalyCheck } from './analytics/trafficAnomalies';
 import { processVisitQueueBatch } from './analytics/index';
-import { createR2Backup } from './backups/index';
+import { runScheduledBackup } from './backups/scheduled';
 import { cleanupBackupRetention } from './backups/retention';
 import { emitWebhook } from './webhooks/index';
 import { cleanupAnalyticsRetention } from './db/analytics';
@@ -209,8 +209,11 @@ const handler: ExportedHandler<Env, VisitQueueMessage> = {
     }
     if (work.daily && env.BACKUPS) {
       ctx.waitUntil(
-        createR2Backup(env, 'scheduled')
-          .then((backup) => emitWebhook(env, 'backup.completed', { backup, trigger: 'scheduled' }))
+        runScheduledBackup(env)
+          .then((backup) => {
+            if (!backup) return;
+            return emitWebhook(env, 'backup.completed', { backup, trigger: 'scheduled' });
+          })
           .catch((error) => {
             console.error('Scheduled Linketry backup failed', error);
             return emitWebhook(env, 'backup.failed', {

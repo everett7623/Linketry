@@ -201,7 +201,7 @@ wrangler r2 bucket create linketry-backups
 wrangler r2 bucket create linketry-backups-dev
 ```
 
-The Worker binds these buckets as `BACKUPS`, runs a daily scheduled backup, and supports preview-first one-click restore from completed snapshots.
+The Worker binds these buckets as `BACKUPS`, creates scheduled R2 snapshots on the daily Cron when `backup_interval_days` have passed since the last completed backup (default 3), and supports preview-first one-click restore from completed snapshots.
 
 ### 4. Create Queue for Visit Stats
 

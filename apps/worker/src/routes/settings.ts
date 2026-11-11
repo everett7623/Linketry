@@ -4,6 +4,7 @@ import { requireAuth } from '../auth/index';
 import { getSettings, setSetting } from '../db/index';
 import { jsonOk, jsonError } from '../utils/response';
 import { now } from '../utils/id';
+import { DEFAULT_BACKUP_INTERVAL_DAYS } from '../backups/schedulePolicy';
 import { DEFAULT_BACKUP_RETENTION_DAYS } from '../backups/retentionPolicy';
 import { DEFAULT_HEALTH_MONITORING_LIMIT } from '../health/monitoringPolicy';
 import {
@@ -24,6 +25,7 @@ settings.use('*', async (c, next) => {
 settings.get('/', async (c) => {
   const allSettings = await getSettings(c.env);
   allSettings.backup_retention_days ??= String(DEFAULT_BACKUP_RETENTION_DAYS);
+  allSettings.backup_interval_days ??= String(DEFAULT_BACKUP_INTERVAL_DAYS);
   allSettings.health_monitoring_enabled ??= 'false';
   allSettings.health_monitoring_limit ??= String(DEFAULT_HEALTH_MONITORING_LIMIT);
   allSettings.health_failure_threshold ??= String(DEFAULT_HEALTH_FAILURE_THRESHOLD);
@@ -145,6 +147,16 @@ function normalizeSetting(key: string, value: string): { value: string; error?: 
       return {
         value: String(DEFAULT_BACKUP_RETENTION_DAYS),
         error: 'backup_retention_days must be between 1 and 3650',
+      };
+    }
+    return { value: String(days) };
+  }
+  if (key === 'backup_interval_days') {
+    const days = parseInt(value, 10);
+    if (!Number.isFinite(days) || days < 1 || days > 365) {
+      return {
+        value: String(DEFAULT_BACKUP_INTERVAL_DAYS),
+        error: 'backup_interval_days must be between 1 and 365',
       };
     }
     return { value: String(days) };

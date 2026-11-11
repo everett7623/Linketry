@@ -109,6 +109,9 @@ export const zhCNMessages = {
   retentionHint: '填写 0 表示永久保留。',
   backupRetentionDays: '备份保留天数',
   backupRetentionHint: '超过此天数的 R2 备份及记录会自动删除。默认 30 天。',
+  backupIntervalDays: '定时备份间隔（天）',
+  backupIntervalHint:
+    '每日 Cron 仅在距上次成功备份达到该天数时再创建 R2 备份。默认 3 天。手动备份不受影响。',
   enableHealthMonitoring: '启用定时目标健康监控',
   healthMonitoringLimit: '每次检查短链数',
   healthMonitoringHint:

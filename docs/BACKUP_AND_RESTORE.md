@@ -45,9 +45,9 @@ bucket_name = "linketry-backups"
 preview_bucket_name = "linketry-backups-dev"
 ```
 
-The Admin Backups page can create an immediate R2 snapshot, download completed snapshots, preview restores, and restore a snapshot back into D1. The Worker also runs a daily scheduled backup through Cloudflare Cron Triggers.
+The Admin Backups page can create an immediate R2 snapshot, download completed snapshots, preview restores, and restore a snapshot back into D1. The Worker evaluates scheduled backups on the daily Cron, but only creates a new R2 snapshot when `backup_interval_days` have passed since the last *completed* backup (default **3** days; Advanced Settings allows 1–365). Failed backup rows do not delay the next attempt. Manual “Create Backup” is unchanged.
 
-Linketry retains R2 backups for 30 days by default. Advanced Settings can change `backup_retention_days` from 1 to 3650 days. Each scheduled run removes expired R2 objects first, then deletes their D1 backup records. If the R2 binding is unavailable, Linketry preserves the D1 records so recovery references are not lost.
+Linketry retains R2 backups for 30 days by default. Advanced Settings can change `backup_retention_days` from 1 to 3650 days. Each daily Cron run still removes expired R2 objects first, then deletes their D1 backup records. If the R2 binding is unavailable, Linketry preserves the D1 records so recovery references are not lost.
 
 Authenticated API endpoints:
 

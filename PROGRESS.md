@@ -6,6 +6,14 @@ Last updated: 2026-11-12
 
 ---
 
+## R2 backup known-length put + 3-day schedule — v0.35.1
+
+- Baseline: `main` at `6f27cd2` / live v0.35.0. Owner screenshot of Admin Backups showed every scheduled row since 2026-10-30 as `失败` with size `-`.
+- Root cause: `createR2Backup` piped `streamBackupJson` through a `TransformStream` into `R2Bucket.put()`. Cloudflare requires a known-length body; unknown-length streams throw, so cron wrote failed D1 rows and never stored objects. Not caused by the OKLCH Admin release.
+- Fix: buffer the paged stream to `ArrayBuffer` before `put()`; keep `/export/backup.json` streaming. Tests assert put receives `ArrayBuffer`.
+- Schedule: keep daily Cron for retention/reports/anomaly; gate scheduled snapshots with `backup_interval_days` (default **3**) against the latest *completed* backup. Advanced Settings exposes the interval (1–365). Failed rows do not block retries.
+- Evidence: `.codex/tasks/r2-backup-known-length-2026-11-12.md`. Not deployed yet.
+
 ## Tailwind CSS v4 OKLCH palette — v0.35.0 (deployed)
 
 - Baseline: local/`origin/main` at `18dfe6a` (v0.34.1 live on all tracks). Tailwind CSS 4.3.3 was already shipping; colours were still pinned to the v3 palette from the v0.34.0 migration.

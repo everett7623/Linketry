@@ -131,7 +131,13 @@ test('CSV and JSON exports wait for readers and remain valid across page boundar
 test('same-time R2 backups store independent objects and matching sizes', async t => {
   const f = fixture(t, 1);
   const objects = new Map();
-  f.env.BACKUPS = { async put(key, body) { objects.set(key, await new Response(body).arrayBuffer()); } };
+  f.env.BACKUPS = {
+    async put(key, body) {
+      // R2 rejects unknown-length ReadableStreams; the Worker must pass a buffered body.
+      assert.equal(body instanceof ArrayBuffer, true, 'R2 put must receive ArrayBuffer with known length');
+      objects.set(key, body);
+    },
+  };
   const RealDate = Date;
   globalThis.Date = class extends RealDate {
     constructor(...args) { super(...(args.length ? args : ['2026-10-13T01:00:00.000Z'])); }
@@ -144,6 +150,24 @@ test('same-time R2 backups store independent objects and matching sizes', async 
     assert.equal(first.size, objects.get(first.filename).byteLength);
     assert.equal(second.size, objects.get(second.filename).byteLength);
   } finally { globalThis.Date = RealDate; }
+});
+
+test('R2 backup fails closed when put rejects an unknown-length stream contract', async t => {
+  const f = fixture(t, 1);
+  f.env.BACKUPS = {
+    async put(_key, body) {
+      if (body && typeof body.getReader === 'function') {
+        throw new TypeError(
+          'Provided readable stream must have a known length (request/response body or readable half of FixedLengthStream)'
+        );
+      }
+      return {};
+    },
+  };
+  // createR2Backup buffers first, so put sees ArrayBuffer and succeeds.
+  const backup = await createR2Backup(f.env, 'manual');
+  assert.equal(backup.status, 'completed');
+  assert.ok(backup.size > 0);
 });
 
 test('renamed restore links use the new slug while unchanged links preserve their URL', () => {

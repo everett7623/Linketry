@@ -102,17 +102,14 @@ export async function createR2Backup(env: Env, trigger: BackupTrigger = 'manual'
     throw new Error('R2 backup bucket is not configured');
   }
 
+  // R2 put() requires a body with a known length. streamBackupJson is pull-based /
+  // unknown-length, and piping through TransformStream keeps it that way, which
+  // throws: "Provided readable stream must have a known length". Buffer after the
+  // paged D1 read so put() receives an ArrayBuffer; /export/backup.json can still stream.
   let size = 0;
-  const body = streamBackupJson(env).pipeThrough(
-    new TransformStream<Uint8Array, Uint8Array>({
-      transform(chunk, controller) {
-        size += chunk.byteLength;
-        controller.enqueue(chunk);
-      },
-    })
-  );
-
   try {
+    const body = await new Response(streamBackupJson(env)).arrayBuffer();
+    size = body.byteLength;
     await env.BACKUPS.put(objectKey, body, {
       httpMetadata: { contentType: 'application/json; charset=utf-8' },
       customMetadata: {
@@ -132,7 +129,7 @@ export async function createR2Backup(env: Env, trigger: BackupTrigger = 'manual'
   } catch (error) {
     await createBackupRecord(env, {
       ...baseBackup,
-      size,
+      size: size > 0 ? size : null,
       status: 'failed',
     });
     throw error;

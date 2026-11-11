@@ -264,7 +264,7 @@ curl https://go.example.com/health
 Expected shape:
 
 ```json
-{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.35.0" } }
+{ "success": true, "data": { "status": "ok", "name": "Linketry", "version": "0.35.1" } }
 ```
 
 ### Build and Deploy Admin
@@ -332,7 +332,7 @@ LINKETRY_D1_DATABASE_NAME=linketry-alice-db
 LINKETRY_D1_DATABASE_ID=<your-d1-database-id>
 LINKETRY_KV_NAMESPACE_ID=<your-kv-namespace-id>
 LINKETRY_DEPLOYMENT_TRACK=fresh
-LINKETRY_APPROVED_RELEASE=0.35.0
+LINKETRY_APPROVED_RELEASE=0.35.1
 LINKETRY_APPROVED_COMMIT=<40-character-commit-sha>
 LINKETRY_APPROVED_MIGRATIONS_SHA256=<migration-digest>
 LINKETRY_FRESH_INSTALL_CONFIRMED=true
@@ -412,7 +412,7 @@ The Admin starts in **Simple mode**. Switch to **Advanced mode** from the sideba
 
 ### Scheduled original destination/Aff monitoring
 
-Linketry uses a daily Cron for backups, reports, and cleanup, plus a separate hourly Cron for target health checks. In **Advanced Settings**:
+Linketry uses a daily Cron for reports, retention cleanup, and backup *eligibility* (new R2 snapshots only after `backup_interval_days`, default 3), plus a separate hourly Cron for target health checks. In **Advanced Settings**:
 
 1. Enable **Scheduled target health monitoring**.
 2. Choose how many active links to check per run (1-50).

@@ -30,6 +30,7 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   site_name: 'Linketry',
   analytics_retention_days: '0',
   backup_retention_days: '30',
+  backup_interval_days: '3',
   health_monitoring_enabled: 'false',
   health_monitoring_limit: '20',
   health_failure_threshold: '2',

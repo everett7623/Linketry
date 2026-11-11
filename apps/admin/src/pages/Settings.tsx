@@ -48,6 +48,7 @@ export function Settings() {
     default_domain: '',
     analytics_retention_days: '0',
     backup_retention_days: '30',
+    backup_interval_days: '3',
     public_page_404_message: '',
     public_page_disabled_message: '',
     public_page_expired_message: '',
@@ -68,6 +69,7 @@ export function Settings() {
           default_domain: s.default_domain ?? '',
           analytics_retention_days: s.analytics_retention_days ?? '0',
           backup_retention_days: s.backup_retention_days ?? '30',
+          backup_interval_days: s.backup_interval_days ?? '3',
           public_page_404_message: s.public_page_404_message ?? '',
           public_page_disabled_message: s.public_page_disabled_message ?? '',
           public_page_expired_message: s.public_page_expired_message ?? '',
@@ -213,6 +215,15 @@ export function Settings() {
                 value={form.backup_retention_days}
                 onChange={(e) => set('backup_retention_days', e.target.value)}
                 hint={t('backupRetentionHint')}
+              />
+              <Input
+                label={t('backupIntervalDays')}
+                type="number"
+                min="1"
+                max="365"
+                value={form.backup_interval_days}
+                onChange={(e) => set('backup_interval_days', e.target.value)}
+                hint={t('backupIntervalHint')}
               />
             </div>
           )}
