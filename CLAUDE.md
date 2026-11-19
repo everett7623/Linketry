@@ -320,7 +320,7 @@ npm run deploy:preflight -- --track fresh --check-cloudflare
 日常发版走 dispatch 最省事，不必改任何仓库变量：
 
 ```bash
-gh workflow run deploy.yml --ref main -f confirm_release=true -f expected_release=0.35.1 -f expected_commit=<40位SHA>
+gh workflow run deploy.yml --ref main -f confirm_release=true -f expected_release=0.35.2 -f expected_commit=<40位SHA>
 ```
 
 #### `[skip production]` 只跳过生产
