@@ -131,7 +131,7 @@ test('keyboard skip-to-content reaches main and empty overview exposes the prima
   const emptyCta = page
     .getByRole('heading', { name: messages.en.overviewEmptyTitle })
     .locator('xpath=ancestor::div[contains(@class,"text-center")]')
-    .getByRole('link', { name: messages.en.createLink });
+    .getByRole('button', { name: messages.en.createLink });
   await expect(emptyCta).toBeVisible();
   await emptyCta.focus();
   await expect(emptyCta).toBeFocused();

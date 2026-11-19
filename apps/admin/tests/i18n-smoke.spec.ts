@@ -509,7 +509,7 @@ test('English core workflow renders overview, links, create link, and settings',
   await page.keyboard.press('Escape');
   await expect(migrationTrigger).toBeFocused();
 
-  await page.getByRole('main').getByRole('link', { name: messages.en.createLink }).click();
+  await page.getByRole('main').getByRole('button', { name: messages.en.createLink }).click();
   await expect(page.getByRole('heading', { name: messages.en.createLink })).toBeVisible();
   await expect(page.getByLabel(messages.en.fallbackUrlOptional)).toBeVisible();
   await expectNoSeriousAccessibilityViolations(page);
@@ -637,7 +637,7 @@ test('Simplified Chinese core workflow renders localized navigation and forms', 
   await expect(page.getByRole('heading', { name: messages['zh-CN'].linksList })).toBeVisible();
   await expect(page.getByRole('table').getByText('/docs', { exact: true })).toBeVisible();
 
-  await page.getByRole('main').getByRole('link', { name: messages['zh-CN'].createLink }).click();
+  await page.getByRole('main').getByRole('button', { name: messages['zh-CN'].createLink }).click();
   await expect(page.getByRole('heading', { name: messages['zh-CN'].createLink })).toBeVisible();
   await expect(page.getByLabel(messages['zh-CN'].destinationUrl)).toBeVisible();
   await expect(page.getByLabel(messages['zh-CN'].fallbackUrlOptional)).toBeVisible();

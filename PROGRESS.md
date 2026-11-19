@@ -2,9 +2,15 @@
 
 Quick reference for what is done, what is in progress, and what is not started.
 
-Last updated: 2026-11-12
+Last updated: 2026-11-19
 
 ---
+
+## Admin Operator Console UX critique pass — v0.35.2
+
+- Baseline: production Admin `admin.uukk.de` at v0.35.1; Impeccable init/document for `apps/admin`, then critique 26/40.
+- Fixes (correctness-preserving UI): Links row overflow menu; collapsed Advanced filters; grouped bulk actions; Create removed from sidebar; Overview/Login brand + shared primitives; PRODUCT/DESIGN artifacts.
+- Version metadata bumped to 0.35.2; not yet deployed.
 
 ## R2 backup known-length put + 3-day schedule — v0.35.1
 

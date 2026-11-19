@@ -1,19 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import {
-  Archive,
-  BarChart3,
-  Copy,
-  ExternalLink,
-  KeyRound,
-  Pencil,
-  Power,
-  PowerOff,
-  QrCode,
-  RotateCcw,
-  ShieldAlert,
-  Trash2,
-} from 'lucide-react';
+import { KeyRound, ShieldAlert } from 'lucide-react';
 import type { Link as LinkType } from '@linketry/shared';
 import { useLocale } from '../../contexts/LocaleContext';
 import { buildShortUrl } from '../../utils/shortUrl';
@@ -25,7 +11,7 @@ import {
   parseLinkTags,
 } from '../../utils/linkPresentation';
 import { StatusBadge } from '../ui/Badge';
-import type { LinkCardAction } from './LinkCardActions';
+import { LinkCardActions, type LinkCardAction } from './LinkCardActions';
 
 interface LinkTableProps {
   links: LinkType[];
@@ -127,12 +113,12 @@ export function LinkTable({
                     )}
                     {link.password_protected && (
                       <span title={t('passwordProtected')} className="inline-flex text-slate-500">
-                        <KeyRound size={13} />
+                        <KeyRound size={13} aria-hidden="true" />
                       </span>
                     )}
                     {link.warning_enabled === 1 && (
                       <span title={t('safetyWarningEnabled')} className="inline-flex text-yellow-500">
-                        <ShieldAlert size={13} />
+                        <ShieldAlert size={13} aria-hidden="true" />
                       </span>
                     )}
                   </div>
@@ -189,88 +175,15 @@ export function LinkTable({
                 </td>
                 {/* The opaque pinned cell re-applies the row hover tint through an overlay. */}
                 <td className="sticky right-0 bg-slate-900 shadow-[inset_1px_0_0_var(--color-slate-800)] px-4 py-3 before:pointer-events-none before:absolute before:inset-0 before:bg-slate-800/50 before:opacity-0 before:transition-opacity group-hover:before:opacity-100">
-                  <div className="relative flex items-center justify-end gap-1">
-                    <button
-                      onClick={() => onCopy(link)}
-                      title={t('copy')}
-                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
-                    >
-                      <Copy size={14} />
-                    </button>
-                    <a
-                      href={buildShortUrl(link, defaultDomain)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={t('open')}
-                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
-                    >
-                      <ExternalLink size={14} />
-                    </a>
-                    <button
-                      onClick={() => onShowQr(link)}
-                      title={t('qrCode')}
-                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
-                    >
-                      <QrCode size={14} />
-                    </button>
-                    {isAdvanced && (
-                      <Link
-                        to={`/analytics/links/${link.id}`}
-                        title={t('analytics')}
-                        className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
-                      >
-                        <BarChart3 size={14} />
-                      </Link>
-                    )}
-                    <Link
-                      to={`/links/${link.id}/edit`}
-                      title={t('edit')}
-                      className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
-                    >
-                      <Pencil size={14} />
-                    </Link>
-                    {link.status === 'active' ? (
-                      <button
-                        onClick={() => onConfirmAction('disable', link)}
-                        title={t('disable')}
-                        className="p-1.5 text-slate-500 hover:text-yellow-400 hover:bg-slate-700 rounded-sm transition-colors"
-                      >
-                        <PowerOff size={14} />
-                      </button>
-                    ) : link.status === 'disabled' ? (
-                      <button
-                        onClick={() => onConfirmAction('enable', link)}
-                        title={t('enable')}
-                        className="p-1.5 text-slate-500 hover:text-emerald-400 hover:bg-slate-700 rounded-sm transition-colors"
-                      >
-                        <Power size={14} />
-                      </button>
-                    ) : null}
-                    {isAdvanced &&
-                      (link.archived === 0 ? (
-                        <button
-                          onClick={() => onConfirmAction('archive', link)}
-                          title={t('archive')}
-                          className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
-                        >
-                          <Archive size={14} />
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => onConfirmAction('restore', link)}
-                          title={t('restore')}
-                          className="p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-sm transition-colors"
-                        >
-                          <RotateCcw size={14} />
-                        </button>
-                      ))}
-                    <button
-                      onClick={() => onConfirmAction('delete', link)}
-                      title={t('delete')}
-                      className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-700 rounded-sm transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                  <div className="relative">
+                    <LinkCardActions
+                      link={link}
+                      shortUrl={buildShortUrl(link, defaultDomain)}
+                      isAdvanced={isAdvanced}
+                      onCopy={onCopy}
+                      onShowQr={onShowQr}
+                      onConfirmAction={onConfirmAction}
+                    />
                   </div>
                 </td>
               </tr>

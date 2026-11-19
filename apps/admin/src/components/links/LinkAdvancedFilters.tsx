@@ -30,6 +30,10 @@ const textFieldClass =
 const choiceFieldClass =
   'rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-brand-500';
 
+function countActiveFilters(values: LinkAdvancedFilterValues): number {
+  return Object.values(values).filter(Boolean).length;
+}
+
 export function LinkAdvancedFilters({
   values,
   selectedIds,
@@ -41,23 +45,21 @@ export function LinkAdvancedFilters({
   onBulkUtmCompleted,
 }: LinkAdvancedFiltersProps) {
   const { t } = useLocale();
-  // Below `md` the eight fields push results past the fold, so they start collapsed there;
-  // from `md` up they are always shown and the toggle is hidden.
-  const [expanded, setExpanded] = useState(false);
+  // Collapsed by default on every breakpoint so daily link work stays calm; open when the
+  // URL already carries advanced filters so deep links remain discoverable.
+  const [expanded, setExpanded] = useState(() => countActiveFilters(values) > 0);
   const fieldsId = useId();
-  const activeCount = Object.values(values).filter(Boolean).length;
+  const activeCount = countActiveFilters(values);
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-      <div
-        className={`flex flex-wrap items-center justify-between gap-3 md:mb-3 ${expanded ? 'mb-3' : ''}`}
-      >
+      <div className={`flex flex-wrap items-center justify-between gap-3 ${expanded ? 'mb-3' : ''}`}>
         <button
           type="button"
           aria-expanded={expanded}
           aria-controls={fieldsId}
           onClick={() => setExpanded((open) => !open)}
-          className="flex items-center gap-2 rounded-md text-sm font-semibold text-slate-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden"
+          className="flex items-center gap-2 rounded-md text-sm font-semibold text-slate-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <SlidersHorizontal size={15} className="text-brand-400" aria-hidden="true" />
           {t('advancedFilters')}
@@ -72,10 +74,6 @@ export function LinkAdvancedFilters({
             className={`text-slate-500 transition-transform ${expanded ? 'rotate-180' : ''}`}
           />
         </button>
-        <div className="hidden items-center gap-2 text-sm font-semibold text-slate-300 md:flex">
-          <SlidersHorizontal size={15} className="text-brand-400" />
-          {t('advancedFilters')}
-        </div>
         <div className="flex items-center gap-3">
           <BulkUtmTool
             selectedIds={selectedIds}
@@ -88,7 +86,7 @@ export function LinkAdvancedFilters({
             onClick={onOpenDomainMigration}
             className="flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300"
           >
-            <Globe2 size={13} />
+            <Globe2 size={13} aria-hidden="true" />
             {t('migrateShortDomain')}
           </button>
           <button
@@ -102,7 +100,7 @@ export function LinkAdvancedFilters({
       </div>
       <div
         id={fieldsId}
-        className={`${expanded ? 'grid' : 'hidden'} gap-3 md:grid md:grid-cols-3 xl:grid-cols-6`}
+        className={`${expanded ? 'grid' : 'hidden'} gap-3 md:grid-cols-3 xl:grid-cols-6`}
       >
         <input
           type="text"

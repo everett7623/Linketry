@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
 import { getApiBase, getBuildApiBase, normalizeApiBase, setApiBaseOverride } from '../api/client';
 import { getSettings } from '../api/settings';
@@ -78,67 +79,59 @@ export function Login() {
           className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl"
         >
           <div className="mb-5">
-            <label
-              htmlFor="linketry-access-token"
-              className="block text-sm font-medium text-slate-300 mb-1.5"
-            >
-              {t(IS_PUBLIC_DEMO ? 'demoAccessCode' : 'adminToken')}
-            </label>
-            <div className="relative">
-              <input
-                id="linketry-access-token"
-                type={showToken ? 'text' : 'password'}
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                placeholder={t(IS_PUBLIC_DEMO ? 'demoAccessCodePlaceholder' : 'enterToken')}
-                autoFocus
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 pr-10 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
-              />
-              <button
-                type="button"
-                onClick={() => setShowToken(!showToken)}
-                aria-label={t(
-                  IS_PUBLIC_DEMO
-                    ? showToken
-                      ? 'hideDemoAccessCode'
-                      : 'showDemoAccessCode'
-                    : showToken
-                      ? 'hideAdminToken'
-                      : 'showAdminToken'
-                )}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-              >
-                {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            {IS_PUBLIC_DEMO && (
-              <p className="mt-2 text-xs text-slate-400">
-                {t('demoAccessHint', { code: DEMO_ACCESS_CODE })}
-              </p>
-            )}
+            <Input
+              id="linketry-access-token"
+              label={t(IS_PUBLIC_DEMO ? 'demoAccessCode' : 'adminToken')}
+              type={showToken ? 'text' : 'password'}
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              placeholder={t(IS_PUBLIC_DEMO ? 'demoAccessCodePlaceholder' : 'enterToken')}
+              autoFocus
+              className="bg-slate-950 py-2.5"
+              hint={
+                IS_PUBLIC_DEMO ? t('demoAccessHint', { code: DEMO_ACCESS_CODE }) : undefined
+              }
+              trailing={
+                <button
+                  type="button"
+                  onClick={() => setShowToken(!showToken)}
+                  aria-label={t(
+                    IS_PUBLIC_DEMO
+                      ? showToken
+                        ? 'hideDemoAccessCode'
+                        : 'showDemoAccessCode'
+                      : showToken
+                        ? 'hideAdminToken'
+                        : 'showAdminToken'
+                  )}
+                  className="text-slate-500 transition-colors hover:text-slate-300"
+                >
+                  {showToken ? (
+                    <EyeOff size={16} aria-hidden="true" />
+                  ) : (
+                    <Eye size={16} aria-hidden="true" />
+                  )}
+                </button>
+              }
+            />
           </div>
 
           {!IS_PUBLIC_DEMO && (
             <div className="mb-5">
-              <label
-                htmlFor="linketry-api-origin"
-                className="block text-sm font-medium text-slate-300 mb-1.5"
-              >
-                {t('apiOrigin')}
-              </label>
-              <input
+              <Input
                 id="linketry-api-origin"
+                label={t('apiOrigin')}
                 type="url"
                 value={apiOrigin}
                 onChange={(e) => setApiOrigin(e.target.value)}
                 placeholder="https://go.example.com"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
+                className="bg-slate-950 py-2.5"
+                hint={
+                  getBuildApiBase()
+                    ? t('defaultValue', { value: getBuildApiBase() })
+                    : t('defaultSameOrigin')
+                }
               />
-              <p className="mt-1.5 text-xs text-slate-500">
-                {getBuildApiBase()
-                  ? t('defaultValue', { value: getBuildApiBase() })
-                  : t('defaultSameOrigin')}
-              </p>
             </div>
           )}
 

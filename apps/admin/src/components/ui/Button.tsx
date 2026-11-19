@@ -24,19 +24,23 @@ const sizeClasses: Record<Size, string> = {
   lg: 'px-5 py-2.5 text-base rounded-lg gap-2',
 };
 
-export function Button({
-  variant = 'primary',
-  size = 'md',
-  loading = false,
-  icon,
-  children,
-  className,
-  disabled,
-  ...props
-}: ButtonProps) {
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    variant = 'primary',
+    size = 'md',
+    loading = false,
+    icon,
+    children,
+    className,
+    disabled,
+    ...props
+  },
+  ref
+) {
   return (
     <button
       {...props}
+      ref={ref}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={clsx(
@@ -64,4 +68,4 @@ export function Button({
       {children}
     </button>
   );
-}
+});

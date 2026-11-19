@@ -39,7 +39,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: '/overview', icon: <LayoutDashboard size={18} />, label: 'overview' },
       { to: '/links', icon: <Link2 size={18} />, label: 'linksList' },
-      { to: '/links/create', icon: <PlusCircle size={18} />, label: 'createLink' },
+      // Create stays on Overview/Links page CTAs — not a permanent sidebar peer.
       {
         to: '/links/bulk-create',
         icon: <PlusCircle size={18} />,

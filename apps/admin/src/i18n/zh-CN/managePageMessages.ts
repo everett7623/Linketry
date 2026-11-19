@@ -167,6 +167,8 @@ export const managePageMessages = {
   hasLimits: '有限制',
   noLimits: '无限制',
   selectedCount: '已选择 {count} 项',
+  bulkStatusActions: '更改状态',
+  bulkOrganizeActions: '整理',
   limitsLabel: '限制',
   none: '无',
   until: '截至 {date}',

@@ -5,6 +5,16 @@ One item in "In Progress" at a time whenever possible.
 
 ---
 
+## ✅ Completed — Admin Operator Console UX critique pass (v0.35.2)
+
+- [x] `/impeccable init` + `document` for `apps/admin`
+- [x] `/impeccable critique` (26/40); live review on `admin.uukk.de`
+- [x] P0–P3 fixes: distill / quieter / brand shell / nav Create / Login+Overview primitives
+- [x] Release metadata 0.35.2 + CHANGELOG
+- [ ] Commit / deploy / GitHub Release when owner requests
+
+---
+
 ## ✅ Completed — R2 backup known-length put + 3-day schedule (v0.35.1)
 
 - [x] Diagnose all-failed Backups list (scheduled 02:00 CST): R2 `put` rejects TransformStream

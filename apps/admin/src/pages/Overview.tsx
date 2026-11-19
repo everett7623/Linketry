@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Link2, MousePointerClick, TrendingUp, Plus, ExternalLink, Copy } from 'lucide-react';
 import { getOverview } from '../api/links';
 import { getSettings } from '../api/settings';
 import { StatusBadge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
+import { BrandMark } from '../components/BrandMark';
 import { buildShortUrl } from '../utils/shortUrl';
 import type { Link as LinkType } from '@linketry/shared';
 import dayjs from 'dayjs';
@@ -102,6 +104,7 @@ export function Overview() {
   const [loading, setLoading] = useState(true);
   const { error } = useToast();
   const { t } = useLocale();
+  const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all([getOverview(), getSettings()])
@@ -123,42 +126,46 @@ export function Overview() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-100">{t('overview')}</h1>
-          <p className="text-sm text-slate-400 mt-0.5">{t('dashboardSubtitle')}</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-100">{t('overview')}</h1>
+          <p className="mt-1 text-sm text-slate-400">{t('dashboardSubtitle')}</p>
+          {defaultDomain ? (
+            <p className="mt-2 font-mono text-xs text-brand-400/90">
+              {t('overviewDomainLabel', { domain: defaultDomain })}
+            </p>
+          ) : null}
         </div>
-        <Link
-          to="/links/create"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition-colors"
+        <Button
+          icon={<Plus size={16} aria-hidden="true" />}
+          onClick={() => navigate('/links/create')}
         >
-          <Plus size={16} aria-hidden="true" /> {t('createLink')}
-        </Link>
+          {t('createLink')}
+        </Button>
       </div>
 
       {(stats?.totalLinks ?? 0) === 0 && (
         <div className="rounded-xl border border-dashed border-slate-700 bg-slate-900/60 px-6 py-10 text-center">
+          <div className="mx-auto mb-4 w-fit rounded-2xl shadow-lg shadow-brand-600/20">
+            <BrandMark size="md" />
+          </div>
           <h2 className="text-lg font-semibold text-slate-100">{t('overviewEmptyTitle')}</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">{t('overviewEmptyHint')}</p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/links/create"
-              className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+            <Button
+              icon={<Plus size={16} aria-hidden="true" />}
+              onClick={() => navigate('/links/create')}
             >
-              <Plus size={16} aria-hidden="true" />
               {t('createLink')}
-            </Link>
-            <Link
-              to="/setup"
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-slate-600 hover:bg-slate-800"
-            >
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/setup')}>
               {t('setup')}
-            </Link>
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Stats */}
+      {/* Stats — Operator Indigo wells only (One Voice); status hues stay on badges/data. */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard
           label={t('totalLinks')}
@@ -169,14 +176,14 @@ export function Overview() {
         <StatCard
           label={t('totalClicks')}
           value={stats?.totalClicks ?? 0}
-          icon={<MousePointerClick size={16} className="text-emerald-400" />}
-          color="bg-emerald-500/10"
+          icon={<MousePointerClick size={16} className="text-brand-400" />}
+          color="bg-brand-500/10"
         />
         <StatCard
           label={t('todayClicks')}
           value={stats?.todayClicks ?? 0}
-          icon={<TrendingUp size={16} className="text-yellow-400" />}
-          color="bg-yellow-500/10"
+          icon={<TrendingUp size={16} className="text-brand-400" />}
+          color="bg-brand-500/10"
         />
       </div>
 

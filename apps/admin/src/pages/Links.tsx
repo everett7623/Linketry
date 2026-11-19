@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   listLinks,
@@ -52,6 +52,7 @@ function normalizePageParam(value: string | null): number {
 
 export function Links() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [result, setResult] = useState<PaginatedResult<LinkType> | null>(null);
   const [loading, setLoading] = useState(true);
   const [defaultDomain, setDefaultDomain] = useState('');
@@ -317,9 +318,9 @@ export function Links() {
             {result ? t('linksCount', { count: result.total.toLocaleString(locale) }) : '—'}
           </p>
         </div>
-        <Link to="/links/create">
-          <Button icon={<Plus size={16} />}>{t('createLink')}</Button>
-        </Link>
+        <Button icon={<Plus size={16} />} onClick={() => navigate('/links/create')}>
+          {t('createLink')}
+        </Button>
       </div>
 
       <LinkFilterBar
@@ -370,11 +371,9 @@ export function Links() {
         ) : result?.items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 gap-3">
             <p className="text-slate-400">{t('noLinksFound')}</p>
-            <Link to="/links/create">
-              <Button size="sm" icon={<Plus size={14} />}>
-                {t('createFirstLink')}
-              </Button>
-            </Link>
+            <Button size="sm" icon={<Plus size={14} />} onClick={() => navigate('/links/create')}>
+              {t('createFirstLink')}
+            </Button>
           </div>
         ) : linkView === 'cards' ? (
           <LinkCardGrid

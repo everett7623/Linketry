@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.35.2] - 2026-11-19
+
+### Changed
+
+- Admin Operator Console UX pass from critique: Links row actions collapse to Copy / Edit plus an accessible overflow menu; Advanced filters start collapsed on desktop; bulk actions group into Status / Organize + Delete; sidebar Create Link removed in favor of page CTAs; Overview/Login use shared `Button`/`Input` primitives with a clearer brand lockup (Logo halo, operator console label, One Voice stat wells).
+
+### Documentation
+
+- Added `apps/admin/PRODUCT.md`, `DESIGN.md`, and `.impeccable/design.json` for the Admin design system (The Operator Console).
+
 ## [0.35.1] - 2026-11-12
 
 ### Fixed

@@ -130,7 +130,9 @@ function LayoutContent() {
           >
             <Menu size={20} aria-hidden="true" />
           </button>
-          <span className="truncate text-sm font-semibold text-slate-100">Linketry</span>
+          <span className="truncate text-sm font-semibold text-slate-100">
+            {pageLabel ? t(pageLabel) : 'Linketry'}
+          </span>
         </div>
         <DemoModeBanner />
         <UpdateBanner update={updateCheck.update} onDismiss={updateCheck.dismiss} />

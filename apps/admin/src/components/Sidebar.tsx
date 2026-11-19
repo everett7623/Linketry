@@ -57,9 +57,18 @@ export function Sidebar({ collapsed = false, mobile = false, onClose, onNavigate
               collapsed && !mobile && 'justify-center'
             )}
           >
-            <BrandMark size="sm" />
+            <div className="shrink-0 rounded-lg shadow-lg shadow-brand-600/20">
+              <BrandMark size="sm" />
+            </div>
             {!collapsed && (
-              <span className="truncate text-lg font-bold leading-5 text-slate-100">Linketry</span>
+              <div className="min-w-0">
+                <span className="block truncate text-lg font-bold leading-5 tracking-tight text-slate-100">
+                  Linketry
+                </span>
+                <span className="mt-0.5 block truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  {t('operatorConsole')}
+                </span>
+              </div>
             )}
           </div>
           {mobile && (

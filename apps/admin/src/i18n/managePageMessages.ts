@@ -174,6 +174,8 @@ export const managePageMessages = {
   hasLimits: 'Has Limits',
   noLimits: 'No Limits',
   selectedCount: '{count} selected',
+  bulkStatusActions: 'Change status',
+  bulkOrganizeActions: 'Organize',
   limitsLabel: 'Limits',
   none: 'None',
   until: 'Until {date}',

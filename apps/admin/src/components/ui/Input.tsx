@@ -5,9 +5,10 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   hint?: string;
+  trailing?: React.ReactNode;
 }
 
-export function Input({ label, error, hint, className, id, ...props }: InputProps) {
+export function Input({ label, error, hint, trailing, className, id, ...props }: InputProps) {
   const generatedId = React.useId().replace(/:/g, '');
   const inputId = id ?? `input-${generatedId}`;
   const errorId = `${inputId}-error`;
@@ -23,18 +24,24 @@ export function Input({ label, error, hint, className, id, ...props }: InputProp
           {label}
         </label>
       )}
-      <input
-        id={inputId}
-        {...props}
-        aria-describedby={describedBy}
-        aria-invalid={error ? true : props['aria-invalid']}
-        className={clsx(
-          'w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 transition-colors',
-          'focus:outline-hidden focus:ring-2 focus:ring-brand-500 focus:border-transparent',
-          error ? 'border-red-500 focus:ring-red-500' : 'border-slate-700 hover:border-slate-600',
-          className
-        )}
-      />
+      <div className={trailing ? 'relative' : undefined}>
+        <input
+          id={inputId}
+          {...props}
+          aria-describedby={describedBy}
+          aria-invalid={error ? true : props['aria-invalid']}
+          className={clsx(
+            'w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 transition-colors',
+            'focus:outline-hidden focus:ring-2 focus:ring-brand-500 focus:border-transparent',
+            error ? 'border-red-500 focus:ring-red-500' : 'border-slate-700 hover:border-slate-600',
+            trailing && 'pr-10',
+            className
+          )}
+        />
+        {trailing ? (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">{trailing}</div>
+        ) : null}
+      </div>
       {error && (
         <p id={errorId} role="alert" className="text-xs text-red-400">
           {error}
