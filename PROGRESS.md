@@ -6,6 +6,11 @@ Last updated: 2026-11-19
 
 ---
 
+## Restore Links full action strip — v0.35.3
+
+- Owner reported the v0.35.2 overflow “more” menu broke Links row operations; restored the full horizontal icon strip on table/cards.
+- Deployed `dd3ac99`: production `44564828831`, Demo `44564593178`, site `44564836642`. Live `/health` and Admin meta `0.35.3`. [Release v0.35.3](https://github.com/everett7623/Linketry/releases/tag/v0.35.3).
+
 ## Admin Operator Console UX critique pass — v0.35.2
 
 - Baseline: production Admin `admin.uukk.de` at v0.35.1; Impeccable init/document for `apps/admin`, then critique 26/40.
@@ -176,14 +181,14 @@ Last updated: 2026-11-19
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.35.2 live | Production/Demo `/health` report 0.35.2 |
-| Admin frontend             | ✅ 0.35.2 live | `admin.uukk.de` meta `0.35.2`; Operator Console UX pass |
-| Documentation              | ✅ 0.35.2 synchronized | PRODUCT/DESIGN + CHANGELOG for Admin UX |
-| Deployment                 | ✅ 0.35.2 live | Production `44562490108`, Demo `44562423882`, site `44562498421` on `743aa2d` |
+| Worker backend             | ✅ 0.35.3 live | Production/Demo `/health` report 0.35.3 |
+| Admin frontend             | ✅ 0.35.3 live | Links full action strip restored; meta `0.35.3` |
+| Documentation              | ✅ 0.35.3 synchronized | CHANGELOG for action-strip restore |
+| Deployment                 | ✅ 0.35.3 live | Production `44564828831`, Demo `44564593178`, site `44564836642` on `dd3ac99` |
 | End-to-end test            | ✅ 0.34.0 live | Health/version on all tracks, production 401/404 (OpenAPI and docs included), `/health` preflight 204, sign-in 400/401 without a bearer header, Demo `qr-style` read 200 and write 403, Tailwind CSS 4.3.3 stylesheet on all three Admin hosts verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1; H5 fixed in 0.33.2; H3 resolved and H7 recorded in 0.34.0 |
-| Current version            | ✅ 0.35.2 | Source, production, Demo and site version parity; GitHub Release v0.35.2 is Latest |
-| Repository update target   | ✅ 0.35.2 | Production `44562490108` / Demo `44562423882` / site `44562498421` on `743aa2d` |
+| Current version            | ✅ 0.35.3 | Source, production, Demo and site version parity; GitHub Release v0.35.3 is Latest |
+| Repository update target   | ✅ 0.35.3 | Production `44564828831` / Demo `44564593178` / site `44564836642` on `dd3ac99` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Wrangler upgrade blocked by H7, audit P3, Releases, release checklist, D1 timeout and fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | [Official-vendor comparison](docs/MAINSTREAM_SHORT_LINK_GAP_AUDIT.md) prioritizes URL semantics, mobile deep links, and QR branding without expanding the redirect hot path                         |
