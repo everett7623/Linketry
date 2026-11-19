@@ -94,7 +94,6 @@ export const corePageMessages = {
   status: 'Status',
   created: 'Created',
   actions: 'Actions',
-  moreLinkActions: 'More actions for /{slug}',
   copy: 'Copy',
   open: 'Open',
   qrCode: 'QR Code',

@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.35.3] - 2026-11-19
+
+### Fixed
+
+- Admin Links table/card row actions again show the full horizontal icon strip (copy, open, QR, analytics, edit, enable/disable, archive/restore, delete). The overflow “more” menu introduced in 0.35.2 caused layout/interaction errors and is removed.
+
 ## [0.35.2] - 2026-11-19
 
 ### Changed

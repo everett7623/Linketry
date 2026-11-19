@@ -93,7 +93,6 @@ export const corePageMessages = {
   status: '状态',
   created: '创建时间',
   actions: '操作',
-  moreLinkActions: '/{slug} 的更多操作',
   copy: '复制',
   open: '打开',
   qrCode: '二维码',

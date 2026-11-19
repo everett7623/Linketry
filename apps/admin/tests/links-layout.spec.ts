@@ -77,21 +77,16 @@ test('desktop Links table keeps row actions and created dates readable at 1440 p
   // 冷启动 dev server 下的首次数据渲染，与其他首屏断言一样放宽到 15 秒
   await expect(table.locator('tbody tr')).toHaveCount(links.length, { timeout: 15_000 });
   await expect(table.getByRole('columnheader', { name: messages.en.actions })).toBeInViewport({ ratio: 1 });
-  const moreActions = table.getByRole('button', {
-    name: messages.en.moreLinkActions.replace('{slug}', links[0].slug),
-  });
-  await expect(moreActions).toBeInViewport({ ratio: 1 });
-  await moreActions.click();
-  await expect(table.getByRole('menuitem', { name: messages.en.delete })).toBeVisible();
+  await expect(table.getByRole('button', { name: messages.en.delete }).first()).toBeInViewport({ ratio: 1 });
 
   const layout = await table.evaluate((element) => {
     const container = element.parentElement!.getBoundingClientRect();
     const rows = [...element.querySelectorAll('tbody tr')];
     return {
       containerRight: container.right,
-      // The overflow trigger is the last resting control in every row's action cluster.
+      // The delete button is the last control in every row's action cluster.
       actionRights: rows.map((row) => {
-        const buttons = row.querySelectorAll('td:last-child button[aria-haspopup="menu"]');
+        const buttons = row.querySelectorAll('td:last-child button');
         return buttons[buttons.length - 1].getBoundingClientRect().right;
       }),
       createdLineCounts: rows.map((row) => {
