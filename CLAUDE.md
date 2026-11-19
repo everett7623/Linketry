@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **最后更新**：2026-11-19 
 **当前版本**：v0.35.2
-**生产版本**：v0.35.1
+**生产版本**：v0.35.2
 
 版本权威以根目录 `package.json` 与 `PROGRESS.md` 为准。详细 Agent 规则见 `AGENTS.md`。
 

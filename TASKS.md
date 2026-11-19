@@ -11,7 +11,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] `/impeccable critique` (26/40); live review on `admin.uukk.de`
 - [x] P0–P3 fixes: distill / quieter / brand shell / nav Create / Login+Overview primitives
 - [x] Release metadata 0.35.2 + CHANGELOG
-- [ ] Commit / deploy / GitHub Release when owner requests
+- [x] Commit/push `ba4246e` + pin fix `743aa2d`; Demo `44562423882`, production `44562490108`, site `44562498421`; Release `v0.35.2`
 
 ---
 
