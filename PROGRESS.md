@@ -13,7 +13,7 @@ Day-to-day: use the **Overall Status** table and the newest release section belo
 - Added `docs/README.md`; removed `DEVELOPMENT_GUIDE.md` / `I18N_AUDIT.md`; merged deploy/Shlink/gap docs; slimmed `CONTRIBUTING.md`.
 - Root `DEPLOYMENT.md` / `CUTOVER.md` are stubs; cutover body lives in `docs/CUTOVER.md`.
 - Local-only (gitignored, not on GitHub): `.codex/`, `docs/archive/`, Admin `PRODUCT.md` / `DESIGN.md` / `.impeccable/`.
-- Synchronized release metadata to 0.35.4. Live tracks remain on 0.35.3 until deploy.
+- Deployed `6ea298d`: production `44756087913`, Demo `44756060838`, site `44756119755`. [Release v0.35.4](https://github.com/everett7623/Linketry/releases/tag/v0.35.4).
 
 ## Restore Links full action strip — v0.35.3
 
@@ -190,14 +190,14 @@ Day-to-day: use the **Overall Status** table and the newest release section belo
 
 | Layer                      | Status                | Notes                                                                                                                                                                                               |
 | -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Worker backend             | ✅ 0.35.3 live | Production/Demo `/health` still report 0.35.3 until 0.35.4 deploy |
-| Admin frontend             | ✅ 0.35.3 live | Source bumped to 0.35.4 (docs cleanup); live meta still 0.35.3 |
-| Documentation              | ✅ 0.35.4 synchronized | `docs/README.md` map; removed duplicate/stale guides |
-| Deployment                 | 🟡 0.35.3 live / 0.35.4 source | Awaiting deploy of documentation release |
+| Worker backend             | ✅ 0.35.4 live | Production/Demo deployed on `6ea298d` |
+| Admin frontend             | ✅ 0.35.4 live | Docs consolidation release |
+| Documentation              | ✅ 0.35.4 synchronized | `docs/README.md` map; internal MD gitignored |
+| Deployment                 | ✅ 0.35.4 live | Production `44756087913`, Demo `44756060838`, site `44756119755` |
 | End-to-end test            | ✅ 0.34.0 live | Health/version on all tracks, production 401/404 (OpenAPI and docs included), `/health` preflight 204, sign-in 400/401 without a bearer header, Demo `qr-style` read 200 and write 403, Tailwind CSS 4.3.3 stylesheet on all three Admin hosts verified |
 | Known issues               | 🟡 Tracked            | Hardening items closed in 0.31.0/0.31.1/0.31.4/0.31.5; Pre-1.0 external evidence gates remain in `docs/KNOWN_ISSUES.md` / `docs/AT_AUDIT_CHECKLIST.md`; H4 narrowed and H5 recorded in 0.33.0; H6 fixed in 0.33.1; H5 fixed in 0.33.2; H3 resolved and H7 recorded in 0.34.0 |
-| Current version            | ✅ 0.35.4 source | Live tracks still 0.35.3; GitHub Release v0.35.3 remains Latest until 0.35.4 ships |
-| Repository update target   | 🟡 0.35.4 | Source ready; production/Demo/site deploy pending |
+| Current version            | ✅ 0.35.4 | Source, production, Demo and site version parity; GitHub Release v0.35.4 is Latest |
+| Repository update target   | ✅ 0.35.4 | Production `44756087913` / Demo `44756060838` / site `44756119755` on `6ea298d` |
 | Next planned work          | 🟡 Pre-1.0 validation | Fresh-account rehearsal evidence, remote-D1 scale evidence, screen-reader AT pass, Demo optional R2; post-v0.33.0 items (Wrangler upgrade blocked by H7, audit P3, Releases, release checklist, D1 timeout and fallback visit queueing H4, Worker module size, production `LINKETRY_IP_HASH_SECRET`) in `TASKS.md` Next |
 | Shlink migration readiness | ✅ Complete           | Shlink imports preserve original short domains from `shortUrl`; stored links can then be migrated from a legacy domain such as `s.y8o.de` to a new domain                                           |
 | Mainstream-tool gap audit  | ✅ Complete           | Compatibility priorities live in [PRODUCT_GAP_AUDIT.md](docs/PRODUCT_GAP_AUDIT.md) (URL semantics, mobile deep links, QR branding; redirect hot path unchanged)                         |

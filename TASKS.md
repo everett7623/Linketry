@@ -12,7 +12,7 @@ One item in "In Progress" at a time whenever possible.
 - [x] Doc map + delete duplicate/stale guides; merge deploy / Shlink / gap audits
 - [x] Slim `CONTRIBUTING.md`; archive PERFORMANCE locally; gitignore internal agent/design MD
 - [x] Release metadata 0.35.4 + CHANGELOG
-- [ ] Commit / push / deploy / GitHub Release `v0.35.4`
+- [x] Commit/push `6ea298d`; production `44756087913`, Demo `44756060838`, site `44756119755`; Release `v0.35.4`
 
 ---
 

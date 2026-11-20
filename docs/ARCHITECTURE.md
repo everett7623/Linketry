@@ -4,7 +4,7 @@ This document describes the current runtime architecture. It is derived from the
 
 **Last updated**: 2026-11-20  
 **Current version**: v0.35.4
-**Production version**: v0.35.3
+**Production version**: v0.35.4
 
 ---
 
