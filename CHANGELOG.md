@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.35.4] - 2026-11-20
+
+### Documentation
+
+- Added `docs/README.md` as the day-to-day documentation map; linked from README, `AGENTS.md`, and `CLAUDE.md`.
+- Removed superseded root `DEVELOPMENT_GUIDE.md` and stale `docs/I18N_AUDIT.md`.
+- Merged root deployment runbook into the self-hosting guides (root `DEPLOYMENT.md` is now an index); moved cutover body to `docs/CUTOVER.md`.
+- Folded Shlink import/migration guides into `docs/IMPORT_ADAPTERS.md` and `docs/CUTOVER.md`; folded competitor gap snapshots into `docs/PRODUCT_GAP_AUDIT.md`.
+- Slimmed `docs/CONTRIBUTING.md` to templates plus pointers.
+- Stopped publishing local-only agent/design notes: `.codex/`, `docs/archive/` (includes former `PERFORMANCE.md`), Admin `PRODUCT.md` / `DESIGN.md` / `.impeccable/` are gitignored.
+- Refreshed version stamps and deployment examples to 0.35.4.
+
 ## [0.35.3] - 2026-11-19
 
 ### Fixed

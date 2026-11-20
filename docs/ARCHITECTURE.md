@@ -2,9 +2,9 @@
 
 This document describes the current runtime architecture. It is derived from the deployed Worker, Admin route tree, D1 migrations, and maintained operational documents. Historical plans are useful for product intent, but they do not override this document or the code.
 
-**Last updated**: 2026-10-31  
-**Current version**: v0.35.2
-**Production version**: v0.35.0
+**Last updated**: 2026-11-20  
+**Current version**: v0.35.4
+**Production version**: v0.35.3
 
 ---
 
@@ -173,6 +173,10 @@ Schema sources are `migrations/0001_init.sql`, `migrations/0002_analytics_depth.
 | Webhook or notification unavailable     | Keep the initiating operation successful |
 | R2 unavailable                          | Keep core D1/KV operation available      |
 | GitHub update check unavailable         | Keep Admin available                     |
+
+## Performance notes
+
+Historical Chinese performance cookbook text (if present) is local-only under `docs/archive/` and is not published in the GitHub tree. Current cache/TTL and async analytics behavior are documented in this file and in [ANALYTICS.md](ANALYTICS.md).
 
 ## Extension Boundaries
 

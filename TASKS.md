@@ -3,6 +3,17 @@
 Track active work items here. Move items between sections as they progress.
 One item in "In Progress" at a time whenever possible.
 
+**Active:** see [Next — Remaining work after v0.35.0](#-next--remaining-work-after-v0350-updated-2026-11-12) below. Completed sections are a journal.
+
+---
+
+## ✅ Completed — Developer documentation consolidation (v0.35.4)
+
+- [x] Doc map + delete duplicate/stale guides; merge deploy / Shlink / gap audits
+- [x] Slim `CONTRIBUTING.md`; archive PERFORMANCE locally; gitignore internal agent/design MD
+- [x] Release metadata 0.35.4 + CHANGELOG
+- [ ] Commit / push / deploy / GitHub Release `v0.35.4`
+
 ---
 
 ## ✅ Completed — Admin Operator Console UX critique pass (v0.35.2)
@@ -248,7 +259,9 @@ Task record: `.codex/tasks/audit-optimization-2026-10-13.md`
 
 ---
 
-## 🟡 In Progress — Residual Hardening (v0.31.5)
+## ✅ Completed — Residual Hardening (v0.31.5)
+
+Shipped hardening items below are done. Remaining Pre-1.0 evidence bullets stay tracked under [Next](#-next--remaining-work-after-v0350-updated-2026-11-12).
 
 - [x] Cap PBKDF2 iterations / hex size on the public password gate; reject hostile hashes on import/restore
 - [x] Stream R2 backups with the same paged JSON as `/export/backup.json`
@@ -260,12 +273,6 @@ Task record: `.codex/tasks/audit-optimization-2026-10-13.md`
 - [x] Synchronize v0.31.5 release metadata
 - [x] Deploy v0.31.5 via protected production (`35355841144`), Demo (`35355826954`), and project-site (`35355847328`) workflows
 - [x] Verify v0.31.5 parity: `go.uukk.de`, `admin.uukk.de`, `demoapi.linketry.com`, and `linketry.com`
-- [ ] Complete screen-reader AT pass (NVDA, VoiceOver, or TalkBack) against Admin and Demo
-- [ ] Archive fresh-account Quick Deploy rehearsal evidence in PROGRESS
-- [ ] Optional: Demo R2 (`10042`) when isolated account capability allows
-- [ ] Optional: remote-D1 scale evidence for public 1.0
-
-Task records: `.codex/tasks/residual-hardening-2026-09-18.md`, `.codex/tasks/repo-audit-fixes-2026-08-28.md`, `.codex/tasks/deep-optimization-2026-08-07.md`
 
 ---
 

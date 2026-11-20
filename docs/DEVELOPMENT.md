@@ -2,9 +2,9 @@
 
 This guide explains how to make safe, maintainable changes to Linketry. Read docs/ARCHITECTURE.md first for runtime behavior and failure boundaries.
 
-**Last updated**: 2026-10-31  
-**Current version**: v0.35.2
-**Production version**: v0.35.0
+**Last updated**: 2026-11-20  
+**Current version**: v0.35.4
+**Production version**: v0.35.3
 
 Version authority: root `package.json` and `PROGRESS.md`. Capability matrix: `AGENTS.md`.
 
@@ -285,8 +285,11 @@ For a release from `main`:
 | Document                     | Authority                                       |
 | ---------------------------- | ----------------------------------------------- |
 | README.md                    | Product introduction and quick entry points     |
+| docs/README.md               | Day-to-day documentation map                    |
 | docs/ARCHITECTURE.md         | Current runtime design and failure boundaries   |
 | docs/DEVELOPMENT.md          | Contributor workflow and verification           |
+| docs/CONTRIBUTING.md         | Chinese PR/issue templates                      |
+| docs/CUTOVER.md              | Legacy short-domain cutover                     |
 | docs/API.md                  | Human-readable API contract                     |
 | /api/v1/openapi.json         | Machine-readable API contract                   |
 | docs/SELF_HOSTING.md         | First-time self-hosting                         |

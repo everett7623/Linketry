@@ -27,6 +27,32 @@ export interface ImportAdapter {
 
 Adapters are registered in `apps/worker/src/routes/importRoutes.ts`.
 
+## Shlink (operators)
+
+Admin Import / Export supports Shlink JSON, JSONL, CSV, and authenticated API pull.
+
+1. Export from Shlink, or prepare a temporary Shlink API key.
+2. Open Admin → Import / Export; upload the file or use Fetch Shlink.
+3. Preview, review valid / conflict / invalid rows, then Import.
+4. Admin downloads a pre-import `backup.json` before mutating data. API keys are used only for the fetch and are not stored.
+
+| Shlink field | Linketry field |
+| ------------ | -------------- |
+| `shortCode` | `slug` |
+| `shortUrl` | `short_url` |
+| `shortUrl` hostname | `domain` |
+| `longUrl` | `long_url` |
+| `title` | `title` |
+| `tags` | `tags` |
+| `dateCreated` | `created_at` |
+| `visitsSummary.total` | `clicks` |
+
+Conflict handling is conservative by default: existing slugs are skipped, never overwritten silently; the original `shortCode` and short-domain hostname are preserved. Import jobs keep a downloadable CSV report.
+
+Imported URLs must be `http://` or `https://`. Slugs are `[a-zA-Z0-9_-]` only; reserved paths such as `api`, `admin`, and `health` are rejected.
+
+For DNS cutover after import, use [CUTOVER.md](CUTOVER.md).
+
 ## Generic Field Mapping
 
 Generic CSV and JSON import can accept a `fieldMapping` object in preview and confirm requests. Mapping keys use `NormalizedImportItem` fields such as `slug`, `longUrl`, `title`, `tags`, `createdAt`, `expiresAt`, and `maxClicks`; values are source column or property names.
@@ -70,8 +96,6 @@ Rebrandly follows as a JSON/API target only after its pagination and payload are
 Do not infer another production field contract from an old planning table or a platform name. Before implementation, collect representative current exports, record format/version details, confirm how custom domains and click totals are represented, and define fixtures that contain no credentials or personal data.
 
 Prioritize adapters based on user migration demand and maintainability. A platform-specific adapter should provide more reliable normalization than the Generic importer; otherwise, document a Generic field mapping instead.
-
-The detailed acceptance checklist is tracked in `.codex/tasks/mainstream-import-adapters-2026-07-20.md`.
 
 ## Adding an Adapter
 

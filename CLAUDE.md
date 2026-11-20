@@ -2,8 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**最后更新**：2026-11-19 
-**当前版本**：v0.35.3
+**最后更新**：2026-11-20  
+**当前版本**：v0.35.4
 **生产版本**：v0.35.3
 
 版本权威以根目录 `package.json` 与 `PROGRESS.md` 为准。详细 Agent 规则见 `AGENTS.md`。
@@ -320,7 +320,7 @@ npm run deploy:preflight -- --track fresh --check-cloudflare
 日常发版走 dispatch 最省事，不必改任何仓库变量：
 
 ```bash
-gh workflow run deploy.yml --ref main -f confirm_release=true -f expected_release=0.35.2 -f expected_commit=<40位SHA>
+gh workflow run deploy.yml --ref main -f confirm_release=true -f expected_release=0.35.4 -f expected_commit=<40位SHA>
 ```
 
 #### `[skip production]` 只跳过生产
@@ -447,6 +447,7 @@ interface ImportAdapter {
 
 | 文档 | 内容 |
 |------|------|
+| `docs/README.md` | 开发文档地图（按用途索引） |
 | `docs/ARCHITECTURE.md` | 重定向路径、运行时组件、故障边界 |
 | `docs/DEVELOPMENT.md` | 代码放置、安全工作流、验证、发布规范 |
 | `docs/API.md` | 认证路由行为和示例 |
@@ -456,8 +457,8 @@ interface ImportAdapter {
 | `docs/ANALYTICS.md` | 追踪、隐私、报告 |
 | `AGENTS.md` | AI agent 指令 |
 | `docs/TROUBLESHOOTING.md` | 常见故障排查 |
-| `.codex/tasks/*.md` | 历次任务记录（做了什么、遗留什么） |
-| `.codex/references/case-*.md` | **线上事故根因案例库**——排查 Admin 升级卡死、Pages 缓存、CORS、GitHub Actions environment 等问题前先翻这里 |
+
+本地未发布（已 gitignore）：`.codex/` 任务与事故笔记、`docs/archive/`、Admin `PRODUCT.md` / `DESIGN.md` / `.impeccable/`。
 
 ---
 

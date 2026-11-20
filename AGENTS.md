@@ -2,8 +2,8 @@
 
 This file tells AI coding agents (Cascade, Codex, Copilot, etc.) how to work on this codebase safely and correctly.
 
-**Last updated**: 2026-11-19
-**Current version**: v0.35.3
+**Last updated**: 2026-11-20
+**Current version**: v0.35.4
 **Production version**: v0.35.3
 
 Version authority: root `package.json` and `PROGRESS.md`. Prefer those over older stamps in historical docs.
@@ -114,10 +114,13 @@ Every deployed release also gets its GitHub Release: once production, the Demo a
 
 ## Current State
 
+See `docs/README.md` for the day-to-day documentation map.
 See `PROGRESS.md` for what is built and what is pending.
 See `TASKS.md` for the active task list.
 See `docs/KNOWN_ISSUES.md` for open hardening / limitations.
 See `docs/ROADMAP.md` for product sequencing.
+
+Local-only (gitignored, not published): `.codex/` agent task/case notes, `docs/archive/`, and Admin `PRODUCT.md` / `DESIGN.md` / `.impeccable/`.
 
 ---
 

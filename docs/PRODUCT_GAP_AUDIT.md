@@ -2,7 +2,7 @@
 
 Updated: 2026-10-19
 
-This document tracks what Linketry still needs as a practical open-source, self-hosted short-link platform. It complements `ROADMAP.md`, `SHLINK_FEATURE_GAP.md`, and `SINK_COMPARISON.md` without weakening redirect stability.
+This document tracks what Linketry still needs as a practical open-source, self-hosted short-link platform. It complements `ROADMAP.md` without weakening redirect stability. Competitor snapshots were folded into the sections below.
 
 **Authority note:** For current shipped capability and versions, prefer `PROGRESS.md`, root `package.json`, and `AGENTS.md`. Historical sections below may describe older milestones.
 
@@ -204,9 +204,22 @@ Bitly and Short.io CSV are complete in v0.28.0. Add Rebrandly and TinyURL only w
 - No synchronous destination probe, webhook, analytics query, or AI call in the redirect response path
 - No multi-tenant billing or hosted-SaaS dependency in the core self-hosted edition
 - No email tracking pixel by default
-- No iframe cloaking
+- No iframe cloaking / URL cloaking
+- No link-in-bio / link-gallery publishing product in the core redirect release path
 - No storage of raw visitor IP addresses
 - No silent destructive cleanup or migration
+- No team/workspace RBAC before explicit V10 work
+- Basic edition does not require three custom hostnames, R2, Queues, AI, or client integrations for first deploy
+
+## Compatibility Priorities (from market audits)
+
+After Pre-1.0 evidence gates, prefer redirect-safe compatibility work in this order:
+
+1. Multi-segment slugs and opt-in query/extra-path forwarding (exact-match defaults preserved)
+2. Mobile deep links with explicit iOS/Android/web fallbacks resolved locally (no synchronous upstream call)
+3. Branded QR studio and separately labeled scan attribution (encoded short URL never changes with visual style)
+4. Privacy-safe conversion attribution and domain/ownership-scoped API tokens
+5. Optional Cloudflare Access; API-based clients only after OpenAPI/deployment gates stay stable
 
 ## Conversion Metric Contract
 

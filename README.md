@@ -96,6 +96,7 @@ linketry/
 
 ## Developer Documentation
 
+- [Documentation map](docs/README.md) — day-to-day index of all maintained guides
 - [Architecture](docs/ARCHITECTURE.md) — current redirect path, runtime components, data ownership, and failure boundaries
 - [Development guide](docs/DEVELOPMENT.md) — code placement, safe workflow, verification, and release hygiene
 - [API contract](docs/API.md) — authenticated route behavior and examples
@@ -173,7 +174,7 @@ GitHub Actions production runs are additionally bound to an approved release ver
 
 Deployed Admin instances expose a safe **Online upgrade** action when a newer version is available. With the optional Worker-side GitHub update secret, the Admin can trigger its fixed repository's protected **Deploy Linketry** workflow, follow the run, verify the new `/health` version, and reload itself. Without that secret it falls back to opening the workflow for manual confirmation. Existing migration, backup, target, and resource gates still run before any Cloudflare write, and no GitHub or Cloudflare credential is stored in the browser.
 
-This repository also keeps a maintainer production runbook in [DEPLOYMENT.md](DEPLOYMENT.md).
+Deployment entry points are indexed in [DEPLOYMENT.md](DEPLOYMENT.md); full steps are in [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
 
 ### 1. Create Required D1 And KV Resources
 
@@ -308,7 +309,7 @@ For migrations or strict operational isolation, keep `go.example.com` as the sta
 
 ## Shlink Import
 
-See [docs/IMPORT_SHLINK.md](docs/IMPORT_SHLINK.md) for the full import guide.
+See the Shlink section in [docs/IMPORT_ADAPTERS.md](docs/IMPORT_ADAPTERS.md).
 
 Quick steps:
 
@@ -324,7 +325,7 @@ Imported short-link domains are preserved too. To change every imported link fro
 
 ## Migration from Shlink
 
-See [docs/MIGRATION_FROM_SHLINK.md](docs/MIGRATION_FROM_SHLINK.md).
+See [docs/CUTOVER.md](docs/CUTOVER.md) for the fill-in checklist and migration timeline.
 
 **Summary:**
 

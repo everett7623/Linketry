@@ -15,3 +15,10 @@ apps/demo-api/wrangler.jsonc
 *.db-journal
 *.sync-conflict-*
 Linketry 完整项目开发文档.md
+
+# Local-only agent / design notes (not published to GitHub)
+.codex/
+docs/archive/
+apps/admin/PRODUCT.md
+apps/admin/DESIGN.md
+apps/admin/.impeccable/
